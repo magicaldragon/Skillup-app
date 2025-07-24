@@ -3,7 +3,7 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore, collection, addDoc, query as fsQuery, where, orderBy, getDocs } from 'firebase/firestore';
 import type { AuditLogEntry } from '../types';
 
-const firebaseConfig = {
+export const firebaseConfig = {
   apiKey: "AIzaSyBfKDCo7PrTevI1XUCY3FvH6bED8AWSnnw",
   authDomain: "skillup-3beaf.firebaseapp.com",
   projectId: "skillup-3beaf",
