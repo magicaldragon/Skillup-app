@@ -3,7 +3,7 @@ import { db } from './services/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
 import type { Student } from './types';
 
-const SettingsPanel = ({ user, isAdmin }: { user: Student, isAdmin: boolean }) => {
+const SettingsPanel = ({ user, isAdmin, onLogout }: { user: Student, isAdmin: boolean, onLogout: () => void }) => {
   const [form, setForm] = useState({
     name: user.name,
     displayName: user.displayName || '',
@@ -107,6 +107,17 @@ const SettingsPanel = ({ user, isAdmin }: { user: Student, isAdmin: boolean }) =
           {loading ? 'Saving...' : 'Save Changes'}
         </button>
       </form>
+      
+      {/* Logout Section */}
+      <div className="mt-8 pt-6 border-t border-gray-200">
+        <h3 className="text-lg font-semibold mb-4 text-gray-800">Account Actions</h3>
+        <button
+          onClick={onLogout}
+          className="px-4 py-2 bg-red-600 text-white rounded shadow hover:bg-red-700 w-full transition-colors"
+        >
+          Logout
+        </button>
+      </div>
     </div>
   );
 };

@@ -3,7 +3,7 @@
 // Shows all sections for teachers/admins, limited for students
 // Modern design, clear icons, and role-based logic
 import React from 'react';
-import { FaChalkboardTeacher, FaBook, FaUserGraduate, FaClipboardList, FaUsers, FaTasks, FaUserEdit, FaUserPlus, FaUserCheck, FaChartBar, FaHome, FaClipboardCheck, FaClipboard, FaUser, FaCheckCircle, FaTimesCircle, FaListAlt, FaMicrophone, FaPen, FaBookOpen, FaUserCog, FaFolderOpen, FaHourglassHalf, FaUserShield, FaUserTie, FaUserFriends, FaGem, FaArchive } from 'react-icons/fa';
+import { FaChalkboardTeacher, FaBook, FaUserGraduate, FaClipboardList, FaUsers, FaTasks, FaUserEdit, FaUserPlus, FaUserCheck, FaChartBar, FaHome, FaClipboardCheck, FaClipboard, FaUser, FaCheckCircle, FaTimesCircle, FaListAlt, FaMicrophone, FaPen, FaBookOpen, FaUserCog, FaFolderOpen, FaHourglassHalf, FaUserShield, FaUserTie, FaUserFriends, FaGem, FaArchive, FaSignOutAlt } from 'react-icons/fa';
 
 const menuConfig = (role: string) => [
   {
@@ -61,7 +61,7 @@ const menuConfig = (role: string) => [
   },
 ];
 
-const Sidebar = ({ role, activeKey, onNavigate }: { role: string, activeKey: string, onNavigate: (key: string) => void }) => {
+const Sidebar = ({ role, activeKey, onNavigate, onLogout }: { role: string, activeKey: string, onNavigate: (key: string) => void, onLogout?: () => void }) => {
   const menu = menuConfig(role);
   return (
     <aside className="w-64 min-h-screen bg-white border-r flex flex-col transition-all duration-500">
@@ -98,14 +98,22 @@ const Sidebar = ({ role, activeKey, onNavigate }: { role: string, activeKey: str
           );
         })}
       </nav>
-      {/* Settings at the bottom */}
-      <div className="mt-auto px-2 pb-4">
+      {/* Settings and Logout at the bottom */}
+      <div className="mt-auto px-2 pb-4 space-y-2">
         <button
           className={`flex items-center gap-3 w-full px-4 py-2 rounded-lg text-left font-semibold transition-all duration-300 ${activeKey === 'settings' ? 'bg-green-100 text-[#307637] scale-[1.03]' : 'hover:bg-slate-100'}`}
           onClick={() => onNavigate('settings')}
         >
           <FaUserCog /> Settings
         </button>
+        {onLogout && (
+          <button
+            className="flex items-center gap-3 w-full px-4 py-2 rounded-lg text-left font-semibold text-red-600 hover:bg-red-50 transition-all duration-300"
+            onClick={onLogout}
+          >
+            <FaSignOutAlt /> Logout
+          </button>
+        )}
       </div>
     </aside>
   );

@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { auth } from './services/firebase';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { ICONS } from './constants';
+import { hybridAuthService, LoginResponse } from './services/hybridAuthService';
 
-const Login: React.FC = () => {
+interface LoginProps {
+  onLoginSuccess: (user: any) => void;
+}
+
+const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -15,30 +17,21 @@ const Login: React.FC = () => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
+    
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      setFailedAttempts(0); // Reset on success
-      // onAuthStateChanged in App.tsx will handle the rest.
+      const response: LoginResponse = await hybridAuthService.login(email, password);
+      
+      if (response.success && response.user) {
+        setFailedAttempts(0); // Reset on success
+        onLoginSuccess(response.user);
+      } else {
+        setFailedAttempts(prev => prev + 1);
+        setError(response.message || 'Login failed. Please try again.');
+      }
     } catch (err) {
       setFailedAttempts(prev => prev + 1);
-      if (typeof err === 'object' && err !== null && 'code' in err) {
-        const authError = err as { code: string };
-        switch (authError.code) {
-          case 'auth/user-not-found':
-          case 'auth/invalid-credential':
-             setError("Invalid credentials. Please check your details and try again.");
-            break;
-          case 'auth/wrong-password':
-            setError("Incorrect password. Please try again.");
-            break;
-          default:
-            setError("An error occurred. Please try again.");
-            console.error(err);
-        }
-      } else {
-        setError("An unexpected error occurred. Please try again.");
-        console.error(err);
-      }
+      setError("An unexpected error occurred. Please try again.");
+      console.error(err);
     } finally {
       setIsLoading(false);
     }
@@ -95,6 +88,19 @@ const Login: React.FC = () => {
             </button>
           )}
         </form>
+        
+        {/* Demo credentials info - Only show in development */}
+        {(import.meta as any).env?.DEV && (
+          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+            <h3 className="text-sm font-semibold text-blue-800 mb-2">Demo Credentials:</h3>
+            <div className="text-xs text-blue-700 space-y-1">
+              <div><strong>Admin:</strong> skillup-admin@teacher.skillup / Skillup@123</div>
+              <div><strong>Teacher:</strong> teacher-jenny@teacher.skillup / Skillup@123</div>
+              <div><strong>Student 1:</strong> student-alice@student.skillup / Skillup123</div>
+              <div><strong>Student 2:</strong> student-bob@student.skillup / Skillup123</div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

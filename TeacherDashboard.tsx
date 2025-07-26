@@ -8,14 +8,16 @@ import ClassesPanel from './ClassesPanel';
 import AddStudentPanel from './AddStudentPanel';
 import LevelsPanel from './LevelsPanel';
 import WaitingListPanel from './WaitingListPanel';
+import SettingsPanel from './SettingsPanel';
 
-const TeacherDashboard = ({ user, students, assignments, classes, onNavigate, activeKey }: {
+const TeacherDashboard = ({ user, students, assignments, classes, onNavigate, activeKey, onLogout }: {
   user: Student,
   students: Student[],
   assignments: Assignment[],
   classes: StudentClass[],
   onNavigate: (key: string) => void,
-  activeKey: string
+  activeKey: string,
+  onLogout: () => void
 }) => {
   // Example summary metrics (IELTS focus)
   const totalStudents = students.length;
@@ -36,6 +38,8 @@ const TeacherDashboard = ({ user, students, assignments, classes, onNavigate, ac
           <WaitingListPanel students={students} classes={classList} currentUser={user} />
         ) : activeKey === 'levels' ? (
           <LevelsPanel />
+        ) : activeKey === 'settings' ? (
+          <SettingsPanel user={user} isAdmin={user.role === 'admin'} onLogout={onLogout} />
         ) : (
           <>
             <h1 className="text-3xl font-bold mb-2">Dashboard</h1>

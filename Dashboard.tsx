@@ -4,6 +4,7 @@ import AssignmentListPanel from './AssignmentListPanel';
 import SubmissionListPanel from './SubmissionListPanel';
 import SubmissionGradingPanel from './SubmissionGradingPanel';
 import AnalyticsDashboard from './AnalyticsDashboard';
+import SettingsPanel from './SettingsPanel';
 
 interface DashboardProps {
   assignments: Assignment[];
@@ -12,9 +13,12 @@ interface DashboardProps {
   classes: StudentClass[];
   loading?: boolean;
   error?: string | null;
+  user?: Student;
+  activeKey?: string;
+  onLogout?: () => void;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ assignments, submissions, students, classes, loading, error }) => {
+const Dashboard: React.FC<DashboardProps> = ({ assignments, submissions, students, classes, loading, error, user, activeKey, onLogout }) => {
   const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
   const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
@@ -24,6 +28,15 @@ const Dashboard: React.FC<DashboardProps> = ({ assignments, submissions, student
 
   if (loading) return <div className="p-8 text-center text-lg">Loading...</div>;
   if (error) return <div className="p-8 text-center text-red-600 font-semibold">{error}</div>;
+
+  // Handle settings panel
+  if (activeKey === 'settings' && user && onLogout) {
+    return (
+      <div className="max-w-7xl mx-auto p-4">
+        <SettingsPanel user={user} isAdmin={user.role === 'admin'} onLogout={onLogout} />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto p-4">

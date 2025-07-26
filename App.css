@@ -1,0 +1,4 @@
+/* Hide blinking caret in all input fields */
+input:focus {
+  caret-color: transparent;
+} 

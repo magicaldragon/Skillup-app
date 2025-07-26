@@ -88,7 +88,7 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({ 
     const formData = new FormData();
     formData.append('file', file);
     try {
-      const res = await fetch('http://localhost:3001/upload', {
+      const res = await fetch('https://skillup-backend-v6vm.onrender.com/upload', {
         method: 'POST',
         body: formData,
       });

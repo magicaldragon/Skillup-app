@@ -4,14 +4,16 @@
 import React from 'react';
 import Sidebar from './Sidebar';
 import type { Assignment, Submission, Student, StudentClass } from './types';
+import SettingsPanel from './SettingsPanel';
 
-const StudentDashboard = ({ user, assignments, submissions, classes, onNavigate, activeKey }: {
+const StudentDashboard = ({ user, assignments, submissions, classes, onNavigate, activeKey, onLogout }: {
   user: Student,
   assignments: Assignment[],
   submissions: Submission[],
   classes: StudentClass[],
   onNavigate: (key: string) => void,
-  activeKey: string
+  activeKey: string,
+  onLogout: () => void
 }) => {
   // Only show assignments assigned to the student's classes
   const myAssignments = assignments.filter(a => !a.classIds.length || (user.classIds || []).some(cid => a.classIds.includes(cid)));
@@ -22,8 +24,12 @@ const StudentDashboard = ({ user, assignments, submissions, classes, onNavigate,
 
   return (
     <main className="flex-1 p-8 min-h-screen bg-slate-50">
-      <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
-      <div className="text-slate-600 mb-8">Welcome back! Here's a summary of your progress.</div>
+      {activeKey === 'settings' ? (
+        <SettingsPanel user={user} isAdmin={false} onLogout={onLogout} />
+      ) : (
+        <>
+          <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
+          <div className="text-slate-600 mb-8">Welcome back! Here's a summary of your progress.</div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div className="bg-white rounded-xl shadow p-6 flex flex-col items-center">
           <div className="text-slate-500 text-lg mb-2">Total Assignments</div>
@@ -65,6 +71,8 @@ const StudentDashboard = ({ user, assignments, submissions, classes, onNavigate,
           </table>
         </div>
       </div>
+        </>
+      )}
     </main>
   );
 };
