@@ -85,8 +85,21 @@ class UserRegistrationService {
     note?: string;
   }) {
     try {
+      console.log('🔍 [DEBUG] Starting MongoDB user creation...');
+      console.log('🔍 [DEBUG] User data:', userData);
+      
       const token = await this.getAuthToken();
-      const response = await fetch(`${API_BASE_URL}/users`, {
+      console.log('🔍 [DEBUG] Auth token obtained:', token ? 'YES' : 'NO');
+      
+      const url = `${API_BASE_URL}/users`;
+      console.log('🔍 [DEBUG] Making request to:', url);
+      console.log('🔍 [DEBUG] Request headers:', {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      });
+      console.log('🔍 [DEBUG] Request body:', userData);
+      
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -95,33 +108,58 @@ class UserRegistrationService {
         body: JSON.stringify(userData),
       });
 
-      const data = await response.json();
+      console.log('🔍 [DEBUG] Response status:', response.status);
+      console.log('🔍 [DEBUG] Response headers:', Object.fromEntries(response.headers.entries()));
+      
+      const responseText = await response.text();
+      console.log('🔍 [DEBUG] Raw response:', responseText);
+      
+      let data;
+      try {
+        data = JSON.parse(responseText);
+        console.log('🔍 [DEBUG] Parsed JSON response:', data);
+      } catch (parseError) {
+        console.error('🔍 [DEBUG] Failed to parse JSON:', parseError);
+        throw new Error(`Invalid JSON response: ${responseText}`);
+      }
       
       if (!data.success) {
         throw new Error(data.message || 'Failed to create MongoDB user');
       }
       
+      console.log('🔍 [DEBUG] MongoDB user creation successful:', data.user);
       return data.user;
     } catch (error) {
-      console.error('MongoDB user creation error:', error);
+      console.error('🔍 [DEBUG] MongoDB user creation error:', error);
       throw error;
     }
   }
 
   // Get auth token from localStorage or create one for hybrid auth users
   private async getAuthToken(): Promise<string | null> {
+    console.log('🔍 [DEBUG] Getting auth token...');
+    
     // Check if we have a JWT token in localStorage
     const token = localStorage.getItem('authToken');
     if (token) {
+      console.log('🔍 [DEBUG] Found existing auth token');
       return token;
     }
 
+    console.log('🔍 [DEBUG] No existing token, checking Firebase user...');
+    
     // If no JWT token, try to get Firebase ID token and exchange it for JWT
     const user = auth.currentUser;
     if (user) {
+      console.log('🔍 [DEBUG] Firebase user found:', user.email);
       try {
         const idToken = await user.getIdToken();
-        const response = await fetch(`${API_BASE_URL}/auth/firebase-login`, {
+        console.log('🔍 [DEBUG] Got Firebase ID token, exchanging for JWT...');
+        
+        const url = `${API_BASE_URL}/auth/firebase-login`;
+        console.log('🔍 [DEBUG] Making request to:', url);
+        
+        const response = await fetch(url, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -132,17 +170,26 @@ class UserRegistrationService {
           }),
         });
 
+        console.log('🔍 [DEBUG] Firebase login response status:', response.status);
+        
         if (response.ok) {
           const data = await response.json();
+          console.log('🔍 [DEBUG] Firebase login response:', data);
           const jwtToken = data.token;
           localStorage.setItem('authToken', jwtToken);
+          console.log('🔍 [DEBUG] Stored JWT token');
           return jwtToken;
+        } else {
+          console.error('🔍 [DEBUG] Firebase login failed:', response.status, response.statusText);
         }
       } catch (error) {
-        console.error('Error exchanging Firebase token for JWT:', error);
+        console.error('🔍 [DEBUG] Error exchanging Firebase token for JWT:', error);
       }
+    } else {
+      console.log('🔍 [DEBUG] No Firebase user found');
     }
 
+    console.log('🔍 [DEBUG] No auth token available');
     return null;
   }
 
