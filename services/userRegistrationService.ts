@@ -110,20 +110,17 @@ class UserRegistrationService {
 
   // Get auth token from localStorage or create one for hybrid auth users
   private async getAuthToken(): Promise<string | null> {
-    // First try to get existing token
-    const existingToken = localStorage.getItem('skillup_token');
-    if (existingToken) {
-      return existingToken;
+    // Check if we have a JWT token in localStorage
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      return token;
     }
 
-    // If no token exists, try to create one for hybrid auth users
-    try {
-      const firebaseUser = auth.currentUser;
-      if (firebaseUser) {
-        // Get the Firebase ID token
-        const idToken = await firebaseUser.getIdToken();
-        
-        // Call backend to get JWT token
+    // If no JWT token, try to get Firebase ID token and exchange it for JWT
+    const user = auth.currentUser;
+    if (user) {
+      try {
+        const idToken = await user.getIdToken();
         const response = await fetch(`${API_BASE_URL}/auth/firebase-login`, {
           method: 'POST',
           headers: {
@@ -131,22 +128,19 @@ class UserRegistrationService {
           },
           body: JSON.stringify({
             firebaseToken: idToken,
-            email: firebaseUser.email
+            email: user.email,
           }),
         });
 
         if (response.ok) {
           const data = await response.json();
-          if (data.success && data.token) {
-            // Store the JWT token
-            localStorage.setItem('skillup_token', data.token);
-            localStorage.setItem('skillup_user', JSON.stringify(data.user));
-            return data.token;
-          }
+          const jwtToken = data.token;
+          localStorage.setItem('authToken', jwtToken);
+          return jwtToken;
         }
+      } catch (error) {
+        console.error('Error exchanging Firebase token for JWT:', error);
       }
-    } catch (error) {
-      console.error('Error creating JWT token for hybrid auth user:', error);
     }
 
     return null;
