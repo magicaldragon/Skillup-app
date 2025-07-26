@@ -36,7 +36,7 @@ class UserRegistrationService {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            idToken,
+            firebaseToken: idToken,
             email: user.email,
           }),
         });

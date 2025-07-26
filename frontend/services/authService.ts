@@ -27,16 +27,16 @@ class AuthService {
       const idToken = await userCredential.user.getIdToken();
 
       // Exchange Firebase token for JWT
-      const response = await fetch(`${API_BASE_URL}/auth/firebase-login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          idToken,
-          email: credentials.email,
-        }),
-      });
+              const response = await fetch(`${API_BASE_URL}/auth/firebase-login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            firebaseToken: idToken,
+            email: credentials.email,
+          }),
+        });
 
       if (response.ok) {
         const data = await response.json();
