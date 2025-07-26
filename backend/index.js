@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 3000;
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
-  'https://skillup-frontend.onrender.com', // replace with your actual frontend domain if different
+  'https://skillup-frontend-uvt6.onrender.com',
 ];
 
 app.use(cors({
@@ -55,9 +55,9 @@ app.get('/api/test', (req, res) => {
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ 
-    success: false, 
-    message: 'Something went wrong!' 
+  res.status(500).json({
+    success: false,
+    message: 'Something went wrong!'
   });
 });
 
