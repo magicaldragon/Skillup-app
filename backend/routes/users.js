@@ -121,6 +121,9 @@ router.get('/:id', verifyToken, async (req, res) => {
 // Create new user (admin can create any role, teacher can create students and staff, staff can create students only)
 router.post('/', verifyToken, async (req, res) => {
   try {
+    // Extract fields from request body
+    const { name, email, role, firebaseUid, password, username, phone, englishName, dob, gender, note } = req.body;
+    
     // Check if user is admin, teacher, or staff
     if (req.user.role !== 'admin' && req.user.role !== 'teacher' && req.user.role !== 'staff') {
       return res.status(403).json({ 
@@ -130,14 +133,14 @@ router.post('/', verifyToken, async (req, res) => {
     }
 
     // Permission hierarchy: students < staff < teachers < admin
-    if (req.user.role === 'staff' && req.body.role !== 'student') {
+    if (req.user.role === 'staff' && role !== 'student') {
       return res.status(403).json({ 
         success: false, 
         message: 'Staff can only create students.' 
       });
     }
     
-    if (req.user.role === 'teacher' && (req.body.role !== 'student' && req.body.role !== 'staff')) {
+    if (req.user.role === 'teacher' && (role !== 'student' && role !== 'staff')) {
       return res.status(403).json({ 
         success: false, 
         message: 'Teachers can only create students and staff.' 
@@ -186,8 +189,13 @@ router.post('/', verifyToken, async (req, res) => {
       email: email.toLowerCase(),
       role,
       firebaseUid,
+      username,
       ...(password && { password }), // Only include password if provided
-      ...otherFields
+      ...(phone && { phone }),
+      ...(englishName && { englishName }),
+      ...(dob && { dob }),
+      ...(gender && { gender }),
+      ...(note && { note })
     });
 
     await user.save();
