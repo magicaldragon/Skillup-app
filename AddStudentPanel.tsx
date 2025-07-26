@@ -2,7 +2,7 @@
 // Professional panel to add new students, with Hybrid Auth (Firebase + MongoDB) integration
 // [NOTE] Updated for hybrid authentication system
 import React, { useState, useEffect } from 'react';
-import { userRegistrationService, NewUserData } from './services/userRegistrationService';
+import { userRegistrationService, NewUserData } from '../services/userRegistrationService';
 
 const AddStudentPanel = () => {
   const [form, setForm] = useState({

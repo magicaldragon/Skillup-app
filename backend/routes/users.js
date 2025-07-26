@@ -130,14 +130,14 @@ router.post('/', verifyToken, async (req, res) => {
     }
 
     // Permission hierarchy: students < staff < teachers < admin
-    if (req.user.role === 'staff' && role !== 'student') {
+    if (req.user.role === 'staff' && req.body.role !== 'student') {
       return res.status(403).json({ 
         success: false, 
         message: 'Staff can only create students.' 
       });
     }
     
-    if (req.user.role === 'teacher' && (role !== 'student' && role !== 'staff')) {
+    if (req.user.role === 'teacher' && (req.body.role !== 'student' && req.body.role !== 'staff')) {
       return res.status(403).json({ 
         success: false, 
         message: 'Teachers can only create students and staff.' 
