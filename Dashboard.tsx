@@ -33,7 +33,7 @@ const Dashboard: React.FC<DashboardProps> = ({ assignments, submissions, student
   if (activeKey === 'settings' && user && onLogout) {
     return (
       <div className="max-w-7xl mx-auto p-4">
-        <SettingsPanel user={user} isAdmin={user.role === 'admin'} onLogout={onLogout} />
+        <SettingsPanel user={user} isAdmin={user.role === 'admin'} onLogout={onLogout} classes={classes} />
       </div>
     );
   }

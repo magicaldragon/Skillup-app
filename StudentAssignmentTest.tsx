@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { db } from './services/firebase';
-import { collection, addDoc } from 'firebase/firestore';
 import type { Assignment, AssignmentQuestion, Submission, Student } from './types';
 
 interface StudentAssignmentTestProps {
@@ -68,7 +67,11 @@ const StudentAssignmentTest: React.FC<StudentAssignmentTestProps> = ({ assignmen
         score: total > 0 ? Math.round((correct / total) * 100) : null,
         feedback: JSON.stringify(fb),
       };
-      await addDoc(collection(db, 'submissions'), submission);
+      await fetch('/api/submissions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(submission),
+      });
       if (onSubmitted) onSubmitted({ ...submission, id: 'new' });
     } catch (err: any) {
       setError('Failed to submit: ' + (err.message || ''));

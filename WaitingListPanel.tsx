@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import type { Student, StudentClass } from './types';
 import { db } from './services/firebase';
-import { updateDoc, doc } from 'firebase/firestore';
 import { deleteAccountCompletely } from './services/firebase';
 
 const WaitingListPanel = ({ students, classes, currentUser }: { students: Student[], classes: StudentClass[], currentUser: Student }) => {
@@ -36,7 +35,11 @@ const WaitingListPanel = ({ students, classes, currentUser }: { students: Studen
   const handleBulkAssign = async () => {
     setConfirmingBulk(false);
     for (const id of selectedIds) {
-      await updateDoc(doc(db, 'users', id), { classIds: [bulkClassId] });
+      await fetch(`/api/users/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ classIds: [bulkClassId] }),
+      });
     }
     setSelectedIds([]);
     setBulkClassId('');
@@ -47,7 +50,11 @@ const WaitingListPanel = ({ students, classes, currentUser }: { students: Studen
   const handleBulkMoveToRecords = async () => {
     setConfirmingBulk(false);
     for (const id of selectedIds) {
-      await updateDoc(doc(db, 'users', id), { status: 'record' });
+      await fetch(`/api/users/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'record' }),
+      });
     }
     setSelectedIds([]);
     setBulkAction(null);
@@ -76,7 +83,11 @@ const WaitingListPanel = ({ students, classes, currentUser }: { students: Studen
     const classId = pendingAssignments[studentId];
     if (!classId) return;
     setLoading(prev => ({ ...prev, [studentId]: true }));
-    await updateDoc(doc(db, 'users', studentId), { classIds: [classId] });
+    await fetch(`/api/users/${studentId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ classIds: [classId] }),
+    });
     setLoading(prev => ({ ...prev, [studentId]: false }));
     setPendingAssignments(prev => { const copy = { ...prev }; delete copy[studentId]; return copy; });
     // Optionally, refresh students list in parent

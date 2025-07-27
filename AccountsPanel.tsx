@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { db, auth } from './services/firebase';
-import { collection, getDocs, updateDoc, deleteDoc, doc } from 'firebase/firestore';
+import { auth } from './services/firebase';
 import { updateProfile, updateEmail, deleteUser } from 'firebase/auth';
 import type { Student } from './types';
 
@@ -14,8 +13,9 @@ const AccountsPanel = () => {
   const [resetting, setResetting] = useState<string | null>(null);
 
   const fetchAccounts = async () => {
-    const snap = await getDocs(collection(db, 'users'));
-    setAccounts(snap.docs.map(d => ({ id: d.id, ...d.data() })) as Student[]);
+    const res = await fetch('/api/users');
+    const data = await res.json();
+    setAccounts((data.users || []) as Student[]);
   };
 
   useEffect(() => { fetchAccounts(); }, []);
@@ -40,14 +40,18 @@ const AccountsPanel = () => {
 
   const handleEditSave = async () => {
     setLoading(true);
-    await updateDoc(doc(db, 'users', editing!.id), {
-      displayName: editForm.displayName,
-      dob: editForm.dob,
-      phone: editForm.phone,
-      avatarUrl: editForm.avatarUrl,
-      note: editForm.note,
-      // Only admin can change name
-      ...(editForm.role === 'admin' ? { name: editForm.name } : {}),
+    await fetch(`/api/users/${editing!.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        displayName: editForm.displayName,
+        dob: editForm.dob,
+        phone: editForm.phone,
+        avatarUrl: editForm.avatarUrl,
+        note: editForm.note,
+        // Only admin can change name
+        ...(editForm.role === 'admin' ? { name: editForm.name } : {}),
+      }),
     });
     setEditing(null);
     setLoading(false);
@@ -56,7 +60,7 @@ const AccountsPanel = () => {
 
   const handleRemove = async (acc: Student) => {
     setLoading(true);
-    await deleteDoc(doc(db, 'users', acc.id));
+    await fetch(`/api/users/${acc.id}`, { method: 'DELETE' });
     // Optionally, also remove from Firebase Auth and VStorage
     setLoading(false);
     await fetchAccounts();

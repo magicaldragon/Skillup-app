@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { db } from './services/firebase';
-import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import type { Student, StudentClass } from './types';
 
 const ReportsPanel = ({ isAdmin }: { isAdmin: boolean }) => {
@@ -11,12 +9,13 @@ const ReportsPanel = ({ isAdmin }: { isAdmin: boolean }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const reportSnap = await getDocs(collection(db, 'reports'));
-      setReports(reportSnap.docs.map(d => ({ id: d.id, ...d.data() })));
-      const studentSnap = await getDocs(collection(db, 'users'));
-      setStudents(studentSnap.docs.map(d => ({ id: d.id, ...d.data() })) as Student[]);
-      const classSnap = await getDocs(collection(db, 'classes'));
-      setClasses(classSnap.docs.map(d => ({ id: d.id, ...d.data() })) as StudentClass[]);
+      const res = await fetch('/api/reports');
+      const data = await res.json();
+      setReports(data.reports || []);
+      const studentSnap = await fetch('/api/users').then(r => r.json());
+      setStudents(studentSnap.users || []);
+      const classSnap = await fetch('/api/classes').then(r => r.json());
+      setClasses(classSnap.classes || []);
       setLoading(false);
     };
     fetchData();
@@ -30,9 +29,9 @@ const ReportsPanel = ({ isAdmin }: { isAdmin: boolean }) => {
     return acc;
   }, {} as Record<string, Record<string, any[]>>);
 
-  const handleDelete = async (id: string) => {
-    await deleteDoc(doc(db, 'reports', id));
-    setReports(reports.filter(r => r.id !== id));
+  const handleDeleteReport = async (reportId: string) => {
+    await fetch(`/api/reports/${reportId}`, { method: 'DELETE' });
+    await fetchReports();
   };
 
   if (loading) return <div className="p-8 text-center text-lg">Loading reports...</div>;
@@ -62,7 +61,7 @@ const ReportsPanel = ({ isAdmin }: { isAdmin: boolean }) => {
                           <div className="text-xs text-slate-500">By: {r.teacherId} &bull; {r.timestamp?.toDate ? r.timestamp.toDate().toLocaleString() : ''}</div>
                         </div>
                         {isAdmin && (
-                          <button className="px-3 py-1 bg-red-600 text-white rounded mt-2 md:mt-0" onClick={() => handleDelete(r.id)}>Delete</button>
+                          <button className="px-3 py-1 bg-red-600 text-white rounded mt-2 md:mt-0" onClick={() => handleDeleteReport(r.id)}>Delete</button>
                         )}
                       </li>
                     ))}

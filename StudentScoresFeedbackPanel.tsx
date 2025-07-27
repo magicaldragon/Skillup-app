@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { db } from './services/firebase';
-import { collection, getDocs } from 'firebase/firestore';
 import type { Student, Submission, Assignment } from './types';
 
 const StudentScoresFeedbackPanel = ({ user }: { user: Student }) => {
@@ -13,10 +12,14 @@ const StudentScoresFeedbackPanel = ({ user }: { user: Student }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const assignSnap = await getDocs(collection(db, 'assignments'));
-      setAssignments(assignSnap.docs.map(d => ({ id: d.id, ...d.data() })) as Assignment[]);
-      const subSnap = await getDocs(collection(db, 'submissions'));
-      setSubmissions(subSnap.docs.map(d => ({ id: d.id, ...d.data() })) as Submission[]);
+      const [assignRes, subRes] = await Promise.all([
+        fetch('/api/assignments'),
+        fetch('/api/submissions'),
+      ]);
+      const assignData = await assignRes.json();
+      setAssignments(assignData.assignments || []);
+      const subData = await subRes.json();
+      setSubmissions(subData.submissions || []);
       setLoading(false);
     };
     fetchData();

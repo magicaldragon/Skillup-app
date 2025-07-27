@@ -25,7 +25,7 @@ const StudentDashboard = ({ user, assignments, submissions, classes, onNavigate,
   return (
     <main className="flex-1 p-8 min-h-screen bg-slate-50">
       {activeKey === 'settings' ? (
-        <SettingsPanel user={user} isAdmin={false} onLogout={onLogout} />
+        <SettingsPanel user={user} isAdmin={false} onLogout={onLogout} classes={classes} />
       ) : (
         <>
           <h1 className="text-3xl font-bold mb-2">Dashboard</h1>

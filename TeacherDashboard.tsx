@@ -39,7 +39,7 @@ const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onL
         ) : activeKey === 'levels' ? (
           <LevelsPanel />
         ) : activeKey === 'settings' ? (
-          <SettingsPanel user={user} isAdmin={user.role === 'admin'} onLogout={onLogout} />
+          <SettingsPanel user={user} isAdmin={user.role === 'admin'} onLogout={onLogout} classes={classList} />
         ) : (
           <>
             <h1 className="text-3xl font-bold mb-2">Dashboard</h1>

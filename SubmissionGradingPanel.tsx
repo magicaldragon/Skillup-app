@@ -5,8 +5,6 @@
 // - student: Student
 // - onGraded?: (updated: Submission) => void
 import React, { useState } from 'react';
-import { db } from './services/firebase';
-import { doc, updateDoc } from 'firebase/firestore';
 import type { Assignment, Submission, Student } from './types';
 
 interface SubmissionGradingPanelProps {
@@ -34,9 +32,10 @@ const SubmissionGradingPanel: React.FC<SubmissionGradingPanelProps> = ({ assignm
     setSuccess(null);
     setShowToast(false);
     try {
-      await updateDoc(doc(db, 'submissions', submission.id), {
-        score,
-        feedback,
+      await fetch(`/api/submissions/${submission.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ score, feedback }),
       });
       setSuccess('Grading saved!');
       setShowToast(true);

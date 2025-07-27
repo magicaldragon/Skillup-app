@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { db } from './services/firebase';
-import { collection, getDocs } from 'firebase/firestore';
 import type { Student, StudentClass, Submission } from './types';
 
 const StudentMyClassesPanel = ({ user }: { user: Student }) => {
@@ -11,14 +10,18 @@ const StudentMyClassesPanel = ({ user }: { user: Student }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const classSnap = await getDocs(collection(db, 'classes'));
-      const userClasses = classSnap.docs.map(d => ({ id: d.id, ...d.data() })) as StudentClass[];
-      setClasses(userClasses.filter(c => (user.classIds || []).includes(c.id)));
-      const studentSnap = await getDocs(collection(db, 'users'));
-      setStudents(studentSnap.docs.map(d => ({ id: d.id, ...d.data() })) as Student[]);
-      const subSnap = await getDocs(collection(db, 'submissions'));
-      setSubmissions(subSnap.docs.map(d => ({ id: d.id, ...d.data() })) as Submission[]);
-      setLoading(false);
+      const [classRes, studentRes, subRes] = await Promise.all([
+        fetch('/api/classes'),
+        fetch('/api/users'),
+        fetch('/api/submissions'),
+      ]);
+      const classData = await classRes.json();
+      const userClasses = classData.classes || [];
+      setClasses(userClasses.filter((c: any) => (user.classIds || []).includes(c.id)));
+      const studentData = await studentRes.json();
+      setStudents(studentData.users || []);
+      const subData = await subRes.json();
+      setSubmissions(subData.submissions || []);
     };
     fetchData();
   }, [user.classIds]);

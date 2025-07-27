@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { db } from './services/firebase';
-import { collection, addDoc } from 'firebase/firestore';
 import type { Assignment, AssignmentQuestion, QuestionType, IELTS_Skill, ExamLevel, StudentClass, Student } from './types';
 
 const EXAM_LEVELS: ExamLevel[] = ['IELTS', 'KEY', 'PET'];
@@ -134,7 +133,11 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({ 
         pdfUrl: fileUrl.endsWith('.pdf') ? fileUrl : undefined,
         audioUrl: fileUrl.match(/\.(mp3|wav|ogg)$/) ? fileUrl : undefined,
       };
-      await addDoc(collection(db, 'assignments'), assignment);
+      await fetch('/api/assignments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(assignment),
+      });
       setForm({ title: '', level: 'IELTS', skill: 'Listening', description: '', questions: [], answerKey: {}, classIds: [], publishDate: '', dueDate: '' });
       setShowForm(false);
       if (onCreated) onCreated();

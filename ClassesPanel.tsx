@@ -1,10 +1,8 @@
 // ClassesPanel.tsx
 // Professional panel to show and manage classes with code names (SU-001, SU-002, ...)
 // [NOTE] Created as part of 2024-05-XX dashboard refactor
-import React, { useState } from 'react';
+import { useState } from 'react';
 import type { Student, StudentClass } from './types';
-import { db } from './services/firebase';
-import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, Timestamp } from 'firebase/firestore';
 import { useEffect } from 'react';
 import { getLevels } from './services/firebase';
 import type { Level } from './types';
@@ -35,20 +33,21 @@ const ClassesPanel = ({ students }: { students: Student[], classes?: StudentClas
   const [reportNote, setReportNote] = useState('');
   const [reportSending, setReportSending] = useState(false);
 
-  // Fetch all classes from Firestore
+  // Fetch all classes from backend
   const fetchClasses = async () => {
     setLoading(true);
-    const snap = await getDocs(collection(db, 'classes'));
-    let allClasses = snap.docs.map(d => ({ id: d.id, ...d.data() })) as StudentClass[];
+    const res = await fetch('/api/classes');
+    const data = await res.json();
+    let allClasses = data.classes || [];
     // Sort: unassigned classes on top, then alphabetically by name
     allClasses = [
-      ...allClasses.filter(c => !c.levelId || c.levelId === ''),
-      ...allClasses.filter(c => c.levelId && c.levelId !== '').sort((a, b) => a.name.localeCompare(b.name))
+      ...allClasses.filter((c: any) => !c.levelId || c.levelId === ''),
+      ...allClasses.filter((c: any) => c.levelId && c.levelId !== '').sort((a: any, b: any) => a.name.localeCompare(b.name))
     ];
     setClasses(allClasses);
     // Sync classLevels state with Firestore data
     const levelsMap: { [id: string]: string | null } = {};
-    allClasses.forEach(c => { levelsMap[c.id] = c.levelId || ''; });
+    allClasses.forEach((c: any) => { levelsMap[c.id] = c.levelId || ''; });
     setClassLevels(levelsMap);
     setLoading(false);
   };
@@ -64,40 +63,34 @@ const ClassesPanel = ({ students }: { students: Student[], classes?: StudentClas
     fetchLevels();
   }, []);
 
-  // Instantly create a new class in Firestore with the next code name
+  // Instantly create a new class in backend
   const handleAddClass = async () => {
     setAdding(true);
     const newClass = { name: nextCode, levelId: null };
-    await addDoc(collection(db, 'classes'), newClass);
+    await fetch('/api/classes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newClass),
+    });
     await fetchClasses();
     setAdding(false);
   };
 
-  // After assigning a level, show a 'Confirm' button to save the assignment
-  const handleLevelChange = (classId: string, level: string) => {
-    setClassLevels(prev => ({ ...prev, [classId]: level }));
-    setPendingLevel({ classId, level });
-  };
-
-  const handleConfirmLevel = async () => {
-    if (pendingLevel) {
-      await updateDoc(doc(db, 'classes', pendingLevel.classId), { levelId: pendingLevel.level });
-      setPendingLevel(null);
-      await fetchClasses();
-    }
-  };
-
-  // Edit class name and level
-  const handleEditClass = async (classId: string, newName: string, newLevelId: string) => {
-    await updateDoc(doc(db, 'classes', classId), { name: newName, levelId: newLevelId });
+  // Edit class name/level in backend
+  const handleEditClass = async (classId: string, newName: string, newLevelId: string | null) => {
+    await fetch(`/api/classes/${classId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: newName, levelId: newLevelId }),
+    });
     setEditId(null);
     setEditName('');
     await fetchClasses();
   };
 
-  // Remove class from Firestore
-  const handleRemoveClass = async (classId: string) => {
-    await deleteDoc(doc(db, 'classes', classId));
+  // Delete class in backend
+  const handleDeleteClass = async (classId: string) => {
+    await fetch(`/api/classes/${classId}`, { method: 'DELETE' });
     await fetchClasses();
   };
 
@@ -107,18 +100,30 @@ const ClassesPanel = ({ students }: { students: Student[], classes?: StudentClas
     const student = students.find(s => s.id === studentId);
     if (!student) return;
     const newClassIds = Array.from(new Set([...(student.classIds || []), classId]));
-    await updateDoc(doc(db, 'users', studentId), { classIds: newClassIds });
+    await fetch(`/api/users/${studentId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ classIds: newClassIds }),
+    });
     // Optionally, refresh students list in parent
   };
 
   const handleEditStudent = async (studentId: string, newName: string) => {
-    await updateDoc(doc(db, 'users', studentId), { displayName: newName });
+    await fetch(`/api/users/${studentId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ displayName: newName }),
+    });
     setEditStudentId(null);
     setEditStudentName('');
     await fetchClasses();
   };
   const handleRemoveStudent = async (studentId: string) => {
-    await updateDoc(doc(db, 'users', studentId), { classIds: [] });
+    await fetch(`/api/users/${studentId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ classIds: [] }),
+    });
     await fetchClasses();
   };
   const handleReportStudent = (studentId: string) => {
@@ -127,12 +132,16 @@ const ClassesPanel = ({ students }: { students: Student[], classes?: StudentClas
   };
   const handleSendReport = async (studentId: string) => {
     setReportSending(true);
-    await addDoc(collection(db, 'reports'), {
-      studentId,
-      classId: selectedClassId,
-      note: reportNote,
-      teacherId: 'currentTeacherId', // Replace with actual logged-in teacher/admin id
-      timestamp: Timestamp.now(),
+    await fetch('/api/reports', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        studentId,
+        classId: selectedClassId,
+        note: reportNote,
+        teacherId: 'currentTeacherId', // Replace with actual logged-in teacher/admin id
+        timestamp: new Date().toISOString(),
+      }),
     });
     setReportSending(false);
     setReportingStudentId(null);
@@ -149,8 +158,6 @@ const ClassesPanel = ({ students }: { students: Student[], classes?: StudentClas
   });
   const selectedClass = selectedClassId ? classes.find(c => c.id === selectedClassId) : null;
   const classStudents = selectedClass ? students.filter(s => (s.classIds || []).includes(selectedClass.id)) : [];
-  // For demo, assignment progress is just a random number (replace with real logic)
-  const getAssignmentProgress = (studentId: string) => Math.floor(Math.random() * 100);
 
   if (loading) return <div className="p-8 text-center text-lg">Loading classes...</div>;
 
@@ -213,7 +220,7 @@ const ClassesPanel = ({ students }: { students: Student[], classes?: StudentClas
                     ) : (
                       <>
                         <button className="px-4 py-2 bg-yellow-500 text-white rounded" onClick={e => { e.stopPropagation(); setEditId(c.id); setEditName(c.name); }}>Edit</button>
-                        <button className="px-4 py-2 bg-red-600 text-white rounded" onClick={e => { e.stopPropagation(); handleRemoveClass(c.id); }}>Delete</button>
+                        <button className="px-4 py-2 bg-red-600 text-white rounded" onClick={e => { e.stopPropagation(); handleDeleteClass(c.id); }}>Delete</button>
                       </>
                     )}
                   </>

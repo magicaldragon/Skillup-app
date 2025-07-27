@@ -3,7 +3,6 @@
 // [NOTE] Created as part of 2024-05-XX dashboard refactor
 import React, { useState } from 'react';
 import { db, getLevels, addLevel, updateLevel, deleteLevel } from './services/firebase';
-import { collection, getDocs } from 'firebase/firestore';
 import type { StudentClass, Level } from './types';
 import { ICONS } from './constants';
 import { LEVELS as DEFAULT_LEVELS } from './constants';
@@ -23,22 +22,20 @@ const LevelsPanel = () => {
   // Fetch levels from Firestore on mount
   React.useEffect(() => {
     setLoading(true);
-    getLevels().then(fetched => {
-      setLevels(fetched);
-      setLoading(false);
-    });
+    const fetchLevels = async () => {
+      const res = await fetch('/api/levels');
+      const data = await res.json();
+      setLevels(data.levels || []);
+    };
+    fetchLevels();
   }, []);
 
   // Fetch all classes and categorize by level
   React.useEffect(() => {
     const fetchClasses = async () => {
-      const snap = await getDocs(collection(db, 'classes'));
-      const allClasses = snap.docs.map(d => ({ id: d.id, ...d.data() })) as StudentClass[];
-      const byLevel: { [level: string]: StudentClass[] } = {};
-      levels.forEach(l => {
-        byLevel[l.id] = allClasses.filter(c => c.levelId === l.id);
-      });
-      setClassesByLevel(byLevel);
+      const res = await fetch('/api/classes');
+      const data = await res.json();
+      setClassesByLevel(data.classesByLevel || {});
     };
     if (levels.length > 0) fetchClasses();
   }, [levels]);

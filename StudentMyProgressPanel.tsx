@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { db } from './services/firebase';
-import { collection, getDocs } from 'firebase/firestore';
 import type { Student, Submission, Assignment } from './types';
 import { Pie, Bar, Line } from 'react-chartjs-2';
 import { Chart, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, PointElement, LineElement } from 'chart.js';
@@ -19,10 +17,14 @@ const StudentMyProgressPanel = ({ user }: { user: Student }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const assignSnap = await getDocs(collection(db, 'assignments'));
-      setAssignments(assignSnap.docs.map(d => ({ id: d.id, ...d.data() })) as Assignment[]);
-      const subSnap = await getDocs(collection(db, 'submissions'));
-      const all = subSnap.docs.map(d => ({ id: d.id, ...d.data() })) as Submission[];
+      const [assignRes, subRes] = await Promise.all([
+        fetch('/api/assignments'),
+        fetch('/api/submissions'),
+      ]);
+      const assignData = await assignRes.json();
+      setAssignments(assignData.assignments || []);
+      const subData = await subRes.json();
+      const all = subData.submissions || [];
       setAllSubs(all);
       setSubmissions(all.filter(s => s.studentId === user.id));
       setLoading(false);

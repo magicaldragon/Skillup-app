@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { db } from './services/firebase';
-import { collection, getDocs } from 'firebase/firestore';
 import type { Student, StudentClass, Submission, Assignment } from './types';
 
 const CATEGORIES = [
@@ -23,14 +21,20 @@ const TeacherScoresFeedbackPanel = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const classSnap = await getDocs(collection(db, 'classes'));
-      setClasses(classSnap.docs.map(d => ({ id: d.id, ...d.data() })) as StudentClass[]);
-      const studentSnap = await getDocs(collection(db, 'users'));
-      setStudents(studentSnap.docs.map(d => ({ id: d.id, ...d.data() })) as Student[]);
-      const assignSnap = await getDocs(collection(db, 'assignments'));
-      setAssignments(assignSnap.docs.map(d => ({ id: d.id, ...d.data() })) as Assignment[]);
-      const subSnap = await getDocs(collection(db, 'submissions'));
-      setSubmissions(subSnap.docs.map(d => ({ id: d.id, ...d.data() })) as Submission[]);
+      const [classRes, studentRes, assignRes, subRes] = await Promise.all([
+        fetch('/api/classes'),
+        fetch('/api/users'),
+        fetch('/api/assignments'),
+        fetch('/api/submissions'),
+      ]);
+      const classData = await classRes.json();
+      setClasses(classData.classes || []);
+      const studentData = await studentRes.json();
+      setStudents(studentData.users || []);
+      const assignData = await assignRes.json();
+      setAssignments(assignData.assignments || []);
+      const subData = await subRes.json();
+      setSubmissions(subData.submissions || []);
       setLoading(false);
     };
     fetchData();
