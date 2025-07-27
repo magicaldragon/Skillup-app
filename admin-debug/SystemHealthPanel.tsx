@@ -6,16 +6,27 @@ const SystemHealthPanel = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/api/cors-test')
-      .then(res => res.json())
-      .then(data => {
-        setStatus(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        setError('Failed to fetch backend status');
-        setLoading(false);
-      });
+    // Try multiple endpoints to check system health
+    Promise.all([
+      fetch('/api/cors-test').catch(() => null),
+      fetch('/api/users/admin/version').catch(() => null),
+      fetch('/api/users').catch(() => null)
+    ])
+    .then(([corsRes, versionRes, usersRes]) => {
+      const healthStatus = {
+        cors: corsRes ? 'Online' : 'Offline',
+        version: versionRes ? 'Online' : 'Offline',
+        users: usersRes ? 'Online' : 'Offline',
+        corsData: corsRes ? 'Available' : 'Unavailable',
+        versionData: versionRes ? 'Available' : 'Unavailable'
+      };
+      setStatus(healthStatus);
+      setLoading(false);
+    })
+    .catch(err => {
+      setError('Failed to check system health');
+      setLoading(false);
+    });
   }, []);
 
   return (
@@ -24,11 +35,37 @@ const SystemHealthPanel = () => {
       {loading && <div>Loading system status...</div>}
       {error && <div className="text-red-600">{error}</div>}
       {status && (
-        <div className="space-y-2">
-          <div><strong>Backend:</strong> <span className="text-green-700">Online</span></div>
-          <div><strong>CORS Allowed Origins:</strong> <code>{JSON.stringify(status.allowedOrigins)}</code></div>
-          <div><strong>Request Origin:</strong> <code>{status.origin}</code></div>
-          <div><strong>Message:</strong> {status.message}</div>
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-white p-4 rounded-lg shadow">
+              <div className="font-semibold">CORS Test</div>
+              <div className={status.cors === 'Online' ? 'text-green-700' : 'text-red-600'}>
+                {status.cors}
+              </div>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow">
+              <div className="font-semibold">Version API</div>
+              <div className={status.version === 'Online' ? 'text-green-700' : 'text-red-600'}>
+                {status.version}
+              </div>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow">
+              <div className="font-semibold">Users API</div>
+              <div className={status.users === 'Online' ? 'text-green-700' : 'text-red-600'}>
+                {status.users}
+              </div>
+            </div>
+          </div>
+          <div className="bg-slate-100 p-4 rounded-lg">
+            <div className="font-semibold mb-2">System Status:</div>
+            <div className="text-sm space-y-1">
+              <div>• CORS Configuration: {status.corsData}</div>
+              <div>• Version Information: {status.versionData}</div>
+              <div>• Overall Status: <span className={status.cors === 'Online' && status.version === 'Online' ? 'text-green-700' : 'text-red-600'}>
+                {status.cors === 'Online' && status.version === 'Online' ? 'Healthy' : 'Issues Detected'}
+              </span></div>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -9,6 +9,7 @@ import LevelsPanel from './LevelsPanel';
 import WaitingListPanel from './WaitingListPanel';
 import SettingsPanel from './SettingsPanel';
 import DiceBearAvatar from './DiceBearAvatar';
+import AdminDebugPanel from './AdminDebugPanel';
 
 const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onLogout, onStudentAdded }: {
   user: Student,
@@ -48,6 +49,8 @@ const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onL
           <LevelsPanel />
         ) : activeKey === 'settings' ? (
           <SettingsPanel user={user} isAdmin={user.role === 'admin'} onLogout={onLogout} classes={classList} />
+        ) : activeKey.startsWith('admin-debug') ? (
+          <AdminDebugPanel activeKey={activeKey} />
         ) : (
           <>
             <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
