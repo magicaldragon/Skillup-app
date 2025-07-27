@@ -2,6 +2,25 @@ const express = require('express');
 const User = require('../models/User');
 const { verifyToken } = require('./auth');
 const router = express.Router();
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, path.join(__dirname, '../uploads/avatars')),
+  filename: (req, file, cb) => cb(null, `${req.params.id}${path.extname(file.originalname)}`)
+});
+const upload = multer({
+  storage,
+  fileFilter: (req, file, cb) => {
+    // Accept only image files
+    if (!file.mimetype.startsWith('image/')) {
+      return cb(new Error('Only image files are allowed!'), false);
+    }
+    cb(null, true);
+  },
+  limits: { fileSize: 2 * 1024 * 1024 } // 2MB limit
+});
 
 // Get all users (admin can see all, teacher can see students and staff, staff can see students only)
 router.get('/', verifyToken, async (req, res) => {
@@ -272,6 +291,11 @@ router.put('/:id', verifyToken, async (req, res) => {
       delete req.body.role;
       delete req.body.status;
     }
+    // Allow users to update their own diceBearStyle and diceBearSeed
+    if (req.user.userId !== req.params.id && req.user.role !== 'admin') {
+      delete req.body.diceBearStyle;
+      delete req.body.diceBearSeed;
+    }
 
     const user = await User.findByIdAndUpdate(
       req.params.id,
@@ -301,6 +325,47 @@ router.put('/:id', verifyToken, async (req, res) => {
       success: false, 
       message: 'Internal server error' 
     });
+  }
+});
+
+// Avatar upload endpoint
+router.post('/:id/avatar', verifyToken, upload.single('avatar'), async (req, res) => {
+  try {
+    // Only allow user to upload their own avatar or admin
+    if (req.user.userId !== req.params.id && req.user.role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'You can only upload your own avatar.' });
+    }
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No file uploaded.' });
+    }
+    const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+    await User.findByIdAndUpdate(req.params.id, { avatarUrl });
+    res.json({ success: true, avatarUrl });
+  } catch (error) {
+    console.error('Avatar upload error:', error);
+    res.status(500).json({ success: false, message: 'Failed to upload avatar.' });
+  }
+});
+
+// Remove avatar endpoint
+router.delete('/:id/avatar', verifyToken, async (req, res) => {
+  try {
+    // Only allow user to remove their own avatar or admin
+    if (req.user.userId !== req.params.id && req.user.role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'You can only remove your own avatar.' });
+    }
+    const user = await User.findById(req.params.id);
+    if (user && user.avatarUrl) {
+      const filePath = path.join(__dirname, '../', user.avatarUrl);
+      fs.unlink(filePath, err => {
+        // Ignore error if file does not exist
+      });
+    }
+    await User.findByIdAndUpdate(req.params.id, { avatarUrl: '' });
+    res.json({ success: true, message: 'Avatar removed.' });
+  } catch (error) {
+    console.error('Avatar remove error:', error);
+    res.status(500).json({ success: false, message: 'Failed to remove avatar.' });
   }
 });
 

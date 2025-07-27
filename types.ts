@@ -16,6 +16,8 @@ export interface Student {
   englishName?: string;
   username?: string;
   createdAt?: string;
+  diceBearStyle?: string;
+  diceBearSeed?: string;
 }
 
 export interface Level {

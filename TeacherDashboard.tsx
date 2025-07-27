@@ -8,6 +8,7 @@ import AddStudentPanel from './AddStudentPanel';
 import LevelsPanel from './LevelsPanel';
 import WaitingListPanel from './WaitingListPanel';
 import SettingsPanel from './SettingsPanel';
+import DiceBearAvatar from './DiceBearAvatar';
 
 const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onLogout }: {
   user: Student,
@@ -28,6 +29,12 @@ const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onL
 
   return (
     <main className="flex-1 p-8 min-h-screen bg-slate-50">
+        {/* Show avatar at the top of the dashboard */}
+        {activeKey === undefined || activeKey === '' ? (
+          <div className="flex flex-col items-center mb-6">
+            <DiceBearAvatar seed={user.name || user.email || user.id} size={96} style="avataaars" />
+          </div>
+        ) : null}
         {activeKey === 'add-student' ? (
           <AddStudentPanel />
         ) : activeKey === 'classes' ? (
