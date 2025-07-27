@@ -124,11 +124,19 @@ const Sidebar = ({ role, activeKey, onNavigate, onLogout }: { role: string, acti
     }
     return null;
   };
-  const [openSubmenu, setOpenSubmenu] = useState<string | null>(getDefaultOpen());
+  const [openSubmenus, setOpenSubmenus] = useState<Set<string>>(new Set([getDefaultOpen()].filter(Boolean) as string[]));
 
   const handleMenuClick = (itemKey: string, hasChildren: boolean) => {
     if (hasChildren) {
-      setOpenSubmenu(openSubmenu === itemKey ? null : itemKey);
+      setOpenSubmenus(prev => {
+        const newSet = new Set(prev);
+        if (newSet.has(itemKey)) {
+          newSet.delete(itemKey);
+        } else {
+          newSet.add(itemKey);
+        }
+        return newSet;
+      });
     } else {
       onNavigate(itemKey);
     }
@@ -142,7 +150,7 @@ const Sidebar = ({ role, activeKey, onNavigate, onLogout }: { role: string, acti
       <nav className="flex-1 px-2 space-y-2 text-[16px] md:text-[17px] lg:text-[18px] font-medium">
         {menu.map(item => {
           const hasChildren = !!item.children && item.children.some(child => child.visible);
-          const isOpen = openSubmenu === item.key;
+          const isOpen = openSubmenus.has(item.key);
           if (!item.visible) return null;
           return (
             <div key={item.key}>
@@ -162,7 +170,7 @@ const Sidebar = ({ role, activeKey, onNavigate, onLogout }: { role: string, acti
                 <div className="ml-8 space-y-1 border-l-2 border-green-200 pl-4">
                   {item.children.filter(child => child.visible).map(child => {
                     const hasGrandChildren = !!child.children && child.children.some(grandChild => grandChild.visible);
-                    const isChildOpen = openSubmenu === child.key;
+                    const isChildOpen = openSubmenus.has(child.key);
                     
                     return (
                       <div key={child.key}>
