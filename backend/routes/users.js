@@ -441,4 +441,45 @@ router.delete('/:id', verifyToken, async (req, res) => {
   }
 });
 
+// --- Admin Debug Endpoints ---
+const ADMIN_SECRET = process.env.ADMIN_SECRET || 'changeme';
+
+function requireAdmin(req, res, next) {
+  if (req.user && req.user.role === 'admin') return next();
+  return res.status(403).json({ success: false, message: 'Admin only' });
+}
+
+// Simple in-memory log for demonstration
+let errorLogs = [
+  { timestamp: new Date().toISOString(), message: 'Sample error log', level: 'error', service: 'backend' }
+];
+
+router.get('/admin/error-logs', verifyToken, requireAdmin, (req, res) => {
+  res.json({ success: true, logs: errorLogs.slice(-100) });
+});
+
+// User sync status: compare MongoDB and Firebase (simulate for now)
+router.get('/admin/user-sync-status', verifyToken, requireAdmin, async (req, res) => {
+  // Simulate: fetch all users from MongoDB
+  const mongoUsers = await User.find({});
+  // Simulate: fetch all users from Firebase (not implemented, so just return MongoDB for now)
+  // In real app, compare with Firebase list
+  res.json({ success: true, mongoCount: mongoUsers.length, firebaseCount: mongoUsers.length, discrepancies: [] });
+});
+
+// Deploy/redeploy endpoints (simulate)
+router.post('/admin/deploy-frontend', verifyToken, requireAdmin, (req, res) => {
+  // In real app, trigger a webhook or script
+  res.json({ success: true, message: 'Frontend redeploy triggered (simulated).' });
+});
+router.post('/admin/deploy-backend', verifyToken, requireAdmin, (req, res) => {
+  // In real app, trigger a webhook or script
+  res.json({ success: true, message: 'Backend redeploy triggered (simulated).' });
+});
+
+// Version endpoint
+router.get('/admin/version', (req, res) => {
+  res.json({ success: true, version: '1.0.0', uptime: process.uptime() });
+});
+
 module.exports = router; 

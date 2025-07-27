@@ -60,7 +60,7 @@ const menuConfig = (role: string) => [
     ],
   },
   {
-    label: 'ADMIN DEBUG PANEL',
+    label: 'Admin Debug Panel',
     icon: <FaUserCog />,
     key: 'admin-debug',
     visible: role === 'admin',
@@ -89,7 +89,26 @@ const menuConfig = (role: string) => [
         icon: <FaTasks />,
         visible: true,
       },
-      // Add more debug features here as needed
+      {
+        label: 'Frontend/Backend',
+        key: 'admin-debug-fb',
+        icon: <FaClipboardList />,
+        visible: true,
+        children: [
+          {
+            label: 'Frontend Status',
+            key: 'admin-debug-frontend',
+            icon: <FaCheckCircle />,
+            visible: true,
+          },
+          {
+            label: 'Backend Status',
+            key: 'admin-debug-backend',
+            icon: <FaCheckCircle />,
+            visible: true,
+          },
+        ],
+      },
     ],
   },
 ];
