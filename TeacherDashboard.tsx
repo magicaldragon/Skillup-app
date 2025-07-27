@@ -20,6 +20,8 @@ const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onL
   onLogout: () => void,
   onStudentAdded?: () => void
 }) => {
+  console.log('TeacherDashboard activeKey:', activeKey);
+  console.log('User role:', user.role);
   // Example summary metrics (IELTS focus)
   const totalStudents = students.length;
   const activeAssignments = assignments.filter(a => a.level === 'IELTS').length;
@@ -50,7 +52,9 @@ const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onL
         ) : activeKey === 'settings' ? (
           <SettingsPanel user={user} isAdmin={user.role === 'admin'} onLogout={onLogout} classes={classList} />
         ) : activeKey.startsWith('admin-debug') ? (
-          <AdminDebugPanel activeKey={activeKey} />
+          <div>
+            <AdminDebugPanel activeKey={activeKey} />
+          </div>
         ) : (
           <>
             <h1 className="text-3xl font-bold mb-2">Dashboard</h1>

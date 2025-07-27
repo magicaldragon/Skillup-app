@@ -16,10 +16,25 @@ const panels = {
 };
 
 const AdminDebugPanel = ({ activeKey }: { activeKey: string }) => {
+  console.log('AdminDebugPanel rendered with activeKey:', activeKey);
+  console.log('Available panels:', Object.keys(panels));
+  console.log('Selected panel:', panels[activeKey]);
+  
   return (
     <div className="p-8">
       <h1 className="text-2xl font-bold mb-6">Admin Debug Panel</h1>
-      {panels[activeKey] || <div>Select a debug feature from the sidebar.</div>}
+      <div className="mb-4 p-4 bg-blue-100 rounded">
+        <strong>Debug Info:</strong> activeKey = "{activeKey}"
+      </div>
+      {panels[activeKey] ? (
+        panels[activeKey]
+      ) : (
+        <div className="p-4 bg-yellow-100 rounded">
+          <strong>No panel found for key:</strong> "{activeKey}"
+          <br />
+          <strong>Available keys:</strong> {Object.keys(panels).join(', ')}
+        </div>
+      )}
     </div>
   );
 };

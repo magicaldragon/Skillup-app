@@ -160,18 +160,43 @@ const Sidebar = ({ role, activeKey, onNavigate, onLogout }: { role: string, acti
               </button>
               {hasChildren && isOpen && (
                 <div className="ml-8 space-y-1 border-l-2 border-green-200 pl-4">
-                  {item.children.filter(child => child.visible).map(child => (
-                    <button
-                      key={child.key}
-                      className={`flex items-center gap-2 w-full px-2 py-1 rounded text-left font-medium text-[15px] md:text-[16px] lg:text-[17px] transition-colors bg-white/70
-                    hover:bg-[#307637] hover:text-[#ffe9ca] hover:shadow
-                    ${activeKey === child.key ? 'bg-green-100 text-[#307637] font-bold shadow' : ''}`}
-                      onClick={() => onNavigate(child.key)}
-                      style={{ marginLeft: 8 }}
-                    >
-                      {child.icon} {child.label}
-                    </button>
-                  ))}
+                  {item.children.filter(child => child.visible).map(child => {
+                    const hasGrandChildren = !!child.children && child.children.some(grandChild => grandChild.visible);
+                    const isChildOpen = openSubmenu === child.key;
+                    
+                    return (
+                      <div key={child.key}>
+                        <button
+                          className={`flex items-center gap-2 w-full px-2 py-1 rounded text-left font-medium text-[15px] md:text-[16px] lg:text-[17px] transition-colors bg-white/70
+                        hover:bg-[#307637] hover:text-[#ffe9ca] hover:shadow
+                        ${activeKey === child.key ? 'bg-green-100 text-[#307637] font-bold shadow' : ''}`}
+                          onClick={() => hasGrandChildren ? handleMenuClick(child.key, true) : onNavigate(child.key)}
+                          style={{ marginLeft: 8 }}
+                        >
+                          {child.icon} {child.label}
+                          {hasGrandChildren && (
+                            <span className={`ml-auto transition-transform ${isChildOpen ? 'rotate-90' : ''}`} style={{ color: '#14532d', fontWeight: 700, fontSize: 16 }}>▶</span>
+                          )}
+                        </button>
+                        {hasGrandChildren && isChildOpen && (
+                          <div className="ml-8 space-y-1 border-l-2 border-green-100 pl-4 mt-1">
+                            {child.children.filter(grandChild => grandChild.visible).map(grandChild => (
+                              <button
+                                key={grandChild.key}
+                                className={`flex items-center gap-2 w-full px-2 py-1 rounded text-left font-medium text-[14px] md:text-[15px] lg:text-[16px] transition-colors bg-white/60
+                              hover:bg-[#307637] hover:text-[#ffe9ca] hover:shadow
+                              ${activeKey === grandChild.key ? 'bg-green-100 text-[#307637] font-bold shadow' : ''}`}
+                                onClick={() => onNavigate(grandChild.key)}
+                                style={{ marginLeft: 8 }}
+                              >
+                                {grandChild.icon} {grandChild.label}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
