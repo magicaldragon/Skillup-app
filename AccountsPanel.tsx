@@ -11,9 +11,17 @@ const AccountsPanel = () => {
   const [resetting, setResetting] = useState<string | null>(null);
 
   const fetchAccounts = async () => {
-    const res = await fetch('/api/users');
-    const data = await res.json();
-    setAccounts((data.users || []) as Student[]);
+    try {
+      const res = await fetch('/api/users', { credentials: 'include' });
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      const data = await res.json();
+      setAccounts((data.users || []) as Student[]);
+    } catch (error) {
+      console.error('Error fetching accounts:', error);
+      setAccounts([]);
+    }
   };
 
   useEffect(() => { fetchAccounts(); }, []);
@@ -38,30 +46,44 @@ const AccountsPanel = () => {
 
   const handleEditSave = async () => {
     setLoading(true);
-    await fetch(`/api/users/${editing!.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        displayName: editForm.displayName,
-        dob: editForm.dob,
-        phone: editForm.phone,
-        avatarUrl: editForm.avatarUrl,
-        note: editForm.note,
-        // Only admin can change name
-        ...(editForm.role === 'admin' ? { name: editForm.name } : {}),
-      }),
-    });
-    setEditing(null);
-    setLoading(false);
-    await fetchAccounts();
+    try {
+      await fetch(`/api/users/${editing!.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          displayName: editForm.displayName,
+          dob: editForm.dob,
+          phone: editForm.phone,
+          avatarUrl: editForm.avatarUrl,
+          note: editForm.note,
+          // Only admin can change name
+          ...(editForm.role === 'admin' ? { name: editForm.name } : {}),
+        }),
+      });
+      setEditing(null);
+    } catch (error) {
+      console.error('Error updating account:', error);
+    } finally {
+      setLoading(false);
+      await fetchAccounts();
+    }
   };
 
   const handleRemove = async (acc: Student) => {
     setLoading(true);
-    await fetch(`/api/users/${acc.id}`, { method: 'DELETE' });
-    // Optionally, also remove from Firebase Auth and VStorage
-    setLoading(false);
-    await fetchAccounts();
+    try {
+      await fetch(`/api/users/${acc.id}`, { 
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      // Optionally, also remove from Firebase Auth and VStorage
+    } catch (error) {
+      console.error('Error removing account:', error);
+    } finally {
+      setLoading(false);
+      await fetchAccounts();
+    }
   };
 
   const handleResetPassword = async (acc: Student) => {

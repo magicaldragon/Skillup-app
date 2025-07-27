@@ -4,7 +4,6 @@
 import { useState } from 'react';
 import type { Student, StudentClass } from './types';
 import { useEffect } from 'react';
-import { getLevels } from './services/firebase';
 import type { Level } from './types';
 
 const getNextClassCode = (classes: StudentClass[]) => {
@@ -49,7 +48,7 @@ const ClassesPanel = ({ students }: { students: Student[], classes?: StudentClas
         ...allClasses.filter((c: any) => c.levelId && c.levelId !== '').sort((a: any, b: any) => a.name.localeCompare(b.name))
       ];
       setClasses(allClasses);
-      // Sync classLevels state with Firestore data
+      // Sync classLevels state with backend data
       const levelsMap: { [id: string]: string | null } = {};
       allClasses.forEach((c: any) => { levelsMap[c.id] = c.levelId || ''; });
       setClassLevels(levelsMap);
@@ -61,10 +60,19 @@ const ClassesPanel = ({ students }: { students: Student[], classes?: StudentClas
     }
   };
 
-  // Fetch levels from Firestore
+  // Fetch levels from backend
   const fetchLevels = async () => {
-    const fetched = await getLevels();
-    setLevels(fetched);
+    try {
+      const res = await fetch('/api/levels', { credentials: 'include' });
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      const data = await res.json();
+      setLevels(data.levels || []);
+    } catch (error) {
+      console.error('Error fetching levels:', error);
+      setLevels([]);
+    }
   };
 
   useEffect(() => {

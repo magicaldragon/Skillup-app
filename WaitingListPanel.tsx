@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { Student, StudentClass } from './types';
-import { db } from './services/firebase';
+
 import { deleteAccountCompletely } from './services/firebase';
 
 const WaitingListPanel = ({ students, classes, currentUser }: { students: Student[], classes: StudentClass[], currentUser: Student }) => {
@@ -38,6 +38,7 @@ const WaitingListPanel = ({ students, classes, currentUser }: { students: Studen
       await fetch(`/api/users/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ classIds: [bulkClassId] }),
       });
     }
@@ -53,6 +54,7 @@ const WaitingListPanel = ({ students, classes, currentUser }: { students: Studen
       await fetch(`/api/users/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ status: 'record' }),
       });
     }
@@ -86,6 +88,7 @@ const WaitingListPanel = ({ students, classes, currentUser }: { students: Studen
     await fetch(`/api/users/${studentId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ classIds: [classId] }),
     });
     setLoading(prev => ({ ...prev, [studentId]: false }));

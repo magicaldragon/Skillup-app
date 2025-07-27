@@ -7,10 +7,10 @@ export interface Student {
   email?: string;
   dob?: string;
   phone?: string;
-  role: 'admin' | 'teacher' | 'student';
+  role: 'admin' | 'teacher' | 'staff' | 'student';
   classIds?: string[];
   note?: string;
-  active?: boolean; // true = active, false = deactivated
+  status?: 'active' | 'inactive' | 'pending'; // Changed from active?: boolean to match backend
   // Added fields for UI and backend compatibility:
   gender?: 'male' | 'female' | 'other';
   englishName?: string;

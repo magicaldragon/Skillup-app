@@ -9,14 +9,26 @@ const ReportsPanel = ({ isAdmin }: { isAdmin: boolean }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await fetch('/api/reports');
-      const data = await res.json();
-      setReports(data.reports || []);
-      const studentSnap = await fetch('/api/users').then(r => r.json());
-      setStudents(studentSnap.users || []);
-      const classSnap = await fetch('/api/classes').then(r => r.json());
-      setClasses(classSnap.classes || []);
-      setLoading(false);
+      try {
+        const res = await fetch('/api/reports', { credentials: 'include' });
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        const data = await res.json();
+        setReports(data.reports || []);
+        
+        const studentSnap = await fetch('/api/users', { credentials: 'include' }).then(r => r.json());
+        const classSnap = await fetch('/api/classes', { credentials: 'include' }).then(r => r.json());
+        setStudents(studentSnap.users || []);
+        setClasses(classSnap.classes || []);
+      } catch (error) {
+        console.error('Error fetching reports data:', error);
+        setReports([]);
+        setStudents([]);
+        setClasses([]);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchData();
   }, []);
@@ -30,8 +42,18 @@ const ReportsPanel = ({ isAdmin }: { isAdmin: boolean }) => {
   }, {} as Record<string, Record<string, any[]>>);
 
   const handleDeleteReport = async (reportId: string) => {
-    await fetch(`/api/reports/${reportId}`, { method: 'DELETE' });
-    await fetchReports();
+    try {
+      await fetch(`/api/reports/${reportId}`, { 
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      // Refresh reports
+      const res = await fetch('/api/reports', { credentials: 'include' });
+      const data = await res.json();
+      setReports(data.reports || []);
+    } catch (error) {
+      console.error('Error deleting report:', error);
+    }
   };
 
   if (loading) return <div className="p-8 text-center text-lg">Loading reports...</div>;
