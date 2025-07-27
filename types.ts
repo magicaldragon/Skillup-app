@@ -11,6 +11,11 @@ export interface Student {
   classIds?: string[];
   note?: string;
   active?: boolean; // true = active, false = deactivated
+  // Added fields for UI and backend compatibility:
+  gender?: 'male' | 'female' | 'other';
+  englishName?: string;
+  username?: string;
+  createdAt?: string;
 }
 
 export interface Level {
