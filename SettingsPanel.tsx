@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import type { Student, StudentClass } from './types';
 import DiceBearAvatar from './DiceBearAvatar';
+import { useDarkMode } from './App';
 
 const DEFAULT_AVATAR = '/anon-avatar.png';
 const AVATAR_MALE = '/avatar-male.png';
@@ -30,13 +31,14 @@ const SettingsPanel = ({ user, isAdmin, onLogout, classes = [] }: { user: Studen
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [darkMode, setDarkMode] = useState(false);
   const [edited, setEdited] = useState(false);
   const [avatarStyle, setAvatarStyle] = useState(user.diceBearStyle || 'avataaars');
   const [avatarSeed, setAvatarSeed] = useState(user.diceBearSeed || user.name || user.email || user.id || 'User');
   const [avatarUrl, setAvatarUrl] = useState(user.avatarUrl || '');
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
+
+  const { darkMode, toggleDarkMode } = useDarkMode();
 
   const handleRandomize = () => {
     setAvatarSeed(Math.random().toString(36).substring(2, 10));
@@ -182,7 +184,7 @@ const SettingsPanel = ({ user, isAdmin, onLogout, classes = [] }: { user: Studen
           </div>
           <div className="flex items-center gap-4 mt-4">
             <label className="flex items-center cursor-pointer gap-2">
-              <input type="checkbox" checked={darkMode} onChange={() => setDarkMode(d => !d)} className="accent-green-600 w-5 h-5" />
+              <input type="checkbox" checked={darkMode} onChange={toggleDarkMode} className="accent-green-600 w-5 h-5" />
               <span className="text-sm font-semibold">Dark Mode</span>
             </label>
           </div>

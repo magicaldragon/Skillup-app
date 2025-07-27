@@ -343,7 +343,9 @@ router.post('/:id/avatar', verifyToken, upload.single('avatar'), async (req, res
     res.json({ success: true, avatarUrl });
   } catch (error) {
     console.error('Avatar upload error:', error);
-    res.status(500).json({ success: false, message: 'Failed to upload avatar.' });
+    if (!res.headersSent) {
+      res.status(500).json({ success: false, message: 'Failed to upload avatar.', error: error?.message || error });
+    }
   }
 });
 

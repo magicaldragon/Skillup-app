@@ -10,13 +10,14 @@ import WaitingListPanel from './WaitingListPanel';
 import SettingsPanel from './SettingsPanel';
 import DiceBearAvatar from './DiceBearAvatar';
 
-const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onLogout }: {
+const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onLogout, onStudentAdded }: {
   user: Student,
   students: Student[],
   assignments: Assignment[],
   classes: StudentClass[],
   activeKey: string,
-  onLogout: () => void
+  onLogout: () => void,
+  onStudentAdded?: () => void
 }) => {
   // Example summary metrics (IELTS focus)
   const totalStudents = students.length;
@@ -36,7 +37,7 @@ const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onL
           </div>
         ) : null}
         {activeKey === 'add-student' ? (
-          <AddStudentPanel />
+          <AddStudentPanel onStudentAdded={onStudentAdded} />
         ) : activeKey === 'classes' ? (
           <ClassesPanel students={students} classes={classList} onAddClass={handleAddClass} />
         ) : activeKey === 'waiting-list' ? (

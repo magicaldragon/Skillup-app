@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { userRegistrationService, NewUserData } from './services/userRegistrationService';
 
-const AddStudentPanel = () => {
+const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) => {
   const [form, setForm] = useState({
     fullname: '',
     username: '', // <-- add username field
@@ -152,6 +152,7 @@ const AddStudentPanel = () => {
           status: 'potential',
         });
         setGeneratedCredentials(null);
+        if (onStudentAdded) onStudentAdded();
       } else {
         setError(result.message || 'Failed to register user');
       }

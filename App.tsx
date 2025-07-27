@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, createContext, useContext } from "react";
 import { hybridAuthService } from "./services/hybridAuthService";
 import Login from "./Login";
 import Dashboard from "./Dashboard";
@@ -6,6 +6,10 @@ import type { Assignment, Submission, Student, StudentClass } from "./types";
 import TeacherDashboard from './TeacherDashboard';
 import StudentDashboard from './StudentDashboard';
 import Sidebar from './Sidebar';
+
+// Global Dark Mode Context
+const DarkModeContext = createContext({ darkMode: false, toggleDarkMode: () => {} });
+export const useDarkMode = () => useContext(DarkModeContext);
 
 const App: React.FC = () => {
   const [user, setUser] = useState<Student | null>(null);
@@ -18,6 +22,8 @@ const App: React.FC = () => {
   const [dataLoading, setDataLoading] = useState(false);
   const [dataError, setDataError] = useState<string | null>(null);
   const [navKey, setNavKey] = useState('dashboard'); // Track active sidebar key
+  const [darkMode, setDarkMode] = useState(false);
+  const toggleDarkMode = () => setDarkMode((d) => !d);
 
   // Initialize authentication state
   useEffect(() => {
@@ -66,6 +72,30 @@ const App: React.FC = () => {
   };
 
   // Fetch all dashboard data after login
+  const fetchStudents = async () => {
+    if (!user) return;
+    try {
+      const apiUrl = 'https://skillup-backend-v6vm.onrender.com/api';
+      const studentsResponse = await fetch(`${apiUrl}/users`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('skillup_token')}`,
+        },
+      });
+      if (studentsResponse.ok) {
+        const studentsData = await studentsResponse.json();
+        if (studentsData.success) {
+          setStudents(studentsData.users || []);
+        } else {
+          setStudents([]);
+        }
+      } else {
+        setStudents([]);
+      }
+    } catch {
+      setStudents([]);
+    }
+  };
+
   useEffect(() => {
     if (!user) return;
     setDataLoading(true);
@@ -75,39 +105,9 @@ const App: React.FC = () => {
       try {
         // Only fetch students if user is admin or teacher
         if (user.role === 'admin' || user.role === 'teacher') {
-          console.log('Fetching students for role:', user.role);
-          
-          const apiUrl = 'https://skillup-backend-v6vm.onrender.com/api';
-          const studentsResponse = await fetch(`${apiUrl}/users`, {
-            headers: {
-              'Authorization': `Bearer ${localStorage.getItem('skillup_token')}`,
-            },
-          });
-          
-          console.log('Students response status:', studentsResponse.status);
-          
-          if (studentsResponse.ok) {
-            const studentsData = await studentsResponse.json();
-            console.log('🔍 [DEBUG] Students API response:', studentsData);
-            console.log('🔍 [DEBUG] Students count from API:', studentsData.users?.length || 0);
-            console.log('🔍 [DEBUG] All students from API:', studentsData.users);
-            
-            if (studentsData.success) {
-              setStudents(studentsData.users || []);
-              console.log('🔍 [DEBUG] Set students count:', studentsData.users?.length || 0);
-            } else {
-              console.error('🔍 [DEBUG] Failed to fetch students:', studentsData.message);
-              setStudents([]);
-            }
-          } else {
-            const errorText = await studentsResponse.text();
-            console.error('Failed to fetch students:', studentsResponse.status, errorText);
-            setDataError(`Failed to load students: ${studentsResponse.status} ${errorText}`);
-            setStudents([]);
-          }
+          await fetchStudents();
         } else {
           // For students, set empty array
-          console.log('User is student, setting empty students array');
           setStudents([]);
         }
 
@@ -119,23 +119,29 @@ const App: React.FC = () => {
             id: '1',
             title: 'IELTS Reading Practice - Academic',
             description: 'Practice reading comprehension with academic texts',
-            skill: 'reading',
+            skill: 'Reading',
             level: 'IELTS',
             dueDate: '2024-12-31',
+            publishDate: new Date().toISOString(),
             classIds: ['class1', 'class2'],
             createdAt: new Date().toISOString(),
-            createdBy: 'teacher1'
+            createdBy: 'teacher1',
+            answerKey: {},
+            questions: []
           },
           {
             id: '2',
             title: 'IELTS Writing Task 2 - Opinion Essay',
             description: 'Write an opinion essay on environmental issues',
-            skill: 'writing',
+            skill: 'Writing',
             level: 'IELTS',
             dueDate: '2024-12-25',
+            publishDate: new Date().toISOString(),
             classIds: ['class1'],
             createdAt: new Date().toISOString(),
-            createdBy: 'teacher1'
+            createdBy: 'teacher1',
+            answerKey: {},
+            questions: []
           }
         ]);
         
@@ -147,9 +153,7 @@ const App: React.FC = () => {
             content: 'This is my reading comprehension response...',
             submittedAt: new Date().toISOString(),
             score: 85,
-            feedback: 'Excellent comprehension of the main ideas. Good use of context clues.',
-            gradedBy: 'teacher1',
-            gradedAt: new Date().toISOString()
+            feedback: 'Excellent comprehension of the main ideas. Good use of context clues.'
           },
           {
             id: '2',
@@ -158,9 +162,7 @@ const App: React.FC = () => {
             content: 'This is my opinion essay on environmental issues...',
             submittedAt: new Date().toISOString(),
             score: null,
-            feedback: null,
-            gradedBy: null,
-            gradedAt: null
+            feedback: ''
           }
         ]);
         
@@ -169,21 +171,11 @@ const App: React.FC = () => {
             id: 'class1',
             name: 'IELTS Advanced - Reading & Writing',
             levelId: 'ielts_advanced',
-            description: 'Advanced IELTS preparation focusing on reading and writing skills',
-            teacherId: 'teacher1',
-            studentIds: ['student1', 'student2'],
-            createdAt: new Date().toISOString(),
-            isActive: true
           },
           {
             id: 'class2',
             name: 'IELTS Intermediate - Speaking & Listening',
             levelId: 'ielts_intermediate',
-            description: 'Intermediate IELTS preparation focusing on speaking and listening skills',
-            teacherId: 'teacher1',
-            studentIds: ['student3'],
-            createdAt: new Date().toISOString(),
-            isActive: true
           }
         ]);
         
@@ -233,56 +225,60 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="flex h-screen bg-slate-100">
-      {user.role === "student" ? (
-        <div className="flex flex-1">
-          <Sidebar role={user.role} onNavigate={setNavKey} activeKey={navKey || ''} onLogout={handleLogout} />
-          <div className="flex-1 overflow-auto">
-            <StudentDashboard 
-              user={user}
-              assignments={assignments}
-              submissions={submissions}
-              classes={classes}
-              onNavigate={setNavKey}
-              activeKey={navKey}
-              onLogout={handleLogout}
-            />
-          </div>
+    <DarkModeContext.Provider value={{ darkMode, toggleDarkMode }}>
+      <div className={darkMode ? 'dark' : ''} style={{ minHeight: '100vh' }}>
+        <div className="flex h-screen bg-slate-100 dark:bg-slate-900 transition-colors duration-500">
+          {user.role === "student" ? (
+            <div className="flex flex-1">
+              <Sidebar role={user.role} onNavigate={setNavKey} activeKey={navKey || ''} onLogout={handleLogout} />
+              <div className="flex-1 overflow-auto">
+                <StudentDashboard 
+                  user={user}
+                  assignments={assignments}
+                  submissions={submissions}
+                  classes={classes}
+                  onNavigate={setNavKey}
+                  activeKey={navKey}
+                  onLogout={handleLogout}
+                />
+              </div>
+            </div>
+          ) : user.role === "teacher" || user.role === "admin" ? (
+            <div className="flex flex-1">
+              <Sidebar role={user.role} onNavigate={setNavKey} activeKey={navKey || ''} onLogout={handleLogout} />
+              <div className="flex-1 overflow-auto">
+                <TeacherDashboard 
+                  user={user}
+                  students={students}
+                  assignments={assignments}
+                  classes={classes}
+                  activeKey={navKey}
+                  onLogout={handleLogout}
+                  onStudentAdded={fetchStudents}
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-1">
+              <Sidebar role={user.role} onNavigate={setNavKey} activeKey={navKey || ''} onLogout={handleLogout} />
+              <div className="flex-1 overflow-auto">
+                <Dashboard 
+                  assignments={assignments}
+                  submissions={submissions}
+                  students={students}
+                  classes={classes}
+                  loading={dataLoading}
+                  error={dataError}
+                  user={user}
+                  activeKey={navKey}
+                  onLogout={handleLogout}
+                />
+              </div>
+            </div>
+          )}
         </div>
-      ) : user.role === "teacher" || user.role === "admin" ? (
-        <div className="flex flex-1">
-          <Sidebar role={user.role} onNavigate={setNavKey} activeKey={navKey || ''} onLogout={handleLogout} />
-          <div className="flex-1 overflow-auto">
-            <TeacherDashboard 
-              user={user}
-              students={students}
-              assignments={assignments}
-              classes={classes}
-              onNavigate={setNavKey}
-              activeKey={navKey}
-              onLogout={handleLogout}
-            />
-          </div>
-        </div>
-      ) : (
-        <div className="flex flex-1">
-          <Sidebar role={user.role} onNavigate={setNavKey} activeKey={navKey || ''} onLogout={handleLogout} />
-          <div className="flex-1 overflow-auto">
-            <Dashboard 
-              assignments={assignments}
-              submissions={submissions}
-              students={students}
-              classes={classes}
-              loading={dataLoading}
-              error={dataError}
-              user={user}
-              activeKey={navKey}
-              onLogout={handleLogout}
-            />
-          </div>
-        </div>
-      )}
-    </div>
+      </div>
+    </DarkModeContext.Provider>
   );
 };
 
