@@ -28,7 +28,12 @@ router.get('/', verifyToken, async (req, res) => {
     
     res.json({
       success: true,
-      users
+      users: users.map(u => {
+        const obj = u.toObject();
+        obj.id = obj._id;
+        delete obj._id;
+        return obj;
+      })
     });
   } catch (error) {
     console.error('Get users error:', error);
