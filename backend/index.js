@@ -53,6 +53,7 @@ const usersRouter = require('./routes/users');
 const assignmentsRouter = require('./routes/assignments');
 const submissionsRouter = require('./routes/submissions');
 const classesRouter = require('./routes/classes');
+const levelsRouter = require('./routes/levels');
 
 // Use routes
 app.use('/api/auth', authRouter);
@@ -60,6 +61,7 @@ app.use('/api/users', usersRouter);
 app.use('/api/assignments', assignmentsRouter);
 app.use('/api/submissions', submissionsRouter);
 app.use('/api/classes', classesRouter);
+app.use('/api/levels', levelsRouter);
 
 // Serve uploaded avatars statically
 app.use('/uploads/avatars', express.static(path.join(__dirname, 'uploads/avatars')));

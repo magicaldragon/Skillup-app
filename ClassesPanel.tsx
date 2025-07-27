@@ -36,20 +36,29 @@ const ClassesPanel = ({ students }: { students: Student[], classes?: StudentClas
   // Fetch all classes from backend
   const fetchClasses = async () => {
     setLoading(true);
-    const res = await fetch('/api/classes');
-    const data = await res.json();
-    let allClasses = data.classes || [];
-    // Sort: unassigned classes on top, then alphabetically by name
-    allClasses = [
-      ...allClasses.filter((c: any) => !c.levelId || c.levelId === ''),
-      ...allClasses.filter((c: any) => c.levelId && c.levelId !== '').sort((a: any, b: any) => a.name.localeCompare(b.name))
-    ];
-    setClasses(allClasses);
-    // Sync classLevels state with Firestore data
-    const levelsMap: { [id: string]: string | null } = {};
-    allClasses.forEach((c: any) => { levelsMap[c.id] = c.levelId || ''; });
-    setClassLevels(levelsMap);
-    setLoading(false);
+    try {
+      const res = await fetch('/api/classes', { credentials: 'include' });
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      const data = await res.json();
+      let allClasses = data.classes || [];
+      // Sort: unassigned classes on top, then alphabetically by name
+      allClasses = [
+        ...allClasses.filter((c: any) => !c.levelId || c.levelId === ''),
+        ...allClasses.filter((c: any) => c.levelId && c.levelId !== '').sort((a: any, b: any) => a.name.localeCompare(b.name))
+      ];
+      setClasses(allClasses);
+      // Sync classLevels state with Firestore data
+      const levelsMap: { [id: string]: string | null } = {};
+      allClasses.forEach((c: any) => { levelsMap[c.id] = c.levelId || ''; });
+      setClassLevels(levelsMap);
+    } catch (error) {
+      console.error('Error fetching classes:', error);
+      setClasses([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Fetch levels from Firestore
@@ -66,32 +75,59 @@ const ClassesPanel = ({ students }: { students: Student[], classes?: StudentClas
   // Instantly create a new class in backend
   const handleAddClass = async () => {
     setAdding(true);
-    const newClass = { name: nextCode, levelId: null };
-    await fetch('/api/classes', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newClass),
-    });
-    await fetchClasses();
-    setAdding(false);
+    try {
+      const newClass = { name: nextCode, levelId: null };
+      const res = await fetch('/api/classes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(newClass),
+      });
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      await fetchClasses();
+    } catch (error) {
+      console.error('Error adding class:', error);
+    } finally {
+      setAdding(false);
+    }
   };
 
   // Edit class name/level in backend
   const handleEditClass = async (classId: string, newName: string, newLevelId: string | null) => {
-    await fetch(`/api/classes/${classId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: newName, levelId: newLevelId }),
-    });
-    setEditId(null);
-    setEditName('');
-    await fetchClasses();
+    try {
+      const res = await fetch(`/api/classes/${classId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ name: newName, levelId: newLevelId }),
+      });
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      setEditId(null);
+      setEditName('');
+      await fetchClasses();
+    } catch (error) {
+      console.error('Error editing class:', error);
+    }
   };
 
   // Delete class in backend
   const handleDeleteClass = async (classId: string) => {
-    await fetch(`/api/classes/${classId}`, { method: 'DELETE' });
-    await fetchClasses();
+    try {
+      const res = await fetch(`/api/classes/${classId}`, { 
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      await fetchClasses();
+    } catch (error) {
+      console.error('Error deleting class:', error);
+    }
   };
 
   // Assign student to class

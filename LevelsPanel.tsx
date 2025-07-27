@@ -2,7 +2,6 @@
 // Professional panel to show and manage levels (starters, movers, flyers, ket, pet, ielts, ...)
 // [NOTE] Created as part of 2024-05-XX dashboard refactor
 import React, { useState } from 'react';
-import { db, getLevels, addLevel, updateLevel, deleteLevel } from './services/firebase';
 import type { StudentClass, Level } from './types';
 import { ICONS } from './constants';
 import { LEVELS as DEFAULT_LEVELS } from './constants';
@@ -19,13 +18,23 @@ const LevelsPanel = () => {
   const [classesByLevel, setClassesByLevel] = useState<{ [level: string]: StudentClass[] }>({});
   const [loading, setLoading] = useState(false);
 
-  // Fetch levels from Firestore on mount
+  // Fetch levels from backend on mount
   React.useEffect(() => {
     setLoading(true);
     const fetchLevels = async () => {
-      const res = await fetch('/api/levels');
-      const data = await res.json();
-      setLevels(data.levels || []);
+      try {
+        const res = await fetch('/api/levels', { credentials: 'include' });
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        const data = await res.json();
+        setLevels(data.levels || []);
+      } catch (error) {
+        console.error('Error fetching levels:', error);
+        setLevels([]);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchLevels();
   }, []);
@@ -33,9 +42,27 @@ const LevelsPanel = () => {
   // Fetch all classes and categorize by level
   React.useEffect(() => {
     const fetchClasses = async () => {
-      const res = await fetch('/api/classes');
-      const data = await res.json();
-      setClassesByLevel(data.classesByLevel || {});
+      try {
+        const res = await fetch('/api/classes', { credentials: 'include' });
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        const data = await res.json();
+        // Group classes by level
+        const classesByLevelMap: { [level: string]: StudentClass[] } = {};
+        (data.classes || []).forEach((cls: any) => {
+          if (cls.levelId) {
+            if (!classesByLevelMap[cls.levelId]) {
+              classesByLevelMap[cls.levelId] = [];
+            }
+            classesByLevelMap[cls.levelId].push(cls);
+          }
+        });
+        setClassesByLevel(classesByLevelMap);
+      } catch (error) {
+        console.error('Error fetching classes:', error);
+        setClassesByLevel({});
+      }
     };
     if (levels.length > 0) fetchClasses();
   }, [levels]);
@@ -45,27 +72,58 @@ const LevelsPanel = () => {
     const val = newLevel.trim().toUpperCase();
     if (val && !levels.some(l => l.name.toUpperCase() === val)) {
       setLoading(true);
-      const newLevelObj = { name: val, code: val, description: '' };
-      const id = await addLevel(newLevelObj);
-      setLevels([...levels, { ...newLevelObj, id }]);
-      setNewLevel('');
-      setShowAdd(false);
-      setLoading(false);
+      try {
+        const newLevelObj = { name: val, code: val, description: '' };
+        const res = await fetch('/api/levels', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(newLevelObj),
+        });
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        const data = await res.json();
+        setLevels([...levels, data.level]);
+        setNewLevel('');
+        setShowAdd(false);
+      } catch (error) {
+        console.error('Error adding level:', error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
-  // Seed default levels into Firestore
+  // Seed default levels into backend
   const handleSeedLevels = async () => {
     setLoading(true);
-    for (const lvl of DEFAULT_LEVELS) {
-      // Remove id so Firestore can generate its own
-      const { id, ...rest } = lvl;
-      await addLevel(rest);
+    try {
+      for (const lvl of DEFAULT_LEVELS) {
+        // Remove id so backend can generate its own
+        const { id, ...rest } = lvl;
+        const res = await fetch('/api/levels', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(rest),
+        });
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+      }
+      // Refresh levels
+      const res = await fetch('/api/levels', { credentials: 'include' });
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      const data = await res.json();
+      setLevels(data.levels || []);
+    } catch (error) {
+      console.error('Error seeding levels:', error);
+    } finally {
+      setLoading(false);
     }
-    // Refresh levels
-    const fetched = await getLevels();
-    setLevels(fetched);
-    setLoading(false);
   };
 
   // Open edit dialog
@@ -93,18 +151,32 @@ const LevelsPanel = () => {
       !levels.some((l, i) => i !== selectedEditIdx && l.name.toUpperCase() === editValue.trim().toUpperCase())
     ) {
       setLoading(true);
-      const id = levels[selectedEditIdx].id;
-      await updateLevel(id, { name: editValue.trim(), description: editDesc, code: editCode });
-      const updated = levels.map((l, i) =>
-        i === selectedEditIdx ? { ...l, name: editValue.trim(), description: editDesc, code: editCode } : l
-      );
-      setLevels(updated);
-      setShowEdit(false);
-      setSelectedEditIdx(null);
-      setEditValue('');
-      setEditDesc('');
-      setEditCode('');
-      setLoading(false);
+      try {
+        const id = levels[selectedEditIdx].id;
+        const res = await fetch(`/api/levels/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ name: editValue.trim(), description: editDesc, code: editCode }),
+        });
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        const data = await res.json();
+        const updated = levels.map((l, i) =>
+          i === selectedEditIdx ? data.level : l
+        );
+        setLevels(updated);
+        setShowEdit(false);
+        setSelectedEditIdx(null);
+        setEditValue('');
+        setEditDesc('');
+        setEditCode('');
+      } catch (error) {
+        console.error('Error updating level:', error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -112,15 +184,26 @@ const LevelsPanel = () => {
   const handleRemove = async () => {
     if (selectedEditIdx !== null) {
       setLoading(true);
-      const id = levels[selectedEditIdx].id;
-      await deleteLevel(id);
-      setLevels(levels.filter((_, i) => i !== selectedEditIdx));
-      setShowEdit(false);
-      setSelectedEditIdx(null);
-      setEditValue('');
-      setEditDesc('');
-      setEditCode('');
-      setLoading(false);
+      try {
+        const id = levels[selectedEditIdx].id;
+        const res = await fetch(`/api/levels/${id}`, {
+          method: 'DELETE',
+          credentials: 'include',
+        });
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        setLevels(levels.filter((_, i) => i !== selectedEditIdx));
+        setShowEdit(false);
+        setSelectedEditIdx(null);
+        setEditValue('');
+        setEditDesc('');
+        setEditCode('');
+      } catch (error) {
+        console.error('Error deleting level:', error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
