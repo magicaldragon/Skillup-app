@@ -10,7 +10,7 @@ const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
   'http://localhost:4173', // Vite preview server
-  'https://skillup-frontend-uvt6.onrender.com',
+  'https://skillup-frontend-uvt6.onrender.com', // <-- Deployed frontend URL (Render)
   // Add any additional origins from environment variables
   ...(process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [])
 ];
