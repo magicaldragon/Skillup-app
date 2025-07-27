@@ -2,7 +2,7 @@
 // Professional panel to add new students, with Hybrid Auth (Firebase + MongoDB) integration
 // [NOTE] Updated for hybrid authentication system
 import React, { useState, useEffect } from 'react';
-import { userRegistrationService, NewUserData } from '../services/userRegistrationService';
+import { userRegistrationService, NewUserData } from 'services/userRegistrationService';
 
 const AddStudentPanel = () => {
   const [form, setForm] = useState({
@@ -42,11 +42,12 @@ const AddStudentPanel = () => {
     setUsernameError(null);
     let username = base;
     let count = 0;
-    let exists = await userRegistrationService.checkUsernameOrEmailExists(username, form.role);
+    const role = form.role || 'student'; // Ensure role is defined
+    let exists = await userRegistrationService.checkUsernameOrEmailExists(username, role);
     while (exists) {
       count += 1;
       username = `${base}${count}`;
-      exists = await userRegistrationService.checkUsernameOrEmailExists(username, form.role);
+      exists = await userRegistrationService.checkUsernameOrEmailExists(username, role);
     }
     setCheckingUsername(false);
     return username;
@@ -87,7 +88,8 @@ const AddStudentPanel = () => {
     setCheckingUsername(true);
     setUsernameError(null);
     if (value) {
-      const exists = await userRegistrationService.checkUsernameOrEmailExists(value, form.role);
+      const role = form.role || 'student'; // Ensure role is defined
+      const exists = await userRegistrationService.checkUsernameOrEmailExists(value, role);
       if (exists) {
         setUsernameError('Username or email already taken');
       }
