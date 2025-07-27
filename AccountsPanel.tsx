@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { auth } from './services/firebase';
-import { updateProfile, updateEmail, deleteUser } from 'firebase/auth';
 import type { Student } from './types';
 
 const AccountsPanel = () => {
@@ -35,7 +33,7 @@ const AccountsPanel = () => {
   };
 
   const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setEditForm(f => ({ ...f, [e.target.name]: e.target.value }));
+    setEditForm((f: any) => ({ ...f, [e.target.name]: e.target.value }));
   };
 
   const handleEditSave = async () => {

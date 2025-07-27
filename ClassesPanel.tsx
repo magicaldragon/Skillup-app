@@ -21,7 +21,7 @@ const ClassesPanel = ({ students }: { students: Student[], classes?: StudentClas
   const [classLevels, setClassLevels] = useState<{ [id: string]: string | null }>({});
   const [editId, setEditId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
-  const [pendingLevel, setPendingLevel] = useState<{ classId: string, level: string } | null>(null);
+
   const [levels, setLevels] = useState<Level[]>([]);
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
   const [classSearch, setClassSearch] = useState('');
