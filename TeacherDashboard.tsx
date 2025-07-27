@@ -1,8 +1,7 @@
 // TeacherDashboard.tsx
 // Professional dashboard layout for teachers/admins with sidebar, summary cards, and IELTS focus
 // [NOTE] Created as part of 2024-05-XX dashboard refactor
-import React, { useState } from 'react';
-import Sidebar from './Sidebar';
+import { useState } from 'react';
 import type { Assignment, Student, StudentClass } from './types';
 import ClassesPanel from './ClassesPanel';
 import AddStudentPanel from './AddStudentPanel';
@@ -10,12 +9,11 @@ import LevelsPanel from './LevelsPanel';
 import WaitingListPanel from './WaitingListPanel';
 import SettingsPanel from './SettingsPanel';
 
-const TeacherDashboard = ({ user, students, assignments, classes, onNavigate, activeKey, onLogout }: {
+const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onLogout }: {
   user: Student,
   students: Student[],
   assignments: Assignment[],
   classes: StudentClass[],
-  onNavigate: (key: string) => void,
   activeKey: string,
   onLogout: () => void
 }) => {
@@ -35,6 +33,8 @@ const TeacherDashboard = ({ user, students, assignments, classes, onNavigate, ac
         ) : activeKey === 'classes' ? (
           <ClassesPanel students={students} classes={classList} onAddClass={handleAddClass} />
         ) : activeKey === 'waiting-list' ? (
+          <WaitingListPanel students={students} classes={classList} currentUser={user} />
+        ) : activeKey === 'potential-students' ? (
           <WaitingListPanel students={students} classes={classList} currentUser={user} />
         ) : activeKey === 'levels' ? (
           <LevelsPanel />
