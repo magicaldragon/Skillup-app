@@ -128,13 +128,15 @@ const Sidebar = ({ role, activeKey, onNavigate, onLogout }: { role: string, acti
           return (
             <div key={item.key}>
               <button
-                className={`flex items-center gap-2 w-full px-4 py-2 rounded-lg text-left font-semibold text-[16px] md:text-[17px] lg:text-[18px] transition-all duration-300 transform shadow-sm bg-white/80 hover:bg-green-100 hover:shadow-lg ${activeKey === item.key ? 'bg-green-200 text-[#307637] scale-[1.03] shadow-lg' : ''}`}
+                className={`flex items-center gap-2 w-full px-4 py-2 rounded-lg text-left font-semibold text-[16px] md:text-[17px] lg:text-[18px] transition-all duration-300 transform shadow-sm bg-white/80
+              ${activeKey === item.key ? 'bg-green-200 text-[#307637] scale-[1.03] shadow-lg' : ''}
+              hover:bg-[#307637] hover:text-[#ffe9ca] hover:shadow-lg`}
                 onClick={() => handleMenuClick(item.key, hasChildren)}
                 style={{ boxShadow: activeKey === item.key ? '0 4px 16px 0 rgba(48,118,55,0.10)' : undefined }}
               >
                 {item.icon} {item.label}
                 {hasChildren && (
-                  <span className={`ml-auto transition-transform ${isOpen ? 'rotate-90' : ''}`} style={{ color: isOpen ? '#14532d' : '#307637', fontWeight: 700, fontSize: 20 }}>▶</span>
+                  <span className={`ml-auto transition-transform ${isOpen ? 'rotate-90' : ''}`} style={{ color: '#14532d', fontWeight: 700, fontSize: 20 }}>▶</span>
                 )}
               </button>
               {hasChildren && isOpen && (
@@ -142,7 +144,9 @@ const Sidebar = ({ role, activeKey, onNavigate, onLogout }: { role: string, acti
                   {item.children.filter(child => child.visible).map(child => (
                     <button
                       key={child.key}
-                      className={`flex items-center gap-2 w-full px-2 py-1 rounded text-left font-medium text-[15px] md:text-[16px] lg:text-[17px] transition-colors bg-white/70 hover:bg-green-50 hover:shadow ${activeKey === child.key ? 'bg-green-100 text-[#307637] font-bold shadow' : ''}`}
+                      className={`flex items-center gap-2 w-full px-2 py-1 rounded text-left font-medium text-[15px] md:text-[16px] lg:text-[17px] transition-colors bg-white/70
+                    hover:bg-[#307637] hover:text-[#ffe9ca] hover:shadow
+                    ${activeKey === child.key ? 'bg-green-100 text-[#307637] font-bold shadow' : ''}`}
                       onClick={() => onNavigate(child.key)}
                       style={{ marginLeft: 8 }}
                     >
@@ -158,7 +162,9 @@ const Sidebar = ({ role, activeKey, onNavigate, onLogout }: { role: string, acti
       {/* Settings and Logout at the bottom */}
       <div className="mt-auto px-2 pb-4 space-y-2 text-[16px] md:text-[17px] lg:text-[18px]">
         <button
-          className={`flex items-center gap-2 w-full px-4 py-2 rounded-lg text-left font-semibold transition-all duration-300 shadow-sm bg-white/80 hover:bg-green-100 hover:shadow-lg ${activeKey === 'settings' ? 'bg-green-200 text-[#307637] scale-[1.03] shadow-lg' : ''}`}
+          className={`flex items-center gap-2 w-full px-4 py-2 rounded-lg text-left font-semibold transition-all duration-300 shadow-sm bg-white/80
+        hover:bg-[#307637] hover:text-[#ffe9ca] hover:shadow-lg
+        ${activeKey === 'settings' ? 'bg-green-200 text-[#307637] scale-[1.03] shadow-lg' : ''}`}
           onClick={() => onNavigate('settings')}
           style={{ boxShadow: activeKey === 'settings' ? '0 4px 16px 0 rgba(48,118,55,0.10)' : undefined }}
         >

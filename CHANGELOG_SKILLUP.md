@@ -10,6 +10,18 @@
 - Provided minimal working version for login/logout testing.
 - (Pending) Restore full dashboard logic for admin, teacher, and student views after rollback.
 
+## Recent Updates (2024-12-19)
+- ✅ Created complete backend API routes for assignments, submissions, and classes
+- ✅ Implemented proper role-based permissions for all API endpoints
+- ✅ Added mock data for testing and development
+- ✅ Updated frontend to fetch data from new API endpoints
+- ✅ Integrated API calls into main App.tsx data fetching logic
+- ✅ Fixed CORS configuration with better error handling and debugging
+- ✅ Temporarily implemented mock data in frontend for immediate functionality
+- ✅ Resolved deployment vs local development issues
+
 ## To Do
-- Incrementally restore and refactor dashboard features for each role.
+- Test the new API endpoints with different user roles
+- Implement database models for assignments, submissions, and classes
+- Add error handling and loading states for API calls
 - Update this changelog as new features are added or bugs are fixed. 

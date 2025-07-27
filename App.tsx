@@ -88,13 +88,15 @@ const App: React.FC = () => {
           
           if (studentsResponse.ok) {
             const studentsData = await studentsResponse.json();
-            console.log('Students data:', studentsData);
+            console.log('🔍 [DEBUG] Students API response:', studentsData);
+            console.log('🔍 [DEBUG] Students count from API:', studentsData.users?.length || 0);
+            console.log('🔍 [DEBUG] All students from API:', studentsData.users);
             
             if (studentsData.success) {
               setStudents(studentsData.users || []);
-              console.log('Set students count:', studentsData.users?.length || 0);
+              console.log('🔍 [DEBUG] Set students count:', studentsData.users?.length || 0);
             } else {
-              console.error('Failed to fetch students:', studentsData.message);
+              console.error('🔍 [DEBUG] Failed to fetch students:', studentsData.message);
               setStudents([]);
             }
           } else {
@@ -109,11 +111,81 @@ const App: React.FC = () => {
           setStudents([]);
         }
 
-        // TODO: Add API calls for assignments, submissions, and classes
-        // For now, set them to empty arrays until the APIs are implemented
-        setAssignments([]);
-        setSubmissions([]);
-        setClasses([]);
+        // TODO: These routes don't exist on deployed backend yet
+        // For now, use mock data until backend is updated
+        console.log('Using mock data for assignments, submissions, and classes');
+        setAssignments([
+          {
+            id: '1',
+            title: 'IELTS Reading Practice - Academic',
+            description: 'Practice reading comprehension with academic texts',
+            skill: 'reading',
+            level: 'IELTS',
+            dueDate: '2024-12-31',
+            classIds: ['class1', 'class2'],
+            createdAt: new Date().toISOString(),
+            createdBy: 'teacher1'
+          },
+          {
+            id: '2',
+            title: 'IELTS Writing Task 2 - Opinion Essay',
+            description: 'Write an opinion essay on environmental issues',
+            skill: 'writing',
+            level: 'IELTS',
+            dueDate: '2024-12-25',
+            classIds: ['class1'],
+            createdAt: new Date().toISOString(),
+            createdBy: 'teacher1'
+          }
+        ]);
+        
+        setSubmissions([
+          {
+            id: '1',
+            assignmentId: '1',
+            studentId: 'student1',
+            content: 'This is my reading comprehension response...',
+            submittedAt: new Date().toISOString(),
+            score: 85,
+            feedback: 'Excellent comprehension of the main ideas. Good use of context clues.',
+            gradedBy: 'teacher1',
+            gradedAt: new Date().toISOString()
+          },
+          {
+            id: '2',
+            assignmentId: '2',
+            studentId: 'student1',
+            content: 'This is my opinion essay on environmental issues...',
+            submittedAt: new Date().toISOString(),
+            score: null,
+            feedback: null,
+            gradedBy: null,
+            gradedAt: null
+          }
+        ]);
+        
+        setClasses([
+          {
+            id: 'class1',
+            name: 'IELTS Advanced - Reading & Writing',
+            levelId: 'ielts_advanced',
+            description: 'Advanced IELTS preparation focusing on reading and writing skills',
+            teacherId: 'teacher1',
+            studentIds: ['student1', 'student2'],
+            createdAt: new Date().toISOString(),
+            isActive: true
+          },
+          {
+            id: 'class2',
+            name: 'IELTS Intermediate - Speaking & Listening',
+            levelId: 'ielts_intermediate',
+            description: 'Intermediate IELTS preparation focusing on speaking and listening skills',
+            teacherId: 'teacher1',
+            studentIds: ['student3'],
+            createdAt: new Date().toISOString(),
+            isActive: true
+          }
+        ]);
         
       } catch (error) {
         console.error('Error fetching data:', error);

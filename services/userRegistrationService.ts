@@ -113,6 +113,7 @@ class UserRegistrationService {
       
       const responseText = await response.text();
       console.log('🔍 [DEBUG] Raw response:', responseText);
+      console.log('🔍 [DEBUG] Request body that was sent:', userData);
       
       let data;
       try {
@@ -124,6 +125,10 @@ class UserRegistrationService {
       }
       
       if (!data.success) {
+        // Check if this is the "role is not defined" error from old backend
+        if (data.message && data.message.includes('role is not defined')) {
+          throw new Error('Backend needs to be updated. Please contact administrator to deploy the latest backend changes.');
+        }
         throw new Error(data.message || 'Failed to create MongoDB user');
       }
       
@@ -212,42 +217,66 @@ class UserRegistrationService {
   // Main registration function
   async registerNewUser(userData: NewUserData): Promise<RegistrationResponse> {
     try {
+      console.log('🔍 [DEBUG] Starting user registration with data:', userData);
+      
       // Step 1: Use provided username or generate one
       const username = userData.username || this.generateUsername(userData.fullname, userData.role);
       const email = userData.email || this.generateEmail(username, userData.role);
       const password = this.generatePassword(userData.role);
 
-      console.log('Generated credentials:', { username, email, password });
+      console.log('🔍 [DEBUG] Generated credentials:', { username, email, password });
 
       // Step 2: Create Firebase Auth user
       const firebaseUid = await this.createFirebaseUser(email, password);
 
       // Step 3: Create MongoDB user
-      const mongoUser = await this.createMongoDBUser({
-        firebaseUid,
-        name: userData.fullname,
-        email,
-        role: userData.role,
-        username,
-        phone: userData.phone,
-        englishName: userData.englishName,
-        dob: userData.dob,
-        gender: userData.gender,
-        note: userData.note,
-      });
-
-      return {
-        success: true,
-        message: 'User registered successfully',
-        user: {
-          id: mongoUser.id,
-          name: mongoUser.name,
-          email: mongoUser.email,
-          role: mongoUser.role,
+      try {
+        const mongoUser = await this.createMongoDBUser({
+          firebaseUid,
+          name: userData.fullname,
+          email,
+          role: userData.role,
           username,
-          password,
-        },
-      };
+          phone: userData.phone,
+          englishName: userData.englishName,
+          dob: userData.dob,
+          gender: userData.gender,
+          note: userData.note,
+        });
+
+        return {
+          success: true,
+          message: 'User registered successfully',
+          user: {
+            id: mongoUser.id,
+            name: mongoUser.name,
+            email: mongoUser.email,
+            role: mongoUser.role,
+            username,
+            password,
+          },
+        };
+              } catch (mongoError: any) {
+          // If MongoDB creation fails due to backend issues, provide a fallback
+          if (mongoError.message.includes('Backend needs to be updated')) {
+            console.warn('🔍 [DEBUG] Backend not updated, using fallback registration');
+            console.log('🔍 [DEBUG] Firebase UID created:', firebaseUid);
+            console.log('🔍 [DEBUG] User will NOT appear in MongoDB until backend is deployed');
+            return {
+              success: true,
+              message: 'User registered successfully (Firebase only - backend needs update)',
+              user: {
+                id: firebaseUid,
+                name: userData.fullname,
+                email,
+                role: userData.role,
+                username,
+                password,
+              },
+            };
+          }
+          throw mongoError;
+        }
 
     } catch (error: any) {
       console.error('Registration error:', error);

@@ -5,8 +5,15 @@ import { updateDoc, doc } from 'firebase/firestore';
 import { deleteAccountCompletely } from './services/firebase';
 
 const WaitingListPanel = ({ students, classes, currentUser }: { students: Student[], classes: StudentClass[], currentUser: Student }) => {
+  console.log('🔍 [DEBUG] WaitingListPanel received students:', students);
+  console.log('🔍 [DEBUG] Students count:', students.length);
+  console.log('🔍 [DEBUG] All students details:', students.map(s => ({ id: s.id, name: s.name, role: s.role, classIds: s.classIds })));
+  
   // Students not assigned to any class and are students only
   const waitingStudents = students.filter(s => s.role === 'student' && (!s.classIds || s.classIds.length === 0));
+  
+  console.log('🔍 [DEBUG] Waiting students after filter:', waitingStudents);
+  console.log('🔍 [DEBUG] Waiting students count:', waitingStudents.length);
 
   const [pendingAssignments, setPendingAssignments] = useState<{ [studentId: string]: string }>({});
   const [loading, setLoading] = useState<{ [studentId: string]: boolean }>({});
@@ -51,6 +58,27 @@ const WaitingListPanel = ({ students, classes, currentUser }: { students: Studen
 
   return (
     <div className="bg-white rounded-xl shadow p-6 max-w-xl mx-auto mt-8">
+      {/* Debug Panel */}
+      <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <h3 className="text-sm font-bold text-yellow-800 mb-2">🔍 DEBUG INFO</h3>
+        <div className="text-xs text-yellow-700 space-y-1">
+          <div>Total students received: {students.length}</div>
+          <div>Students with role 'student': {students.filter(s => s.role === 'student').length}</div>
+          <div>Students without classIds: {students.filter(s => !s.classIds || s.classIds.length === 0).length}</div>
+          <div>Waiting students (final): {waitingStudents.length}</div>
+          <div className="mt-2">
+            <strong>All students:</strong>
+            <ul className="ml-4 mt-1">
+              {students.map(s => (
+                <li key={s.id}>
+                  {s.name} (role: {s.role}, classIds: {s.classIds ? s.classIds.length : 'none'})
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+      
       <h2 className="text-2xl font-bold mb-4">Waiting List</h2>
       {waitingStudents.length === 0 ? (
         <div className="text-slate-400 text-center">No students in waiting list.</div>

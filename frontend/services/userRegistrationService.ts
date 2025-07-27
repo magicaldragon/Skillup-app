@@ -17,6 +17,16 @@ export interface GeneratedCredentials {
   password: string;
 }
 
+async function checkBackendHealth() {
+  try {
+    const response = await fetch(`${process.env.REACT_APP_API_URL || '/api'}/cors-test`, { method: 'GET' });
+    if (!response.ok) throw new Error('Backend health check failed');
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
 class UserRegistrationService {
   private async getAuthToken(): Promise<string | null> {
     // Check if we have a JWT token in localStorage
@@ -132,6 +142,9 @@ class UserRegistrationService {
   }
 
   async registerNewUser(userData: NewUserData): Promise<{ success: boolean; message: string; user?: any }> {
+    if (!(await checkBackendHealth())) {
+      throw new Error('Backend server is unavailable. Please try again in a few seconds.');
+    }
     try {
       // Use provided username or generate one
       const username = userData.username || await this.generateUsername(userData.fullname, userData.role);
