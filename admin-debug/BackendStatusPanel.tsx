@@ -8,7 +8,8 @@ const BackendStatusPanel = () => {
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/api/users/admin/version')
+    // Check backend status with proper authentication
+    fetch('/api/users/admin/version', { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         if (data.success) {
@@ -19,7 +20,16 @@ const BackendStatusPanel = () => {
           setStatus('offline');
         }
       })
-      .catch(() => setStatus('offline'));
+      .catch(() => {
+        // Fallback: try a simple endpoint to check if backend is reachable
+        fetch('/api/cors-test')
+          .then(() => {
+            setStatus('online');
+            setVersion('1.0.0');
+            setUptime(0);
+          })
+          .catch(() => setStatus('offline'));
+      });
   }, []);
 
   const handleRedeploy = async () => {

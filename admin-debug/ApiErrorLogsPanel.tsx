@@ -14,7 +14,8 @@ const ApiErrorLogsPanel = () => {
         setLoading(false);
       })
       .catch(() => {
-        setError('Failed to fetch logs');
+        // If admin endpoint fails, show a message that logs are not available
+        setError('Admin logs not available - check backend console for errors');
         setLoading(false);
       });
   }, []);

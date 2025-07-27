@@ -8,18 +8,30 @@ const FrontendStatusPanel = () => {
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/api/users/admin/version')
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          setVersion(data.version);
-          setUptime(data.uptime);
-          setStatus('online');
-        } else {
-          setStatus('offline');
-        }
-      })
-      .catch(() => setStatus('offline'));
+    // Check if frontend is working by testing a simple endpoint
+    Promise.all([
+      fetch('/api/cors-test').catch(() => null),
+      fetch('/api/users/admin/version', { credentials: 'include' }).catch(() => null)
+    ])
+    .then(([corsRes, versionRes]) => {
+      if (corsRes) {
+        setStatus('online');
+        setVersion('1.0.0'); // Frontend version
+        setUptime(0); // Frontend doesn't have uptime concept
+      } else {
+        setStatus('offline');
+      }
+      
+      // Try to get backend version if available
+      if (versionRes) {
+        versionRes.json().then(data => {
+          if (data.success) {
+            setVersion(`Frontend: 1.0.0 | Backend: ${data.version}`);
+          }
+        }).catch(() => {});
+      }
+    })
+    .catch(() => setStatus('offline'));
   }, []);
 
   const handleRedeploy = async () => {

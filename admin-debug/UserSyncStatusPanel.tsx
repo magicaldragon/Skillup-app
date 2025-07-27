@@ -14,7 +14,8 @@ const UserSyncStatusPanel = () => {
         setLoading(false);
       })
       .catch(() => {
-        setError('Failed to fetch sync status');
+        // If admin endpoint fails, show a message that sync status is not available
+        setError('Sync status not available - check backend console for details');
         setLoading(false);
       });
   }, []);
