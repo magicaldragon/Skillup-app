@@ -28,11 +28,13 @@ const AccountsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
 
   const filtered = accounts.filter(a =>
     (!roleFilter || a.role === roleFilter) &&
-    (a.name?.toLowerCase().includes(search.toLowerCase()) ||
-     a.username?.toLowerCase().includes(search.toLowerCase()) ||
-     a.email?.toLowerCase().includes(search.toLowerCase()) ||
-     a.displayName?.toLowerCase().includes(search.toLowerCase()) ||
-     a.phone?.toLowerCase().includes(search.toLowerCase()))
+    (
+      (a.name && a.name.toLowerCase().includes(search.toLowerCase())) ||
+      (a.username && a.username.toLowerCase().includes(search.toLowerCase())) ||
+      (a.email && a.email.toLowerCase().includes(search.toLowerCase())) ||
+      (a.displayName && a.displayName.toLowerCase().includes(search.toLowerCase())) ||
+      (a.phone && a.phone.toLowerCase().includes(search.toLowerCase()))
+    )
   );
 
   const handleEdit = (acc: Student) => {
@@ -101,6 +103,7 @@ const AccountsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
     <div className="bg-white rounded-xl shadow p-6 max-w-4xl mx-auto mt-8">
       <h2 className="text-2xl font-bold mb-4">Accounts</h2>
       <div className="flex gap-2 mb-4">
+        {accounts.length === 0 && <div className="text-slate-400">No accounts found.</div>}
         <input
           className="p-2 border rounded flex-1"
           placeholder="Search by name, username, email, phone..."

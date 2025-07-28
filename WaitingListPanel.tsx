@@ -9,7 +9,7 @@ const WaitingListPanel = ({ students, classes, currentUser, onDataRefresh }: { s
   console.log('🔍 [DEBUG] All students details:', students.map(s => ({ id: s.id, name: s.name, role: s.role, classIds: s.classIds })));
   
   // Students not assigned to any class and are students only
-  const waitingStudents = students.filter(s => s.role === 'student' && (!s.classIds || s.classIds.length === 0));
+  const waitingStudents = students.filter(s => s.role === 'student' && (!Array.isArray(s.classIds) || s.classIds.length === 0));
 
   // Bulk selection state
   const [selectedIds, setSelectedIds] = useState<string[]>([]);

@@ -226,10 +226,11 @@ router.post('/', verifyToken, async (req, res) => {
     await user.save();
 
     // Log the action
+    const logUser = req.user && req.user.id ? req.user : { id: 'system', name: 'System', role: 'system' };
     await ChangeLog.create({
-      userId: req.user.id,
-      userName: req.user.name,
-      userRole: req.user.role,
+      userId: logUser.id,
+      userName: logUser.name,
+      userRole: logUser.role,
       action: 'add',
       entityType: 'user',
       entityId: user._id,
