@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { hybridAuthService, LoginResponse } from './services/hybridAuthService';
+import { authService } from './frontend/services/authService';
 
 interface LoginProps {
   onLoginSuccess: (user: any) => void;
@@ -17,20 +17,19 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
-    
     try {
-      const response: LoginResponse = await hybridAuthService.login(email, password);
-      
+      const response = await authService.login({ email, password });
       if (response.success && response.user) {
-        setFailedAttempts(0); // Reset on success
+        setFailedAttempts(0);
+        localStorage.setItem('skillup_user', JSON.stringify(response.user));
         onLoginSuccess(response.user);
       } else {
         setFailedAttempts(prev => prev + 1);
         setError(response.message || 'Login failed. Please try again.');
       }
-    } catch (err) {
+    } catch (err: any) {
       setFailedAttempts(prev => prev + 1);
-      setError("An unexpected error occurred. Please try again.");
+      setError(err.message || 'An unexpected error occurred. Please try again.');
       console.error(err);
     } finally {
       setIsLoading(false);
@@ -59,6 +58,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                 placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                autoFocus
               />
             </div>
             <div>
@@ -76,7 +76,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
               />
             </div>
           </div>
-          {error && <p className="text-sm text-red-600 text-center pt-2">{error}</p>}
+          {error && <p className="text-sm text-red-600 text-center pt-2" role="alert">{error}</p>}
           {failedAttempts >= MAX_ATTEMPTS ? (
             <div className="text-red-600 text-center font-semibold py-4">
               Too many failed login attempts. Please contact the administrator for help.<br/>
@@ -88,8 +88,6 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
             </button>
           )}
         </form>
-        
-        {/* Demo credentials info - Only show in development */}
         {(import.meta as any).env?.DEV && (
           <div className="mt-6 p-4 bg-blue-50 rounded-lg">
             <h3 className="text-sm font-semibold text-blue-800 mb-2">Demo Credentials:</h3>

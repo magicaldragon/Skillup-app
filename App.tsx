@@ -1,18 +1,19 @@
-import React, { useEffect, useState, createContext, useContext } from "react";
-import { hybridAuthService } from "./services/hybridAuthService";
-import Login from "./Login";
-import Dashboard from "./Dashboard";
-import type { Assignment, Submission, Student, StudentClass } from "./types";
-import TeacherDashboard from './TeacherDashboard';
-import StudentDashboard from './StudentDashboard';
+import React, { useEffect, useState, createContext, useContext, Suspense, lazy } from "react";
+import { authService } from './frontend/services/authService';
+// Lazy-load main panels
+const Login = lazy(() => import('./Login'));
+const Dashboard = lazy(() => import('./Dashboard'));
+const TeacherDashboard = lazy(() => import('./TeacherDashboard'));
+const StudentDashboard = lazy(() => import('./StudentDashboard'));
 import Sidebar from './Sidebar';
+import type { Assignment, Submission, Student, StudentClass } from "./types";
 
 // Global Dark Mode Context
 const DarkModeContext = createContext({ darkMode: false, toggleDarkMode: () => {} });
 export const useDarkMode = () => useContext(DarkModeContext);
 
 const App: React.FC = () => {
-  const [user, setUser] = useState<Student | null>(null);
+  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
@@ -30,9 +31,9 @@ const App: React.FC = () => {
     const initializeAuth = async () => {
       setLoading(true);
       try {
-        const currentUser = await hybridAuthService.initializeAuth();
-        if (currentUser) {
-          setUser(currentUser as Student);
+        const profile = await authService.getProfile();
+        if (profile) {
+          setUser(profile);
           setAuthError(null);
         } else {
           setUser(null);
@@ -51,14 +52,14 @@ const App: React.FC = () => {
 
   // Handle login success
   const handleLoginSuccess = (userData: any) => {
-    setUser(userData as Student);
+    setUser(userData);
     setAuthError(null);
   };
 
   // Handle logout
   const handleLogout = async () => {
     try {
-      await hybridAuthService.logout();
+      await authService.logout();
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
@@ -260,89 +261,91 @@ const App: React.FC = () => {
     );
   }
 
-  if (!user) {
-    return <Login onLoginSuccess={handleLoginSuccess} />;
-  }
-
   return (
-    <DarkModeContext.Provider value={{ darkMode, toggleDarkMode }}>
-      <div className={`min-h-screen ${darkMode ? 'dark' : ''}`}>
-        <div className="flex">
-          <Sidebar 
-            role={user.role} 
-            activeKey={navKey} 
-            onNavigate={setNavKey}
-            onLogout={handleLogout}
-          />
-          <div className="flex-1">
-            {dataLoading && (
-              <div className="fixed top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded shadow-lg z-50">
-                <div className="flex items-center">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Loading data...
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#307637] mx-auto mb-4"></div><p className="text-lg text-slate-600">Loading...</p></div>}>
+      {!user ? (
+        <Login onLoginSuccess={handleLoginSuccess} />
+      ) : (
+        <DarkModeContext.Provider value={{ darkMode, toggleDarkMode }}>
+          <div className={`min-h-screen ${darkMode ? 'dark' : ''}`}>
+            <div className="flex">
+              <Sidebar 
+                role={user.role} 
+                activeKey={navKey} 
+                onNavigate={setNavKey}
+                onLogout={handleLogout}
+              />
+              <div className="flex-1">
+                {dataLoading && (
+                  <div className="fixed top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded shadow-lg z-50">
+                    <div className="flex items-center">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Loading data...
+                    </div>
+                  </div>
+                )}
+                {dataError && (
+                  <div className="fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded shadow-lg z-50">
+                    <div className="flex items-center">
+                      <span className="mr-2">⚠️</span>
+                      {dataError}
+                      <button 
+                        onClick={refreshData}
+                        className="ml-2 underline"
+                      >
+                        Retry
+                      </button>
+                    </div>
+                  </div>
+                )}
+                <div className="flex h-screen bg-slate-100 dark:bg-slate-900 transition-colors duration-500">
+                  {user.role === "student" ? (
+                    <div className="flex-1 overflow-auto">
+                      <StudentDashboard 
+                        user={user}
+                        assignments={assignments}
+                        submissions={submissions}
+                        classes={classes}
+                        onNavigate={setNavKey}
+                        activeKey={navKey}
+                        onLogout={handleLogout}
+                      />
+                    </div>
+                  ) : user.role === "teacher" || user.role === "admin" ? (
+                    <div className="flex-1 overflow-auto">
+                      <TeacherDashboard 
+                        user={user}
+                        students={students}
+                        assignments={assignments}
+                        classes={classes}
+                        activeKey={navKey}
+                        onLogout={handleLogout}
+                        onStudentAdded={fetchStudents}
+                        onDataRefresh={refreshData}
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex-1 overflow-auto">
+                      <Dashboard 
+                        assignments={assignments}
+                        submissions={submissions}
+                        students={students}
+                        classes={classes}
+                        loading={dataLoading}
+                        error={dataError}
+                        user={user}
+                        activeKey={navKey}
+                        onLogout={handleLogout}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
-            )}
-            {dataError && (
-              <div className="fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded shadow-lg z-50">
-                <div className="flex items-center">
-                  <span className="mr-2">⚠️</span>
-                  {dataError}
-                  <button 
-                    onClick={refreshData}
-                    className="ml-2 underline"
-                  >
-                    Retry
-                  </button>
-                </div>
-              </div>
-            )}
-            <div className="flex h-screen bg-slate-100 dark:bg-slate-900 transition-colors duration-500">
-              {user.role === "student" ? (
-                <div className="flex-1 overflow-auto">
-                  <StudentDashboard 
-                    user={user}
-                    assignments={assignments}
-                    submissions={submissions}
-                    classes={classes}
-                    onNavigate={setNavKey}
-                    activeKey={navKey}
-                    onLogout={handleLogout}
-                  />
-                </div>
-              ) : user.role === "teacher" || user.role === "admin" ? (
-                <div className="flex-1 overflow-auto">
-                  <TeacherDashboard 
-                    user={user}
-                    students={students}
-                    assignments={assignments}
-                    classes={classes}
-                    activeKey={navKey}
-                    onLogout={handleLogout}
-                    onStudentAdded={fetchStudents}
-                    onDataRefresh={refreshData}
-                  />
-                </div>
-              ) : (
-                <div className="flex-1 overflow-auto">
-                  <Dashboard 
-                    assignments={assignments}
-                    submissions={submissions}
-                    students={students}
-                    classes={classes}
-                    loading={dataLoading}
-                    error={dataError}
-                    user={user}
-                    activeKey={navKey}
-                    onLogout={handleLogout}
-                  />
-                </div>
-              )}
             </div>
           </div>
-        </div>
-      </div>
-    </DarkModeContext.Provider>
+        </DarkModeContext.Provider>
+      )}
+    </Suspense>
   );
 };
 
