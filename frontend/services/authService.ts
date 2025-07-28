@@ -71,19 +71,31 @@ class AuthService {
     try {
       const token = localStorage.getItem('authToken');
       if (!token) {
+        console.log('No auth token found');
         return null;
       }
 
+      console.log('Fetching profile with token:', token.substring(0, 20) + '...');
       const response = await fetch(`${API_BASE_URL}/auth/profile`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
       });
 
+      console.log('Profile response status:', response.status);
       if (response.ok) {
-        return await response.json();
+        const data = await response.json();
+        console.log('Profile response data:', data);
+        if (data.success && data.user) {
+          return data.user;
+        } else {
+          console.error('Invalid profile response structure:', data);
+          return null;
+        }
+      } else {
+        console.error('Profile request failed:', response.status);
+        return null;
       }
-      return null;
     } catch (error) {
       console.error('Get profile error:', error);
       return null;
