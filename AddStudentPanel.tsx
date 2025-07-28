@@ -55,7 +55,7 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
 
   // Auto-generate username when fullname changes
   useEffect(() => {
-    if (form.fullname.trim()) {
+    if (form.fullname && form.fullname.trim()) {
       const base = cleanUsername(form.fullname);
       generateUniqueUsername(base).then((unique) => {
         setForm(f => ({ ...f, username: unique }));
@@ -68,7 +68,7 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
 
   // Auto-generate credentials preview when username changes
   useEffect(() => {
-    if (form.username.trim()) {
+    if (form.username && form.username.trim()) {
       const email = `${form.username}@student.skillup`;
       const password = 'Skillup123';
       setGeneratedCredentials({
@@ -107,13 +107,13 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
     setSuccess(null);
     setLoading(true);
 
-    const fullname = form.fullname.trim();
+    const fullname = form.fullname ? form.fullname.trim() : '';
     if (!fullname) {
       setError('Full name is required.');
       setLoading(false);
       return;
     }
-    if (!form.username.trim()) {
+    if (!form.username || !form.username.trim()) {
       setError('Username is required.');
       setLoading(false);
       return;
@@ -330,7 +330,7 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
           <div className="flex justify-end">
             <button
               type="submit"
-              disabled={loading || !form.fullname.trim() || !form.username.trim() || !!usernameError}
+              disabled={loading || !(form.fullname || '').trim() || !(form.username || '').trim() || !!usernameError}
               className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               {loading ? 'Creating User...' : 'Create User'}

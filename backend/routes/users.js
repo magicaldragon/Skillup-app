@@ -381,6 +381,30 @@ router.put('/:id', verifyToken, async (req, res) => {
   }
 });
 
+// Profile endpoint - redirect to auth/profile
+router.get('/profile', verifyToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId).select('-password');
+    if (!user) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'User not found' 
+      });
+    }
+    
+    res.json({
+      success: true,
+      user
+    });
+  } catch (error) {
+    console.error('Get profile error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Internal server error' 
+    });
+  }
+});
+
 // Avatar upload endpoint
 router.post('/:id/avatar', verifyToken, upload.single('avatar'), async (req, res) => {
   try {

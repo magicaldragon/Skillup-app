@@ -19,23 +19,45 @@ export interface UserProfile {
 class AuthService {
   async login(credentials: LoginCredentials): Promise<{ success: boolean; message: string; user?: any }> {
     try {
+      // Validate input
+      if (!credentials || !credentials.email || !credentials.password) {
+        console.error('Invalid credentials provided:', credentials);
+        return {
+          success: false,
+          message: 'Email and password are required',
+        };
+      }
+
+      // Ensure email is trimmed and valid
+      const email = credentials.email.trim();
+      const password = credentials.password;
+
+      if (!email || !password) {
+        return {
+          success: false,
+          message: 'Email and password are required',
+        };
+      }
+
+      console.log('Attempting login with email:', email);
+      
       // Login with Firebase
-      const userCredential = await signInWithEmailAndPassword(auth, credentials.email, credentials.password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
 
       // Get Firebase ID token
       const idToken = await userCredential.user.getIdToken();
 
       // Exchange Firebase token for JWT
-              const response = await fetch(`${API_BASE_URL}/auth/firebase-login`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            firebaseToken: idToken,
-            email: credentials.email,
-          }),
-        });
+      const response = await fetch(`${API_BASE_URL}/auth/firebase-login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          firebaseToken: idToken,
+          email: email,
+        }),
+      });
 
       if (response.ok) {
         const data = await response.json();
@@ -51,6 +73,7 @@ class AuthService {
         throw new Error(errorData.message || 'Failed to authenticate with backend');
       }
     } catch (error: any) {
+      console.error('Login error details:', error);
       return {
         success: false,
         message: error.message || 'Login failed',

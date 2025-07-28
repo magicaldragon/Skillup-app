@@ -318,7 +318,7 @@ const ClassesPanel = ({ students, classes, onAddClass, onAssignLevel, onDataRefr
             />
             <div className="flex gap-2 justify-end">
               <button className="px-4 py-2 bg-gray-400 text-white rounded" onClick={() => setReportingStudentId(null)} disabled={reportSending}>Cancel</button>
-              <button className="px-4 py-2 bg-pink-600 text-white rounded" onClick={() => handleSendReport(reportingStudentId)} disabled={reportSending || !reportNote.trim()}>{reportSending ? 'Sending...' : 'Send'}</button>
+              <button className="px-4 py-2 bg-pink-600 text-white rounded" onClick={() => handleSendReport(reportingStudentId)} disabled={reportSending || !(reportNote || '').trim()}>{reportSending ? 'Sending...' : 'Send'}</button>
             </div>
           </div>
         </div>
