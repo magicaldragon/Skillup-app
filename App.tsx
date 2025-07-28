@@ -97,7 +97,7 @@ const App: React.FC = () => {
       const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
       const studentsResponse = await fetch(`${apiUrl}/users`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('skillup_token')}`,
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
         },
       });
       if (studentsResponse.ok) {
@@ -122,7 +122,7 @@ const App: React.FC = () => {
       const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
       const response = await fetch(`${apiUrl}/assignments`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('skillup_token')}`,
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
         },
       });
       if (response.ok) {
@@ -145,7 +145,7 @@ const App: React.FC = () => {
       const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
       const response = await fetch(`${apiUrl}/submissions`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('skillup_token')}`,
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
         },
       });
       if (response.ok) {
@@ -168,7 +168,7 @@ const App: React.FC = () => {
       const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
       const response = await fetch(`${apiUrl}/classes`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('skillup_token')}`,
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
         },
       });
       if (response.ok) {

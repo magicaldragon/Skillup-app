@@ -6,6 +6,8 @@ import type { StudentClass, Level } from './types';
 import { ICONS } from './constants';
 import { LEVELS as DEFAULT_LEVELS } from './constants';
 
+const safeTrim = (val: any) => (typeof val === 'string' ? val.trim() : '');
+
 const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
   const [levels, setLevels] = useState<Level[]>([]);
   const [newLevel, setNewLevel] = useState('');
@@ -69,7 +71,7 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
 
   // Add new level
   const handleAdd = async () => {
-    const val = newLevel.trim().toUpperCase();
+    const val = safeTrim(newLevel);
     if (val && !levels.some(l => l.name.toUpperCase() === val)) {
       setLoading(true);
       try {
@@ -149,8 +151,8 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
   const handleEditSave = async () => {
     if (
       selectedEditIdx !== null &&
-      editValue.trim() &&
-      !levels.some((l, i) => i !== selectedEditIdx && l.name.toUpperCase() === editValue.trim().toUpperCase())
+      safeTrim(editValue) &&
+      !levels.some((l, i) => i !== selectedEditIdx && l.name.toUpperCase() === safeTrim(editValue).toUpperCase())
     ) {
       setLoading(true);
       try {
@@ -159,7 +161,7 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
-          body: JSON.stringify({ name: editValue.trim(), description: editDesc, code: editCode }),
+          body: JSON.stringify({ name: safeTrim(editValue), description: editDesc, code: editCode }),
         });
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);

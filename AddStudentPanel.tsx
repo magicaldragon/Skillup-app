@@ -163,6 +163,8 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
     }
   };
 
+  const safeTrim = (val: any) => (typeof val === 'string' ? val.trim() : '');
+
   // --- UI Layout: Two columns ---
   return (
     <div className="flex flex-row gap-8">
