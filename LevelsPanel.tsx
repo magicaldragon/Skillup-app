@@ -1,12 +1,11 @@
 // LevelsPanel.tsx
 // Professional panel to show and manage levels (starters, movers, flyers, ket, pet, ielts, ...)
 // [NOTE] Created as part of 2024-05-XX dashboard refactor
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { StudentClass, Level } from './types';
 import { ICONS } from './constants';
 import { LEVELS as DEFAULT_LEVELS } from './constants';
-
-const safeTrim = (val: any) => (typeof val === 'string' ? val.trim() : '');
+import { safeTrim } from './utils/stringUtils';
 
 const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
   const [levels, setLevels] = useState<Level[]>([]);

@@ -3,6 +3,7 @@
 // [NOTE] Updated for hybrid authentication system
 import React, { useState, useEffect } from 'react';
 import { userRegistrationService, NewUserData } from './services/userRegistrationService';
+import { safeTrim, isEmpty, isNotEmpty } from './utils/stringUtils';
 
 const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) => {
   const [form, setForm] = useState({
@@ -55,7 +56,7 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
 
   // Auto-generate username when fullname changes
   useEffect(() => {
-    if (form.fullname && form.fullname.trim()) {
+    if (isNotEmpty(form.fullname)) {
       const base = cleanUsername(form.fullname);
       generateUniqueUsername(base).then((unique) => {
         setForm(f => ({ ...f, username: unique }));
@@ -68,7 +69,7 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
 
   // Auto-generate credentials preview when username changes
   useEffect(() => {
-    if (form.username && form.username.trim()) {
+    if (isNotEmpty(form.username)) {
       const email = `${form.username}@student.skillup`;
       const password = 'Skillup123';
       setGeneratedCredentials({
@@ -107,13 +108,13 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
     setSuccess(null);
     setLoading(true);
 
-    const fullname = form.fullname ? form.fullname.trim() : '';
-    if (!fullname) {
+    const fullname = safeTrim(form.fullname);
+    if (isEmpty(fullname)) {
       setError('Full name is required.');
       setLoading(false);
       return;
     }
-    if (!form.username || !form.username.trim()) {
+    if (isEmpty(form.username)) {
       setError('Username is required.');
       setLoading(false);
       return;
@@ -162,8 +163,6 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
       setLoading(false);
     }
   };
-
-  const safeTrim = (val: any) => (typeof val === 'string' ? val.trim() : '');
 
   // --- UI Layout: Two columns ---
   return (
@@ -330,7 +329,7 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
           <div className="flex justify-end">
             <button
               type="submit"
-              disabled={loading || !(form.fullname || '').trim() || !(form.username || '').trim() || !!usernameError}
+              disabled={loading || isEmpty(form.fullname) || isEmpty(form.username) || !!usernameError}
               className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               {loading ? 'Creating User...' : 'Create User'}

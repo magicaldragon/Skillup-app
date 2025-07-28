@@ -1,9 +1,9 @@
 // ClassesPanel.tsx
 // Professional panel to show and manage classes with code names (SU-001, SU-002, ...)
 // [NOTE] Created as part of 2024-05-XX dashboard refactor
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { safeTrim, isEmpty } from './utils/stringUtils';
 import type { Student, StudentClass } from './types';
-import { useEffect } from 'react';
 import type { Level } from './types';
 
 const getNextClassCode = (classes: StudentClass[]) => {
@@ -318,7 +318,7 @@ const ClassesPanel = ({ students, classes, onAddClass, onAssignLevel, onDataRefr
             />
             <div className="flex gap-2 justify-end">
               <button className="px-4 py-2 bg-gray-400 text-white rounded" onClick={() => setReportingStudentId(null)} disabled={reportSending}>Cancel</button>
-              <button className="px-4 py-2 bg-pink-600 text-white rounded" onClick={() => handleSendReport(reportingStudentId)} disabled={reportSending || !(reportNote || '').trim()}>{reportSending ? 'Sending...' : 'Send'}</button>
+              <button className="px-4 py-2 bg-pink-600 text-white rounded" onClick={() => handleSendReport(reportingStudentId)} disabled={reportSending || isEmpty(reportNote)}>{reportSending ? 'Sending...' : 'Send'}</button>
             </div>
           </div>
         </div>
