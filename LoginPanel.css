@@ -20,11 +20,7 @@
   flex-direction: column;
   align-items: center;
   animation: fadeInPanel 0.7s cubic-bezier(0.4,0,0.2,1);
-}
-
-@keyframes fadeInPanel {
-  from { opacity: 0; transform: translateY(40px) scale(0.98); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  will-change: transform, opacity;
 }
 
 .login-logo-wrap {
@@ -82,6 +78,7 @@
   cursor: pointer;
   box-shadow: 0 2px 8px 0 #30763722;
   transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+  will-change: transform;
 }
 .login-btn:disabled {
   background: #b7d7b7;

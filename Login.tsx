@@ -71,10 +71,10 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
           {failedAttempts >= MAX_ATTEMPTS ? (
             <div className="login-error login-lockout">
               Too many failed login attempts.<br />Please contact the administrator.<br />
-              <button type="button" className="login-btn" onClick={() => setFailedAttempts(0)}>Try Again</button>
+              <button type="button" className="login-btn" onClick={() => setFailedAttempts(0)} aria-label="Try logging in again after too many failed attempts">Try Again</button>
             </div>
           ) : (
-            <button type="submit" className="login-btn" disabled={isLoading || failedAttempts >= MAX_ATTEMPTS}>
+            <button type="submit" className="login-btn" disabled={isLoading || failedAttempts >= MAX_ATTEMPTS} aria-label="Sign in to SkillUp Center">
               {isLoading ? 'Processing...' : 'Sign In'}
             </button>
           )}

@@ -141,9 +141,9 @@ const AccountsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
               <td className="p-2">{acc.displayName || acc.name}</td>
               <td className="p-2">{acc.phone}</td>
               <td className="p-2 flex gap-2 items-center">
-                <button className="px-2 py-1 bg-blue-500 text-white rounded" onClick={() => handleEdit(acc)}>Edit</button>
-                <button className="px-2 py-1 bg-red-600 text-white rounded" onClick={() => handleRemove(acc)}>Remove</button>
-                <button className="px-2 py-1 bg-yellow-500 text-white rounded" onClick={() => handleResetPassword(acc)} disabled={resetting === acc.id}>
+                <button className="px-2 py-1 bg-blue-500 text-white rounded" onClick={() => handleEdit(acc)} aria-label={`Edit account for ${acc.email}`}>Edit</button>
+                <button className="px-2 py-1 bg-red-600 text-white rounded" onClick={() => handleRemove(acc)} aria-label={`Delete account for ${acc.email}`}>Remove</button>
+                <button className="px-2 py-1 bg-yellow-500 text-white rounded" onClick={() => handleResetPassword(acc)} disabled={resetting === acc.id} aria-label={`Reset password for ${acc.email}`}>
                   {resetting === acc.id ? 'Resetting...' : 'Reset Password'}
                 </button>
               </td>
@@ -180,8 +180,8 @@ const AccountsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
               )}
             </div>
             <div className="flex gap-2 mt-4">
-              <button className="px-4 py-2 bg-green-600 text-white rounded" onClick={handleEditSave} disabled={loading}>Save</button>
-              <button className="px-4 py-2 bg-gray-400 text-white rounded" onClick={() => setEditing(null)} disabled={loading}>Cancel</button>
+              <button className="px-4 py-2 bg-green-600 text-white rounded" onClick={handleEditSave} disabled={loading} aria-label="Save account changes">Save</button>
+              <button className="px-4 py-2 bg-gray-400 text-white rounded" onClick={() => setEditing(null)} disabled={loading} aria-label="Cancel editing account">Cancel</button>
             </div>
           </div>
         </div>

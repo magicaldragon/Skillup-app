@@ -2,7 +2,88 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Global CSS fixes for accessibility, compatibility, and performance */
+
+/* Fix for -webkit-text-size-adjust compatibility */
+html {
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+}
+
+/* Fix for scrollbar-width compatibility */
+* {
+  scrollbar-width: auto;
+  scrollbar-color: #307637 #f1f5f9;
+}
+
+/* Webkit scrollbar styling for Safari compatibility */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #307637;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #245929;
+}
+
+/* Performance optimizations for animations */
+* {
+  will-change: auto;
+}
+
+/* Optimize animations to use transform instead of left/visibility */
+@keyframes fadeInPanel {
+  from { 
+    opacity: 0; 
+    transform: translateY(40px) scale(0.98); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0) scale(1); 
+  }
+}
+
 /* Hide blinking caret in all input fields */
 input:focus {
   caret-color: transparent;
+}
+
+/* Ensure all images have proper alt text fallback */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Accessibility improvements */
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid #307637;
+  outline-offset: 2px;
+}
+
+/* Screen reader only text */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 } 
