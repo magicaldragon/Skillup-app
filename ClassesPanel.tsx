@@ -12,9 +12,13 @@ const getNextClassCode = (classes: StudentClass[]) => {
   return `SU-${next.toString().padStart(3, '0')}`;
 };
 
-const ClassesPanel = ({ students }: { students: Student[], classes?: StudentClass[], onAddClass?: (code: string) => void, onAssignLevel?: (classId: string, level: string) => void }) => {
-  const [classes, setClasses] = useState<StudentClass[]>([]);
-  const [loading, setLoading] = useState(true);
+const ClassesPanel = ({ students, classes, onAddClass, onAssignLevel }: { 
+  students: Student[], 
+  classes: StudentClass[], 
+  onAddClass?: (code: string) => void, 
+  onAssignLevel?: (classId: string, level: string) => void 
+}) => {
+  const [loading, setLoading] = useState(false);
   const [adding, setAdding] = useState(false);
   const nextCode = getNextClassCode(classes);
   const [classLevels, setClassLevels] = useState<{ [id: string]: string | null }>({});
@@ -32,34 +36,6 @@ const ClassesPanel = ({ students }: { students: Student[], classes?: StudentClas
   const [reportNote, setReportNote] = useState('');
   const [reportSending, setReportSending] = useState(false);
 
-  // Fetch all classes from backend
-  const fetchClasses = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch('/api/classes', { credentials: 'include' });
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-      const data = await res.json();
-      let allClasses = data.classes || [];
-      // Sort: unassigned classes on top, then alphabetically by name
-      allClasses = [
-        ...allClasses.filter((c: any) => !c.levelId || c.levelId === ''),
-        ...allClasses.filter((c: any) => c.levelId && c.levelId !== '').sort((a: any, b: any) => a.name.localeCompare(b.name))
-      ];
-      setClasses(allClasses);
-      // Sync classLevels state with backend data
-      const levelsMap: { [id: string]: string | null } = {};
-      allClasses.forEach((c: any) => { levelsMap[c.id] = c.levelId || ''; });
-      setClassLevels(levelsMap);
-    } catch (error) {
-      console.error('Error fetching classes:', error);
-      setClasses([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Fetch levels from backend
   const fetchLevels = async () => {
     try {
@@ -76,9 +52,12 @@ const ClassesPanel = ({ students }: { students: Student[], classes?: StudentClas
   };
 
   useEffect(() => {
-    fetchClasses();
     fetchLevels();
-  }, []);
+    // Sync classLevels state with classes prop
+    const levelsMap: { [id: string]: string | null } = {};
+    classes.forEach((c: any) => { levelsMap[c.id] = c.levelId || ''; });
+    setClassLevels(levelsMap);
+  }, [classes]);
 
   // Instantly create a new class in backend
   const handleAddClass = async () => {
@@ -94,7 +73,7 @@ const ClassesPanel = ({ students }: { students: Student[], classes?: StudentClas
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
-      await fetchClasses();
+      onAddClass?.(nextCode);
     } catch (error) {
       console.error('Error adding class:', error);
     } finally {
@@ -116,7 +95,7 @@ const ClassesPanel = ({ students }: { students: Student[], classes?: StudentClas
       }
       setEditId(null);
       setEditName('');
-      await fetchClasses();
+      onAssignLevel?.(classId, newLevelId || '');
     } catch (error) {
       console.error('Error editing class:', error);
     }
@@ -132,7 +111,7 @@ const ClassesPanel = ({ students }: { students: Student[], classes?: StudentClas
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
-      await fetchClasses();
+      onAssignLevel?.(classId, ''); // Signal deletion
     } catch (error) {
       console.error('Error deleting class:', error);
     }
@@ -160,7 +139,6 @@ const ClassesPanel = ({ students }: { students: Student[], classes?: StudentClas
     });
     setEditStudentId(null);
     setEditStudentName('');
-    await fetchClasses();
   };
   const handleRemoveStudent = async (studentId: string) => {
     await fetch(`/api/users/${studentId}`, {
@@ -168,7 +146,6 @@ const ClassesPanel = ({ students }: { students: Student[], classes?: StudentClas
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ classIds: [] }),
     });
-    await fetchClasses();
   };
   const handleReportStudent = (studentId: string) => {
     setReportingStudentId(studentId);

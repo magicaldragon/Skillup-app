@@ -75,7 +75,7 @@ const App: React.FC = () => {
   const fetchStudents = async () => {
     if (!user) return;
     try {
-      const apiUrl = 'https://skillup-backend-v6vm.onrender.com/api';
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
       const studentsResponse = await fetch(`${apiUrl}/users`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('skillup_token')}`,
@@ -96,6 +96,75 @@ const App: React.FC = () => {
     }
   };
 
+  // Fetch assignments from API
+  const fetchAssignments = async () => {
+    if (!user) return;
+    try {
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+      const response = await fetch(`${apiUrl}/assignments`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('skillup_token')}`,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setAssignments(data.assignments || []);
+      } else {
+        console.error('Failed to fetch assignments:', response.status);
+        setAssignments([]);
+      }
+    } catch (error) {
+      console.error('Error fetching assignments:', error);
+      setAssignments([]);
+    }
+  };
+
+  // Fetch submissions from API
+  const fetchSubmissions = async () => {
+    if (!user) return;
+    try {
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+      const response = await fetch(`${apiUrl}/submissions`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('skillup_token')}`,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setSubmissions(data.submissions || []);
+      } else {
+        console.error('Failed to fetch submissions:', response.status);
+        setSubmissions([]);
+      }
+    } catch (error) {
+      console.error('Error fetching submissions:', error);
+      setSubmissions([]);
+    }
+  };
+
+  // Fetch classes from API
+  const fetchClasses = async () => {
+    if (!user) return;
+    try {
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+      const response = await fetch(`${apiUrl}/classes`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('skillup_token')}`,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setClasses(data.classes || []);
+      } else {
+        console.error('Failed to fetch classes:', response.status);
+        setClasses([]);
+      }
+    } catch (error) {
+      console.error('Error fetching classes:', error);
+      setClasses([]);
+    }
+  };
+
   useEffect(() => {
     if (!user) return;
     setDataLoading(true);
@@ -111,72 +180,11 @@ const App: React.FC = () => {
           setStudents([]);
         }
 
-        // TODO: These routes don't exist on deployed backend yet
-        // For now, use mock data until backend is updated
-        console.log('Using mock data for assignments, submissions, and classes');
-        setAssignments([
-          {
-            id: '1',
-            title: 'IELTS Reading Practice - Academic',
-            description: 'Practice reading comprehension with academic texts',
-            skill: 'Reading',
-            level: 'IELTS',
-            dueDate: '2024-12-31',
-            publishDate: new Date().toISOString(),
-            classIds: ['class1', 'class2'],
-            createdAt: new Date().toISOString(),
-            createdBy: 'teacher1',
-            answerKey: {},
-            questions: []
-          },
-          {
-            id: '2',
-            title: 'IELTS Writing Task 2 - Opinion Essay',
-            description: 'Write an opinion essay on environmental issues',
-            skill: 'Writing',
-            level: 'IELTS',
-            dueDate: '2024-12-25',
-            publishDate: new Date().toISOString(),
-            classIds: ['class1'],
-            createdAt: new Date().toISOString(),
-            createdBy: 'teacher1',
-            answerKey: {},
-            questions: []
-          }
-        ]);
-        
-        setSubmissions([
-          {
-            id: '1',
-            assignmentId: '1',
-            studentId: 'student1',
-            content: 'This is my reading comprehension response...',
-            submittedAt: new Date().toISOString(),
-            score: 85,
-            feedback: 'Excellent comprehension of the main ideas. Good use of context clues.'
-          },
-          {
-            id: '2',
-            assignmentId: '2',
-            studentId: 'student1',
-            content: 'This is my opinion essay on environmental issues...',
-            submittedAt: new Date().toISOString(),
-            score: null,
-            feedback: ''
-          }
-        ]);
-        
-        setClasses([
-          {
-            id: 'class1',
-            name: 'IELTS Advanced - Reading & Writing',
-            levelId: 'ielts_advanced',
-          },
-          {
-            id: 'class2',
-            name: 'IELTS Intermediate - Speaking & Listening',
-            levelId: 'ielts_intermediate',
-          }
+        // Fetch real data from API endpoints
+        await Promise.all([
+          fetchAssignments(),
+          fetchSubmissions(),
+          fetchClasses()
         ]);
         
       } catch (error) {
@@ -198,24 +206,72 @@ const App: React.FC = () => {
   const resetAndReload = async () => {
     try { 
       await hybridAuthService.logout(); 
-    } catch {}
-    window.localStorage.clear();
-    window.sessionStorage.clear();
-    window.location.reload();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setUser(null);
+      setAssignments([]);
+      setSubmissions([]);
+      setStudents([]);
+      setClasses([]);
+      setNavKey('dashboard');
+    }
+  };
+
+  // Refresh data function
+  const refreshData = async () => {
+    if (!user) return;
+    setDataLoading(true);
+    setDataError(null);
+    
+    try {
+      // Only fetch students if user is admin or teacher
+      if (user.role === 'admin' || user.role === 'teacher') {
+        await fetchStudents();
+      } else {
+        // For students, set empty array
+        setStudents([]);
+      }
+
+      // Fetch real data from API endpoints
+      await Promise.all([
+        fetchAssignments(),
+        fetchSubmissions(),
+        fetchClasses()
+      ]);
+      
+    } catch (error) {
+      console.error('Error refreshing data:', error);
+      setDataError('Failed to refresh data. Please try again.');
+    } finally {
+      setDataLoading(false);
+    }
   };
 
   if (loading) {
     return (
-      <div className="flex flex-col justify-center items-center h-screen bg-slate-100">
-        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-[#307637] mb-6"></div>
-        <div className="text-slate-600 text-lg font-semibold mb-4">Checking authentication...</div>
-        {authError && <div className="text-red-600 text-center font-semibold mb-4">{authError}</div>}
-        <button
-          onClick={resetAndReload}
-          className="bg-orange-600 text-white px-6 py-3 rounded-full shadow-lg font-bold hover:bg-orange-700 transition-colors mt-4"
-        >
-          Reset & Restart Login
-        </button>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#307637] mx-auto mb-4"></div>
+          <p className="text-lg text-slate-600">Initializing...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (authError) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-600 text-lg mb-4">Authentication Error</div>
+          <p className="text-slate-600 mb-4">{authError}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-4 py-2 bg-[#307637] text-white rounded hover:bg-[#245929]"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
@@ -226,56 +282,89 @@ const App: React.FC = () => {
 
   return (
     <DarkModeContext.Provider value={{ darkMode, toggleDarkMode }}>
-      <div className={darkMode ? 'dark' : ''} style={{ minHeight: '100vh' }}>
-        <div className="flex h-screen bg-slate-100 dark:bg-slate-900 transition-colors duration-500">
-          {user.role === "student" ? (
-            <div className="flex flex-1">
-              <Sidebar role={user.role} onNavigate={setNavKey} activeKey={navKey || ''} onLogout={handleLogout} />
-              <div className="flex-1 overflow-auto">
-                <StudentDashboard 
-                  user={user}
-                  assignments={assignments}
-                  submissions={submissions}
-                  classes={classes}
-                  onNavigate={setNavKey}
-                  activeKey={navKey}
-                  onLogout={handleLogout}
-                />
+      <div className={`min-h-screen ${darkMode ? 'dark' : ''}`}>
+        <div className="flex">
+          <Sidebar 
+            role={user.role} 
+            activeKey={navKey} 
+            onNavigate={setNavKey}
+            onLogout={handleLogout}
+          />
+          <div className="flex-1">
+            {dataLoading && (
+              <div className="fixed top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded shadow-lg z-50">
+                <div className="flex items-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Loading data...
+                </div>
               </div>
-            </div>
-          ) : user.role === "teacher" || user.role === "admin" ? (
-            <div className="flex flex-1">
-              <Sidebar role={user.role} onNavigate={setNavKey} activeKey={navKey || ''} onLogout={handleLogout} />
-              <div className="flex-1 overflow-auto">
-                <TeacherDashboard 
-                  user={user}
-                  students={students}
-                  assignments={assignments}
-                  classes={classes}
-                  activeKey={navKey}
-                  onLogout={handleLogout}
-                  onStudentAdded={fetchStudents}
-                />
+            )}
+            {dataError && (
+              <div className="fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded shadow-lg z-50">
+                <div className="flex items-center">
+                  <span className="mr-2">⚠️</span>
+                  {dataError}
+                  <button 
+                    onClick={refreshData}
+                    className="ml-2 underline"
+                  >
+                    Retry
+                  </button>
+                </div>
               </div>
+            )}
+            <div className="flex h-screen bg-slate-100 dark:bg-slate-900 transition-colors duration-500">
+              {user.role === "student" ? (
+                <div className="flex flex-1">
+                  <Sidebar role={user.role} onNavigate={setNavKey} activeKey={navKey || ''} onLogout={handleLogout} />
+                  <div className="flex-1 overflow-auto">
+                    <StudentDashboard 
+                      user={user}
+                      assignments={assignments}
+                      submissions={submissions}
+                      classes={classes}
+                      onNavigate={setNavKey}
+                      activeKey={navKey}
+                      onLogout={handleLogout}
+                    />
+                  </div>
+                </div>
+              ) : user.role === "teacher" || user.role === "admin" ? (
+                <div className="flex flex-1">
+                  <Sidebar role={user.role} onNavigate={setNavKey} activeKey={navKey || ''} onLogout={handleLogout} />
+                  <div className="flex-1 overflow-auto">
+                    <TeacherDashboard 
+                      user={user}
+                      students={students}
+                      assignments={assignments}
+                      classes={classes}
+                      activeKey={navKey}
+                      onLogout={handleLogout}
+                      onStudentAdded={fetchStudents}
+                      onDataRefresh={refreshData}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-1">
+                  <Sidebar role={user.role} onNavigate={setNavKey} activeKey={navKey || ''} onLogout={handleLogout} />
+                  <div className="flex-1 overflow-auto">
+                    <Dashboard 
+                      assignments={assignments}
+                      submissions={submissions}
+                      students={students}
+                      classes={classes}
+                      loading={dataLoading}
+                      error={dataError}
+                      user={user}
+                      activeKey={navKey}
+                      onLogout={handleLogout}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="flex flex-1">
-              <Sidebar role={user.role} onNavigate={setNavKey} activeKey={navKey || ''} onLogout={handleLogout} />
-              <div className="flex-1 overflow-auto">
-                <Dashboard 
-                  assignments={assignments}
-                  submissions={submissions}
-                  students={students}
-                  classes={classes}
-                  loading={dataLoading}
-                  error={dataError}
-                  user={user}
-                  activeKey={navKey}
-                  onLogout={handleLogout}
-                />
-              </div>
-            </div>
-          )}
+          </div>
         </div>
       </div>
     </DarkModeContext.Provider>

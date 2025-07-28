@@ -1,0 +1,14 @@
+services:
+  # Frontend Service
+  - type: web
+    name: skillup-frontend
+    env: static
+    buildCommand: npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        value: https://skillup-backend-v6vm.onrender.com/api
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html 

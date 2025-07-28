@@ -11,24 +11,32 @@ import SettingsPanel from './SettingsPanel';
 import DiceBearAvatar from './DiceBearAvatar';
 import AdminDebugPanel from './AdminDebugPanel';
 
-const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onLogout, onStudentAdded }: {
+const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onLogout, onStudentAdded, onDataRefresh }: {
   user: Student,
   students: Student[],
   assignments: Assignment[],
   classes: StudentClass[],
   activeKey: string,
   onLogout: () => void,
-  onStudentAdded?: () => void
+  onStudentAdded?: () => void,
+  onDataRefresh?: () => void
 }) => {
   console.log('TeacherDashboard activeKey:', activeKey);
   console.log('User role:', user.role);
   // Example summary metrics (IELTS focus)
   const totalStudents = students.length;
   const activeAssignments = assignments.filter(a => a.level === 'IELTS').length;
-  const [classList, setClassList] = useState(classes);
+  
   const handleAddClass = (code: string) => {
-    // Add new class to state (in real app, also add to Firestore)
-    setClassList(prev => [...prev, { id: code, name: code, levelId: null }]);
+    // This will be handled by the parent component through API calls
+    console.log('New class code:', code);
+    onDataRefresh?.();
+  };
+
+  const handleAssignLevel = (classId: string, levelId: string) => {
+    // This will be handled by the parent component through API calls
+    console.log('Assign level:', classId, levelId);
+    onDataRefresh?.();
   };
 
   return (
@@ -42,15 +50,15 @@ const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onL
         {activeKey === 'add-student' ? (
           <AddStudentPanel onStudentAdded={onStudentAdded} />
         ) : activeKey === 'classes' ? (
-          <ClassesPanel students={students} classes={classList} onAddClass={handleAddClass} />
+          <ClassesPanel students={students} classes={classes} onAddClass={handleAddClass} onAssignLevel={handleAssignLevel} />
         ) : activeKey === 'waiting-list' ? (
-          <WaitingListPanel students={students} classes={classList} currentUser={user} />
+          <WaitingListPanel students={students} classes={classes} currentUser={user} />
         ) : activeKey === 'potential-students' ? (
-          <WaitingListPanel students={students} classes={classList} currentUser={user} />
+          <WaitingListPanel students={students} classes={classes} currentUser={user} />
         ) : activeKey === 'levels' ? (
           <LevelsPanel />
         ) : activeKey === 'settings' ? (
-          <SettingsPanel user={user} isAdmin={user.role === 'admin'} onLogout={onLogout} classes={classList} />
+          <SettingsPanel user={user} isAdmin={user.role === 'admin'} onLogout={onLogout} classes={classes} />
         ) : activeKey.startsWith('admin-debug') ? (
           <div>
             <AdminDebugPanel activeKey={activeKey} />
