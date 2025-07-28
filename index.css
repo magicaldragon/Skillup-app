@@ -4,20 +4,12 @@
 
 /* Global CSS fixes for accessibility, compatibility, and performance */
 
-/* Fix for -webkit-text-size-adjust compatibility */
+/* Fix for text-size-adjust compatibility - use only standard property */
 html {
   text-size-adjust: 100%;
-  -webkit-text-size-adjust: 100%;
-  -moz-text-size-adjust: 100%;
-  -ms-text-size-adjust: 100%;
 }
 
-/* Fix for scrollbar-width compatibility */
-* {
-  scrollbar-width: auto;
-  scrollbar-color: #307637 #f1f5f9;
-}
-
+/* Remove problematic scrollbar properties and use only webkit fallbacks */
 /* Webkit scrollbar styling for Safari compatibility */
 ::-webkit-scrollbar {
   width: 8px;
@@ -38,12 +30,8 @@ html {
   background: #245929;
 }
 
-/* Performance optimizations for animations */
-* {
-  will-change: auto;
-}
-
-/* Optimize animations to use transform instead of left/visibility */
+/* Remove will-change property that can cause performance issues */
+/* Optimize animations to use only transform and opacity */
 @keyframes fadeInPanel {
   from { 
     opacity: 0; 

@@ -6,18 +6,35 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const ChangeLog = require('../models/ChangeLog');
-const admin = require('firebase-admin');
+
+// Firebase Admin SDK initialization with graceful error handling
 let firebaseInitialized = false;
+let admin = null;
+
 try {
+  admin = require('firebase-admin');
   if (!admin.apps.length) {
-    const serviceAccount = require(path.join(__dirname, '../firebase-service-account.json'));
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount)
-    });
+    const serviceAccountPath = path.join(__dirname, '../firebase-service-account.json');
+    
+    if (fs.existsSync(serviceAccountPath)) {
+      const serviceAccount = require(serviceAccountPath);
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount)
+      });
+      firebaseInitialized = true;
+      console.log('Firebase Admin SDK initialized successfully');
+    } else {
+      console.warn('Firebase service account file not found. Firebase Auth features will be disabled.');
+      firebaseInitialized = false;
+    }
+  } else {
     firebaseInitialized = true;
+    console.log('Firebase Admin SDK already initialized');
   }
 } catch (e) {
-  console.error('Firebase Admin SDK not initialized:', e.message);
+  console.error('Firebase Admin SDK initialization failed:', e.message);
+  console.warn('Firebase Auth features will be disabled. User deletion from Firebase will not work.');
+  firebaseInitialized = false;
 }
 
 const storage = multer.diskStorage({
