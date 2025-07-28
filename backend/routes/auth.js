@@ -2,6 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const router = express.Router();
+const fs = require('fs');
 
 // Login route
 router.post('/login', async (req, res) => {
@@ -193,6 +194,27 @@ router.post('/firebase-login', async (req, res) => {
       success: false, 
       message: 'Internal server error' 
     });
+  }
+});
+
+// GET /api/admin/logs - Return last 100 lines of backend log (or placeholder)
+router.get('/admin/logs', verifyToken, async (req, res) => {
+  try {
+    // Only allow admin
+    if (!req.user || req.user.role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'Admin only' });
+    }
+    // Try to read log file (if available)
+    const logPath = process.env.BACKEND_LOG_PATH || './backend.log';
+    if (fs.existsSync(logPath)) {
+      const lines = fs.readFileSync(logPath, 'utf-8').split('\n');
+      const lastLines = lines.slice(-100).join('\n');
+      return res.json({ success: true, logs: lastLines });
+    } else {
+      return res.json({ success: true, logs: 'No backend log file found.' });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to fetch backend logs', error: error.message });
   }
 });
 

@@ -52,6 +52,7 @@ router.get('/', verifyToken, async (req, res) => {
       users: users.map(u => {
         const obj = u.toObject();
         obj.id = obj._id;
+        obj.displayName = obj.displayName || obj.name || '';
         delete obj._id;
         return obj;
       })

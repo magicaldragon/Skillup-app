@@ -1,63 +1,45 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
-const FrontendStatusPanel = () => {
-  const [deploying, setDeploying] = useState(false);
-  const [status, setStatus] = useState<'online' | 'offline'>('online');
-  const [version, setVersion] = useState('');
-  const [uptime, setUptime] = useState<number>(0);
-  const [message, setMessage] = useState<string | null>(null);
+const FrontendStatusPanel: React.FC = () => {
+  const [logs, setLogs] = useState<string[]>([]);
+  const logsRef = useRef<string[]>([]);
 
   useEffect(() => {
-    // Check if frontend is working by testing a simple endpoint
-    Promise.all([
-      fetch('/api/cors-test').catch(() => null),
-      fetch('/api/users/admin/version', { credentials: 'include' }).catch(() => null)
-    ])
-    .then(([corsRes, versionRes]) => {
-      if (corsRes) {
-        setStatus('online');
-        setVersion('1.0.0'); // Frontend version
-        setUptime(0); // Frontend doesn't have uptime concept
-      } else {
-        setStatus('offline');
-      }
-      
-      // Try to get backend version if available
-      if (versionRes) {
-        versionRes.json().then(data => {
-          if (data.success) {
-            setVersion(`Frontend: 1.0.0 | Backend: ${data.version}`);
-          }
-        }).catch(() => {});
-      }
-    })
-    .catch(() => setStatus('offline'));
+    // Capture window errors
+    const handleError = (event: ErrorEvent) => {
+      const msg = `[${new Date().toLocaleTimeString()}] ERROR: ${event.message} at ${event.filename}:${event.lineno}`;
+      logsRef.current = [...logsRef.current, msg];
+      setLogs([...logsRef.current]);
+    };
+    window.addEventListener('error', handleError);
+
+    // Capture console errors
+    const origConsoleError = console.error;
+    console.error = (...args) => {
+      const msg = `[${new Date().toLocaleTimeString()}] CONSOLE: ${args.map(a => (typeof a === 'string' ? a : JSON.stringify(a))).join(' ')}`;
+      logsRef.current = [...logsRef.current, msg];
+      setLogs([...logsRef.current]);
+      origConsoleError(...args);
+    };
+
+    return () => {
+      window.removeEventListener('error', handleError);
+      console.error = origConsoleError;
+    };
   }, []);
 
-  const handleRedeploy = async () => {
-    setDeploying(true);
-    setMessage(null);
-    fetch('/api/users/admin/deploy-frontend', { method: 'POST', credentials: 'include' })
-      .then(res => res.json())
-      .then(data => setMessage(data.message))
-      .catch(() => setMessage('Failed to trigger redeploy.'))
-      .finally(() => setDeploying(false));
+  const handleClear = () => {
+    logsRef.current = [];
+    setLogs([]);
   };
 
   return (
-    <div>
-      <h2 className="text-xl font-semibold mb-4">Frontend Status</h2>
-      <div className="mb-2">Status: <span className={status === 'online' ? 'text-green-700' : 'text-red-600'}>{status}</span></div>
-      <div className="mb-2">Version: <span className="font-mono">{version}</span></div>
-      <div className="mb-2">Uptime: <span className="font-mono">{Math.floor(uptime)}s</span></div>
-      <button
-        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-semibold mt-2"
-        onClick={handleRedeploy}
-        disabled={deploying}
-      >
-        {deploying ? 'Redeploying...' : 'Redeploy Frontend'}
+    <div className="bg-white rounded-xl shadow p-6 max-w-3xl mx-auto mt-8">
+      <h2 className="text-2xl font-bold mb-4">Frontend Logs</h2>
+      <button className="px-4 py-2 bg-blue-600 text-white rounded mb-4" onClick={handleClear}>
+        Clear Logs
       </button>
-      {message && <div className="mt-2 text-green-700">{message}</div>}
+      <pre className="bg-slate-100 p-4 rounded text-xs overflow-x-auto max-h-96" style={{ whiteSpace: 'pre-wrap' }}>{logs.join('\n')}</pre>
     </div>
   );
 };

@@ -136,7 +136,7 @@ const AccountsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
               <td className="p-2 font-semibold capitalize">{acc.role}</td>
               <td className="p-2">{acc.username}</td>
               <td className="p-2">{acc.email}</td>
-              <td className="p-2">{acc.displayName}</td>
+              <td className="p-2">{acc.displayName || acc.name}</td>
               <td className="p-2">{acc.phone}</td>
               <td className="p-2 flex gap-2 items-center">
                 <button className="px-2 py-1 bg-blue-500 text-white rounded" onClick={() => handleEdit(acc)}>Edit</button>

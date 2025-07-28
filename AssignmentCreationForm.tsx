@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { db } from './services/firebase';
 import type { Assignment, AssignmentQuestion, QuestionType, IELTS_Skill, ExamLevel, StudentClass, Student } from './types';
 
 const EXAM_LEVELS: ExamLevel[] = ['IELTS', 'KEY', 'PET'];
@@ -38,7 +37,7 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({ 
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [file, setFile] = useState(null);
+  const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [fileUrl, setFileUrl] = useState('');
   const [uploadError, setUploadError] = useState('');
@@ -77,7 +76,7 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({ 
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFile(e.target.files?.[0]);
+    setFile(e.target.files && e.target.files[0] ? e.target.files[0] : null);
     setUploadError('');
   };
 
@@ -124,15 +123,17 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({ 
       });
       const assignment: Omit<Assignment, 'id'> = {
         ...form,
+        title: form.title ?? '',
         questions: form.questions,
         answerKey,
         createdBy: currentUser.id,
         createdAt: new Date().toISOString(),
-        publishDate: form.publishDate || new Date().toISOString().slice(0, 10),
-        dueDate: form.dueDate || new Date(Date.now() + 7*24*60*60*1000).toISOString().slice(0, 10),
+        publishDate: form.publishDate || '',
+        dueDate: form.dueDate || '',
         classIds: form.classIds || [],
-        pdfUrl: fileUrl.endsWith('.pdf') ? fileUrl : undefined,
-        audioUrl: fileUrl.match(/\.(mp3|wav|ogg)$/) ? fileUrl : undefined,
+        description: form.description || '',
+        level: form.level ?? 'IELTS',
+        skill: form.skill ?? 'Listening',
       };
       await fetch('/api/assignments', {
         method: 'POST',
@@ -159,7 +160,7 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({ 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1">Title *</label>
-              <input type="text" value={form.title || ''} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} className="w-full p-2 border rounded" required />
+              <input id="assignment-title" name="title" type="text" value={form.title ?? ''} onChange={e => setForm(f => ({ ...f, title: e.target.value ?? '' }))} className="w-full p-2 border rounded" required />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Level *</label>

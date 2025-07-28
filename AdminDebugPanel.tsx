@@ -20,12 +20,18 @@ const AdminDebugPanel = ({ activeKey }: { activeKey: string }) => {
   console.log('Available panels:', Object.keys(panels));
   console.log('Selected panel:', panels[activeKey]);
   
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'Not set';
+  const isLoggedIn = !!localStorage.getItem('token') || document.cookie.includes('session');
+  
   return (
     <div className="p-8">
       <h1 className="text-2xl font-bold mb-6">Admin Debug Panel</h1>
-      <div className="mb-4 p-4 bg-blue-100 rounded">
-        <strong>Debug Info:</strong> activeKey = "{activeKey}"
+      <div className="mb-4 p-2 bg-slate-100 rounded">
+        <div><b>API Base URL:</b> {apiBaseUrl}</div>
+        <div><b>Session/Token Present:</b> {isLoggedIn ? 'Yes' : 'No'}</div>
       </div>
+      {activeKey === 'admin-debug-frontend' && <FrontendStatusPanel />}
+      {activeKey === 'admin-debug-backend' && <BackendStatusPanel />}
       {panels[activeKey] ? (
         panels[activeKey]
       ) : (
