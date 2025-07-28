@@ -38,6 +38,7 @@ router.get('/', verifyToken, async (req, res) => {
     let users;
     if (req.user.role === 'admin') {
       users = await User.find().select('-password');
+      console.log(`[DEBUG] /api/users: Found ${users.length} users for admin. Roles:`, users.map(u => u.role));
     } else if (req.user.role === 'teacher') {
       // Teacher can see students and staff
       users = await User.find({ role: { $in: ['student', 'staff'] } }).select('-password');
