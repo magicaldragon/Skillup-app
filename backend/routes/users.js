@@ -226,7 +226,11 @@ router.post('/', verifyToken, async (req, res) => {
     await user.save();
 
     // Log the action
-    const logUser = req.user && req.user.id ? req.user : { id: 'system', name: 'System', role: 'system' };
+    const logUser = {
+      id: (req.user && (req.user.id || req.user._id)) || 'system',
+      name: (req.user && (req.user.name || req.user.email)) || 'System',
+      role: (req.user && req.user.role) || 'system'
+    };
     await ChangeLog.create({
       userId: logUser.id,
       userName: logUser.name,
@@ -331,10 +335,15 @@ router.put('/:id', verifyToken, async (req, res) => {
     const before = await User.findById(req.params.id);
     await User.findByIdAndUpdate(req.params.id, req.body);
     const after = await User.findById(req.params.id);
+    const logUser = {
+      id: (req.user && (req.user.id || req.user._id)) || 'system',
+      name: (req.user && (req.user.name || req.user.email)) || 'System',
+      role: (req.user && req.user.role) || 'system'
+    };
     await ChangeLog.create({
-      userId: req.user.id,
-      userName: req.user.name,
-      userRole: req.user.role,
+      userId: logUser.id,
+      userName: logUser.name,
+      userRole: logUser.role,
       action: 'edit',
       entityType: 'user',
       entityId: req.params.id,
@@ -458,10 +467,15 @@ router.delete('/:id', verifyToken, async (req, res) => {
 
     // Log the action
     const before = await User.findById(req.params.id);
+    const logUser = {
+      id: (req.user && (req.user.id || req.user._id)) || 'system',
+      name: (req.user && (req.user.name || req.user.email)) || 'System',
+      role: (req.user && req.user.role) || 'system'
+    };
     await ChangeLog.create({
-      userId: req.user.id,
-      userName: req.user.name,
-      userRole: req.user.role,
+      userId: logUser.id,
+      userName: logUser.name,
+      userRole: logUser.role,
       action: 'delete',
       entityType: 'user',
       entityId: req.params.id,
