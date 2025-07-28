@@ -5,6 +5,7 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const ChangeLog = require('../models/ChangeLog');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, path.join(__dirname, '../uploads/avatars')),
@@ -224,6 +225,18 @@ router.post('/', verifyToken, async (req, res) => {
 
     await user.save();
 
+    // Log the action
+    await ChangeLog.create({
+      userId: req.user.id,
+      userName: req.user.name,
+      userRole: req.user.role,
+      action: 'add',
+      entityType: 'user',
+      entityId: user._id,
+      details: { after: user },
+      ip: req.ip
+    });
+
     res.status(201).json({
       success: true,
       message: 'User created successfully',
@@ -312,6 +325,21 @@ router.put('/:id', verifyToken, async (req, res) => {
         message: 'User not found' 
       });
     }
+
+    // Log the action
+    const before = await User.findById(req.params.id);
+    await User.findByIdAndUpdate(req.params.id, req.body);
+    const after = await User.findById(req.params.id);
+    await ChangeLog.create({
+      userId: req.user.id,
+      userName: req.user.name,
+      userRole: req.user.role,
+      action: 'edit',
+      entityType: 'user',
+      entityId: req.params.id,
+      details: { before, after },
+      ip: req.ip
+    });
 
     res.json({
       success: true,
@@ -426,6 +454,19 @@ router.delete('/:id', verifyToken, async (req, res) => {
     }
 
     await User.findByIdAndDelete(req.params.id);
+
+    // Log the action
+    const before = await User.findById(req.params.id);
+    await ChangeLog.create({
+      userId: req.user.id,
+      userName: req.user.name,
+      userRole: req.user.role,
+      action: 'delete',
+      entityType: 'user',
+      entityId: req.params.id,
+      details: { before },
+      ip: req.ip
+    });
 
     res.json({
       success: true,

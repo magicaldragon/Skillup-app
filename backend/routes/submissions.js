@@ -1,6 +1,7 @@
 const express = require('express');
 const { verifyToken } = require('./auth');
 const router = express.Router();
+const ChangeLog = require('../models/ChangeLog');
 
 // Mock data for now - in production this would come from a database
 let submissions = [

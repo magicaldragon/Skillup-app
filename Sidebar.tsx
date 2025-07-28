@@ -25,6 +25,7 @@ const menuConfig = (role: string) => [
       { label: 'Scores & Feedback', icon: <FaChartBar />, key: 'scores', visible: role === 'staff' || role === 'teacher' || role === 'admin' },
       { label: 'Reports', icon: <FaClipboard />, key: 'reports', visible: role === 'staff' || role === 'teacher' || role === 'admin' },
       { label: 'Levels', icon: <FaListAlt />, key: 'levels', visible: role === 'staff' || role === 'teacher' || role === 'admin' },
+      { label: 'Change Log', icon: <FaClipboardList />, key: 'change-log', visible: role === 'staff' || role === 'teacher' || role === 'admin' },
       { label: 'Records', icon: <FaArchive />, key: 'records', visible: role === 'staff' || role === 'teacher' || role === 'admin' },
       // Add Accounts submenu for admin and staff
       { label: 'Accounts', icon: <FaUserCog />, key: 'accounts', visible: role === 'admin' || role === 'staff' },

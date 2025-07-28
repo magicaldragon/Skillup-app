@@ -17,6 +17,7 @@ import AssignmentListPanel from './AssignmentListPanel';
 import SubmissionListPanel from './SubmissionListPanel';
 import AssignmentCreationForm from './AssignmentCreationForm';
 import SubmissionGradingPanel from './SubmissionGradingPanel';
+import ChangeLogPanel from './ChangeLogPanel';
 
 const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onLogout, onStudentAdded, onDataRefresh }: {
   user: Student,
@@ -134,6 +135,8 @@ const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onL
           </div>
         ) : activeKey === 'settings' ? (
           <SettingsPanel user={user} isAdmin={user.role === 'admin'} onLogout={onLogout} classes={classes} onDataRefresh={onDataRefresh} />
+        ) : activeKey === 'change-log' ? (
+          <ChangeLogPanel />
         ) : activeKey.startsWith('admin-debug') ? (
           <div>
             <AdminDebugPanel activeKey={activeKey} />

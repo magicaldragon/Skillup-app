@@ -1,6 +1,7 @@
 const express = require('express');
 const { verifyToken } = require('./auth');
 const router = express.Router();
+const ChangeLog = require('../models/ChangeLog');
 
 // Mock data for now - in production this would come from a database
 let classes = [
@@ -161,6 +162,18 @@ router.post('/', verifyToken, async (req, res) => {
 
     classes.push(newClass);
 
+    // Log the action
+    await ChangeLog.create({
+      userId: req.user.id,
+      userName: req.user.name,
+      userRole: req.user.role,
+      action: 'add',
+      entityType: 'class',
+      entityId: newClass.id,
+      details: { after: newClass },
+      ip: req.ip
+    });
+
     res.status(201).json({
       success: true,
       message: 'Class created successfully',
@@ -207,6 +220,7 @@ router.put('/:id', verifyToken, async (req, res) => {
     const { name, levelId, description, studentIds, isActive } = req.body;
 
     // Update class
+    const before = classToUpdate;
     classes[classIndex] = {
       ...classToUpdate,
       name: name || classToUpdate.name,
@@ -215,6 +229,19 @@ router.put('/:id', verifyToken, async (req, res) => {
       studentIds: studentIds || classToUpdate.studentIds,
       isActive: isActive !== undefined ? isActive : classToUpdate.isActive
     };
+    const after = classes[classIndex];
+
+    // Log the action
+    await ChangeLog.create({
+      userId: req.user.id,
+      userName: req.user.name,
+      userRole: req.user.role,
+      action: 'edit',
+      entityType: 'class',
+      entityId: req.params.id,
+      details: { before, after },
+      ip: req.ip
+    });
 
     res.json({
       success: true,
@@ -276,10 +303,24 @@ router.post('/:id/students', verifyToken, async (req, res) => {
       });
     }
 
+    const before = classToUpdate;
     classes[classIndex] = {
       ...classToUpdate,
       studentIds: [...classToUpdate.studentIds, studentId]
     };
+    const after = classes[classIndex];
+
+    // Log the action
+    await ChangeLog.create({
+      userId: req.user.id,
+      userName: req.user.name,
+      userRole: req.user.role,
+      action: 'edit',
+      entityType: 'class',
+      entityId: req.params.id,
+      details: { before, after },
+      ip: req.ip
+    });
 
     res.json({
       success: true,
@@ -334,10 +375,24 @@ router.delete('/:id/students/:studentId', verifyToken, async (req, res) => {
       });
     }
 
+    const before = classToUpdate;
     classes[classIndex] = {
       ...classToUpdate,
       studentIds: classToUpdate.studentIds.filter(id => id !== studentId)
     };
+    const after = classes[classIndex];
+
+    // Log the action
+    await ChangeLog.create({
+      userId: req.user.id,
+      userName: req.user.name,
+      userRole: req.user.role,
+      action: 'edit',
+      entityType: 'class',
+      entityId: req.params.id,
+      details: { before, after },
+      ip: req.ip
+    });
 
     res.json({
       success: true,
@@ -382,7 +437,21 @@ router.delete('/:id', verifyToken, async (req, res) => {
       });
     }
 
+    const before = classToDelete;
     classes.splice(classIndex, 1);
+    const after = classes[classIndex];
+
+    // Log the action
+    await ChangeLog.create({
+      userId: req.user.id,
+      userName: req.user.name,
+      userRole: req.user.role,
+      action: 'delete',
+      entityType: 'class',
+      entityId: req.params.id,
+      details: { before },
+      ip: req.ip
+    });
 
     res.json({
       success: true,

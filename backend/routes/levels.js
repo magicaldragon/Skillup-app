@@ -1,6 +1,7 @@
 const express = require('express');
 const { verifyToken } = require('./auth');
 const router = express.Router();
+const ChangeLog = require('../models/ChangeLog');
 
 // Mock data for levels - in production this would come from MongoDB
 let levels = [
@@ -118,6 +119,18 @@ router.post('/', verifyToken, async (req, res) => {
 
     levels.push(newLevel);
 
+    // Log the action
+    await ChangeLog.create({
+      userId: req.user.id,
+      userName: req.user.name,
+      userRole: req.user.role,
+      action: 'add',
+      entityType: 'level',
+      entityId: newLevel.id,
+      details: { after: newLevel },
+      ip: req.ip
+    });
+
     res.status(201).json({
       success: true,
       message: 'Level created successfully',
@@ -175,6 +188,19 @@ router.put('/:id', verifyToken, async (req, res) => {
       description: description !== undefined ? description : levels[levelIndex].description
     };
 
+    // Log the action
+    const before = levels[levelIndex];
+    await ChangeLog.create({
+      userId: req.user.id,
+      userName: req.user.name,
+      userRole: req.user.role,
+      action: 'edit',
+      entityType: 'level',
+      entityId: req.params.id,
+      details: { before, after: levels[levelIndex] },
+      ip: req.ip
+    });
+
     res.json({
       success: true,
       message: 'Level updated successfully',
@@ -213,6 +239,19 @@ router.delete('/:id', verifyToken, async (req, res) => {
       ...levels[levelIndex],
       isActive: false
     };
+
+    // Log the action
+    const before = levels[levelIndex];
+    await ChangeLog.create({
+      userId: req.user.id,
+      userName: req.user.name,
+      userRole: req.user.role,
+      action: 'delete',
+      entityType: 'level',
+      entityId: req.params.id,
+      details: { before },
+      ip: req.ip
+    });
 
     res.json({
       success: true,

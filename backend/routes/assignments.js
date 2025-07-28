@@ -1,6 +1,7 @@
 const express = require('express');
 const { verifyToken } = require('./auth');
 const router = express.Router();
+const ChangeLog = require('../models/ChangeLog');
 
 // Mock data for now - in production this would come from a database
 let assignments = [
@@ -125,6 +126,18 @@ router.post('/', verifyToken, async (req, res) => {
 
     assignments.push(newAssignment);
 
+    // Log the action
+    await ChangeLog.create({
+      userId: req.user.id,
+      userName: req.user.name,
+      userRole: req.user.role,
+      action: 'add',
+      entityType: 'assignment',
+      entityId: newAssignment.id,
+      details: { after: newAssignment },
+      ip: req.ip
+    });
+
     res.status(201).json({
       success: true,
       message: 'Assignment created successfully',
@@ -181,6 +194,18 @@ router.put('/:id', verifyToken, async (req, res) => {
       classIds: classIds || assignment.classIds
     };
 
+    // Log the action
+    await ChangeLog.create({
+      userId: req.user.id,
+      userName: req.user.name,
+      userRole: req.user.role,
+      action: 'edit',
+      entityType: 'assignment',
+      entityId: req.params.id,
+      details: { before: assignment, after: assignments[assignmentIndex] },
+      ip: req.ip
+    });
+
     res.json({
       success: true,
       message: 'Assignment updated successfully',
@@ -225,6 +250,18 @@ router.delete('/:id', verifyToken, async (req, res) => {
     }
 
     assignments.splice(assignmentIndex, 1);
+
+    // Log the action
+    await ChangeLog.create({
+      userId: req.user.id,
+      userName: req.user.name,
+      userRole: req.user.role,
+      action: 'delete',
+      entityType: 'assignment',
+      entityId: req.params.id,
+      details: { before: assignment },
+      ip: req.ip
+    });
 
     res.json({
       success: true,

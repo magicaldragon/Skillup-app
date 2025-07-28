@@ -202,22 +202,6 @@ const App: React.FC = () => {
     fetchData();
   }, [user]);
 
-  // Global reset utility
-  const resetAndReload = async () => {
-    try { 
-      await hybridAuthService.logout(); 
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      setUser(null);
-      setAssignments([]);
-      setSubmissions([]);
-      setStudents([]);
-      setClasses([]);
-      setNavKey('dashboard');
-    }
-  };
-
   // Refresh data function
   const refreshData = async () => {
     if (!user) return;
