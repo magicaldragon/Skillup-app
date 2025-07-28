@@ -12,6 +12,8 @@ const DarkModeContext = createContext({ darkMode: false, toggleDarkMode: () => {
 export const useDarkMode = () => useContext(DarkModeContext);
 
 const App: React.FC = () => {
+  console.log('App component loaded - version:', new Date().toISOString());
+  
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);

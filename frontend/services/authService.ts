@@ -17,6 +17,10 @@ export interface UserProfile {
 }
 
 class AuthService {
+  constructor() {
+    console.log('AuthService instantiated at:', new Date().toISOString());
+  }
+
   async login(credentials: LoginCredentials): Promise<{ success: boolean; message: string; user?: any }> {
     try {
       // Validate input
