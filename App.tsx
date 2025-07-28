@@ -39,6 +39,18 @@ const App: React.FC = () => {
     const initializeAuth = async () => {
       setLoading(true);
       try {
+        // Test backend connectivity first
+        console.log('Testing backend connectivity...');
+        const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+        const testResponse = await fetch(`${apiUrl}/test`);
+        console.log('Backend test response status:', testResponse.status);
+        if (testResponse.ok) {
+          const testData = await testResponse.json();
+          console.log('Backend test data:', testData);
+        } else {
+          console.error('Backend test failed:', testResponse.status);
+        }
+
         console.log('Initializing authentication...');
         const profile = await authService.getProfile();
         console.log('Auth profile received:', profile);
