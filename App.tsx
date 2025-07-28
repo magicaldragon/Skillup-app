@@ -1,6 +1,5 @@
-import React, { useEffect, useState, createContext, useContext, Suspense, lazy } from "react";
+import React, { useEffect, useState, Suspense, lazy, createContext, useContext } from "react";
 import { authService } from './frontend/services/authService';
-// Lazy-load main panels
 const Login = lazy(() => import('./Login'));
 const Dashboard = lazy(() => import('./Dashboard'));
 const TeacherDashboard = lazy(() => import('./TeacherDashboard'));
@@ -12,22 +11,6 @@ import type { Assignment, Submission, Student, StudentClass } from "./types";
 const DarkModeContext = createContext({ darkMode: false, toggleDarkMode: () => {} });
 export const useDarkMode = () => useContext(DarkModeContext);
 
-// ErrorBoundary for Suspense/lazy loading
-class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean}> {
-  constructor(props: any) {
-    super(props);
-    this.state = { hasError: false };
-  }
-  static getDerivedStateFromError() { return { hasError: true }; }
-  componentDidCatch(error: any, info: any) { console.error('ErrorBoundary caught:', error, info); }
-  render() {
-    if (this.state.hasError) {
-      return <div className="min-h-screen flex items-center justify-center text-red-600">Something went wrong. Please reload the page.</div>;
-    }
-    return this.props.children;
-  }
-}
-
 const App: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -38,22 +21,28 @@ const App: React.FC = () => {
   const [classes, setClasses] = useState<StudentClass[]>([]);
   const [dataLoading, setDataLoading] = useState(false);
   const [dataError, setDataError] = useState<string | null>(null);
-  const [navKey, setNavKey] = useState('dashboard'); // Track active sidebar key
-  const [darkMode, setDarkMode] = useState(false);
-  const toggleDarkMode = () => setDarkMode((d) => !d);
+  const [navKey, setNavKey] = useState('dashboard');
+  const [darkMode, setDarkMode] = useState(() => {
+    const stored = localStorage.getItem('skillup_dark_mode');
+    return stored ? stored === 'true' : false;
+  });
+  const toggleDarkMode = () => {
+    setDarkMode((d) => {
+      localStorage.setItem('skillup_dark_mode', (!d).toString());
+      return !d;
+    });
+  };
 
-  // Initialize authentication state
   useEffect(() => {
     const initializeAuth = async () => {
       setLoading(true);
       try {
         const profile = await authService.getProfile();
-        // Robust check: profile must have a valid email and role
         if (profile && profile.email && profile.role) {
           setUser(profile);
           setAuthError(null);
         } else {
-          await authService.logout(); // Force logout if profile is invalid
+          await authService.logout();
           setUser(null);
         }
       } catch (error) {
@@ -64,17 +53,15 @@ const App: React.FC = () => {
         setLoading(false);
       }
     };
-
     initializeAuth();
   }, []);
 
-  // Handle login success
   const handleLoginSuccess = (userData: any) => {
+    console.log('Login successful, userData:', userData);
     setUser(userData);
     setAuthError(null);
   };
 
-  // Handle logout
   const handleLogout = async () => {
     try {
       await authService.logout();
@@ -90,7 +77,6 @@ const App: React.FC = () => {
     }
   };
 
-  // Fetch all dashboard data after login
   const fetchStudents = async () => {
     if (!user) return;
     try {
@@ -115,7 +101,6 @@ const App: React.FC = () => {
     }
   };
 
-  // Fetch assignments from API
   const fetchAssignments = async () => {
     if (!user) return;
     try {
@@ -138,7 +123,6 @@ const App: React.FC = () => {
     }
   };
 
-  // Fetch submissions from API
   const fetchSubmissions = async () => {
     if (!user) return;
     try {
@@ -161,7 +145,6 @@ const App: React.FC = () => {
     }
   };
 
-  // Fetch classes from API
   const fetchClasses = async () => {
     if (!user) return;
     try {
@@ -188,27 +171,22 @@ const App: React.FC = () => {
     if (!user) return;
     setDataLoading(true);
     setDataError(null);
-    
     const fetchData = async () => {
       try {
-        // Only fetch students if user is admin or teacher
+        console.log('Fetching dashboard data for user:', user);
         if (user.role === 'admin' || user.role === 'teacher') {
           await fetchStudents();
         } else {
-          // For students, set empty array
           setStudents([]);
         }
-
-        // Fetch real data from API endpoints
         await Promise.all([
           fetchAssignments(),
           fetchSubmissions(),
           fetchClasses()
         ]);
-        
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error fetching data:', error);
-        setDataError('Failed to load data. Please try again.');
+        setDataError('Failed to load data. Please try again. ' + (error?.message || ''));
         setStudents([]);
         setAssignments([]);
         setSubmissions([]);
@@ -217,32 +195,24 @@ const App: React.FC = () => {
         setDataLoading(false);
       }
     };
-
     fetchData();
   }, [user]);
 
-  // Refresh data function
   const refreshData = async () => {
     if (!user) return;
     setDataLoading(true);
     setDataError(null);
-    
     try {
-      // Only fetch students if user is admin or teacher
       if (user.role === 'admin' || user.role === 'teacher') {
         await fetchStudents();
       } else {
-        // For students, set empty array
         setStudents([]);
       }
-
-      // Fetch real data from API endpoints
       await Promise.all([
         fetchAssignments(),
         fetchSubmissions(),
         fetchClasses()
       ]);
-      
     } catch (error) {
       console.error('Error refreshing data:', error);
       setDataError('Failed to refresh data. Please try again.');
@@ -253,10 +223,10 @@ const App: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#307637] mx-auto mb-4"></div>
-          <p className="text-lg text-slate-600">Initializing...</p>
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ margin: '0 auto 1rem', width: 48, height: 48, borderRadius: '50%', borderBottom: '4px solid #307637', animation: 'spin 1s linear infinite' }} />
+          <p style={{ fontSize: '1.1rem', color: '#475569' }}>Initializing...</p>
         </div>
       </div>
     );
@@ -264,108 +234,99 @@ const App: React.FC = () => {
 
   if (authError) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-red-600 text-lg mb-4">Authentication Error</div>
-          <p className="text-slate-600 mb-4">{authError}</p>
-          <button 
-            onClick={() => window.location.reload()} 
-            className="px-4 py-2 bg-[#307637] text-white rounded hover:bg-[#245929]"
-          >
-            Retry
-          </button>
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ color: '#d32f2f', fontSize: '1.2rem', marginBottom: 16 }}>Authentication Error</div>
+          <p style={{ color: '#475569', marginBottom: 16 }}>{authError}</p>
+          <button onClick={() => window.location.reload()} style={{ padding: '8px 20px', background: '#307637', color: '#fff', borderRadius: 6, border: 'none', fontWeight: 600, cursor: 'pointer' }}>Retry</button>
+        </div>
+      </div>
+    );
+  }
+
+  if (dataError) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ color: '#d32f2f', fontSize: '1.2rem', marginBottom: 16 }}>Dashboard Error</div>
+          <p style={{ color: '#475569', marginBottom: 16 }}>{dataError}</p>
+          <button onClick={refreshData} style={{ padding: '8px 20px', background: '#307637', color: '#fff', borderRadius: 6, border: 'none', fontWeight: 600, cursor: 'pointer' }}>Retry</button>
         </div>
       </div>
     );
   }
 
   return (
-    <ErrorBoundary>
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#307637] mx-auto mb-4"></div><p className="text-lg text-slate-600">Loading...</p></div>}>
+    <DarkModeContext.Provider value={{ darkMode, toggleDarkMode }}>
+      <Suspense fallback={<div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div style={{ margin: '0 auto 1rem', width: 48, height: 48, borderRadius: '50%', borderBottom: '4px solid #307637', animation: 'spin 1s linear infinite' }} /><p style={{ fontSize: '1.1rem', color: '#475569' }}>Loading...</p></div>}>
         {!user ? (
           <Login onLoginSuccess={handleLoginSuccess} />
         ) : (
-          <DarkModeContext.Provider value={{ darkMode, toggleDarkMode }}>
-            <div className={`min-h-screen ${darkMode ? 'dark' : ''}`}>
-              <div className="flex">
-                <Sidebar 
-                  role={user.role} 
-                  activeKey={navKey} 
-                  onNavigate={setNavKey}
-                  onLogout={handleLogout}
-                />
-                <div className="flex-1">
-                  {dataLoading && (
-                    <div className="fixed top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded shadow-lg z-50">
-                      <div className="flex items-center">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Loading data...
-                      </div>
+          <div style={{ minHeight: '100vh', background: darkMode ? '#181f1b' : '#f8fafc' }}>
+            <div style={{ display: 'flex' }}>
+              <Sidebar 
+                role={user.role} 
+                activeKey={navKey} 
+                onNavigate={setNavKey}
+                onLogout={handleLogout}
+              />
+              <div style={{ flex: 1 }}>
+                {dataLoading && (
+                  <div style={{ position: 'fixed', top: 16, right: 16, background: '#307637', color: '#fff', padding: '8px 20px', borderRadius: 8, boxShadow: '0 2px 8px #30763722', zIndex: 50 }}>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <div style={{ marginRight: 8, width: 16, height: 16, borderRadius: '50%', borderBottom: '2px solid #fff', animation: 'spin 1s linear infinite' }} />
+                      Loading data...
                     </div>
-                  )}
-                  {dataError && (
-                    <div className="fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded shadow-lg z-50">
-                      <div className="flex items-center">
-                        <span className="mr-2">⚠️</span>
-                        {dataError}
-                        <button 
-                          onClick={refreshData}
-                          className="ml-2 underline"
-                        >
-                          Retry
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                  <div className="flex h-screen bg-slate-100 dark:bg-slate-900 transition-colors duration-500">
-                    {user.role === "student" ? (
-                      <div className="flex-1 overflow-auto">
-                        <StudentDashboard 
-                          user={user}
-                          assignments={assignments}
-                          submissions={submissions}
-                          classes={classes}
-                          onNavigate={setNavKey}
-                          activeKey={navKey}
-                          onLogout={handleLogout}
-                        />
-                      </div>
-                    ) : user.role === "teacher" || user.role === "admin" ? (
-                      <div className="flex-1 overflow-auto">
-                        <TeacherDashboard 
-                          user={user}
-                          students={students}
-                          assignments={assignments}
-                          classes={classes}
-                          activeKey={navKey}
-                          onLogout={handleLogout}
-                          onStudentAdded={fetchStudents}
-                          onDataRefresh={refreshData}
-                        />
-                      </div>
-                    ) : (
-                      <div className="flex-1 overflow-auto">
-                        <Dashboard 
-                          assignments={assignments}
-                          submissions={submissions}
-                          students={students}
-                          classes={classes}
-                          loading={dataLoading}
-                          error={dataError}
-                          user={user}
-                          activeKey={navKey}
-                          onLogout={handleLogout}
-                        />
-                      </div>
-                    )}
                   </div>
+                )}
+                <div style={{ display: 'flex', minHeight: '100vh', background: darkMode ? '#181f1b' : '#f8fafc' }}>
+                  {user.role === "student" ? (
+                    <div style={{ flex: 1, overflow: 'auto' }}>
+                      <StudentDashboard 
+                        user={user}
+                        assignments={assignments}
+                        submissions={submissions}
+                        classes={classes}
+                        onNavigate={setNavKey}
+                        activeKey={navKey}
+                        onLogout={handleLogout}
+                      />
+                    </div>
+                  ) : user.role === "teacher" || user.role === "admin" ? (
+                    <div style={{ flex: 1, overflow: 'auto' }}>
+                      <TeacherDashboard 
+                        user={user}
+                        students={students}
+                        assignments={assignments}
+                        classes={classes}
+                        activeKey={navKey}
+                        onLogout={handleLogout}
+                        onStudentAdded={fetchStudents}
+                        onDataRefresh={refreshData}
+                      />
+                    </div>
+                  ) : (
+                    <div style={{ flex: 1, overflow: 'auto' }}>
+                      <Dashboard 
+                        assignments={assignments}
+                        submissions={submissions}
+                        students={students}
+                        classes={classes}
+                        loading={dataLoading}
+                        error={dataError}
+                        user={user}
+                        activeKey={navKey}
+                        onLogout={handleLogout}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
-          </DarkModeContext.Provider>
+          </div>
         )}
       </Suspense>
-    </ErrorBoundary>
+    </DarkModeContext.Provider>
   );
 };
 
