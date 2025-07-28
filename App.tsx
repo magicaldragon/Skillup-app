@@ -315,52 +315,43 @@ const App: React.FC = () => {
             )}
             <div className="flex h-screen bg-slate-100 dark:bg-slate-900 transition-colors duration-500">
               {user.role === "student" ? (
-                <div className="flex flex-1">
-                  <Sidebar role={user.role} onNavigate={setNavKey} activeKey={navKey || ''} onLogout={handleLogout} />
-                  <div className="flex-1 overflow-auto">
-                    <StudentDashboard 
-                      user={user}
-                      assignments={assignments}
-                      submissions={submissions}
-                      classes={classes}
-                      onNavigate={setNavKey}
-                      activeKey={navKey}
-                      onLogout={handleLogout}
-                    />
-                  </div>
+                <div className="flex-1 overflow-auto">
+                  <StudentDashboard 
+                    user={user}
+                    assignments={assignments}
+                    submissions={submissions}
+                    classes={classes}
+                    onNavigate={setNavKey}
+                    activeKey={navKey}
+                    onLogout={handleLogout}
+                  />
                 </div>
               ) : user.role === "teacher" || user.role === "admin" ? (
-                <div className="flex flex-1">
-                  <Sidebar role={user.role} onNavigate={setNavKey} activeKey={navKey || ''} onLogout={handleLogout} />
-                  <div className="flex-1 overflow-auto">
-                    <TeacherDashboard 
-                      user={user}
-                      students={students}
-                      assignments={assignments}
-                      classes={classes}
-                      activeKey={navKey}
-                      onLogout={handleLogout}
-                      onStudentAdded={fetchStudents}
-                      onDataRefresh={refreshData}
-                    />
-                  </div>
+                <div className="flex-1 overflow-auto">
+                  <TeacherDashboard 
+                    user={user}
+                    students={students}
+                    assignments={assignments}
+                    classes={classes}
+                    activeKey={navKey}
+                    onLogout={handleLogout}
+                    onStudentAdded={fetchStudents}
+                    onDataRefresh={refreshData}
+                  />
                 </div>
               ) : (
-                <div className="flex flex-1">
-                  <Sidebar role={user.role} onNavigate={setNavKey} activeKey={navKey || ''} onLogout={handleLogout} />
-                  <div className="flex-1 overflow-auto">
-                    <Dashboard 
-                      assignments={assignments}
-                      submissions={submissions}
-                      students={students}
-                      classes={classes}
-                      loading={dataLoading}
-                      error={dataError}
-                      user={user}
-                      activeKey={navKey}
-                      onLogout={handleLogout}
-                    />
-                  </div>
+                <div className="flex-1 overflow-auto">
+                  <Dashboard 
+                    assignments={assignments}
+                    submissions={submissions}
+                    students={students}
+                    classes={classes}
+                    loading={dataLoading}
+                    error={dataError}
+                    user={user}
+                    activeKey={navKey}
+                    onLogout={handleLogout}
+                  />
                 </div>
               )}
             </div>
