@@ -12,13 +12,13 @@ const getNextClassCode = (classes: StudentClass[]) => {
   return `SU-${next.toString().padStart(3, '0')}`;
 };
 
-const ClassesPanel = ({ students, classes, onAddClass, onAssignLevel }: { 
+const ClassesPanel = ({ students, classes, onAddClass, onAssignLevel, onDataRefresh }: { 
   students: Student[], 
   classes: StudentClass[], 
   onAddClass?: (code: string) => void, 
-  onAssignLevel?: (classId: string, level: string) => void 
+  onAssignLevel?: (classId: string, level: string) => void, 
+  onDataRefresh?: () => void
 }) => {
-  const [loading, setLoading] = useState(false);
   const [adding, setAdding] = useState(false);
   const nextCode = getNextClassCode(classes);
   const [classLevels, setClassLevels] = useState<{ [id: string]: string | null }>({});
@@ -74,6 +74,7 @@ const ClassesPanel = ({ students, classes, onAddClass, onAssignLevel }: {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       onAddClass?.(nextCode);
+      onDataRefresh?.();
     } catch (error) {
       console.error('Error adding class:', error);
     } finally {
@@ -96,6 +97,7 @@ const ClassesPanel = ({ students, classes, onAddClass, onAssignLevel }: {
       setEditId(null);
       setEditName('');
       onAssignLevel?.(classId, newLevelId || '');
+      onDataRefresh?.();
     } catch (error) {
       console.error('Error editing class:', error);
     }
@@ -112,6 +114,7 @@ const ClassesPanel = ({ students, classes, onAddClass, onAssignLevel }: {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       onAssignLevel?.(classId, ''); // Signal deletion
+      onDataRefresh?.();
     } catch (error) {
       console.error('Error deleting class:', error);
     }
@@ -179,8 +182,6 @@ const ClassesPanel = ({ students, classes, onAddClass, onAssignLevel }: {
   });
   const selectedClass = selectedClassId ? classes.find(c => c.id === selectedClassId) : null;
   const classStudents = selectedClass ? students.filter(s => (s.classIds || []).includes(selectedClass.id)) : [];
-
-  if (loading) return <div className="p-8 text-center text-lg">Loading classes...</div>;
 
   return (
     <div className="bg-white rounded-xl shadow p-6 max-w-2xl mx-auto mt-8">

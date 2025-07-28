@@ -12,9 +12,10 @@ interface SubmissionGradingPanelProps {
   submission: Submission;
   student: Student;
   onGraded?: (updated: Submission) => void;
+  onDataRefresh?: () => void;
 }
 
-const SubmissionGradingPanel: React.FC<SubmissionGradingPanelProps> = ({ assignment, submission, student, onGraded }) => {
+const SubmissionGradingPanel: React.FC<SubmissionGradingPanelProps> = ({ assignment, submission, student, onGraded, onDataRefresh }) => {
   const answers = React.useMemo(() => {
     try { return JSON.parse(submission.content); } catch { return {}; }
   }, [submission.content]);
@@ -40,6 +41,7 @@ const SubmissionGradingPanel: React.FC<SubmissionGradingPanelProps> = ({ assignm
       setSuccess('Grading saved!');
       setShowToast(true);
       if (onGraded) onGraded({ ...submission, score, feedback });
+      onDataRefresh?.();
       setTimeout(() => setShowToast(false), 2500);
     } catch (err: any) {
       setError('Failed to save: ' + (err.message || ''));

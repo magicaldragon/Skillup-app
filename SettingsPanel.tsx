@@ -23,7 +23,7 @@ const DICEBEAR_STYLES = [
   { label: 'Fun Emoji', value: 'fun-emoji' },
 ];
 
-const SettingsPanel = ({ user, isAdmin, onLogout, classes = [] }: { user: Student, isAdmin: boolean, onLogout: () => void, classes?: StudentClass[] }) => {
+const SettingsPanel = ({ user, isAdmin, onLogout, classes, onDataRefresh }: { user: Student, isAdmin: boolean, onLogout?: () => void, classes: StudentClass[], onDataRefresh?: () => void }) => {
   const [form, setForm] = useState({
     dob: user.dob || '',
     phone: user.phone || '',
@@ -68,6 +68,7 @@ const SettingsPanel = ({ user, isAdmin, onLogout, classes = [] }: { user: Studen
       if (!res.ok || !data.avatarUrl) throw new Error(data.message || 'Upload failed');
       setAvatarUrl(data.avatarUrl);
       setSuccess('Avatar updated!');
+      onDataRefresh?.();
     } catch (err: any) {
       setAvatarError(err.message || 'Failed to upload avatar');
     } finally {
@@ -87,6 +88,7 @@ const SettingsPanel = ({ user, isAdmin, onLogout, classes = [] }: { user: Studen
       if (!res.ok) throw new Error(data.message || 'Failed to remove avatar');
       setAvatarUrl('');
       setSuccess('Avatar removed!');
+      onDataRefresh?.();
     } catch (err: any) {
       setAvatarError(err.message || 'Failed to remove avatar');
     } finally {
@@ -114,6 +116,7 @@ const SettingsPanel = ({ user, isAdmin, onLogout, classes = [] }: { user: Studen
       if (!res.ok) throw new Error('Failed to update user');
       setSuccess('Profile updated successfully!');
       setEdited(false);
+      onDataRefresh?.();
     } catch (err: any) {
       setError('Failed to update profile: ' + (err.message || ''));
     } finally {

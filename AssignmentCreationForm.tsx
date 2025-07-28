@@ -10,6 +10,7 @@ interface AssignmentCreationFormProps {
   classes: StudentClass[];
   currentUser: Student;
   onCreated?: () => void;
+  onDataRefresh?: () => void;
 }
 
 const initialQuestion: Partial<AssignmentQuestion> = {
@@ -20,7 +21,7 @@ const initialQuestion: Partial<AssignmentQuestion> = {
   matchPairs: [],
 };
 
-export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({ classes, currentUser, onCreated }) => {
+export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({ classes, currentUser, onCreated, onDataRefresh }) => {
   const [form, setForm] = useState<Partial<Assignment>>({
     title: '',
     level: 'IELTS',
@@ -141,6 +142,7 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({ 
       setForm({ title: '', level: 'IELTS', skill: 'Listening', description: '', questions: [], answerKey: {}, classIds: [], publishDate: '', dueDate: '' });
       setShowForm(false);
       if (onCreated) onCreated();
+      onDataRefresh?.();
     } catch (err: any) {
       setError('Failed to save assignment: ' + (err.message || ''));
     } finally {

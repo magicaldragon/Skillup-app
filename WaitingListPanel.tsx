@@ -3,7 +3,7 @@ import type { Student, StudentClass } from './types';
 
 import { deleteAccountCompletely } from './services/firebase';
 
-const WaitingListPanel = ({ students, classes, currentUser }: { students: Student[], classes: StudentClass[], currentUser: Student }) => {
+const WaitingListPanel = ({ students, classes, currentUser, onDataRefresh }: { students: Student[], classes: StudentClass[], currentUser: Student, onDataRefresh?: () => void }) => {
   console.log('🔍 [DEBUG] WaitingListPanel received students:', students);
   console.log('🔍 [DEBUG] Students count:', students.length);
   console.log('🔍 [DEBUG] All students details:', students.map(s => ({ id: s.id, name: s.name, role: s.role, classIds: s.classIds })));
@@ -45,6 +45,7 @@ const WaitingListPanel = ({ students, classes, currentUser }: { students: Studen
     setSelectedIds([]);
     setBulkClassId('');
     setBulkAction(null);
+    onDataRefresh?.();
   };
 
   // Bulk move to records (simulate by setting a status, e.g., status: 'record')
@@ -60,6 +61,7 @@ const WaitingListPanel = ({ students, classes, currentUser }: { students: Studen
     }
     setSelectedIds([]);
     setBulkAction(null);
+    onDataRefresh?.();
   };
 
   // Individual select
@@ -93,6 +95,7 @@ const WaitingListPanel = ({ students, classes, currentUser }: { students: Studen
     });
     setLoading(prev => ({ ...prev, [studentId]: false }));
     setPendingAssignments(prev => { const copy = { ...prev }; delete copy[studentId]; return copy; });
+    onDataRefresh?.();
     // Optionally, refresh students list in parent
   };
 
@@ -114,6 +117,7 @@ const WaitingListPanel = ({ students, classes, currentUser }: { students: Studen
     }
     setDeleteTarget(null);
     setDeleting(false);
+    onDataRefresh?.();
     // Optionally refresh list
   };
 

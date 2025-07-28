@@ -6,7 +6,7 @@ import type { StudentClass, Level } from './types';
 import { ICONS } from './constants';
 import { LEVELS as DEFAULT_LEVELS } from './constants';
 
-const LevelsPanel = () => {
+const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
   const [levels, setLevels] = useState<Level[]>([]);
   const [newLevel, setNewLevel] = useState('');
   const [showAdd, setShowAdd] = useState(false);
@@ -87,6 +87,7 @@ const LevelsPanel = () => {
         setLevels([...levels, data.level]);
         setNewLevel('');
         setShowAdd(false);
+        onDataRefresh?.();
       } catch (error) {
         console.error('Error adding level:', error);
       } finally {
@@ -119,6 +120,7 @@ const LevelsPanel = () => {
       }
       const data = await res.json();
       setLevels(data.levels || []);
+      onDataRefresh?.();
     } catch (error) {
       console.error('Error seeding levels:', error);
     } finally {
@@ -172,6 +174,7 @@ const LevelsPanel = () => {
         setEditValue('');
         setEditDesc('');
         setEditCode('');
+        onDataRefresh?.();
       } catch (error) {
         console.error('Error updating level:', error);
       } finally {
@@ -199,6 +202,7 @@ const LevelsPanel = () => {
         setEditValue('');
         setEditDesc('');
         setEditCode('');
+        onDataRefresh?.();
       } catch (error) {
         console.error('Error deleting level:', error);
       } finally {

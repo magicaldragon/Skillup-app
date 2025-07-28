@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import type { Student, StudentClass } from './types';
 
-const ReportsPanel = ({ isAdmin }: { isAdmin: boolean }) => {
+const ReportsPanel = ({ isAdmin, onDataRefresh }: { isAdmin: boolean, onDataRefresh?: () => void }) => {
   const [reports, setReports] = useState<any[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
   const [classes, setClasses] = useState<StudentClass[]>([]);
@@ -51,6 +51,7 @@ const ReportsPanel = ({ isAdmin }: { isAdmin: boolean }) => {
       const res = await fetch('/api/reports', { credentials: 'include' });
       const data = await res.json();
       setReports(data.reports || []);
+      onDataRefresh?.();
     } catch (error) {
       console.error('Error deleting report:', error);
     }

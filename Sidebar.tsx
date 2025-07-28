@@ -18,16 +18,16 @@ const menuConfig = (role: string) => [
     key: 'management',
     visible: true,
     children: [
-      { label: 'Add New Members', icon: <FaUserPlus />, key: 'add-student', visible: role !== 'student' },
+      { label: 'Add New Members', icon: <FaUserPlus />, key: 'add-student', visible: role === 'staff' || role === 'teacher' || role === 'admin' },
       { label: 'Potential Students', icon: <FaGem />, key: 'potential-students', visible: role === 'staff' || role === 'teacher' || role === 'admin' },
-      { label: 'Waiting List', icon: <FaHourglassHalf />, key: 'waiting-list', visible: role !== 'student' },
-      { label: 'Classes', icon: <FaUsers />, key: 'classes', visible: true },
-      { label: 'Scores & Feedback', icon: <FaChartBar />, key: 'scores', visible: true },
-      { label: 'Reports', icon: <FaClipboard />, key: 'reports', visible: role !== 'student' },
-      { label: 'Levels', icon: <FaListAlt />, key: 'levels', visible: true },
-      { label: 'Records', icon: <FaArchive />, key: 'records', visible: role === 'admin' || role === 'teacher' },
-      // Add Accounts submenu for admin
-      { label: 'Accounts', icon: <FaUserCog />, key: 'accounts', visible: role === 'admin' },
+      { label: 'Waiting List', icon: <FaHourglassHalf />, key: 'waiting-list', visible: role === 'staff' || role === 'teacher' || role === 'admin' },
+      { label: 'Classes', icon: <FaUsers />, key: 'classes', visible: role === 'staff' || role === 'teacher' || role === 'admin' },
+      { label: 'Scores & Feedback', icon: <FaChartBar />, key: 'scores', visible: role === 'staff' || role === 'teacher' || role === 'admin' },
+      { label: 'Reports', icon: <FaClipboard />, key: 'reports', visible: role === 'staff' || role === 'teacher' || role === 'admin' },
+      { label: 'Levels', icon: <FaListAlt />, key: 'levels', visible: role === 'staff' || role === 'teacher' || role === 'admin' },
+      { label: 'Records', icon: <FaArchive />, key: 'records', visible: role === 'staff' || role === 'teacher' || role === 'admin' },
+      // Add Accounts submenu for admin and staff
+      { label: 'Accounts', icon: <FaUserCog />, key: 'accounts', visible: role === 'admin' || role === 'staff' },
       // Student-specific management submenu
       { label: 'My classes', icon: <FaUsers />, key: 'my-classes', visible: role === 'student' },
       { label: 'My progress', icon: <FaChartBar />, key: 'my-progress', visible: role === 'student' },
@@ -52,11 +52,11 @@ const menuConfig = (role: string) => [
     label: 'Teachers',
     icon: <FaChalkboardTeacher />,
     key: 'teachers',
-    visible: role !== 'student',
+    visible: role === 'staff' || role === 'teacher' || role === 'admin',
     children: [
-      { label: 'Create', icon: <FaUserTie />, key: 'teacher-create', visible: role !== 'student' },
-      { label: 'Edit', icon: <FaUserShield />, key: 'teacher-edit', visible: role !== 'student' },
-      { label: 'Assign', icon: <FaUserFriends />, key: 'teacher-assign', visible: role !== 'student' },
+      { label: 'Create', icon: <FaUserTie />, key: 'teacher-create', visible: role === 'staff' || role === 'teacher' || role === 'admin' },
+      { label: 'Edit', icon: <FaUserShield />, key: 'teacher-edit', visible: role === 'staff' || role === 'teacher' || role === 'admin' },
+      { label: 'Assign', icon: <FaUserFriends />, key: 'teacher-assign', visible: role === 'staff' || role === 'teacher' || role === 'admin' },
     ],
   },
   {

@@ -14,9 +14,10 @@ interface AssignmentListPanelProps {
   onSelectAssignment: (assignment: Assignment) => void;
   loading?: boolean;
   error?: string | null;
+  onDataRefresh?: () => void;
 }
 
-const AssignmentListPanel: React.FC<AssignmentListPanelProps> = ({ assignments, classes, onSelectAssignment, loading, error }) => {
+const AssignmentListPanel: React.FC<AssignmentListPanelProps> = ({ assignments, classes, onSelectAssignment, loading, error, onDataRefresh }) => {
   const [classFilter, setClassFilter] = useState('');
   const [skillFilter, setSkillFilter] = useState('');
   const [search, setSearch] = useState('');

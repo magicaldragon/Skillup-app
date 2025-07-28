@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import type { Student } from './types';
 
-const AccountsPanel = () => {
+const AccountsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
   const [accounts, setAccounts] = useState<Student[]>([]);
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
@@ -62,6 +62,7 @@ const AccountsPanel = () => {
         }),
       });
       setEditing(null);
+      onDataRefresh?.();
     } catch (error) {
       console.error('Error updating account:', error);
     } finally {
@@ -78,6 +79,7 @@ const AccountsPanel = () => {
         credentials: 'include'
       });
       // Optionally, also remove from Firebase Auth and VStorage
+      onDataRefresh?.();
     } catch (error) {
       console.error('Error removing account:', error);
     } finally {
@@ -92,6 +94,7 @@ const AccountsPanel = () => {
     // For demo, just simulate
     setTimeout(() => setResetting(null), 1000);
     // In production, use: sendPasswordResetEmail(auth, acc.email)
+    onDataRefresh?.();
   };
 
   return (
