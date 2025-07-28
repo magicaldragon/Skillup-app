@@ -6,6 +6,19 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const ChangeLog = require('../models/ChangeLog');
+const admin = require('firebase-admin');
+let firebaseInitialized = false;
+try {
+  if (!admin.apps.length) {
+    const serviceAccount = require(path.join(__dirname, '../firebase-service-account.json'));
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount)
+    });
+    firebaseInitialized = true;
+  }
+} catch (e) {
+  console.error('Firebase Admin SDK not initialized:', e.message);
+}
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, path.join(__dirname, '../uploads/avatars')),
@@ -465,6 +478,16 @@ router.delete('/:id', verifyToken, async (req, res) => {
       }
     }
 
+    // Delete from Firebase Auth if firebaseUid exists
+    if (userToDelete.firebaseUid && firebaseInitialized) {
+      try {
+        await admin.auth().deleteUser(userToDelete.firebaseUid);
+        console.log(`Deleted user from Firebase Auth: ${userToDelete.firebaseUid}`);
+      } catch (fbErr) {
+        console.error('Error deleting user from Firebase Auth:', fbErr.message);
+        // Optionally, return error or continue
+      }
+    }
     await User.findByIdAndDelete(req.params.id);
 
     // Log the action

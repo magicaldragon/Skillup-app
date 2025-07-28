@@ -74,6 +74,9 @@ const AccountsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
   };
 
   const handleRemove = async (acc: Student) => {
+    if (!window.confirm(`Are you sure you want to delete the account for ${acc.email}? This will remove the user from both SkillUp and Firebase Auth.`)) {
+      return;
+    }
     setLoading(true);
     try {
       await fetch(`/api/users/${acc.id}`, { 
