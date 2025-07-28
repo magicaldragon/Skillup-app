@@ -152,7 +152,6 @@ class UserRegistrationService {
 
       // Create user in Firebase
       const userCredential = await createUserWithEmailAndPassword(auth, email, userData.password);
-      console.log('✅ Firebase user created:', userCredential.user.uid);
 
       // Create user in MongoDB
       const mongoUser = await this.createMongoDBUser({
@@ -160,7 +159,6 @@ class UserRegistrationService {
         email,
         username,
       });
-      console.log('✅ MongoDB user created:', mongoUser);
 
       return {
         success: true,

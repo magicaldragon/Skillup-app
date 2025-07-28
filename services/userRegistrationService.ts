@@ -85,19 +85,9 @@ class UserRegistrationService {
     note?: string;
   }) {
     try {
-      console.log('🔍 [DEBUG] Starting MongoDB user creation...');
-      console.log('🔍 [DEBUG] User data:', userData);
-      
       const token = await this.getAuthToken();
-      console.log('🔍 [DEBUG] Auth token obtained:', token ? 'YES' : 'NO');
       
       const url = `${API_BASE_URL}/users`;
-      console.log('🔍 [DEBUG] Making request to:', url);
-      console.log('🔍 [DEBUG] Request headers:', {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      });
-      console.log('🔍 [DEBUG] Request body:', userData);
       
       const response = await fetch(url, {
         method: 'POST',
@@ -108,20 +98,12 @@ class UserRegistrationService {
         body: JSON.stringify(userData),
       });
 
-      console.log('🔍 [DEBUG] Response status:', response.status);
-      console.log('🔍 [DEBUG] Response headers:', Object.fromEntries(response.headers.entries()));
-      
-      const responseText = await response.text();
-      console.log('🔍 [DEBUG] Raw response:', responseText);
-      console.log('🔍 [DEBUG] Request body that was sent:', userData);
-      
       let data;
       try {
-        data = JSON.parse(responseText);
-        console.log('🔍 [DEBUG] Parsed JSON response:', data);
+        data = JSON.parse(await response.text());
       } catch (parseError) {
         console.error('🔍 [DEBUG] Failed to parse JSON:', parseError);
-        throw new Error(`Invalid JSON response: ${responseText}`);
+        throw new Error(`Invalid JSON response: ${response.text()}`);
       }
       
       if (!data.success) {
@@ -132,7 +114,6 @@ class UserRegistrationService {
         throw new Error(data.message || 'Failed to create MongoDB user');
       }
       
-      console.log('🔍 [DEBUG] MongoDB user creation successful:', data.user);
       return data.user;
     } catch (error) {
       console.error('🔍 [DEBUG] MongoDB user creation error:', error);
@@ -142,27 +123,21 @@ class UserRegistrationService {
 
   // Get auth token from localStorage or create one for hybrid auth users
   private async getAuthToken(): Promise<string | null> {
-    console.log('🔍 [DEBUG] Getting auth token...');
     
     // Check if we have a JWT token in localStorage
     const token = localStorage.getItem('authToken');
     if (token) {
-      console.log('🔍 [DEBUG] Found existing auth token');
       return token;
     }
 
-    console.log('🔍 [DEBUG] No existing token, checking Firebase user...');
     
     // If no JWT token, try to get Firebase ID token and exchange it for JWT
     const user = auth.currentUser;
     if (user) {
-      console.log('🔍 [DEBUG] Firebase user found:', user.email);
       try {
         const idToken = await user.getIdToken();
-        console.log('🔍 [DEBUG] Got Firebase ID token, exchanging for JWT...');
         
         const url = `${API_BASE_URL}/auth/firebase-login`;
-        console.log('🔍 [DEBUG] Making request to:', url);
         
         const response = await fetch(url, {
           method: 'POST',
@@ -175,14 +150,10 @@ class UserRegistrationService {
           }),
         });
 
-        console.log('🔍 [DEBUG] Firebase login response status:', response.status);
-        
         if (response.ok) {
           const data = await response.json();
-          console.log('🔍 [DEBUG] Firebase login response:', data);
           const jwtToken = data.token;
           localStorage.setItem('authToken', jwtToken);
-          console.log('🔍 [DEBUG] Stored JWT token');
           return jwtToken;
         } else {
           console.error('🔍 [DEBUG] Firebase login failed:', response.status, response.statusText);
@@ -190,11 +161,8 @@ class UserRegistrationService {
       } catch (error) {
         console.error('🔍 [DEBUG] Error exchanging Firebase token for JWT:', error);
       }
-    } else {
-      console.log('🔍 [DEBUG] No Firebase user found');
     }
 
-    console.log('🔍 [DEBUG] No auth token available');
     return null;
   }
 
@@ -217,14 +185,11 @@ class UserRegistrationService {
   // Main registration function
   async registerNewUser(userData: NewUserData): Promise<RegistrationResponse> {
     try {
-      console.log('🔍 [DEBUG] Starting user registration with data:', userData);
       
       // Step 1: Use provided username or generate one
       const username = userData.username || this.generateUsername(userData.fullname, userData.role);
       const email = userData.email || this.generateEmail(username, userData.role);
       const password = this.generatePassword(userData.role);
-
-      console.log('🔍 [DEBUG] Generated credentials:', { username, email, password });
 
       // Step 2: Create Firebase Auth user
       const firebaseUid = await this.createFirebaseUser(email, password);

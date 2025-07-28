@@ -16,10 +16,6 @@ const panels = {
 };
 
 const AdminDebugPanel = ({ activeKey }: { activeKey: string }) => {
-  console.log('AdminDebugPanel rendered with activeKey:', activeKey);
-  console.log('Available panels:', Object.keys(panels));
-  console.log('Selected panel:', panels[activeKey]);
-  
   const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'Not set';
   const isLoggedIn = !!localStorage.getItem('token') || document.cookie.includes('session');
   

@@ -17,7 +17,6 @@ const AccountsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       const data = await res.json();
-      console.log('[DEBUG] AccountsPanel fetched users:', data.users);
       setAccounts((data.users || []) as Student[]);
     } catch (error) {
       console.error('Error fetching accounts:', error);

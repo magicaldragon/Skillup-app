@@ -28,7 +28,6 @@ export async function logAdminAction(action: {
   try {
     // This function is no longer Firestore-dependent, so it will be removed or refactored
     // For now, we'll just log to console as a placeholder
-    console.log("Logging admin action:", action);
   } catch (error) {
     console.error("Failed to log admin action:", error);
   }
@@ -57,13 +56,11 @@ export async function addLevel(level: Omit<Level, 'id'>) {
 export async function updateLevel(id: string, data: Partial<Level>) {
   // This function is no longer Firestore-dependent, so it will be removed or refactored
   // For now, it will be a placeholder
-  console.log("Updating level:", id, data);
 }
 
 export async function deleteLevel(id: string) {
   // This function is no longer Firestore-dependent, so it will be removed or refactored
   // For now, it will be a placeholder
-  console.log("Deleting level:", id);
 }
 
 /**
@@ -77,7 +74,6 @@ export async function deleteLevel(id: string) {
 export async function deleteAccountCompletely(userId: string, userEmail: string, isAdmin: boolean) {
   // This function is no longer Firestore-dependent, so it will be removed or refactored
   // For now, it will return a placeholder success message
-  console.log("Deleting account:", userId, userEmail, isAdmin);
   return { success: true, message: 'Account deleted.' };
 }
 

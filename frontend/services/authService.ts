@@ -21,7 +21,6 @@ class AuthService {
     try {
       // Login with Firebase
       const userCredential = await signInWithEmailAndPassword(auth, credentials.email, credentials.password);
-      console.log('✅ Firebase login successful:', userCredential.user.uid);
 
       // Get Firebase ID token
       const idToken = await userCredential.user.getIdToken();
@@ -52,7 +51,6 @@ class AuthService {
         throw new Error(errorData.message || 'Failed to authenticate with backend');
       }
     } catch (error: any) {
-      console.error('Login error:', error);
       return {
         success: false,
         message: error.message || 'Login failed',
@@ -64,7 +62,6 @@ class AuthService {
     try {
       await signOut(auth);
       localStorage.removeItem('authToken');
-      console.log('✅ Logout successful');
     } catch (error) {
       console.error('Logout error:', error);
     }

@@ -4,9 +4,6 @@ import type { Student, StudentClass } from './types';
 import { deleteAccountCompletely } from './services/firebase';
 
 const WaitingListPanel = ({ students, classes, currentUser, onDataRefresh }: { students: Student[], classes: StudentClass[], currentUser: Student, onDataRefresh?: () => void }) => {
-  console.log('🔍 [DEBUG] WaitingListPanel received students:', students);
-  console.log('🔍 [DEBUG] Students count:', students.length);
-  console.log('🔍 [DEBUG] All students details:', students.map(s => ({ id: s.id, name: s.name, role: s.role, classIds: s.classIds })));
   
   // Students not assigned to any class and are students only
   const waitingStudents = students.filter(s => s.role === 'student' && (!Array.isArray(s.classIds) || s.classIds.length === 0));

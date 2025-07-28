@@ -29,21 +29,17 @@ const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onL
   onStudentAdded?: () => void,
   onDataRefresh?: () => void
 }) => {
-  console.log('TeacherDashboard activeKey:', activeKey);
-  console.log('User role:', user.role);
   // Example summary metrics (IELTS focus)
   const totalStudents = students.length;
   const activeAssignments = assignments.filter(a => a.level === 'IELTS').length;
   
   const handleAddClass = (code: string) => {
     // This will be handled by the parent component through API calls
-    console.log('New class code:', code);
     onDataRefresh?.();
   };
 
   const handleAssignLevel = (classId: string, levelId: string) => {
     // This will be handled by the parent component through API calls
-    console.log('Assign level:', classId, levelId);
     onDataRefresh?.();
   };
 
