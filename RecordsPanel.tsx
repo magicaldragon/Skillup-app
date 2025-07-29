@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import type { Student } from './types';
+import { useState, useEffect } from 'react';
 import './RecordsPanel.css';
 
 const API_BASE_URL = 'https://skillup-backend-v6vm.onrender.com/api';

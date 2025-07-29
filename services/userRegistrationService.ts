@@ -121,6 +121,71 @@ class UserRegistrationService {
     }
   }
 
+  // Create potential student entry (for students only)
+  private async createPotentialStudent(userData: {
+    firebaseUid: string;
+    name: string;
+    email: string;
+    username: string;
+    phone?: string;
+    englishName?: string;
+    dob?: string;
+    gender?: string;
+    note?: string;
+  }) {
+    try {
+      const token = await this.getAuthToken();
+      
+      const url = `${API_BASE_URL}/potential-students`;
+      
+      const potentialStudentData = {
+        name: userData.name,
+        englishName: userData.englishName,
+        email: userData.email,
+        phone: userData.phone,
+        gender: userData.gender,
+        dob: userData.dob,
+        status: 'pending',
+        source: 'admin_registration',
+        notes: userData.note,
+        // Additional fields for potential student
+        currentSchool: '',
+        currentGrade: '',
+        englishLevel: 'beginner',
+        parentName: '',
+        parentPhone: '',
+        parentEmail: '',
+        interestedPrograms: [],
+      };
+      
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(potentialStudentData),
+      });
+
+      let data;
+      try {
+        data = JSON.parse(await response.text());
+      } catch (parseError) {
+        console.error('🔍 [DEBUG] Failed to parse potential student JSON:', parseError);
+        throw new Error(`Invalid JSON response: ${response.text()}`);
+      }
+      
+      if (!data.success) {
+        throw new Error(data.message || 'Failed to create potential student entry');
+      }
+      
+      return data.potentialStudent;
+    } catch (error) {
+      console.error('🔍 [DEBUG] Potential student creation error:', error);
+      throw error;
+    }
+  }
+
   // Get auth token from localStorage or create one for hybrid auth users
   private async getAuthToken(): Promise<string | null> {
     
@@ -209,9 +274,32 @@ class UserRegistrationService {
           note: userData.note,
         });
 
+        // Step 4: For students only, also create potential student entry
+        if (userData.role === 'student') {
+          try {
+            await this.createPotentialStudent({
+              firebaseUid,
+              name: userData.fullname,
+              email,
+              username,
+              phone: userData.phone,
+              englishName: userData.englishName,
+              dob: userData.dob,
+              gender: userData.gender,
+              note: userData.note,
+            });
+            console.log('✅ Student added to both accounts and waiting list');
+          } catch (potentialStudentError) {
+            console.warn('⚠️ Failed to add student to waiting list:', potentialStudentError);
+            // Don't fail the entire registration if potential student creation fails
+          }
+        }
+
         return {
           success: true,
-          message: 'User registered successfully',
+          message: userData.role === 'student' 
+            ? 'Student registered successfully and added to waiting list' 
+            : 'User registered successfully',
           user: {
             id: mongoUser.id,
             name: mongoUser.name,

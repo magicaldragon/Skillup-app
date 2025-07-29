@@ -140,7 +140,12 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
       const result = await userRegistrationService.registerNewUser(userData);
 
       if (result.success && result.user) {
-        setSuccess(`User registered successfully! \nUsername: ${result.user.username}\nEmail: ${result.user.email}\nPassword: ${result.user.password}`);
+        const roleDisplay = form.role === 'student' ? 'Student' : form.role === 'teacher' ? 'Teacher' : 'Admin';
+        const successMessage = form.role === 'student' 
+          ? `${roleDisplay} registered successfully and added to waiting list!\nUsername: ${result.user.username}\nEmail: ${result.user.email}\nPassword: ${result.user.password}`
+          : `${roleDisplay} registered successfully!\nUsername: ${result.user.username}\nEmail: ${result.user.email}\nPassword: ${result.user.password}`;
+        
+        setSuccess(successMessage);
         setForm({
           fullname: '',
           username: '',
@@ -172,7 +177,7 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-gray-800">Add New Member</h2>
           <div className="text-sm text-gray-500">
-            {form.role === 'student' ? 'Student' : form.role === 'teacher' ? 'Teacher' : 'Admin'} Registration
+            {form.role === 'student' ? 'Student (Added to Accounts + Waiting List)' : form.role === 'teacher' ? 'Teacher (Added to Accounts)' : 'Admin (Added to Accounts)'} Registration
           </div>
         </div>
         {error && (
