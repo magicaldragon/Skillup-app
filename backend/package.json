@@ -5,6 +5,7 @@
   "description": "SkillUp Node/Express backend",
   "main": "index.js",
   "scripts": {
+    "prestart": "node scripts/syncUsers.js",
     "start": "node index.js"
   },
   "dependencies": {
