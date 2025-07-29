@@ -1,6 +1,6 @@
 /* Ultimate vivid sidebar design */
 .sidebar {
-  background: linear-gradient(135deg, #fff 70%, #ffe9c2 100%);
+  background: #fff; /* Remove gradient, use solid white */
   min-width: 290px;
   min-height: 100vh;
   display: flex;
@@ -44,7 +44,7 @@
   font-size: 0.98rem;
   font-weight: 600;
   color: #fff;
-  background: linear-gradient(90deg, #307637 60%, #f5b802 100%);
+  background: #295b37; /* Remove gradient, use solid color */
   border-radius: 8px;
   padding: 2px 16px;
   margin-bottom: 0.2rem;
@@ -58,19 +58,19 @@
   gap: 14px;
 }
 .sidebar-btn {
-  background: linear-gradient(90deg, #295b37 80%, #1a3d2a 100%); /* Dark green for all buttons */
+  background: #295b37; /* Remove gradient, use solid dark green */
   color: #fff; /* White text for all inactive buttons */
   font-weight: bold;
   font-size: 1.1rem;
   border: none;
   border-radius: 14px;
-  padding: 14px 0 14px 28px; /* Increased left padding */
+  padding: 14px 0 14px 40px; /* Increased left padding for tab-like effect */
   box-shadow: 0 2px 8px rgba(48, 118, 55, 0.10);
   transition: background 0.2s, color 0.2s, box-shadow 0.2s;
   cursor: pointer;
   letter-spacing: 1px;
   outline: none;
-  width: 260px; /* Fixed width for all buttons */
+  width: 280px; /* Fixed width for all main buttons */
   text-align: left;
   margin-bottom: 8px;
   box-sizing: border-box;
@@ -79,21 +79,21 @@
 }
 
 .sidebar-btn .sidebar-menu-icon {
-  margin-right: 14px;
+  margin-right: 20px; /* More space between icon and text */
   display: flex;
   align-items: center;
 }
 
 .sidebar-btn:hover {
-  background: linear-gradient(90deg, #1a3d2a 80%, #0f2a1f 100%);
+  background: #1a3d2a; /* Solid darker green on hover */
   color: #fff;
-  box-shadow: 0 4px 16px rgba(41, 91, 55, 0.3);
+  box-shadow: 0 4px 16px rgba(41, 91, 55, 0.3); /* Glow effect on hover */
 }
 
 .sidebar-btn.active {
-  background: linear-gradient(90deg, #295b37 60%, #1a3d2a 100%);
+  background: #295b37; /* Solid dark green for active */
   color: #ffe9c2; /* Light orange text only for active */
-  box-shadow: 0 6px 24px rgba(41, 91, 55, 0.4), 0 0 0 2px #f5b802;
+  box-shadow: 0 6px 24px rgba(41, 91, 55, 0.4), 0 0 0 2px #f5b802; /* Glow effect for active */
   border: 2px solid #f5b802;
 }
 
@@ -105,7 +105,7 @@
   font-size: 1.05rem;
   border: none;
   border-radius: 12px;
-  padding: 12px 0 12px 48px; /* Extra left padding for indentation */
+  padding: 12px 0 12px 60px; /* Extra left padding for indentation + tab effect */
   margin-bottom: 8px;
   margin-left: 8px;
   box-shadow: none;
@@ -114,20 +114,21 @@
   text-align: left;
   display: flex;
   align-items: center;
-  width: 240px; /* Fixed width for submenu buttons */
+  width: 260px; /* Fixed width for submenu buttons */
 }
 
 .sidebar-submenu-btn:hover {
-  background: linear-gradient(90deg, #295b37 60%, #1a3d2a 100%);
+  background: #295b37; /* Solid dark green on hover */
   color: #ffe9c2;
   border-left: 4px solid #f5b802;
+  box-shadow: 0 4px 16px rgba(41, 91, 55, 0.3); /* Glow effect on hover */
 }
 
 .sidebar-submenu-btn.active {
-  background: linear-gradient(90deg, #295b37 60%, #1a3d2a 100%);
+  background: #295b37; /* Solid dark green for active */
   color: #ffe9c2; /* Light orange text */
   border-left: 4px solid #f5b802;
-  box-shadow: 0 4px 16px rgba(41, 91, 55, 0.3);
+  box-shadow: 0 4px 16px rgba(41, 91, 55, 0.3); /* Glow effect for active */
 }
 
 /* Completely remove submenu box visibility */
@@ -151,21 +152,10 @@
   gap: 12px;
 }
 /* Add vivid sidebar submenu and divider styles */
-.sidebar-submenu {
-  background: linear-gradient(90deg, #fff 90%, #ffe9c2 100%);
-  border-radius: 12px;
-  margin: 10px 0 10px 18px;
-  padding: 10px 0 10px 18px;
-  box-shadow: 0 1px 4px rgba(245, 184, 2, 0.07);
-  border-left: 3px solid #f5b802;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
 .sidebar-divider {
   width: 80%;
   height: 2px;
-  background: linear-gradient(90deg, #ffe9c2 0%, #f5b802 100%);
+  background: #f5b802; /* Remove gradient, use solid color */
   border-radius: 2px;
   margin: 18px auto 12px auto;
 }
