@@ -2,25 +2,33 @@ const mongoose = require('mongoose');
 const User = require('../models/User');
 require('dotenv').config();
 
-// Define the expected users with their Firebase UIDs
-const expectedUsers = [
-  {
-    name: 'SkillUp Admin',
-    email: 'skillup-admin@teacher.skillup',
-    password: 'Skillup@123',
-    role: 'admin',
-    username: 'skillup-admin',
-    firebaseUid: 'qkHQ4gopbTgJdv9Pf0QSZkiGs222'
-  },
-  {
-    name: 'Jenny Teacher',
-    email: 'teacher-jenny@teacher.skillup',
-    password: 'Skillup@123',
-    role: 'teacher',
-    username: 'teacher-jenny',
-    firebaseUid: 'YCqXqLV1JacLMsmkgOoCrJQORtE2'
-  }
-];
+// Firebase Admin SDK
+const admin = require('firebase-admin');
+const path = require('path');
+const fs = require('fs');
+
+// Initialize Firebase Admin
+const serviceAccountPath = path.join(__dirname, '../firebase-service-account.json');
+if (!admin.apps.length && fs.existsSync(serviceAccountPath)) {
+  admin.initializeApp({
+    credential: admin.credential.cert(require(serviceAccountPath)),
+  });
+  console.log('✅ Firebase Admin initialized');
+} else if (!fs.existsSync(serviceAccountPath)) {
+  console.error('❌ Firebase service account file not found. Exiting.');
+  process.exit(1);
+}
+
+async function fetchAllFirebaseUsers() {
+  const allUsers = [];
+  let nextPageToken;
+  do {
+    const result = await admin.auth().listUsers(1000, nextPageToken);
+    allUsers.push(...result.users);
+    nextPageToken = result.pageToken;
+  } while (nextPageToken);
+  return allUsers;
+}
 
 async function syncUsers() {
   try {
@@ -31,124 +39,72 @@ async function syncUsers() {
     });
     console.log('✅ Connected to MongoDB');
 
-    // Step 1: Check current users in MongoDB
-    console.log('\n📊 Current users in MongoDB:');
-    const mongoUsers = await User.find().select('-password');
-    mongoUsers.forEach(user => {
-      console.log(`- ${user.name} (${user.role}): ${user.email} [UID: ${user.firebaseUid}]`);
-    });
+    // Step 1: Fetch all users from Firebase Auth
+    const firebaseUsers = await fetchAllFirebaseUsers();
+    console.log(`📋 Found ${firebaseUsers.length} users in Firebase Auth.`);
 
-    // Step 2: Ensure all expected users exist in MongoDB
-    console.log('\n🔍 Checking for missing users in MongoDB...');
-    for (const expectedUser of expectedUsers) {
-      const existingUser = await User.findOne({
-        $or: [
-          { email: expectedUser.email },
-          { firebaseUid: expectedUser.firebaseUid }
-        ]
-      });
+    // Step 2: Sync each Firebase user to MongoDB
+    for (const fbUser of firebaseUsers) {
+      const email = fbUser.email;
+      const firebaseUid = fbUser.uid;
+      const displayName = fbUser.displayName || '';
+      const username = (email && email.split('@')[0]) || firebaseUid;
+      const role = (fbUser.customClaims && fbUser.customClaims.role) || 'student';
+      const name = displayName || username;
 
-      if (!existingUser) {
-        console.log(`❌ Missing user: ${expectedUser.name} (${expectedUser.email})`);
-        console.log(`   Creating in MongoDB...`);
-        
+      let mongoUser = await User.findOne({ firebaseUid });
+      if (!mongoUser) {
+        mongoUser = await User.findOne({ email });
+      }
+      if (!mongoUser) {
+        // Create new user
         const newUser = new User({
-          name: expectedUser.name,
-          email: expectedUser.email,
-          role: expectedUser.role,
-          username: expectedUser.username,
-          firebaseUid: expectedUser.firebaseUid
+          name,
+          email,
+          role,
+          username,
+          firebaseUid,
+          status: 'active',
         });
-        
         await newUser.save();
-        console.log(`   ✅ Created: ${expectedUser.name}`);
+        console.log(`✅ Created user: ${name} (${email}) [${role}]`);
       } else {
-        console.log(`✅ Found: ${expectedUser.name} (${expectedUser.email})`);
-        
-        // Update user data if needed
+        // Update user if info changed
         let updated = false;
-        if (existingUser.name !== expectedUser.name) {
-          existingUser.name = expectedUser.name;
-          updated = true;
-        }
-        if (existingUser.role !== expectedUser.role) {
-          existingUser.role = expectedUser.role;
-          updated = true;
-        }
-        if (existingUser.username !== expectedUser.username) {
-          existingUser.username = expectedUser.username;
-          updated = true;
-        }
-        if (existingUser.firebaseUid !== expectedUser.firebaseUid) {
-          existingUser.firebaseUid = expectedUser.firebaseUid;
-          updated = true;
-        }
-        
+        if (mongoUser.name !== name) { mongoUser.name = name; updated = true; }
+        if (mongoUser.email !== email) { mongoUser.email = email; updated = true; }
+        if (mongoUser.role !== role) { mongoUser.role = role; updated = true; }
+        if (mongoUser.username !== username) { mongoUser.username = username; updated = true; }
+        if (mongoUser.firebaseUid !== firebaseUid) { mongoUser.firebaseUid = firebaseUid; updated = true; }
+        if (mongoUser.status !== 'active') { mongoUser.status = 'active'; updated = true; }
         if (updated) {
-          await existingUser.save();
-          console.log(`   🔄 Updated: ${expectedUser.name}`);
+          await mongoUser.save();
+          console.log(`🔄 Updated user: ${name} (${email}) [${role}]`);
+        } else {
+          console.log(`✔️  User up-to-date: ${name} (${email}) [${role}]`);
         }
       }
     }
 
-    // Step 3: Check for duplicate users
-    console.log('\n🔍 Checking for duplicate users...');
-    const allUsers = await User.find();
-    const emailCounts = {};
-    const uidCounts = {};
-    
-    allUsers.forEach(user => {
-      emailCounts[user.email] = (emailCounts[user.email] || 0) + 1;
-      if (user.firebaseUid) {
-        uidCounts[user.firebaseUid] = (uidCounts[user.firebaseUid] || 0) + 1;
+    // Step 3: Optionally, deactivate MongoDB users not in Firebase Auth
+    const firebaseUids = new Set(firebaseUsers.map(u => u.uid));
+    const allMongoUsers = await User.find();
+    for (const user of allMongoUsers) {
+      if (user.firebaseUid && !firebaseUids.has(user.firebaseUid)) {
+        user.status = 'inactive';
+        await user.save();
+        console.log(`⚠️  Marked user as inactive (not in Firebase): ${user.name} (${user.email})`);
       }
-    });
-
-    let hasDuplicates = false;
-    Object.entries(emailCounts).forEach(([email, count]) => {
-      if (count > 1) {
-        console.log(`❌ Duplicate email found: ${email} (${count} times)`);
-        hasDuplicates = true;
-      }
-    });
-
-    Object.entries(uidCounts).forEach(([uid, count]) => {
-      if (count > 1) {
-        console.log(`❌ Duplicate Firebase UID found: ${uid} (${count} times)`);
-        hasDuplicates = true;
-      }
-    });
-
-    if (!hasDuplicates) {
-      console.log('✅ No duplicates found');
     }
 
-    // Step 4: Final status report
-    console.log('\n📋 Final MongoDB Status:');
-    const finalUsers = await User.find().select('-password');
-    finalUsers.forEach(user => {
-      console.log(`- ${user.name} (${user.role}): ${user.email}`);
-      console.log(`  Username: ${user.username}`);
-      console.log(`  Firebase UID: ${user.firebaseUid}`);
-      console.log(`  Created: ${user.createdAt}`);
-      console.log('');
-    });
-
-    console.log(`\n✅ Synchronization complete!`);
+    console.log('✅ Synchronization complete!');
+    const finalUsers = await User.find();
     console.log(`📊 Total users in MongoDB: ${finalUsers.length}`);
-
-    // Step 5: Verify Firebase Auth requirements
-    console.log('\n📋 Firebase Auth Requirements:');
-    console.log('Make sure these users exist in Firebase Auth:');
-    expectedUsers.forEach(user => {
-      console.log(`- ${user.name}: ${user.email} / ${user.password}`);
-    });
-
   } catch (error) {
     console.error('❌ Error during synchronization:', error.message);
   } finally {
     await mongoose.disconnect();
-    console.log('\nDisconnected from MongoDB');
+    console.log('Disconnected from MongoDB');
   }
 }
 
