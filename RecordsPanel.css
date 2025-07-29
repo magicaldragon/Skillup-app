@@ -91,12 +91,24 @@
   border-bottom: none;
 }
 .form-container {
-  background: #ffe9c2;
+  background: linear-gradient(135deg, #ffe9c2 80%, #fff 100%);
   border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(48, 118, 55, 0.15);
   padding: 32px 24px;
-  box-shadow: 0 2px 12px rgba(48, 118, 55, 0.10);
-  max-width: 500px;
-  margin: 0 auto 24px auto;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  border: 1.5px solid #f5b802;
+}
+
+/* Dark mode form container */
+@media (prefers-color-scheme: dark) {
+  .form-container {
+    background: linear-gradient(135deg, #1a3d2a 80%, #295b37 100%);
+    box-shadow: 0 4px 24px rgba(255, 233, 194, 0.15);
+    border-color: #f5b802;
+  }
 }
 .form-label {
   color: #295b37;

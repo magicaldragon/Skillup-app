@@ -125,19 +125,24 @@
 
 .levels-form-input,
 .levels-form-textarea {
+  width: 100%;
   padding: 12px;
-  border: 2px solid #e9ecef;
-  border-radius: 8px;
+  border: 2px solid #307637;
+  border-radius: 10px;
+  margin-bottom: 18px;
   font-size: 1rem;
-  transition: border-color 0.3s ease;
-  background: white;
+  background: #fff;
+  color: #295b37;
+  transition: border 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 4px rgba(48, 118, 55, 0.07);
+  box-sizing: border-box;
 }
 
 .levels-form-input:focus,
 .levels-form-textarea:focus {
+  border-color: #f5b802;
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 2px #ffe9c2;
 }
 
 .levels-form-textarea {
@@ -153,39 +158,44 @@
 
 .levels-form-save-btn,
 .levels-form-cancel-btn {
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
+  padding: 14px 0;
+  border-radius: 10px;
+  font-weight: bold;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
   border: none;
-  font-size: 1rem;
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+  box-sizing: border-box;
 }
 
 .levels-form-save-btn {
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  background: linear-gradient(90deg, #307637 80%, #295b37 100%);
   color: white;
+  box-shadow: 0 2px 8px rgba(48, 118, 55, 0.13);
 }
 
 .levels-form-save-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+  background: linear-gradient(90deg, #f5b802 60%, #ffe9c2 100%);
+  color: #307637;
+  box-shadow: 0 4px 24px 0 #f5b802, 0 2px 8px #ffe9c2;
 }
 
 .levels-form-save-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  transform: none;
 }
 
 .levels-form-cancel-btn {
-  background: #6c757d;
+  background: linear-gradient(90deg, #6b7280 80%, #4b5563 100%);
   color: white;
+  box-shadow: 0 2px 8px rgba(107, 114, 128, 0.13);
 }
 
 .levels-form-cancel-btn:hover:not(:disabled) {
-  background: #5a6268;
-  transform: translateY(-2px);
+  background: linear-gradient(90deg, #f5b802 60%, #ffe9c2 100%);
+  color: #307637;
+  box-shadow: 0 4px 24px 0 #f5b802, 0 2px 8px #ffe9c2;
 }
 
 .levels-grid {

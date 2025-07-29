@@ -1,15 +1,26 @@
 /* Ultimate vivid sidebar design */
 .sidebar {
-  background: #fff; /* Remove gradient, use solid white */
-  min-width: 290px;
+  background: #ffe9c2; /* Light orange background */
+  min-width: 320px; /* Extended width to prevent buttons touching edge */
+  width: 320px; /* Fixed width for consistency */
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 24px 0 0 0;
+  padding: 24px 16px 0 16px; /* Add horizontal padding */
   box-shadow: 2px 0 32px rgba(48, 118, 55, 0.13);
   border-right: 4px solid #295b37; /* Darker, thicker border */
+  box-sizing: border-box; /* Include padding in width calculation */
 }
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .sidebar {
+    background: #295b37; /* Dark green background in dark mode */
+    border-right: 4px solid #ffe9c2; /* Light orange border in dark mode */
+  }
+}
+
 .sidebar-profile {
   background: rgba(255,255,255,0.95);
   border-radius: 18px;
@@ -19,8 +30,21 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 90%;
+  width: calc(100% - 32px); /* Account for sidebar padding */
+  max-width: 280px; /* Prevent exceeding sidebar limits */
+  box-sizing: border-box;
+  margin-left: auto;
+  margin-right: auto;
 }
+
+/* Dark mode profile */
+@media (prefers-color-scheme: dark) {
+  .sidebar-profile {
+    background: rgba(41, 91, 55, 0.95); /* Dark green background */
+    box-shadow: 0 2px 16px rgba(255, 233, 194, 0.10);
+  }
+}
+
 .sidebar-profile-avatar {
   margin-bottom: 10px;
 }
@@ -33,13 +57,32 @@
   object-fit: cover;
   box-shadow: 0 2px 8px #ffe9c2;
 }
+
+/* Dark mode avatar */
+@media (prefers-color-scheme: dark) {
+  .sidebar-profile-img {
+    border: 2.5px solid #ffe9c2;
+    background: #295b37;
+    box-shadow: 0 2px 8px #295b37;
+  }
+}
+
 .sidebar-profile-name {
   font-size: 1.1rem;
   font-weight: 700;
   color: #307637;
   margin-bottom: 2px;
   letter-spacing: 0.5px;
+  text-align: center;
 }
+
+/* Dark mode profile name */
+@media (prefers-color-scheme: dark) {
+  .sidebar-profile-name {
+    color: #ffe9c2; /* Light orange text in dark mode */
+  }
+}
+
 .sidebar-profile-role {
   font-size: 0.98rem;
   font-weight: 600;
@@ -50,12 +93,24 @@
   margin-bottom: 0.2rem;
   letter-spacing: 1.2px;
   box-shadow: 0 1px 4px #ffe9c2;
+  text-align: center;
 }
+
+/* Dark mode profile role */
+@media (prefers-color-scheme: dark) {
+  .sidebar-profile-role {
+    color: #295b37; /* Dark green text in dark mode */
+    background: #ffe9c2; /* Light orange background in dark mode */
+    box-shadow: 0 1px 4px #295b37;
+  }
+}
+
 .sidebar-menu {
-  width: 95%;
+  width: 100%; /* Full width within sidebar */
   display: flex;
   flex-direction: column;
   gap: 14px;
+  box-sizing: border-box;
 }
 .sidebar-btn {
   background: #295b37; /* Remove gradient, use solid dark green */
@@ -64,37 +119,75 @@
   font-size: 1.1rem;
   border: none;
   border-radius: 14px;
-  padding: 14px 0 14px 40px; /* Increased left padding for tab-like effect */
+  padding: 18px 0 18px 40px; /* Increased height for taller buttons */
   box-shadow: 0 2px 8px rgba(48, 118, 55, 0.10);
-  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  transition: all 0.3s ease; /* Smooth transitions for better UX */
   cursor: pointer;
   letter-spacing: 1px;
   outline: none;
-  width: 280px; /* Fixed width for all main buttons */
+  width: 100%; /* Full width within container */
+  max-width: 280px; /* Prevent exceeding sidebar limits */
   text-align: left;
   margin-bottom: 8px;
   box-sizing: border-box;
   display: flex;
   align-items: center;
+  position: relative; /* For hover effects */
+  min-height: 60px; /* Ensure minimum height for taller buttons */
+}
+
+/* Dark mode buttons */
+@media (prefers-color-scheme: dark) {
+  .sidebar-btn {
+    background: #ffe9c2; /* Light orange background in dark mode */
+    color: #295b37; /* Dark green text in dark mode */
+    box-shadow: 0 2px 8px rgba(255, 233, 194, 0.10);
+  }
 }
 
 .sidebar-btn .sidebar-menu-icon {
   margin-right: 20px; /* More space between icon and text */
   display: flex;
   align-items: center;
+  transition: transform 0.2s ease; /* Subtle icon animation */
 }
 
 .sidebar-btn:hover {
-  background: #1a3d2a; /* Solid darker green on hover */
-  color: #fff;
+  background: #1a3d2a; /* Darker green on hover */
+  color: #ffe9c2; /* Light orange text on hover */
   box-shadow: 0 4px 16px rgba(41, 91, 55, 0.3); /* Glow effect on hover */
+  transform: translateX(4px); /* Subtle slide effect */
+}
+
+/* Dark mode hover */
+@media (prefers-color-scheme: dark) {
+  .sidebar-btn:hover {
+    background: #f5b802; /* Orange background on hover in dark mode */
+    color: #295b37; /* Dark green text on hover in dark mode */
+    box-shadow: 0 4px 16px rgba(245, 184, 2, 0.3);
+  }
+}
+
+.sidebar-btn:hover .sidebar-menu-icon {
+  transform: scale(1.1); /* Subtle icon scale on hover */
 }
 
 .sidebar-btn.active {
-  background: #295b37; /* Solid dark green for active */
-  color: #ffe9c2; /* Light orange text only for active */
+  background: #1a3d2a; /* Dark green for active */
+  color: #ffe9c2; /* Light orange text for active */
   box-shadow: 0 6px 24px rgba(41, 91, 55, 0.4), 0 0 0 2px #f5b802; /* Glow effect for active */
   border: 2px solid #f5b802;
+  transform: translateX(4px); /* Consistent slide effect */
+}
+
+/* Dark mode active */
+@media (prefers-color-scheme: dark) {
+  .sidebar-btn.active {
+    background: #f5b802; /* Orange background for active in dark mode */
+    color: #295b37; /* Dark green text for active in dark mode */
+    box-shadow: 0 6px 24px rgba(245, 184, 2, 0.4), 0 0 0 2px #295b37;
+    border: 2px solid #295b37;
+  }
 }
 
 /* Submenu button: more indentation, no box */
@@ -105,33 +198,65 @@
   font-size: 1.05rem;
   border: none;
   border-radius: 12px;
-  padding: 12px 0 12px 60px; /* Extra left padding for indentation + tab effect */
+  padding: 16px 0 16px 60px; /* Increased height for taller buttons */
   margin-bottom: 8px;
   margin-left: 8px;
   box-shadow: none;
-  transition: background 0.2s, color 0.2s;
+  transition: all 0.3s ease; /* Smooth transitions */
   cursor: pointer;
   text-align: left;
   display: flex;
   align-items: center;
-  width: 260px; /* Fixed width for submenu buttons */
+  width: calc(100% - 16px); /* Full width minus margin */
+  max-width: 260px; /* Prevent exceeding sidebar limits */
+  position: relative;
+  min-height: 50px; /* Ensure minimum height for taller buttons */
+}
+
+/* Dark mode submenu buttons */
+@media (prefers-color-scheme: dark) {
+  .sidebar-submenu-btn {
+    color: #ffe9c2; /* Light orange text in dark mode */
+  }
 }
 
 .sidebar-submenu-btn:hover {
-  background: #295b37; /* Solid dark green on hover */
-  color: #ffe9c2;
+  background: #1a3d2a; /* Dark green on hover */
+  color: #ffe9c2; /* Light orange text on hover */
   border-left: 4px solid #f5b802;
   box-shadow: 0 4px 16px rgba(41, 91, 55, 0.3); /* Glow effect on hover */
+  transform: translateX(4px); /* Subtle slide effect */
+}
+
+/* Dark mode submenu hover */
+@media (prefers-color-scheme: dark) {
+  .sidebar-submenu-btn:hover {
+    background: #f5b802; /* Orange background on hover in dark mode */
+    color: #295b37; /* Dark green text on hover in dark mode */
+    border-left: 4px solid #295b37;
+    box-shadow: 0 4px 16px rgba(245, 184, 2, 0.3);
+  }
 }
 
 .sidebar-submenu-btn.active {
-  background: #295b37; /* Solid dark green for active */
+  background: #1a3d2a; /* Dark green for active */
   color: #ffe9c2; /* Light orange text */
   border-left: 4px solid #f5b802;
   box-shadow: 0 4px 16px rgba(41, 91, 55, 0.3); /* Glow effect for active */
+  transform: translateX(4px); /* Consistent slide effect */
 }
 
-/* Completely remove submenu box visibility */
+/* Dark mode submenu active */
+@media (prefers-color-scheme: dark) {
+  .sidebar-submenu-btn.active {
+    background: #f5b802; /* Orange background for active in dark mode */
+    color: #295b37; /* Dark green text for active in dark mode */
+    border-left: 4px solid #295b37;
+    box-shadow: 0 4px 16px rgba(245, 184, 2, 0.3);
+  }
+}
+
+/* Completely remove submenu box visibility and effects */
 .sidebar-submenu {
   background: transparent;
   border-radius: 0;
@@ -142,15 +267,19 @@
   display: flex;
   flex-direction: column;
   gap: 0;
+  width: 100%;
 }
+
 .sidebar-footer {
   margin-top: auto;
-  width: 90%;
+  width: 100%;
   padding-bottom: 24px;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  box-sizing: border-box;
 }
+
 /* Add vivid sidebar submenu and divider styles */
 .sidebar-divider {
   width: 80%;
@@ -158,4 +287,38 @@
   background: #f5b802; /* Remove gradient, use solid color */
   border-radius: 2px;
   margin: 18px auto 12px auto;
+}
+
+/* Dark mode divider */
+@media (prefers-color-scheme: dark) {
+  .sidebar-divider {
+    background: #295b37; /* Dark green in dark mode */
+  }
+}
+
+/* Professional UX improvements */
+.sidebar-submenu-arrow {
+  margin-left: auto;
+  transition: transform 0.2s ease;
+  font-size: 0.8rem;
+}
+
+.sidebar-submenu-arrow.open {
+  transform: rotate(90deg);
+}
+
+/* Focus states for accessibility */
+.sidebar-btn:focus,
+.sidebar-submenu-btn:focus {
+  outline: 2px solid #f5b802;
+  outline-offset: 2px;
+}
+
+/* Dark mode focus states */
+@media (prefers-color-scheme: dark) {
+  .sidebar-btn:focus,
+  .sidebar-submenu-btn:focus {
+    outline: 2px solid #295b37;
+    outline-offset: 2px;
+  }
 }

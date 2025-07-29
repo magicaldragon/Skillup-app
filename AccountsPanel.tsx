@@ -111,99 +111,101 @@ const AccountsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
   };
 
   return (
-    <div className="form-container">
-      <h2 className="text-2xl font-bold mb-4">Accounts Management</h2>
-      <p className="text-gray-600 mb-4">Manage all registered users including students, teachers, and admins</p>
-      
-      <div className="flex gap-2 mb-4 flex-wrap">
-        <input
-          className="p-2 border rounded flex-1 min-w-200"
-          placeholder="Search by name, username, email, phone, notes..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-        />
-        <select className="p-2 border rounded" value={roleFilter} onChange={e => setRoleFilter(e.target.value)}>
-          <option value="">All Roles</option>
-          <option value="student">Student</option>
-          <option value="teacher">Teacher</option>
-          <option value="admin">Admin</option>
-          <option value="records">Records (Archived)</option>
-        </select>
-      </div>
-      
-      <div className="mb-4 text-sm text-gray-600">
-        Showing {filtered.length} of {accounts.length} accounts
-        {search && ` matching "${search}"`}
-        {roleFilter && ` with role "${roleFilter}"`}
-      </div>
-      
-      <table className="custom-table">
-        <thead className="bg-slate-50 border-b border-slate-200">
-          <tr>
-            <th className="p-2">Role</th>
-            <th className="p-2">Username</th>
-            <th className="p-2">Email</th>
-            <th className="p-2">Display Name</th>
-            <th className="p-2">Phone</th>
-            <th className="p-2">Notes</th>
-            <th className="p-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filtered.length === 0 && (
+    <div className="content-center">
+      <div className="table-container">
+        <h2 className="text-2xl font-bold mb-4">Accounts Management</h2>
+        <p className="text-gray-600 mb-4">Manage all registered users including students, teachers, and admins</p>
+        
+        <div className="flex gap-2 mb-4 flex-wrap">
+          <input
+            className="p-2 border rounded flex-1 min-w-200"
+            placeholder="Search by name, username, email, phone, notes..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+          <select className="p-2 border rounded" value={roleFilter} onChange={e => setRoleFilter(e.target.value)}>
+            <option value="">All Roles</option>
+            <option value="student">Student</option>
+            <option value="teacher">Teacher</option>
+            <option value="admin">Admin</option>
+            <option value="records">Records (Archived)</option>
+          </select>
+        </div>
+        
+        <div className="mb-4 text-sm text-gray-600">
+          Showing {filtered.length} of {accounts.length} accounts
+          {search && ` matching "${search}"`}
+          {roleFilter && ` with role "${roleFilter}"`}
+        </div>
+        
+        <table className="custom-table">
+          <thead className="bg-slate-50 border-b border-slate-200">
             <tr>
-              <td colSpan={7} className="text-center text-slate-400 py-4">
-                {accounts.length === 0 ? 'No accounts found.' : 'No accounts match your search criteria.'}
-              </td>
+              <th className="p-2">Role</th>
+              <th className="p-2">Username</th>
+              <th className="p-2">Email</th>
+              <th className="p-2">Display Name</th>
+              <th className="p-2">Phone</th>
+              <th className="p-2">Notes</th>
+              <th className="p-2">Actions</th>
             </tr>
-          )}
-          {filtered.map(acc => (
-            <tr key={acc.id} className="border-b border-slate-100 hover:bg-slate-50">
-              <td className="p-2 font-semibold capitalize">
-                <span className={`px-2 py-1 rounded text-xs ${
-                  acc.role === 'admin' ? 'bg-red-100 text-red-800' :
-                  acc.role === 'teacher' ? 'bg-blue-100 text-blue-800' :
-                  acc.role === 'student' ? 'bg-green-100 text-green-800' :
-                  'bg-gray-100 text-gray-800'
-                }`}>
-                  {acc.role}
-                </span>
-              </td>
-              <td className="p-2 font-mono text-sm">{acc.username}</td>
-              <td className="p-2">{acc.email}</td>
-              <td className="p-2">{acc.displayName || acc.name}</td>
-              <td className="p-2">{acc.phone || '-'}</td>
-              <td className="p-2 max-w-xs truncate" title={acc.note}>
-                {acc.note || '-'}
-              </td>
-              <td className="p-2 flex gap-2 items-center">
-                <button 
-                  className="form-btn bg-blue-500 text-white rounded text-xs hover:bg-blue-600 transition-colors" 
-                  onClick={() => handleEdit(acc)} 
-                  aria-label={`Edit account for ${acc.email}`}
-                >
-                  Edit
-                </button>
-                <button 
-                  className="form-btn bg-red-600 text-white rounded text-xs hover:bg-red-700 transition-colors" 
-                  onClick={() => handleRemove(acc)} 
-                  aria-label={`Delete account for ${acc.email}`}
-                >
-                  Remove
-                </button>
-                <button 
-                  className="form-btn bg-yellow-500 text-white rounded text-xs hover:bg-yellow-600 transition-colors" 
-                  onClick={() => handleResetPassword(acc)} 
-                  disabled={resetting === acc.id}
-                  aria-label={`Reset password for ${acc.email}`}
-                >
-                  {resetting === acc.id ? 'Resetting...' : 'Reset Password'}
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {filtered.length === 0 && (
+              <tr>
+                <td colSpan={7} className="text-center text-slate-400 py-4">
+                  {accounts.length === 0 ? 'No accounts found.' : 'No accounts match your search criteria.'}
+                </td>
+              </tr>
+            )}
+            {filtered.map(acc => (
+              <tr key={acc.id} className="border-b border-slate-100 hover:bg-slate-50">
+                <td className="p-2 font-semibold capitalize">
+                  <span className={`px-2 py-1 rounded text-xs ${
+                    acc.role === 'admin' ? 'bg-red-100 text-red-800' :
+                    acc.role === 'teacher' ? 'bg-blue-100 text-blue-800' :
+                    acc.role === 'student' ? 'bg-green-100 text-green-800' :
+                    'bg-gray-100 text-gray-800'
+                  }`}>
+                    {acc.role}
+                  </span>
+                </td>
+                <td className="p-2 font-mono text-sm">{acc.username}</td>
+                <td className="p-2">{acc.email}</td>
+                <td className="p-2">{acc.displayName || acc.name}</td>
+                <td className="p-2">{acc.phone || '-'}</td>
+                <td className="p-2 max-w-xs truncate" title={acc.note}>
+                  {acc.note || '-'}
+                </td>
+                <td className="p-2 flex gap-2 items-center">
+                  <button 
+                    className="form-btn bg-blue-500 text-white rounded text-xs hover:bg-blue-600 transition-colors" 
+                    onClick={() => handleEdit(acc)} 
+                    aria-label={`Edit account for ${acc.email}`}
+                  >
+                    Edit
+                  </button>
+                  <button 
+                    className="form-btn bg-red-600 text-white rounded text-xs hover:bg-red-700 transition-colors" 
+                    onClick={() => handleRemove(acc)} 
+                    aria-label={`Delete account for ${acc.email}`}
+                  >
+                    Remove
+                  </button>
+                  <button 
+                    className="form-btn bg-yellow-500 text-white rounded text-xs hover:bg-yellow-600 transition-colors" 
+                    onClick={() => handleResetPassword(acc)} 
+                    disabled={resetting === acc.id}
+                    aria-label={`Reset password for ${acc.email}`}
+                  >
+                    {resetting === acc.id ? 'Resetting...' : 'Reset Password'}
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       
       {/* Edit Modal */}
       {editing && (

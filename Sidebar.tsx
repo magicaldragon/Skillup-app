@@ -114,6 +114,18 @@ const menuConfig = (role: string) => [
       },
     ],
   },
+  {
+    label: 'Settings',
+    icon: <FaUserCog />,
+    key: 'settings',
+    visible: true,
+  },
+  {
+    label: 'Logout',
+    icon: <FaSignOutAlt />,
+    key: 'logout',
+    visible: true,
+  },
 ];
 
 const Sidebar = ({ role, activeKey, onNavigate, onLogout, user }: { role: string, activeKey: string, onNavigate: (key: string) => void, onLogout?: () => void, user?: { name: string, avatarSeed?: string, avatarUrl?: string } }) => {
@@ -140,6 +152,8 @@ const Sidebar = ({ role, activeKey, onNavigate, onLogout, user }: { role: string
         }
         return newSet;
       });
+    } else if (itemKey === 'logout' && onLogout) {
+      onLogout();
     } else {
       onNavigate(itemKey);
     }
@@ -220,20 +234,7 @@ const Sidebar = ({ role, activeKey, onNavigate, onLogout, user }: { role: string
       </div>
       {/* Settings and Logout at the bottom, always visible */}
       <div className="sidebar-footer">
-        <button
-          className={`sidebar-btn${activeKey === 'settings' ? ' active' : ''}`}
-          onClick={() => onNavigate('settings')}
-        >
-          <span className="sidebar-menu-icon"><FaUserCog /></span> Settings
-        </button>
-        {onLogout && (
-          <button
-            className="sidebar-btn"
-            onClick={onLogout}
-          >
-            <span className="sidebar-menu-icon"><FaSignOutAlt /></span> Logout
-          </button>
-        )}
+        {/* Settings and Logout moved to main menu for better organization */}
       </div>
     </aside>
   );

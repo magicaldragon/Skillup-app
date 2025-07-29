@@ -172,182 +172,131 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
 
   // --- UI Layout: Two columns ---
   return (
-    <div className="form-container">
-      {/* Left: Form */}
-      <div className="form-card">
-        <div className="form-header">
-          <h2 className="form-title">Add New Member</h2>
-          {/* Removed the registration label for a cleaner look */}
-        </div>
-        {error && (
-          <div className="form-alert form-alert-error">
-            <div className="form-alert-title">Error</div>
-            <div className="form-alert-message">{error}</div>
-          </div>
-        )}
-        {success && (
-          <div className="form-alert form-alert-success">
-            <div className="form-alert-title">Success</div>
-            <div className="form-alert-message">{success}</div>
-          </div>
-        )}
+    <div className="content-center">
+      <div className="form-container">
+        <h2 className="form-title">Add New Member</h2>
+        {error && <div className="form-alert error">{error}</div>}
+        {success && <div className="form-alert success">{success}</div>}
+        
         <form onSubmit={handleSubmit} className="form-form">
-          {/* Role Selection */}
-          <div>
-            <label className="form-label">
-              Member Type *
-            </label>
-            <select
-              name="role"
-              value={form.role}
-              onChange={handleChange}
-              className="form-select"
-            >
-              <option value="student">Student</option>
-              <option value="teacher">Teacher</option>
-              <option value="staff">Staff</option>
-              <option value="admin">Admin</option>
-            </select>
+          <div className="form-row">
+            <div className="form-group">
+              <label className="form-label">Full Name *</label>
+              <input
+                type="text"
+                name="fullname"
+                value={form.fullname}
+                onChange={handleChange}
+                className="form-input"
+                required
+                placeholder="Enter full name"
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Role *</label>
+              <select
+                name="role"
+                value={form.role}
+                onChange={handleChange}
+                className="form-select"
+                required
+              >
+                <option value="">Select Role</option>
+                <option value="student">Student</option>
+                <option value="teacher">Teacher</option>
+                <option value="staff">Staff</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
           </div>
-          {/* Full Name */}
-          <div>
-            <label className="form-label">
-              Full Name *
-            </label>
-            <input
-              type="text"
-              name="fullname"
-              value={form.fullname}
-              onChange={handleChange}
-              placeholder="Enter full name"
-              className="form-input"
-              required
-            />
+          
+          <div className="form-row">
+            <div className="form-group">
+              <label className="form-label">Email (Optional)</label>
+              <input
+                type="email"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                className="form-input"
+                placeholder="Enter email address"
+              />
+              <div className="form-hint">Leave empty to auto-generate</div>
+            </div>
+            <div className="form-group">
+              <label className="form-label">Phone (Optional)</label>
+              <input
+                type="tel"
+                name="phone"
+                value={form.phone}
+                onChange={handleChange}
+                className="form-input"
+                placeholder="Enter phone number"
+              />
+            </div>
           </div>
-          {/* Username (editable) */}
-          <div>
-            <label className="form-label">
-              Username *
-            </label>
-            <input
-              type="text"
-              name="username"
-              value={form.username}
-              onChange={handleUsernameChange}
-              placeholder="Enter username"
-              className="form-input"
-              required
-            />
-            {checkingUsername && <div className="form-hint form-hint-checking">Checking username...</div>}
-            {usernameError && <div className="form-hint form-hint-error">{usernameError}</div>}
+          
+          <div className="form-row">
+            <div className="form-group">
+              <label className="form-label">English Name (Optional)</label>
+              <input
+                type="text"
+                name="englishName"
+                value={form.englishName}
+                onChange={handleChange}
+                className="form-input"
+                placeholder="Enter English name"
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Date of Birth (Optional)</label>
+              <input
+                type="date"
+                name="dob"
+                value={form.dob}
+                onChange={handleChange}
+                className="form-input"
+              />
+            </div>
           </div>
-          {/* English Name */}
-          <div>
-            <label className="form-label">
-              English Name (Optional)
-            </label>
-            <input
-              type="text"
-              name="englishName"
-              value={form.englishName}
-              onChange={handleChange}
-              placeholder="Enter English name"
-              className="form-input"
-            />
+          
+          <div className="form-row">
+            <div className="form-group">
+              <label className="form-label">Gender (Optional)</label>
+              <select
+                name="gender"
+                value={form.gender}
+                onChange={handleChange}
+                className="form-select"
+              >
+                <option value="">Select Gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label className="form-label">Notes (Optional)</label>
+              <textarea
+                name="note"
+                value={form.note}
+                onChange={handleChange}
+                className="form-textarea"
+                placeholder="Enter any additional notes"
+                rows={3}
+              />
+            </div>
           </div>
-          {/* Phone */}
-          <div>
-            <label className="form-label">
-              Phone Number (Optional)
-            </label>
-            <input
-              type="tel"
-              name="phone"
-              value={form.phone}
-              onChange={handleChange}
-              placeholder="Enter phone number"
-              className="form-input"
-            />
-          </div>
-          {/* Date of Birth */}
-          <div>
-            <label className="form-label">
-              Date of Birth (Optional)
-            </label>
-            <input
-              type="date"
-              name="dob"
-              value={form.dob}
-              onChange={handleChange}
-              className="form-input"
-            />
-          </div>
-          {/* Gender */}
-          <div>
-            <label className="form-label">
-              Gender (Optional)
-            </label>
-            <select
-              name="gender"
-              value={form.gender}
-              onChange={handleChange}
-              className="form-select"
-            >
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-          {/* Notes */}
-          <div>
-            <label className="form-label">
-              Notes (Optional)
-            </label>
-            <textarea
-              name="note"
-              value={form.note}
-              onChange={handleChange}
-              rows={3}
-              placeholder="Enter any additional notes"
-              className="form-textarea"
-            />
-          </div>
-          {/* Submit Button */}
-          <div className="form-btn-row">
-            <button
-              type="submit"
-              disabled={loading || isEmpty(form.fullname) || isEmpty(form.username) || !!usernameError}
-              className="form-btn"
-            >
-              {loading ? 'Creating User...' : 'Create User'}
+          
+          <div className="form-actions">
+            <button type="submit" className="form-btn primary" disabled={loading}>
+              {loading ? 'Adding...' : 'Add Member'}
+            </button>
+            <button type="button" className="form-btn secondary" onClick={handleReset}>
+              Reset Form
             </button>
           </div>
         </form>
-      </div>
-      {/* Right: Credentials Preview */}
-      <div className="form-preview">
-        {generatedCredentials && (
-          <div className="form-preview-card">
-            <h4 className="form-preview-title">Generated Credentials Preview:</h4>
-            <div className="form-preview-list">
-              <div className="form-preview-row">
-                <span className="form-preview-label">Username:</span>
-                <span className="form-preview-value">{generatedCredentials.username}</span>
-              </div>
-              <div className="form-preview-row">
-                <span className="form-preview-label">Email:</span>
-                <span className="form-preview-value">{generatedCredentials.email}</span>
-              </div>
-              <div className="form-preview-row">
-                <span className="form-preview-label">Password:</span>
-                <span className="form-preview-value">{generatedCredentials.password}</span>
-              </div>
-            </div>
-            <p className="form-preview-note">
-              These credentials will be automatically generated and the user can log in immediately.
-            </p>
-          </div>
-        )}
       </div>
     </div>
   );

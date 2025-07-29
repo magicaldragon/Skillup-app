@@ -3,6 +3,106 @@ input:focus {
   caret-color: transparent;
 }
 
+/* Main App Layout - Center Content */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+  background: #fff;
+}
+
+/* Dark mode app container */
+@media (prefers-color-scheme: dark) {
+  .app-container {
+    background: #295b37;
+  }
+}
+
+.main-content {
+  flex: 1;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Content Centering for Forms, Tables, Charts */
+.content-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.form-container {
+  background: linear-gradient(135deg, #ffe9c2 80%, #fff 100%);
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(48, 118, 55, 0.15);
+  padding: 32px 24px;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  border: 1.5px solid #f5b802;
+}
+
+/* Dark mode form container */
+@media (prefers-color-scheme: dark) {
+  .form-container {
+    background: linear-gradient(135deg, #1a3d2a 80%, #295b37 100%);
+    box-shadow: 0 4px 24px rgba(255, 233, 194, 0.15);
+    border-color: #f5b802;
+  }
+}
+
+.table-container {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(48, 118, 55, 0.15);
+  padding: 24px;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  overflow-x: auto;
+  box-sizing: border-box;
+}
+
+/* Dark mode table container */
+@media (prefers-color-scheme: dark) {
+  .table-container {
+    background: #1a3d2a;
+    box-shadow: 0 4px 24px rgba(255, 233, 194, 0.15);
+  }
+}
+
+.chart-container {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(48, 118, 55, 0.15);
+  padding: 32px;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* Dark mode chart container */
+@media (prefers-color-scheme: dark) {
+  .chart-container {
+    background: #1a3d2a;
+    box-shadow: 0 4px 24px rgba(255, 233, 194, 0.15);
+  }
+}
+
 /* Vivid Dashboard Styles */
 .dashboard-card {
   background: #fff;
@@ -10,20 +110,45 @@ input:focus {
   box-shadow: 0 2px 16px rgba(48, 118, 55, 0.10);
   padding: 32px 28px;
   margin-bottom: 32px;
+  width: 100%;
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
 }
+
+/* Dark mode dashboard card */
+@media (prefers-color-scheme: dark) {
+  .dashboard-card {
+    background: #1a3d2a;
+    box-shadow: 0 2px 16px rgba(255, 233, 194, 0.10);
+  }
+}
+
 .dashboard-title {
   color: #307637;
   font-size: 2rem;
   font-weight: 800;
   margin-bottom: 24px;
   letter-spacing: 1px;
+  text-align: center;
 }
+
+/* Dark mode dashboard title */
+@media (prefers-color-scheme: dark) {
+  .dashboard-title {
+    color: #ffe9c2;
+  }
+}
+
 .dashboard-row {
   display: flex;
   flex-wrap: wrap;
   gap: 24px;
   margin-bottom: 24px;
+  justify-content: center;
 }
+
 .dashboard-section {
   background: #ffe9c2;
   border-radius: 14px;
@@ -31,24 +156,140 @@ input:focus {
   padding: 20px 18px;
   flex: 1 1 220px;
   min-width: 220px;
+  max-width: 300px;
 }
+
+/* Dark mode dashboard section */
+@media (prefers-color-scheme: dark) {
+  .dashboard-section {
+    background: #295b37;
+    box-shadow: 0 1px 8px rgba(255, 233, 194, 0.08);
+  }
+}
+
 .dashboard-section-title {
   color: #295b37;
   font-size: 1.15rem;
   font-weight: 700;
   margin-bottom: 10px;
 }
+
+/* Dark mode dashboard section title */
+@media (prefers-color-scheme: dark) {
+  .dashboard-section-title {
+    color: #ffe9c2;
+  }
+}
+
 .dashboard-list {
   margin: 0 0 0 18px;
   padding: 0;
   color: #295b37;
   font-size: 1rem;
 }
+
+/* Dark mode dashboard list */
+@media (prefers-color-scheme: dark) {
+  .dashboard-list {
+    color: #ffe9c2;
+  }
+}
+
 .dashboard-text {
   color: #295b37;
   font-size: 1rem;
   margin-bottom: 6px;
 }
+
+/* Dark mode dashboard text */
+@media (prefers-color-scheme: dark) {
+  .dashboard-text {
+    color: #ffe9c2;
+  }
+}
+
 .dashboard-muted {
   color: #b0b0b0;
+}
+
+/* Dark mode dashboard muted */
+@media (prefers-color-scheme: dark) {
+  .dashboard-muted {
+    color: #a0a0a0;
+  }
+}
+
+/* Settings Panel ID Card Improvements */
+.settings-id-card {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(48, 118, 55, 0.15);
+  padding: 32px;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+/* Dark mode settings ID card */
+@media (prefers-color-scheme: dark) {
+  .settings-id-card {
+    background: #1a3d2a;
+    box-shadow: 0 4px 24px rgba(255, 233, 194, 0.15);
+  }
+}
+
+.settings-id-card h2 {
+  color: #307637;
+  margin-bottom: 24px;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+/* Dark mode settings ID card title */
+@media (prefers-color-scheme: dark) {
+  .settings-id-card h2 {
+    color: #ffe9c2;
+  }
+}
+
+.settings-id-card .info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 8px;
+}
+
+/* Dark mode settings info row */
+@media (prefers-color-scheme: dark) {
+  .settings-id-card .info-row {
+    border-bottom: 1px solid #295b37;
+  }
+}
+
+.settings-id-card .info-label {
+  font-weight: 600;
+  color: #295b37;
+}
+
+/* Dark mode settings info label */
+@media (prefers-color-scheme: dark) {
+  .settings-id-card .info-label {
+    color: #ffe9c2;
+  }
+}
+
+.settings-id-card .info-value {
+  color: #307637;
+  font-weight: 500;
+}
+
+/* Dark mode settings info value */
+@media (prefers-color-scheme: dark) {
+  .settings-id-card .info-value {
+    color: #f5b802;
+  }
 } 
