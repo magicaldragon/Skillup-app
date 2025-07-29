@@ -8,7 +8,7 @@
   align-items: center;
   padding: 24px 0 0 0;
   box-shadow: 2px 0 32px rgba(48, 118, 55, 0.13);
-  border-right: 2px solid #f5b802;
+  border-right: 4px solid #295b37; /* Darker, thicker border */
 }
 .sidebar-profile {
   background: rgba(255,255,255,0.95);
@@ -70,7 +70,7 @@
   cursor: pointer;
   letter-spacing: 1px;
   outline: none;
-  min-width: 200px;
+  width: 260px; /* Fixed width for all buttons */
   text-align: left;
   margin-bottom: 8px;
   box-sizing: border-box;
@@ -82,6 +82,19 @@
   margin-right: 14px;
   display: flex;
   align-items: center;
+}
+
+.sidebar-btn:hover {
+  background: linear-gradient(90deg, #295b37 80%, #1a3d2a 100%);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(41, 91, 55, 0.3);
+}
+
+.sidebar-btn.active {
+  background: linear-gradient(90deg, #295b37 60%, #1a3d2a 100%);
+  color: #ffe9c2; /* Light orange text */
+  box-shadow: 0 6px 24px rgba(41, 91, 55, 0.4), 0 0 0 2px #f5b802;
+  border: 2px solid #f5b802;
 }
 
 /* Submenu button: more indentation, no box */
@@ -101,33 +114,33 @@
   text-align: left;
   display: flex;
   align-items: center;
+  width: 240px; /* Fixed width for submenu buttons */
 }
 
-.sidebar-submenu-btn:hover,
-.sidebar-submenu-btn.active {
-  background: linear-gradient(90deg, #ffe9c2 60%, #f5b802 100%);
-  color: #307637;
+.sidebar-submenu-btn:hover {
+  background: linear-gradient(90deg, #295b37 60%, #1a3d2a 100%);
+  color: #ffe9c2;
   border-left: 4px solid #f5b802;
 }
 
-/* Remove box from submenu container */
+.sidebar-submenu-btn.active {
+  background: linear-gradient(90deg, #295b37 60%, #1a3d2a 100%);
+  color: #ffe9c2; /* Light orange text */
+  border-left: 4px solid #f5b802;
+  box-shadow: 0 4px 16px rgba(41, 91, 55, 0.3);
+}
+
+/* Completely remove submenu box visibility */
 .sidebar-submenu {
-  background: none;
+  background: transparent;
   border-radius: 0;
-  margin: 0 0 0 0;
-  padding: 0 0 0 0;
+  margin: 0;
+  padding: 0;
   box-shadow: none;
-  border-left: none;
+  border: none;
   display: flex;
   flex-direction: column;
   gap: 0;
-}
-.sidebar-btn.active,
-.sidebar-btn:focus,
-.sidebar-btn:hover {
-  background: linear-gradient(90deg, #f5b802 60%, #ffe9c2 100%);
-  color: #307637;
-  box-shadow: 0 4px 24px 0 #f5b802, 0 2px 8px #ffe9c2;
 }
 .sidebar-footer {
   margin-top: auto;
