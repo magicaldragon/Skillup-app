@@ -63,7 +63,7 @@ const menuConfig = (role: string) => [
     ],
   },
   {
-    label: 'Admin Debug Panel',
+    label: 'Debug Panel',
     icon: <FaUserCog />,
     key: 'admin-debug',
     visible: role === 'admin',

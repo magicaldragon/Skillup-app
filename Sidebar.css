@@ -58,8 +58,8 @@
   gap: 14px;
 }
 .sidebar-btn {
-  background: linear-gradient(90deg, #307637 80%, #295b37 100%);
-  color: #fff;
+  background: linear-gradient(90deg, #295b37 80%, #1a3d2a 100%); /* Dark green for all buttons */
+  color: #fff; /* White text for all inactive buttons */
   font-weight: bold;
   font-size: 1.1rem;
   border: none;
@@ -85,14 +85,14 @@
 }
 
 .sidebar-btn:hover {
-  background: linear-gradient(90deg, #295b37 80%, #1a3d2a 100%);
+  background: linear-gradient(90deg, #1a3d2a 80%, #0f2a1f 100%);
   color: #fff;
   box-shadow: 0 4px 16px rgba(41, 91, 55, 0.3);
 }
 
 .sidebar-btn.active {
   background: linear-gradient(90deg, #295b37 60%, #1a3d2a 100%);
-  color: #ffe9c2; /* Light orange text */
+  color: #ffe9c2; /* Light orange text only for active */
   box-shadow: 0 6px 24px rgba(41, 91, 55, 0.4), 0 0 0 2px #f5b802;
   border: 2px solid #f5b802;
 }
