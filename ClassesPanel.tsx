@@ -1,8 +1,8 @@
 // ClassesPanel.tsx
 // Professional panel to show and manage classes with code names (SU-001, SU-002, ...)
 // [NOTE] Created as part of 2024-05-XX dashboard refactor
-import React, { useState, useEffect } from 'react';
-import { safeTrim, isEmpty } from './utils/stringUtils';
+import { useState, useEffect } from 'react';
+import { isEmpty } from './utils/stringUtils';
 import type { Student, StudentClass } from './types';
 import type { Level } from './types';
 
@@ -288,9 +288,16 @@ const ClassesPanel = ({ students, classes, onAddClass, onAssignLevel, onDataRefr
                       ) : (
                         <>
                           <button className="px-3 py-1 bg-yellow-500 text-white rounded" onClick={() => { setEditStudentId(s.id); setEditStudentName(s.displayName || ''); }}>Edit</button>
-                          <button className="px-3 py-1 bg-red-600 text-white rounded" onClick={() => handleRemoveStudent(s.id)}>Remove</button>
-                          <button className="px-3 py-1 bg-blue-500 text-white rounded" onClick={() => handleAssignStudent(s.id, selectedClass.id)}>Assign</button>
-                          <button className="px-3 py-1 bg-pink-500 text-white rounded" onClick={() => handleReportStudent(s.id)}>Report</button>
+                          {/* Assign to another class dropdown */}
+                          <select className="px-2 py-1 border rounded" onChange={e => handleAssignStudent(s.id, e.target.value)} defaultValue="">
+                            <option value="" disabled>Assign to another class</option>
+                            {classes.filter(c2 => c2.id !== selectedClass.id).map(c2 => (
+                              <option key={c2.id} value={c2.id}>{c2.name}</option>
+                            ))}
+                          </select>
+                          {/* Remove from class and return to waiting list */}
+                          <button className="px-3 py-1 bg-red-600 text-white rounded" onClick={() => handleRemoveStudent(s.id)}>Remove & Return to Waiting List</button>
+                          <button className="px-3 py-1 bg-blue-500 text-white rounded" onClick={() => handleReportStudent(s.id)}>Report</button>
                         </>
                       )}
                     </td>

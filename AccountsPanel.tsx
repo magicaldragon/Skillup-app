@@ -17,7 +17,9 @@ const AccountsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       const data = await res.json();
-      setAccounts((data.users || []) as Student[]);
+      // Map _id to id for frontend compatibility
+      const users = (data.users || []).map((u: any) => ({ ...u, id: u.id || u._id }));
+      setAccounts(users as Student[]);
     } catch (error) {
       console.error('Error fetching accounts:', error);
       setAccounts([]);

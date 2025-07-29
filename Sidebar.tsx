@@ -146,7 +146,7 @@ const Sidebar = ({ role, activeKey, onNavigate, onLogout, user }: { role: string
   };
 
   return (
-    <aside className="sidebar sidebar-vivid">
+    <aside className="sidebar sidebar-vivid" style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       {/* User profile section */}
       <div className="sidebar-profile">
         <div className="sidebar-profile-avatar">
@@ -159,7 +159,8 @@ const Sidebar = ({ role, activeKey, onNavigate, onLogout, user }: { role: string
         <div className="sidebar-profile-name">{user?.name || 'User'}</div>
         <div className="sidebar-profile-role">{role}</div>
       </div>
-      <nav className="sidebar-nav">
+      {/* Make nav scrollable but not the footer */}
+      <nav className="sidebar-nav" style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
         {menu.map(item => {
           const hasChildren = !!item.children && item.children.some(child => child.visible);
           const isOpen = openSubmenus.has(item.key);
@@ -213,8 +214,8 @@ const Sidebar = ({ role, activeKey, onNavigate, onLogout, user }: { role: string
           );
         })}
       </nav>
-      {/* Settings and Logout at the bottom */}
-      <div className="sidebar-footer">
+      {/* Settings and Logout at the bottom, always visible */}
+      <div className="sidebar-footer" style={{ flexShrink: 0 }}>
         <button
           className={`sidebar-settings-btn ${activeKey === 'settings' ? 'active' : ''}`}
           onClick={() => onNavigate('settings')}

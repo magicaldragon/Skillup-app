@@ -129,7 +129,7 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
     try {
       const userData: NewUserData = {
         fullname,
-        role: form.role as 'admin' | 'teacher' | 'student',
+        role: form.role as 'admin' | 'teacher' | 'student' | 'staff',
         phone: form.phone || undefined,
         englishName: form.englishName || undefined,
         dob: form.dob || undefined,
@@ -141,7 +141,7 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
       const result = await userRegistrationService.registerNewUser(userData);
 
       if (result.success && result.user) {
-        const roleDisplay = form.role === 'student' ? 'Student' : form.role === 'teacher' ? 'Teacher' : 'Admin';
+        const roleDisplay = form.role.charAt(0).toUpperCase() + form.role.slice(1);
         const successMessage = form.role === 'student' 
           ? `${roleDisplay} registered successfully and added to potential students list!\nUsername: ${result.user.username}\nEmail: ${result.user.email}\nPassword: ${result.user.password}`
           : `${roleDisplay} registered successfully!\nUsername: ${result.user.username}\nEmail: ${result.user.email}\nPassword: ${result.user.password}`;
@@ -177,9 +177,7 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
       <div className="add-student-card">
         <div className="add-student-header">
           <h2 className="add-student-title">Add New Member</h2>
-          <div className="add-student-subtitle">
-            {form.role === 'student' ? 'Student (Added to Accounts + Potential Students)' : form.role === 'teacher' ? 'Teacher (Added to Accounts)' : 'Admin (Added to Accounts)'} Registration
-          </div>
+          {/* Removed the registration label for a cleaner look */}
         </div>
         {error && (
           <div className="add-student-alert add-student-alert-error">
@@ -207,6 +205,7 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
             >
               <option value="student">Student</option>
               <option value="teacher">Teacher</option>
+              <option value="staff">Staff</option>
               <option value="admin">Admin</option>
             </select>
           </div>
