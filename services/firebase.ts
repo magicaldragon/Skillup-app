@@ -1,5 +1,5 @@
 // firebase.ts
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps } from "firebase/app";
 import { getAuth, deleteUser as fbDeleteUser } from "firebase/auth";
 import type { Level } from '../types';
 
@@ -7,12 +7,14 @@ const firebaseConfig = {
   apiKey: "AIzaSyBfKDCo7PrTevI1XUCY3FvH6bED8AWSnnw",
   authDomain: "skillup-3beaf.firebaseapp.com",
   projectId: "skillup-3beaf",
+  storageBucket: "skillup-3beaf.firebasestorage.app",
   messagingSenderId: "715786145271",
   appId: "1:715786145271:web:7115826d1172113c9832f2",
   measurementId: "G-03QYTPLVQG"
 };
 
-const app = initializeApp(firebaseConfig);
+// Only initialize if not already initialized
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 const auth = getAuth(app);
 
 // Log an admin action to the "auditLogs" collection
