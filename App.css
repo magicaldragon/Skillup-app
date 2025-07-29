@@ -1,4 +1,54 @@
 /* Hide blinking caret in all input fields */
 input:focus {
   caret-color: transparent;
+}
+
+/* Vivid Dashboard Styles */
+.dashboard-card {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 2px 16px rgba(48, 118, 55, 0.10);
+  padding: 32px 28px;
+  margin-bottom: 32px;
+}
+.dashboard-title {
+  color: #307637;
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 24px;
+  letter-spacing: 1px;
+}
+.dashboard-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+.dashboard-section {
+  background: #ffe9c2;
+  border-radius: 14px;
+  box-shadow: 0 1px 8px rgba(245, 184, 2, 0.08);
+  padding: 20px 18px;
+  flex: 1 1 220px;
+  min-width: 220px;
+}
+.dashboard-section-title {
+  color: #295b37;
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.dashboard-list {
+  margin: 0 0 0 18px;
+  padding: 0;
+  color: #295b37;
+  font-size: 1rem;
+}
+.dashboard-text {
+  color: #295b37;
+  font-size: 1rem;
+  margin-bottom: 6px;
+}
+.dashboard-muted {
+  color: #b0b0b0;
 } 

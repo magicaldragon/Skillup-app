@@ -64,7 +64,7 @@
   font-size: 1.1rem;
   border: none;
   border-radius: 14px;
-  padding: 14px 0;
+  padding: 14px 0 14px 28px; /* Increased left padding */
   box-shadow: 0 2px 8px rgba(48, 118, 55, 0.10);
   transition: background 0.2s, color 0.2s, box-shadow 0.2s;
   cursor: pointer;
@@ -74,6 +74,53 @@
   text-align: left;
   margin-bottom: 8px;
   box-sizing: border-box;
+  display: flex;
+  align-items: center;
+}
+
+.sidebar-btn .sidebar-menu-icon {
+  margin-right: 14px;
+  display: flex;
+  align-items: center;
+}
+
+/* Submenu button: more indentation, no box */
+.sidebar-submenu-btn {
+  background: none;
+  color: #307637;
+  font-weight: 600;
+  font-size: 1.05rem;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 0 12px 48px; /* Extra left padding for indentation */
+  margin-bottom: 8px;
+  margin-left: 8px;
+  box-shadow: none;
+  transition: background 0.2s, color 0.2s;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+}
+
+.sidebar-submenu-btn:hover,
+.sidebar-submenu-btn.active {
+  background: linear-gradient(90deg, #ffe9c2 60%, #f5b802 100%);
+  color: #307637;
+  border-left: 4px solid #f5b802;
+}
+
+/* Remove box from submenu container */
+.sidebar-submenu {
+  background: none;
+  border-radius: 0;
+  margin: 0 0 0 0;
+  padding: 0 0 0 0;
+  box-shadow: none;
+  border-left: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 .sidebar-btn.active,
 .sidebar-btn:focus,

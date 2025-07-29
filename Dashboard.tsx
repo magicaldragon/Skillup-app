@@ -5,6 +5,7 @@ import SubmissionListPanel from './SubmissionListPanel';
 import SubmissionGradingPanel from './SubmissionGradingPanel';
 import AnalyticsDashboard from './AnalyticsDashboard';
 import SettingsPanel from './SettingsPanel';
+import './AddStudentPanel.css';
 
 interface DashboardProps {
   assignments: Assignment[];

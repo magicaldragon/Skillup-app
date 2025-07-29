@@ -33,35 +33,35 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ assignments, su
   const bottom = [...studentScores].sort((a, b) => (a.avg! - b.avg!)).slice(0, 3);
 
   return (
-    <div className="bg-white rounded-xl shadow p-6 mb-8">
-      <h3 className="text-xl font-bold mb-4">Analytics Dashboard</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+    <div className="dashboard-card">
+      <h3 className="dashboard-title">Analytics Dashboard</h3>
+      <div className="dashboard-row">
         {assignments.map(a => (
-          <div key={a.id} className="bg-slate-50 rounded p-4">
-            <div className="font-semibold">{a.title}</div>
-            <div>Avg Score: <b>{avgScore(a.id)}</b></div>
-            <div>Completion: <b>{completionRate(a.id)}</b></div>
+          <div key={a.id} className="dashboard-section">
+            <div className="dashboard-section-title">{a.title}</div>
+            <div className="dashboard-text">Avg Score: <b>{avgScore(a.id)}</b></div>
+            <div className="dashboard-text">Completion: <b>{completionRate(a.id)}</b></div>
           </div>
         ))}
       </div>
-      <div className="mb-6">
-        <h4 className="font-semibold mb-2">Overdue Assignments</h4>
-        {overdue.length === 0 ? <div className="text-slate-400">None</div> : (
-          <ul className="list-disc ml-6">
+      <div className="dashboard-section">
+        <h4 className="dashboard-section-title">Overdue Assignments</h4>
+        {overdue.length === 0 ? <div className="dashboard-text dashboard-muted">None</div> : (
+          <ul className="dashboard-list">
             {overdue.map(a => <li key={a.id}>{a.title} (Due: {a.dueDate})</li>)}
           </ul>
         )}
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <h4 className="font-semibold mb-2">Top Performers</h4>
-          <ul className="list-decimal ml-6">
+      <div className="dashboard-row">
+        <div className="dashboard-section">
+          <h4 className="dashboard-section-title">Top Performers</h4>
+          <ul className="dashboard-list">
             {top.map(({ student, avg }) => <li key={student.id}>{student.name} ({avg!.toFixed(1)})</li>)}
           </ul>
         </div>
-        <div>
-          <h4 className="font-semibold mb-2">Bottom Performers</h4>
-          <ul className="list-decimal ml-6">
+        <div className="dashboard-section">
+          <h4 className="dashboard-section-title">Bottom Performers</h4>
+          <ul className="dashboard-list">
             {bottom.map(({ student, avg }) => <li key={student.id}>{student.name} ({avg!.toFixed(1)})</li>)}
           </ul>
         </div>

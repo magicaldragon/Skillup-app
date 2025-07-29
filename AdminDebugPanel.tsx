@@ -6,6 +6,7 @@ import ManualToolsPanel from './admin-debug/ManualToolsPanel';
 import FrontendStatusPanel from './admin-debug/FrontendStatusPanel';
 import BackendStatusPanel from './admin-debug/BackendStatusPanel';
 import type { Student } from './types';
+import './Sidebar.css';
 
 const panels = {
   'admin-debug-health': <SystemHealthPanel />,
@@ -86,7 +87,7 @@ const AdminDebugPanel = ({ activeKey }: { activeKey: string }) => {
           ) : (
             <p>Failed to load usage data</p>
           )}
-          <button onClick={fetchApiUsage} disabled={loading}>
+          <button onClick={fetchApiUsage} disabled={loading} className="form-btn">
             Refresh Usage Data
           </button>
         </div>

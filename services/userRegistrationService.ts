@@ -32,7 +32,7 @@ export interface RegistrationResponse {
 
 class UserRegistrationService {
   // Generate username from full name
-  private generateUsername(fullname: string, role: string): string {
+  private generateUsername(fullname: string): string {
     // Remove special characters and convert to lowercase
     const cleanName = safeTrim(fullname)
       .toLowerCase()
@@ -252,7 +252,7 @@ class UserRegistrationService {
     try {
       
       // Step 1: Use provided username or generate one
-      const username = userData.username || this.generateUsername(userData.fullname, userData.role);
+      const username = userData.username || this.generateUsername(userData.fullname);
       const email = userData.email || this.generateEmail(username, userData.role);
       const password = this.generatePassword(userData.role);
 

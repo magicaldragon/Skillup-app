@@ -1,19 +1,22 @@
-/* AddStudentPanel.css */
+/* AddStudentPanel.css - Ultimate vivid design */
 .form-container {
-  background: #ffe9c2;
+  background: linear-gradient(135deg, #ffe9c2 80%, #fff 100%);
   border-radius: 18px;
   padding: 32px 24px;
-  box-shadow: 0 2px 12px rgba(48, 118, 55, 0.10);
+  box-shadow: 0 4px 24px rgba(48, 118, 55, 0.13);
   max-width: 500px;
   margin: 0 auto;
+  border: 1.5px solid #f5b802;
 }
 .form-label {
-  color: #295b37;
-  font-weight: 600;
+  color: #307637;
+  font-weight: 700;
   margin-bottom: 8px;
   display: block;
+  font-size: 1.08rem;
+  letter-spacing: 0.2px;
 }
-.form-input, .form-select {
+.form-input, .form-select, .form-textarea {
   width: 100%;
   padding: 12px;
   border: 2px solid #307637;
@@ -22,25 +25,31 @@
   font-size: 1rem;
   background: #fff;
   color: #295b37;
-  transition: border 0.2s;
+  transition: border 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 4px rgba(48, 118, 55, 0.07);
 }
-.form-input:focus, .form-select:focus {
+.form-input:focus, .form-select:focus, .form-textarea:focus {
   border-color: #f5b802;
   outline: none;
+  box-shadow: 0 0 0 2px #ffe9c2;
 }
 .form-btn {
-  background: #307637;
+  background: linear-gradient(90deg, #307637 80%, #295b37 100%);
   color: #fff;
   font-weight: bold;
   border: none;
   border-radius: 10px;
-  padding: 12px 0;
+  padding: 14px 0;
   width: 100%;
   font-size: 1.1rem;
-  transition: background 0.2s, color 0.2s;
+  box-shadow: 0 2px 8px rgba(48, 118, 55, 0.13);
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
   cursor: pointer;
+  letter-spacing: 1px;
 }
-.form-btn:hover {
-  background: #f5b802;
+.form-btn:hover, .form-btn:focus {
+  background: linear-gradient(90deg, #f5b802 60%, #ffe9c2 100%);
   color: #307637;
+  box-shadow: 0 4px 24px 0 #f5b802, 0 2px 8px #ffe9c2;
+  outline: none;
 }

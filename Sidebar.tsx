@@ -188,9 +188,8 @@ const Sidebar = ({ role, activeKey, onNavigate, onLogout, user }: { role: string
                     return (
                       <div key={child.key}>
                         <button
-                          className={`sidebar-btn${activeKey === child.key ? ' active' : ''}`}
+                          className={`sidebar-submenu-btn${activeKey === child.key ? ' active' : ''}`}
                           onClick={() => hasGrandChildren ? handleMenuClick(child.key, true) : onNavigate(child.key)}
-                          style={{ marginLeft: 16 }}
                         >
                           <span className="sidebar-menu-icon">{child.icon}</span> {child.label}
                           {hasGrandChildren && (
@@ -202,9 +201,8 @@ const Sidebar = ({ role, activeKey, onNavigate, onLogout, user }: { role: string
                             {child.children.filter(grandChild => grandChild.visible).map(grandChild => (
                               <button
                                 key={grandChild.key}
-                                className={`sidebar-btn${activeKey === grandChild.key ? ' active' : ''}`}
+                                className={`sidebar-submenu-btn${activeKey === grandChild.key ? ' active' : ''}`}
                                 onClick={() => onNavigate(grandChild.key)}
-                                style={{ marginLeft: 32 }}
                               >
                                 <span className="sidebar-menu-icon">{grandChild.icon}</span> {grandChild.label}
                               </button>

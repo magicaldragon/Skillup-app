@@ -1,29 +1,27 @@
-/* WaitingListPanel.css - Professional custom styling */
-
+/* WaitingListPanel.css - Ultimate vivid design */
 .waiting-list-panel {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  padding: 1.5rem;
+  background: linear-gradient(135deg, #fff 80%, #ffe9c2 100%);
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(48, 118, 55, 0.13);
+  padding: 2rem;
   max-width: 1200px;
   margin: 2rem auto;
+  border: 1.5px solid #f5b802;
 }
-
 .waiting-list-title {
   font-size: 1.8rem;
-  font-weight: 700;
+  font-weight: 800;
   margin-bottom: 0.5rem;
-  color: #1e293b;
+  color: #307637;
   text-align: center;
+  letter-spacing: 0.5px;
 }
-
 .waiting-list-subtitle {
-  color: #64748b;
+  color: #295b37;
   text-align: center;
-  font-size: 1rem;
+  font-size: 1.08rem;
   margin-bottom: 2rem;
 }
-
 .waiting-list-controls {
   display: flex;
   gap: 1rem;
@@ -31,39 +29,23 @@
   flex-wrap: wrap;
   align-items: center;
 }
-
-.waiting-list-search {
+.waiting-list-search, .waiting-list-status-filter {
   flex: 1;
   min-width: 200px;
   padding: 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  transition: border-color 0.2s ease;
+  border: 2px solid #307637;
+  border-radius: 10px;
+  font-size: 1rem;
+  background: #fff;
+  color: #295b37;
+  transition: border 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 4px rgba(48, 118, 55, 0.07);
 }
-
-.waiting-list-search:focus {
+.waiting-list-search:focus, .waiting-list-status-filter:focus {
+  border-color: #f5b802;
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 2px #ffe9c2;
 }
-
-.waiting-list-status-filter {
-  padding: 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  background: white;
-  font-size: 0.9rem;
-  min-width: 150px;
-  transition: border-color 0.2s ease;
-}
-
-.waiting-list-status-filter:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
 .waiting-list-empty {
   color: #64748b;
   text-align: center;
@@ -135,19 +117,19 @@
 }
 
 .waiting-list-student-item {
-  background: white;
-  border: 1px solid #e2e8f0;
+  background: linear-gradient(135deg, #fff 80%, #ffe9c2 100%);
+  border: 1.5px solid #f5b802;
   border-radius: 12px;
   padding: 1.5rem;
   display: flex;
   align-items: flex-start;
   gap: 1rem;
-  transition: all 0.2s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.2s, transform 0.2s;
+  box-shadow: 0 2px 8px rgba(48, 118, 55, 0.10);
 }
 
 .waiting-list-student-item:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 16px #f5b802, 0 2px 8px #ffe9c2;
   transform: translateY(-2px);
 }
 
@@ -163,8 +145,8 @@
   height: 60px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid #e2e8f0;
-  background: #f1f5f9;
+  border: 3px solid #f5b802;
+  background: #fff;
   flex-shrink: 0;
 }
 
@@ -185,14 +167,14 @@
 .waiting-list-student-name {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #1e293b;
+  color: #307637;
   margin: 0;
 }
 
 .waiting-list-student-phone {
-  font-size: 0.9rem;
-  color: #64748b;
-  background: #f1f5f9;
+  font-size: 0.95rem;
+  color: #295b37;
+  background: #ffe9c2;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-weight: 500;
@@ -206,9 +188,9 @@
 }
 
 .waiting-list-student-email {
-  font-size: 0.9rem;
-  color: #64748b;
-  background: #f1f5f9;
+  font-size: 0.95rem;
+  color: #295b37;
+  background: #ffe9c2;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-weight: 500;
@@ -316,13 +298,16 @@
 }
 
 .waiting-list-class-select {
-  padding: 0.5rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  background: white;
-  font-size: 0.85rem;
-  min-width: 150px;
-  transition: border-color 0.2s ease;
+  padding: 0.5rem 0.75rem;
+  border-radius: 10px;
+  font-weight: 600;
+  border: 2px solid #307637;
+  background: linear-gradient(90deg, #fff 80%, #ffe9c2 100%);
+  color: #295b37;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 4px rgba(48, 118, 55, 0.07);
 }
 
 .waiting-list-class-select:hover {
@@ -330,20 +315,22 @@
 }
 
 .waiting-list-class-select:focus {
+  border-color: #f5b802;
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 2px #ffe9c2;
 }
 
 .waiting-list-action-btn {
   padding: 0.5rem 0.75rem;
-  border-radius: 6px;
+  border-radius: 10px;
   font-weight: 600;
-  border: none;
+  border: 2px solid #307637;
+  background: linear-gradient(90deg, #fff 80%, #ffe9c2 100%);
+  color: #295b37;
+  font-size: 1rem;
   cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 0.8rem;
-  white-space: nowrap;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 4px rgba(48, 118, 55, 0.07);
 }
 
 .waiting-list-action-btn-secondary {
@@ -577,9 +564,10 @@
   width: 100%;
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 2px 12px rgba(48, 118, 55, 0.10);
-  background: #fff;
+  box-shadow: 0 4px 24px rgba(48, 118, 55, 0.13);
+  background: linear-gradient(135deg, #fff 80%, #ffe9c2 100%);
   margin-bottom: 24px;
+  border: 1.5px solid #f5b802;
 }
 .custom-table th {
   background: #307637;
@@ -587,6 +575,8 @@
   font-weight: bold;
   padding: 14px;
   border-bottom: 2px solid #295b37;
+  font-size: 1.08rem;
+  letter-spacing: 0.2px;
 }
 .custom-table tr:nth-child(even) {
   background: #ffe9c2;
