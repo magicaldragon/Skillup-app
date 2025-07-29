@@ -4,20 +4,19 @@
 import React, { useState, useEffect } from 'react';
 import type { StudentClass, Level } from './types';
 import { ICONS } from './constants';
-import { LEVELS as DEFAULT_LEVELS } from './constants';
 import { safeTrim } from './utils/stringUtils';
+import './LevelsPanel.css';
 
 const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
   const [levels, setLevels] = useState<Level[]>([]);
-  const [newLevel, setNewLevel] = useState('');
-  const [showAdd, setShowAdd] = useState(false);
-  const [showEdit, setShowEdit] = useState(false);
-  const [selectedEditIdx, setSelectedEditIdx] = useState<number | null>(null);
-  const [editValue, setEditValue] = useState('');
-  const [editDesc, setEditDesc] = useState('');
-  const [editCode, setEditCode] = useState('');
   const [classesByLevel, setClassesByLevel] = useState<{ [level: string]: StudentClass[] }>({});
   const [loading, setLoading] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newLevel, setNewLevel] = useState({
+    name: '',
+    code: '',
+    description: ''
+  });
 
   // Fetch levels from backend on mount
   React.useEffect(() => {
@@ -69,305 +68,219 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
   }, [levels]);
 
   // Add new level
-  const handleAdd = async () => {
-    const val = safeTrim(newLevel);
-    if (val && !levels.some(l => l.name.toUpperCase() === val)) {
-      setLoading(true);
-      try {
-        const newLevelObj = { name: val, code: val, description: '' };
-        const res = await fetch('/api/levels', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify(newLevelObj),
-        });
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-        const data = await res.json();
-        setLevels([...levels, data.level]);
-        setNewLevel('');
-        setShowAdd(false);
-        onDataRefresh?.();
-      } catch (error) {
-        console.error('Error adding level:', error);
-      } finally {
-        setLoading(false);
-      }
+  const handleAddLevel = async () => {
+    const name = safeTrim(newLevel.name);
+    const code = safeTrim(newLevel.code);
+    const description = safeTrim(newLevel.description);
+    
+    if (!name || !code) {
+      alert('Level name and code are required');
+      return;
     }
-  };
 
-  // Seed default levels into backend
-  const handleSeedLevels = async () => {
+    if (levels.some(l => l.name.toUpperCase() === name.toUpperCase() || l.code.toUpperCase() === code.toUpperCase())) {
+      alert('Level name or code already exists');
+      return;
+    }
+
     setLoading(true);
     try {
-      for (const lvl of DEFAULT_LEVELS) {
-        // Remove id so backend can generate its own
-        const { id, ...rest } = lvl;
-        const res = await fetch('/api/levels', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify(rest),
-        });
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-      }
-      // Refresh levels
-      const res = await fetch('/api/levels', { credentials: 'include' });
+      const res = await fetch('/api/levels', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ name, code, description }),
+      });
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       const data = await res.json();
-      setLevels(data.levels || []);
+      setLevels([...levels, data.level]);
+      setNewLevel({ name: '', code: '', description: '' });
+      setShowAddForm(false);
       onDataRefresh?.();
     } catch (error) {
-      console.error('Error seeding levels:', error);
+      console.error('Error adding level:', error);
+      alert('Failed to add level. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  // Open edit dialog
-  const openEditDialog = () => {
-    setShowEdit(true);
-    setSelectedEditIdx(null);
-    setEditValue('');
-    setEditDesc('');
-    setEditCode('');
+  // Get level color based on name
+  const getLevelColor = (levelName: string) => {
+    const name = levelName.toLowerCase();
+    if (name.includes('starters') || name.includes('pre')) return 'levels-card-blue';
+    if (name.includes('movers') || name.includes('a1')) return 'levels-card-green';
+    if (name.includes('flyers') || name.includes('a2')) return 'levels-card-yellow';
+    if (name.includes('ket') || name.includes('a2b')) return 'levels-card-orange';
+    if (name.includes('pet') || name.includes('b1')) return 'levels-card-purple';
+    if (name.includes('pre-ielts') || name.includes('b2pre')) return 'levels-card-pink';
+    if (name.includes('ielts')) return 'levels-card-red';
+    return 'levels-card-gray';
   };
 
-  // When selecting a level to edit
-  const handleSelectEdit = (idx: number) => {
-    setSelectedEditIdx(idx);
-    setEditValue(levels[idx].name);
-    setEditDesc(levels[idx].description || '');
-    setEditCode(levels[idx].code || '');
+  // Get level icon
+  const getLevelIcon = (levelName: string) => {
+    const name = levelName.toLowerCase();
+    if (name.includes('starters') || name.includes('pre')) return '🌟';
+    if (name.includes('movers') || name.includes('a1')) return '🚀';
+    if (name.includes('flyers') || name.includes('a2')) return '✈️';
+    if (name.includes('ket')) return '🎯';
+    if (name.includes('pet')) return '🏆';
+    if (name.includes('pre-ielts') || name.includes('b2pre')) return '📚';
+    if (name.includes('ielts')) return '🎓';
+    return '📖';
   };
 
-  // Save edited level
-  const handleEditSave = async () => {
-    if (
-      selectedEditIdx !== null &&
-      safeTrim(editValue) &&
-      !levels.some((l, i) => i !== selectedEditIdx && l.name.toUpperCase() === safeTrim(editValue).toUpperCase())
-    ) {
-      setLoading(true);
-      try {
-        const id = levels[selectedEditIdx].id;
-        const res = await fetch(`/api/levels/${id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ name: safeTrim(editValue), description: editDesc, code: editCode }),
-        });
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-        const data = await res.json();
-        const updated = levels.map((l, i) =>
-          i === selectedEditIdx ? data.level : l
-        );
-        setLevels(updated);
-        setShowEdit(false);
-        setSelectedEditIdx(null);
-        setEditValue('');
-        setEditDesc('');
-        setEditCode('');
-        onDataRefresh?.();
-      } catch (error) {
-        console.error('Error updating level:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-  };
-
-  // Remove selected level
-  const handleRemove = async () => {
-    if (selectedEditIdx !== null) {
-      setLoading(true);
-      try {
-        const id = levels[selectedEditIdx].id;
-        const res = await fetch(`/api/levels/${id}`, {
-          method: 'DELETE',
-          credentials: 'include',
-        });
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-        setLevels(levels.filter((_, i) => i !== selectedEditIdx));
-        setShowEdit(false);
-        setSelectedEditIdx(null);
-        setEditValue('');
-        setEditDesc('');
-        setEditCode('');
-        onDataRefresh?.();
-      } catch (error) {
-        console.error('Error deleting level:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-  };
+  if (loading) {
+    return (
+      <div className="levels-panel">
+        <div className="levels-loading">
+          <div className="levels-spinner"></div>
+          <p>Loading levels...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-white rounded-xl shadow p-8 max-w-2xl mx-auto mt-8">
-      <h2 className="text-3xl font-bold mb-6 text-[#307637]">Levels</h2>
-      {levels.length === 0 && !loading && (
-        <div className="mb-6">
-          <button
-            className="px-5 py-3 bg-blue-700 text-white rounded shadow hover:bg-blue-800 text-lg font-semibold transition"
-            onClick={handleSeedLevels}
-            disabled={loading}
-          >
-            Seed Default Levels
-          </button>
-          <div className="mt-2 text-slate-500">No levels found. Click to add default levels (Starters, Movers, Flyers, etc.).</div>
-        </div>
-      )}
-      {loading && <div className="mb-4 text-blue-600 font-semibold">Loading...</div>}
-      <div className="mb-8 flex gap-2 items-center">
+    <div className="levels-panel">
+      <div className="levels-header">
+        <h2 className="levels-title">Levels Management</h2>
+        <p className="levels-subtitle">Organize classes by proficiency levels</p>
+      </div>
+
+      {/* Add New Level Button */}
+      <div className="levels-actions">
         <button
-          className="px-5 py-3 bg-[#307637] text-white rounded shadow hover:bg-[#245929] text-lg font-semibold transition"
-          onClick={() => setShowAdd(true)}
+          className="levels-add-btn"
+          onClick={() => setShowAddForm(true)}
+          disabled={loading}
         >
-          Add
-        </button>
-        <button
-          className="px-5 py-3 bg-yellow-600 text-white rounded shadow hover:bg-yellow-700 text-lg font-semibold transition"
-          onClick={openEditDialog}
-        >
-          Edit
+          {ICONS.add}
+          Add New Level
         </button>
       </div>
-      {/* Add Level Dialog */}
-      {showAdd && (
-        <div className="mb-6 flex gap-2 items-center">
-          <input
-            type="text"
-            value={newLevel}
-            onChange={e => setNewLevel(e.target.value)}
-            className="p-3 border rounded flex-1 text-lg focus:outline-[#307637]"
-            placeholder="Add new level (e.g., ADVANCED)"
-          />
-          <button
-            className="px-4 py-2 bg-[#307637] text-white rounded hover:bg-[#245929] font-semibold"
-            onClick={handleAdd}
-            disabled={loading}
-          >
-            Save
-          </button>
-          <button
-            className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500 font-semibold"
-            onClick={() => { setShowAdd(false); setNewLevel(''); }}
-            disabled={loading}
-          >
-            Cancel
-          </button>
-        </div>
-      )}
-      {/* Edit Level Dialog */}
-      {showEdit && (
-        <div className="mb-6 flex flex-col gap-3 p-4 border rounded bg-slate-50">
-          <label className="font-semibold text-lg">Select a level to edit or delete:</label>
-          <select
-            className="p-2 border rounded text-lg"
-            value={selectedEditIdx !== null ? selectedEditIdx : ''}
-            onChange={e => handleSelectEdit(Number(e.target.value))}
-            disabled={loading}
-          >
-            <option value="" disabled>Select level</option>
-            {levels.map((l, idx) => (
-              <option key={l.id} value={idx}>{l.name}</option>
-            ))}
-          </select>
-          {selectedEditIdx !== null && (
-            <>
+
+      {/* Add Level Form */}
+      {showAddForm && (
+        <div className="levels-add-form">
+          <h3 className="levels-form-title">Add New Level</h3>
+          <div className="levels-form-grid">
+            <div className="levels-form-field">
+              <label htmlFor="level-name">Level Name *</label>
               <input
-                className="p-2 border rounded text-lg"
-                value={editValue}
-                onChange={e => setEditValue(e.target.value)}
-                placeholder="Edit level name"
-                disabled={loading}
+                id="level-name"
+                type="text"
+                value={newLevel.name}
+                onChange={e => setNewLevel(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="e.g., ADVANCED, INTERMEDIATE"
+                className="levels-form-input"
               />
-              <input
-                className="p-2 border rounded text-lg"
-                value={editCode}
-                onChange={e => setEditCode(e.target.value)}
-                placeholder="Edit level code"
-                disabled={loading}
-              />
-              <input
-                className="p-2 border rounded text-lg"
-                value={editDesc}
-                onChange={e => setEditDesc(e.target.value)}
-                placeholder="Edit level description"
-                disabled={loading}
-              />
-              <div className="flex gap-2 mt-2">
-                <button
-                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 font-semibold"
-                  onClick={handleEditSave}
-                  disabled={loading}
-                >
-                  Save
-                </button>
-                <button
-                  className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 font-semibold"
-                  onClick={handleRemove}
-                  disabled={loading}
-                >
-                  Delete
-                </button>
-                <button
-                  className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500 font-semibold"
-                  onClick={() => { setShowEdit(false); setSelectedEditIdx(null); setEditValue(''); setEditDesc(''); setEditCode(''); }}
-                  disabled={loading}
-                >
-                  Cancel
-                </button>
-              </div>
-            </>
-          )}
-        </div>
-      )}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {levels.map((l) => {
-          const assignedClasses = classesByLevel[l.id] || [];
-          return (
-            <div key={l.id} className="bg-slate-50 rounded-lg shadow-md p-5 flex flex-col gap-2 border border-slate-200">
-              <div className="flex items-center gap-3 mb-2">
-                {/* Level icon */}
-                <span className="inline-block w-8 h-8 flex items-center justify-center bg-[#307637]/10 rounded-full mr-2">
-                  {ICONS.level || <span className="text-2xl">★</span>}
-                </span>
-                <span className="font-bold text-xl text-[#222] tracking-wide">{l.name}</span>
-                {/* Class count badge */}
-                <span className="ml-2 bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded-full">
-                  {assignedClasses.length} class{assignedClasses.length !== 1 ? 'es' : ''}
-                </span>
-                <span className="ml-2 text-slate-500 text-base">{l.code}</span>
-              </div>
-              {l.description && <div className="text-slate-600 text-sm mb-1 italic">{l.description}</div>}
-              <div className="mt-2">
-                <div className="text-sm text-slate-500 font-semibold mb-1">Classes in this level:</div>
-                {assignedClasses.length > 0 ? (
-                  <ul className="ml-2 text-base text-slate-700 list-disc pl-4">
-                    {assignedClasses.map(c => (
-                      <li key={c.id} className="py-0.5 font-medium bg-slate-200 rounded px-2 my-1 inline-block">
-                        {c.name}
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <div className="ml-2 text-slate-400 italic text-base">No classes assigned</div>
-                )}
-              </div>
             </div>
-          );
-        })}
+            <div className="levels-form-field">
+              <label htmlFor="level-code">Level Code *</label>
+              <input
+                id="level-code"
+                type="text"
+                value={newLevel.code}
+                onChange={e => setNewLevel(prev => ({ ...prev, code: e.target.value }))}
+                placeholder="e.g., ADV, INT"
+                className="levels-form-input"
+              />
+            </div>
+            <div className="levels-form-field levels-form-field-full">
+              <label htmlFor="level-description">Description</label>
+              <textarea
+                id="level-description"
+                value={newLevel.description}
+                onChange={e => setNewLevel(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="Brief description of this level..."
+                className="levels-form-textarea"
+                rows={3}
+              />
+            </div>
+          </div>
+          <div className="levels-form-actions">
+            <button
+              className="levels-form-save-btn"
+              onClick={handleAddLevel}
+              disabled={loading || !newLevel.name || !newLevel.code}
+            >
+              {loading ? 'Adding...' : 'Add Level'}
+            </button>
+            <button
+              className="levels-form-cancel-btn"
+              onClick={() => {
+                setShowAddForm(false);
+                setNewLevel({ name: '', code: '', description: '' });
+              }}
+              disabled={loading}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Levels Grid */}
+      <div className="levels-grid">
+        {levels.length === 0 ? (
+          <div className="levels-empty">
+            <div className="levels-empty-icon">📚</div>
+            <h3 className="levels-empty-title">No Levels Found</h3>
+            <p className="levels-empty-text">Add your first level to start organizing classes by proficiency.</p>
+            <button
+              className="levels-empty-btn"
+              onClick={() => setShowAddForm(true)}
+            >
+              Add First Level
+            </button>
+          </div>
+        ) : (
+          levels.map((level) => {
+            const assignedClasses = classesByLevel[level.id] || [];
+            const colorClass = getLevelColor(level.name);
+            const icon = getLevelIcon(level.name);
+            
+            return (
+              <div key={level.id} className={`levels-card ${colorClass}`}>
+                <div className="levels-card-header">
+                  <div className="levels-card-icon">{icon}</div>
+                  <div className="levels-card-info">
+                    <h3 className="levels-card-title">{level.name}</h3>
+                    <span className="levels-card-code">{level.code}</span>
+                  </div>
+                  <div className="levels-card-stats">
+                    <span className="levels-card-class-count">
+                      {assignedClasses.length} class{assignedClasses.length !== 1 ? 'es' : ''}
+                    </span>
+                  </div>
+                </div>
+                
+                {level.description && (
+                  <p className="levels-card-description">{level.description}</p>
+                )}
+                
+                <div className="levels-card-classes">
+                  <h4 className="levels-card-classes-title">Assigned Classes:</h4>
+                  {assignedClasses.length > 0 ? (
+                    <div className="levels-card-classes-list">
+                      {assignedClasses.map(cls => (
+                        <span key={cls.id} className="levels-card-class-item">
+                          {cls.name}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="levels-card-no-classes">No classes assigned to this level</p>
+                  )}
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
     </div>
   );
