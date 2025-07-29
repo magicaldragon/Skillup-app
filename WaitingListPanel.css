@@ -5,16 +5,63 @@
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
   padding: 1.5rem;
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 2rem auto;
 }
 
 .waiting-list-title {
   font-size: 1.8rem;
   font-weight: 700;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   color: #1e293b;
   text-align: center;
+}
+
+.waiting-list-subtitle {
+  color: #64748b;
+  text-align: center;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+}
+
+.waiting-list-controls {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.waiting-list-search {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  transition: border-color 0.2s ease;
+}
+
+.waiting-list-search:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.waiting-list-status-filter {
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: white;
+  font-size: 0.9rem;
+  min-width: 150px;
+  transition: border-color 0.2s ease;
+}
+
+.waiting-list-status-filter:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .waiting-list-empty {
@@ -81,80 +128,274 @@
   transform: translateY(-1px);
 }
 
-.waiting-list-actions {
+.waiting-list-students {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   gap: 1rem;
-  margin-bottom: 1rem;
+}
+
+.waiting-list-student-item {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.waiting-list-student-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.waiting-list-student-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  flex: 1;
+}
+
+.waiting-list-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #e2e8f0;
+  background: #f1f5f9;
+  flex-shrink: 0;
+}
+
+.waiting-list-student-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.waiting-list-student-main-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
   flex-wrap: wrap;
 }
 
-.waiting-list-btn {
-  padding: 0.5rem 1rem;
+.waiting-list-student-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.waiting-list-student-phone {
+  font-size: 0.9rem;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.waiting-list-student-secondary-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.waiting-list-student-email {
+  font-size: 0.9rem;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.waiting-list-student-date {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  background: #f8fafc;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.waiting-list-student-programs {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.waiting-list-student-programs-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.waiting-list-student-programs-text {
+  font-size: 0.85rem;
+  color: #475569;
+  background: #f8fafc;
+  padding: 0.5rem;
+  border-radius: 6px;
+  border-left: 3px solid #e2e8f0;
+  flex: 1;
+  line-height: 1.4;
+}
+
+.waiting-list-student-level {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.waiting-list-student-level-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.waiting-list-student-level-text {
+  font-size: 0.85rem;
+  color: #475569;
+  background: #f8fafc;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.waiting-list-student-notes {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.waiting-list-student-notes-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.waiting-list-student-notes-text {
+  font-size: 0.85rem;
+  color: #475569;
+  background: #f8fafc;
+  padding: 0.5rem;
+  border-radius: 6px;
+  border-left: 3px solid #e2e8f0;
+  flex: 1;
+  line-height: 1.4;
+  font-style: italic;
+}
+
+.waiting-list-student-status {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  align-self: flex-start;
+}
+
+.waiting-list-student-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-end;
+  min-width: 200px;
+}
+
+.waiting-list-class-select {
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+  font-size: 0.85rem;
+  min-width: 150px;
+  transition: border-color 0.2s ease;
+}
+
+.waiting-list-class-select:hover {
+  border-color: #9ca3af;
+}
+
+.waiting-list-class-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.waiting-list-action-btn {
+  padding: 0.5rem 0.75rem;
   border-radius: 6px;
   font-weight: 600;
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
+  white-space: nowrap;
 }
 
-.waiting-list-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.waiting-list-btn-primary {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.waiting-list-btn-primary:hover:not(:disabled) {
-  background: #bbf7d0;
-}
-
-.waiting-list-btn-primary.active {
-  background: #166534;
+.waiting-list-action-btn-secondary {
+  background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
   color: white;
 }
 
-.waiting-list-btn-secondary {
-  background: #fed7aa;
-  color: #9a3412;
+.waiting-list-action-btn-secondary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(107, 114, 128, 0.3);
 }
 
-.waiting-list-btn-secondary:hover:not(:disabled) {
-  background: #fdba74;
-}
-
-.waiting-list-btn-secondary.active {
-  background: #9a3412;
+.waiting-list-action-btn-danger {
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
   color: white;
 }
 
-.waiting-list-btn-neutral {
-  background: #f1f5f9;
-  color: #475569;
-}
-
-.waiting-list-btn-neutral:hover:not(:disabled) {
-  background: #e2e8f0;
+.waiting-list-action-btn-danger:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
 }
 
 .waiting-list-bulk-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1rem;
   margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .waiting-list-select {
   padding: 0.5rem;
   border: 1px solid #d1d5db;
   border-radius: 6px;
-  margin-bottom: 0.5rem;
   background: white;
-  min-width: 200px;
+  font-size: 0.9rem;
+  min-width: 150px;
+  transition: border-color 0.2s ease;
+}
+
+.waiting-list-select:hover {
+  border-color: #9ca3af;
+}
+
+.waiting-list-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .waiting-list-confirm-buttons {
@@ -169,291 +410,166 @@
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
+  font-size: 0.9rem;
 }
 
 .waiting-list-confirm-btn-success {
-  background: #16a34a;
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
   color: white;
 }
 
 .waiting-list-confirm-btn-success:hover {
-  background: #15803d;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
 }
 
 .waiting-list-confirm-btn-cancel {
-  background: #d1d5db;
-  color: #374151;
+  background: #6b7280;
+  color: white;
 }
 
 .waiting-list-confirm-btn-cancel:hover {
-  background: #9ca3af;
+  background: #4b5563;
+  transform: translateY(-1px);
 }
 
-.waiting-list-students {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.waiting-list-student-item {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  transition: all 0.2s ease;
-  border: 1px solid #e5e7eb;
-}
-
-.waiting-list-student-item:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.waiting-list-student-item.selected {
-  border: 2px solid #16a34a;
-  box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.1);
-}
-
-.waiting-list-checkbox {
-  accent-color: #16a34a;
-  width: 1.25rem;
-  height: 1.25rem;
-}
-
-.waiting-list-student-info {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  min-width: 200px;
-}
-
-.waiting-list-avatar {
-  width: 3rem;
-  height: 3rem;
-  border-radius: 50%;
-  border: 2px solid #dcfce7;
-  box-shadow: 0 2px 8px rgba(48, 118, 55, 0.08);
-  object-fit: cover;
-  background: #f1f5f9;
-}
-
-.waiting-list-student-details {
-  display: flex;
-  flex-direction: column;
-}
-
-.waiting-list-student-name {
-  font-weight: 600;
-  font-size: 1.1rem;
-  color: #166534;
-}
-
-.waiting-list-student-date {
-  font-size: 0.75rem;
-  color: #64748b;
-}
-
-.waiting-list-student-email {
-  font-size: 0.8rem;
-  color: #64748b;
-  font-weight: 500;
-}
-
-.waiting-list-student-status {
-  font-size: 0.75rem;
-  color: #dc2626;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.waiting-list-assign-select {
-  margin-left: auto;
-  padding: 0.5rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  background: #f0fdf4;
-  color: #166534;
-  font-weight: 500;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  transition: all 0.2s ease;
-  min-width: 140px;
-}
-
-.waiting-list-assign-select:hover {
-  border-color: #16a34a;
-}
-
-.waiting-list-assign-select:focus {
-  outline: none;
-  border-color: #16a34a;
-  box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.2);
-}
-
-.waiting-list-confirm-assign-btn {
-  margin-left: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
-  color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.waiting-list-confirm-assign-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, #15803d 0%, #16a34a 100%);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-.waiting-list-confirm-assign-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.waiting-list-delete-btn {
-  margin-left: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
-  color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.waiting-list-delete-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-.waiting-list-delete-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* Modal styles */
 .waiting-list-modal {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.4);
-  z-index: 50;
+  z-index: 1000;
 }
 
 .waiting-list-modal-content {
   background: white;
   border-radius: 12px;
-  box-shadow: 0 20px 25px rgba(0, 0, 0, 0.1);
   padding: 2rem;
-  max-width: 400px;
-  width: 100%;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
 .waiting-list-modal-title {
   font-size: 1.25rem;
   font-weight: 700;
-  margin-bottom: 1rem;
   color: #1e293b;
+  margin-bottom: 1rem;
+  text-align: center;
 }
 
 .waiting-list-modal-message {
-  margin-bottom: 1rem;
   color: #64748b;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  line-height: 1.5;
 }
 
 .waiting-list-modal-error {
   color: #dc2626;
+  margin-bottom: 1.5rem;
+  text-align: center;
   font-weight: 600;
-  margin-bottom: 0.5rem;
 }
 
 .waiting-list-modal-buttons {
   display: flex;
   gap: 1rem;
-  justify-content: flex-end;
+  justify-content: center;
 }
 
 .waiting-list-modal-btn {
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
   font-weight: 600;
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
+  font-size: 1rem;
 }
 
 .waiting-list-modal-btn-cancel {
-  background: #e5e7eb;
-  color: #374151;
+  background: #6b7280;
+  color: white;
 }
 
 .waiting-list-modal-btn-cancel:hover {
-  background: #d1d5db;
+  background: #4b5563;
+  transform: translateY(-1px);
 }
 
 .waiting-list-modal-btn-confirm {
-  background: #16a34a;
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
   color: white;
 }
 
 .waiting-list-modal-btn-confirm:hover {
-  background: #15803d;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
 }
 
 .waiting-list-modal-btn-danger {
-  background: #dc2626;
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
   color: white;
 }
 
 .waiting-list-modal-btn-danger:hover {
-  background: #b91c1c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
 }
 
 .waiting-list-modal-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
 }
 
-/* Responsive design */
 @media (max-width: 768px) {
   .waiting-list-panel {
-    margin: 1rem;
     padding: 1rem;
+    margin: 1rem;
   }
   
-  .waiting-list-actions {
+  .waiting-list-controls {
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
+  }
+  
+  .waiting-list-search,
+  .waiting-list-status-filter {
+    width: 100%;
   }
   
   .waiting-list-student-item {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
+    align-items: stretch;
   }
   
   .waiting-list-student-info {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .waiting-list-student-main-info,
+  .waiting-list-student-secondary-info {
+    justify-content: center;
+  }
+  
+  .waiting-list-student-actions {
+    align-items: stretch;
     min-width: auto;
-    width: 100%;
   }
   
-  .waiting-list-assign-select {
-    margin-left: 0;
+  .waiting-list-class-select,
+  .waiting-list-action-btn {
     width: 100%;
+    text-align: center;
   }
-  
-  .waiting-list-confirm-assign-btn,
-  .waiting-list-delete-btn {
-    margin-left: 0;
-    margin-top: 0.5rem;
-    width: 100%;
-  }
+}
 }

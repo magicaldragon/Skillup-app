@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import type { Student, StudentClass } from './types';
-import { deleteAccountCompletely } from './services/firebase';
 import './WaitingListPanel.css';
 
 const API_BASE_URL = 'https://skillup-backend-v6vm.onrender.com/api';
 
-interface PotentialStudent {
+interface WaitingStudent {
   _id: string;
   name: string;
   englishName?: string;
@@ -13,14 +12,8 @@ interface PotentialStudent {
   phone?: string;
   gender?: string;
   status: string;
-  source: string;
-  currentSchool?: string;
-  currentGrade?: string;
-  englishLevel: string;
-  parentName?: string;
-  parentPhone?: string;
-  parentEmail?: string;
   interestedPrograms?: string[];
+  preferredLevel?: string;
   notes?: string;
   assignedTo?: {
     _id: string;
@@ -32,21 +25,17 @@ interface PotentialStudent {
 }
 
 const WaitingListPanel = ({ classes, currentUser, onDataRefresh }: { classes: StudentClass[], currentUser: Student, onDataRefresh?: () => void }) => {
-  const [potentialStudents, setPotentialStudents] = useState<PotentialStudent[]>([]);
+  const [waitingStudents, setWaitingStudents] = useState<WaitingStudent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Bulk selection state
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [bulkAction, setBulkAction] = useState<'convert' | 'update_status' | null>(null);
-  const [bulkStatus, setBulkStatus] = useState<string>('');
-  const [confirmingBulk, setConfirmingBulk] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
 
   useEffect(() => {
-    fetchPotentialStudents();
+    fetchWaitingStudents();
   }, []);
 
-  const fetchPotentialStudents = async () => {
+  const fetchWaitingStudents = async () => {
     setLoading(true);
     setError(null);
     
@@ -58,158 +47,84 @@ const WaitingListPanel = ({ classes, currentUser, onDataRefresh }: { classes: St
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/potential-students`, {
+      // Fetch students with status 'waiting_for_class'
+      const response = await fetch(`${API_BASE_URL}/potential-students?status=waiting_for_class`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch potential students');
+        throw new Error('Failed to fetch waiting students');
       }
 
       const data = await response.json();
       if (data.success) {
-        setPotentialStudents(data.potentialStudents || []);
+        setWaitingStudents(data.potentialStudents || []);
       } else {
-        throw new Error(data.message || 'Failed to fetch potential students');
+        throw new Error(data.message || 'Failed to fetch waiting students');
       }
     } catch (error) {
-      console.error('Fetch potential students error:', error);
-      setError('Failed to load potential students. Please try again.');
+      console.error('Fetch waiting students error:', error);
+      setError('Failed to load waiting students. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   // Helper for avatar by gender
-  const getAvatar = (student: PotentialStudent) => {
+  const getAvatar = (student: WaitingStudent) => {
     if (student.gender === 'male') return '/avatar-male.png';
     if (student.gender === 'female') return '/avatar-female.png';
     return '/anon-avatar.png';
   };
 
   // Helper for display name
-  const getDisplayName = (student: PotentialStudent) => student.englishName || student.name;
+  const getDisplayName = (student: WaitingStudent) => {
+    const fullName = student.englishName || student.name;
+    return fullName || 'Unknown Name';
+  };
+
+  // Helper for phone number
+  const getPhoneNumber = (student: WaitingStudent) => {
+    return student.phone || 'No phone';
+  };
 
   // Helper for date/time
-  const getDateTime = (student: PotentialStudent) => student.createdAt ? new Date(student.createdAt).toLocaleString() : '';
-
-  // Bulk convert to regular user
-  const handleBulkConvert = async () => {
-    setConfirmingBulk(false);
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      console.error('No auth token found');
-      return;
-    }
-
-    try {
-      for (const id of selectedIds) {
-        const response = await fetch(`${API_BASE_URL}/potential-students/${id}/convert`, {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Failed to convert potential student ${id}`);
-        }
-      }
-      setSelectedIds([]);
-      setBulkAction(null);
-      fetchPotentialStudents();
-      onDataRefresh?.();
-    } catch (error) {
-      console.error('Bulk convert error:', error);
-      alert('Failed to convert potential students. Please try again.');
-    }
+  const getDateTime = (student: WaitingStudent) => {
+    if (!student.createdAt) return 'Unknown date';
+    return new Date(student.createdAt).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
-  // Bulk update status
-  const handleBulkUpdateStatus = async () => {
-    setConfirmingBulk(false);
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      console.error('No auth token found');
-      return;
-    }
-
-    try {
-      for (const id of selectedIds) {
-        const response = await fetch(`${API_BASE_URL}/potential-students/${id}/status`, {
-          method: 'PATCH',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({ status: bulkStatus }),
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Failed to update potential student ${id} status`);
-        }
-      }
-      setSelectedIds([]);
-      setBulkStatus('');
-      setBulkAction(null);
-      fetchPotentialStudents();
-    } catch (error) {
-      console.error('Bulk status update error:', error);
-      alert('Failed to update potential students status. Please try again.');
-    }
+  // Helper for notes
+  const getNotes = (student: WaitingStudent) => {
+    return student.notes || 'No notes';
   };
 
-  // Individual select
-  const toggleSelect = (id: string) => {
-    setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  // Helper for interested programs
+  const getInterestedPrograms = (student: WaitingStudent) => {
+    return student.interestedPrograms?.join(', ') || 'No programs specified';
   };
 
-  // Select all
-  const selectAll = () => setSelectedIds(potentialStudents.map(s => s._id));
-  const clearAll = () => setSelectedIds([]);
-
-  const [pendingStatusUpdates, setPendingStatusUpdates] = useState<{ [studentId: string]: string }>({});
-  const [loadingStates, setLoadingStates] = useState<{ [studentId: string]: boolean }>({});
-
-  const handleStatusChange = (studentId: string, status: string) => {
-    setPendingStatusUpdates(prev => ({ ...prev, [studentId]: status }));
-  };
-
-  const handleConfirmStatusUpdate = async (studentId: string) => {
-    const status = pendingStatusUpdates[studentId];
-    if (!status) return;
+  // Filter students based on search and status
+  const filteredStudents = waitingStudents.filter(student => {
+    const matchesSearch = searchTerm === '' || 
+      getDisplayName(student).toLowerCase().includes(searchTerm.toLowerCase()) ||
+      student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      getPhoneNumber(student).toLowerCase().includes(searchTerm.toLowerCase());
     
-    setLoadingStates(prev => ({ ...prev, [studentId]: true }));
-    const token = localStorage.getItem('authToken');
+    const matchesStatus = statusFilter === '' || student.status === statusFilter;
     
-    try {
-      const response = await fetch(`${API_BASE_URL}/potential-students/${studentId}/status`, {
-        method: 'PATCH',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ status }),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to update potential student status');
-      }
-      
-      setLoadingStates(prev => ({ ...prev, [studentId]: false }));
-      setPendingStatusUpdates(prev => { const copy = { ...prev }; delete copy[studentId]; return copy; });
-      fetchPotentialStudents();
-    } catch (error) {
-      console.error('Update status error:', error);
-      setLoadingStates(prev => ({ ...prev, [studentId]: false }));
-      alert('Failed to update potential student status. Please try again.');
-    }
-  };
+    return matchesSearch && matchesStatus;
+  });
 
-  const handleConvertToUser = async (studentId: string) => {
+  const handleAssignToClass = async (studentId: string, classId: string) => {
     const token = localStorage.getItem('authToken');
     if (!token) {
       alert('No authentication token found');
@@ -217,29 +132,64 @@ const WaitingListPanel = ({ classes, currentUser, onDataRefresh }: { classes: St
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/potential-students/${studentId}/convert`, {
-        method: 'POST',
+      const response = await fetch(`${API_BASE_URL}/potential-students/${studentId}/assign-class`, {
+        method: 'PATCH',
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
+        body: JSON.stringify({ classId }),
       });
       
       if (!response.ok) {
-        throw new Error('Failed to convert potential student to user');
+        throw new Error('Failed to assign student to class');
       }
-      
-      alert('Potential student converted to regular user successfully!');
-      fetchPotentialStudents();
-      onDataRefresh?.();
+
+      alert('Student assigned to class successfully!');
+      fetchWaitingStudents();
+      if (onDataRefresh) onDataRefresh();
     } catch (error) {
-      console.error('Convert to user error:', error);
-      alert('Failed to convert potential student to user. Please try again.');
+      console.error('Assign to class error:', error);
+      alert('Failed to assign student to class. Please try again.');
+    }
+  };
+
+  const handleMoveBackToPotential = async (studentId: string) => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      alert('No authentication token found');
+      return;
+    }
+
+    if (!window.confirm('Move this student back to Potential Students?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/potential-students/${studentId}/status`, {
+        method: 'PATCH',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ status: 'pending' }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to move student back to potential students');
+      }
+
+      alert('Student moved back to Potential Students successfully');
+      fetchWaitingStudents();
+      if (onDataRefresh) onDataRefresh();
+    } catch (error) {
+      console.error('Move back error:', error);
+      alert('Failed to move student back to Potential Students. Please try again.');
     }
   };
 
   const handleDelete = async (studentId: string) => {
-    if (!window.confirm('Are you sure you want to delete this potential student? This action cannot be undone.')) {
+    if (!window.confirm('Are you sure you want to delete this waiting student? This action cannot be undone.')) {
       return;
     }
 
@@ -258,116 +208,14 @@ const WaitingListPanel = ({ classes, currentUser, onDataRefresh }: { classes: St
       });
       
       if (!response.ok) {
-        throw new Error('Failed to delete potential student');
+        throw new Error('Failed to delete waiting student');
       }
       
-      alert('Potential student deleted successfully!');
-      fetchPotentialStudents();
+      alert('Waiting student deleted successfully!');
+      fetchWaitingStudents();
     } catch (error) {
       console.error('Delete error:', error);
-      alert('Failed to delete potential student. Please try again.');
-    }
-  };
-
-  // Move to Records (when student doesn't confirm interest)
-  const handleMoveToRecords = async (studentId: string) => {
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      alert('No authentication token found');
-      return;
-    }
-
-    if (!window.confirm('Move this student to Records? This will archive their information for future reference.')) {
-      return;
-    }
-
-    try {
-      // First, create a record entry
-      const student = potentialStudents.find(s => s._id === studentId);
-      if (!student) {
-        throw new Error('Student not found');
-      }
-
-      const recordData = {
-        studentId: null, // Potential students don't have User records yet
-        studentName: student.name,
-        action: 'moved_to_records',
-        category: 'administrative',
-        details: {
-          reason: 'Student did not confirm interest in courses',
-          originalStatus: student.status,
-          movedBy: currentUser.name,
-          movedAt: new Date().toISOString(),
-          potentialStudentId: studentId, // Store the potential student ID for reference
-          email: student.email,
-          phone: student.phone
-        },
-        performedBy: currentUser.id,
-        performedByName: currentUser.name
-      };
-
-      const recordResponse = await fetch(`${API_BASE_URL}/student-records`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(recordData),
-      });
-
-      if (!recordResponse.ok) {
-        throw new Error('Failed to create record entry');
-      }
-
-      // Then delete from potential students
-      const deleteResponse = await fetch(`${API_BASE_URL}/potential-students/${studentId}`, {
-        method: 'DELETE',
-        headers: { 
-          'Authorization': `Bearer ${token}`
-        },
-      });
-      
-      if (!deleteResponse.ok) {
-        throw new Error('Failed to remove from potential students');
-      }
-
-      alert('Student moved to Records successfully');
-      fetchPotentialStudents();
-      if (onDataRefresh) onDataRefresh();
-    } catch (error) {
-      console.error('Move to records error:', error);
-      alert('Failed to move student to Records. Please try again.');
-    }
-  };
-
-  // Move to Waiting List (when student confirms interest)
-  const handleMoveToWaitingList = async (studentId: string) => {
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      alert('No authentication token found');
-      return;
-    }
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/potential-students/${studentId}/status`, {
-        method: 'PATCH',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ status: 'waiting_for_class' }),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to move student to waiting list');
-      }
-
-      alert('Student moved to Waiting List successfully');
-      fetchPotentialStudents();
-      if (onDataRefresh) onDataRefresh();
-    } catch (error) {
-      console.error('Move to waiting list error:', error);
-      alert('Failed to move student to Waiting List. Please try again.');
+      alert('Failed to delete waiting student. Please try again.');
     }
   };
 
@@ -376,7 +224,7 @@ const WaitingListPanel = ({ classes, currentUser, onDataRefresh }: { classes: St
       <div className="waiting-list-panel">
         <div className="waiting-list-loading">
           <div className="waiting-list-spinner"></div>
-          <p>Loading potential students...</p>
+          <p>Loading waiting students...</p>
         </div>
       </div>
     );
@@ -386,11 +234,11 @@ const WaitingListPanel = ({ classes, currentUser, onDataRefresh }: { classes: St
     return (
       <div className="waiting-list-panel">
         <div className="waiting-list-error">
-          <h3>Error Loading Potential Students</h3>
+          <h3>Error Loading Waiting Students</h3>
           <p>{error}</p>
           <button 
             className="waiting-list-retry-btn"
-            onClick={fetchPotentialStudents}
+            onClick={fetchWaitingStudents}
           >
             Try Again
           </button>
@@ -401,155 +249,105 @@ const WaitingListPanel = ({ classes, currentUser, onDataRefresh }: { classes: St
 
   return (
     <div className="waiting-list-panel">
-      <h2 className="waiting-list-title">Potential Students</h2>
-      {potentialStudents.length === 0 ? (
-        <div className="waiting-list-empty">No potential students found.</div>
+      <h2 className="waiting-list-title">Waiting List</h2>
+      <p className="waiting-list-subtitle">Students interested in courses, waiting for class assignment</p>
+      
+      {/* Search and Filter Controls */}
+      <div className="waiting-list-controls">
+        <input
+          type="text"
+          placeholder="Search by name, email, phone..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="waiting-list-search"
+        />
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="waiting-list-status-filter"
+        >
+          <option value="">All Status</option>
+          <option value="waiting_for_class">Waiting for Class</option>
+          <option value="approved">Approved</option>
+          <option value="contacted">Contacted</option>
+        </select>
+      </div>
+
+      {filteredStudents.length === 0 ? (
+        <div className="waiting-list-empty">
+          {waitingStudents.length === 0 ? 'No waiting students found.' : 'No students match your search criteria.'}
+        </div>
       ) : (
-        <>
-          <div className="waiting-list-actions">
-            <button
-              className={`waiting-list-btn waiting-list-btn-primary ${bulkAction === 'convert' ? 'active' : ''}`}
-              onClick={() => { setBulkAction('convert'); setConfirmingBulk(false); }}
-              disabled={selectedIds.length === 0}
-            >Convert to User</button>
-            <button
-              className={`waiting-list-btn waiting-list-btn-secondary ${bulkAction === 'update_status' ? 'active' : ''}`}
-              onClick={() => { setBulkAction('update_status'); setConfirmingBulk(false); }}
-              disabled={selectedIds.length === 0}
-            >Update Status</button>
-            <button
-              className="waiting-list-btn waiting-list-btn-neutral"
-              onClick={selectAll}
-              disabled={selectedIds.length === potentialStudents.length}
-            >Select All</button>
-            <button
-              className="waiting-list-btn waiting-list-btn-neutral"
-              onClick={clearAll}
-              disabled={selectedIds.length === 0}
-            >Clear</button>
-          </div>
-          {bulkAction && (
-            <div className="waiting-list-bulk-section">
-              {bulkAction === 'update_status' && (
-                <select
-                  className="waiting-list-select"
-                  value={bulkStatus}
-                  onChange={e => setBulkStatus(e.target.value)}
-                >
-                  <option value="">Select status...</option>
-                  <option value="pending">Pending</option>
-                  <option value="contacted">Contacted</option>
-                  <option value="interviewed">Interviewed</option>
-                  <option value="approved">Approved</option>
-                  <option value="rejected">Rejected</option>
-                  <option value="enrolled">Enrolled</option>
-                </select>
-              )}
-              <div className="waiting-list-confirm-buttons">
-                <button
-                  className="waiting-list-confirm-btn waiting-list-confirm-btn-success"
-                  onClick={() => { setConfirmingBulk(true); }}
-                  disabled={bulkAction === 'update_status' && !bulkStatus}
-                >Confirm</button>
-                <button
-                  className="waiting-list-confirm-btn waiting-list-confirm-btn-cancel"
-                  onClick={() => { setBulkAction(null); setBulkStatus(''); setConfirmingBulk(false); }}
-                >Cancel</button>
-              </div>
-            </div>
-          )}
-          {confirmingBulk && (
-            <div className="waiting-list-modal">
-              <div className="waiting-list-modal-content">
-                <div className="waiting-list-modal-title">Confirm Bulk Action</div>
-                <div className="waiting-list-modal-message">Are you sure to {bulkAction === 'convert' ? 'convert selected potential students to regular users' : 'update status of selected potential students'}?</div>
-                <div className="waiting-list-modal-buttons">
-                  <button
-                    className="waiting-list-modal-btn waiting-list-modal-btn-cancel"
-                    onClick={() => setConfirmingBulk(false)}
-                  >Cancel</button>
-                  <button
-                    className="waiting-list-modal-btn waiting-list-modal-btn-confirm"
-                    onClick={bulkAction === 'convert' ? handleBulkConvert : handleBulkUpdateStatus}
-                  >Confirm</button>
-                </div>
-              </div>
-            </div>
-          )}
-          <div className="waiting-list-students">
-            {potentialStudents.map(student => (
-              <div
-                key={student._id}
-                className={`waiting-list-student-item ${selectedIds.includes(student._id) ? 'selected' : ''}`}
-              >
-                <input 
-                  type="checkbox" 
-                  checked={selectedIds.includes(student._id)} 
-                  onChange={() => toggleSelect(student._id)} 
-                  className="waiting-list-checkbox" 
+        <div className="waiting-list-students">
+          {filteredStudents.map(student => (
+            <div
+              key={student._id}
+              className="waiting-list-student-item"
+            >
+              <div className="waiting-list-student-info">
+                <img
+                  src={getAvatar(student)}
+                  alt="avatar"
+                  className="waiting-list-avatar"
                 />
-                <div className="waiting-list-student-info">
-                  <img
-                    src={getAvatar(student)}
-                    alt="avatar"
-                    className="waiting-list-avatar"
-                  />
-                  <div className="waiting-list-student-details">
+                <div className="waiting-list-student-details">
+                  <div className="waiting-list-student-main-info">
                     <span className="waiting-list-student-name">{getDisplayName(student)}</span>
-                    <span className="waiting-list-student-date">{getDateTime(student)}</span>
-                    <span className="waiting-list-student-email">{student.email}</span>
-                    <span className="waiting-list-student-status">Status: {student.status}</span>
+                    <span className="waiting-list-student-phone">📞 {getPhoneNumber(student)}</span>
                   </div>
+                  <div className="waiting-list-student-secondary-info">
+                    <span className="waiting-list-student-email">📧 {student.email}</span>
+                    <span className="waiting-list-student-date">📅 Added: {getDateTime(student)}</span>
+                  </div>
+                  <div className="waiting-list-student-programs">
+                    <span className="waiting-list-student-programs-label">🎯 Interested Programs:</span>
+                    <span className="waiting-list-student-programs-text">{getInterestedPrograms(student)}</span>
+                  </div>
+                  {student.preferredLevel && (
+                    <div className="waiting-list-student-level">
+                      <span className="waiting-list-student-level-label">📚 Preferred Level:</span>
+                      <span className="waiting-list-student-level-text">{student.preferredLevel}</span>
+                    </div>
+                  )}
+                  <div className="waiting-list-student-notes">
+                    <span className="waiting-list-student-notes-label">📝 Notes:</span>
+                    <span className="waiting-list-student-notes-text">{getNotes(student)}</span>
+                  </div>
+                  <span className="waiting-list-student-status">Status: {student.status}</span>
                 </div>
+              </div>
+              <div className="waiting-list-student-actions">
                 <select
-                  className="waiting-list-assign-select"
-                  value={pendingStatusUpdates[student._id] || student.status}
-                  onChange={e => handleStatusChange(student._id, e.target.value)}
+                  className="waiting-list-class-select"
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      handleAssignToClass(student._id, e.target.value);
+                    }
+                  }}
                 >
-                  <option value="pending">Pending</option>
-                  <option value="contacted">Contacted</option>
-                  <option value="interviewed">Interviewed</option>
-                  <option value="approved">Approved</option>
-                  <option value="rejected">Rejected</option>
-                  <option value="enrolled">Enrolled</option>
+                  <option value="">Assign to Class...</option>
+                  {classes.map(cls => (
+                    <option key={cls.id} value={cls.id}>
+                      {cls.name}
+                    </option>
+                  ))}
                 </select>
-                {pendingStatusUpdates[student._id] && pendingStatusUpdates[student._id] !== student.status && (
-                  <button
-                    className="waiting-list-confirm-assign-btn"
-                    onClick={() => handleConfirmStatusUpdate(student._id)}
-                    disabled={loadingStates[student._id]}
-                  >
-                    {loadingStates[student._id] ? 'Updating...' : 'Update'}
-                  </button>
-                )}
                 <button
-                  className="waiting-list-confirm-assign-btn"
-                  onClick={() => handleConvertToUser(student._id)}
+                  className="waiting-list-action-btn waiting-list-action-btn-secondary"
+                  onClick={() => handleMoveBackToPotential(student._id)}
                 >
-                  Convert to User
+                  Move to Potential
                 </button>
                 <button
-                  className="waiting-list-confirm-assign-btn"
-                  onClick={() => handleMoveToWaitingList(student._id)}
-                >
-                  Move to Waiting List
-                </button>
-                <button
-                  className="waiting-list-confirm-assign-btn"
-                  onClick={() => handleMoveToRecords(student._id)}
-                >
-                  Move to Records
-                </button>
-                <button
-                  className="waiting-list-delete-btn"
+                  className="waiting-list-action-btn waiting-list-action-btn-danger"
                   onClick={() => handleDelete(student._id)}
                 >
                   Delete
                 </button>
               </div>
-            ))}
-          </div>
-        </>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

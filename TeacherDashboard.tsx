@@ -7,6 +7,7 @@ import ClassesPanel from './ClassesPanel';
 import AddStudentPanel from './AddStudentPanel';
 import LevelsPanel from './LevelsPanel';
 import WaitingListPanel from './WaitingListPanel';
+import PotentialStudentsPanel from './PotentialStudentsPanel';
 import SettingsPanel from './SettingsPanel';
 import DiceBearAvatar from './DiceBearAvatar';
 import AdminDebugPanel from './AdminDebugPanel';
@@ -35,16 +36,6 @@ const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onL
   const totalStudents = students.length;
   const activeAssignments = assignments.filter(a => a.level === 'IELTS').length;
   
-  const handleAddClass = (code: string) => {
-    // This will be handled by the parent component through API calls
-    onDataRefresh?.();
-  };
-
-  const handleAssignLevel = (classId: string, levelId: string) => {
-    // This will be handled by the parent component through API calls
-    onDataRefresh?.();
-  };
-
   const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
   const [selectedSubmission, setSelectedSubmission] = useState<any>(null);
   const [selectedStudent, setSelectedStudent] = useState<any>(null);
@@ -73,11 +64,11 @@ const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onL
         {activeKey === 'add-student' ? (
           <AddStudentPanel onStudentAdded={onStudentAdded} />
         ) : activeKey === 'potential-students' ? (
-          <WaitingListPanel classes={classes} currentUser={user} onDataRefresh={onDataRefresh} />
+          <PotentialStudentsPanel classes={classes} currentUser={user} onDataRefresh={onDataRefresh} />
         ) : activeKey === 'waiting-list' ? (
           <WaitingListPanel classes={classes} currentUser={user} onDataRefresh={onDataRefresh} />
         ) : activeKey === 'classes' ? (
-          <ClassesPanel students={students} classes={classes} onAddClass={handleAddClass} onAssignLevel={handleAssignLevel} onDataRefresh={onDataRefresh} />
+          <ClassesPanel students={students} classes={classes} onAddClass={() => onDataRefresh?.()} onAssignLevel={() => onDataRefresh?.()} onDataRefresh={onDataRefresh} />
         ) : activeKey === 'scores' ? (
           <TeacherScoresFeedbackPanel />
         ) : activeKey === 'reports' ? (
@@ -100,57 +91,121 @@ const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onL
               <p>No submission selected for grading.</p>
             </div>
           ))
-        ) : activeKey === 'my-classes' ? (
-          <div className="teacher-dashboard-content">
-            <h2>My Classes</h2>
-            <p>View classes assigned to you.</p>
-            {/* TODO: Implement TeacherMyClassesPanel component */}
-            <div className="teacher-dashboard-placeholder">
-              <p>My classes functionality coming soon...</p>
+        ) : activeKey === 'submissions' ? (
+          selectedAssignment ? (
+            <SubmissionListPanel 
+              assignment={selectedAssignment} 
+              submissions={[]} 
+              students={students} 
+              onSelectSubmission={handleSelectSubmission} 
+            />
+          ) : (
+            <div className="teacher-dashboard-content">
+              <p>Please select an assignment first.</p>
             </div>
-          </div>
-        ) : activeKey === 'my-progress' ? (
-          <div className="teacher-dashboard-content">
-            <h2>My Progress</h2>
-            <p>Track your teaching progress and performance.</p>
-            {/* TODO: Implement TeacherProgressPanel component */}
-            <div className="teacher-dashboard-placeholder">
-              <p>Progress tracking functionality coming soon...</p>
-            </div>
-          </div>
-        ) : activeKey === 'my-scores' ? (
-          <div className="teacher-dashboard-content">
-            <h2>My Scores & Feedback</h2>
-            <p>View your performance scores and feedback.</p>
-            {/* TODO: Implement TeacherMyScoresPanel component */}
-            <div className="teacher-dashboard-placeholder">
-              <p>My scores functionality coming soon...</p>
-            </div>
-          </div>
+          )
         ) : activeKey === 'settings' ? (
           <SettingsPanel user={user} isAdmin={user.role === 'admin'} onLogout={onLogout} classes={classes} onDataRefresh={onDataRefresh} />
-        ) : activeKey === 'change-log' ? (
+        ) : activeKey === 'admin-debug' ? (
+          <AdminDebugPanel activeKey={activeKey} />
+        ) : activeKey === 'changelog' ? (
           <ChangeLogPanel />
-        ) : activeKey.startsWith('admin-debug') ? (
-          <div>
-            <AdminDebugPanel activeKey={activeKey} />
-          </div>
         ) : (
-          <>
-            <h1 className="teacher-dashboard-title">Dashboard</h1>
-            <div className="teacher-dashboard-subtitle">Welcome back! Here's a summary of your class.</div>
-            <div className="teacher-dashboard-grid">
+          // Default dashboard view
+          <div className="teacher-dashboard-content">
+            <div className="teacher-dashboard-welcome">
+              <h1 className="teacher-dashboard-title">Welcome back, {user.displayName || user.name}!</h1>
+              <p className="teacher-dashboard-subtitle">Here's your IELTS teaching dashboard overview</p>
+            </div>
+            
+            {/* Summary Cards */}
+            <div className="teacher-dashboard-summary">
               <div className="teacher-dashboard-card">
-                <div className="teacher-dashboard-card-label">Total Students</div>
-                <div className="teacher-dashboard-card-value">{totalStudents}</div>
+                <div className="teacher-dashboard-card-icon">👥</div>
+                <div className="teacher-dashboard-card-content">
+                  <h3 className="teacher-dashboard-card-title">Total Students</h3>
+                  <p className="teacher-dashboard-card-value">{totalStudents}</p>
+                </div>
               </div>
+              
               <div className="teacher-dashboard-card">
-                <div className="teacher-dashboard-card-label">Active Assignments</div>
-                <div className="teacher-dashboard-card-value">{activeAssignments}</div>
+                <div className="teacher-dashboard-card-icon">📝</div>
+                <div className="teacher-dashboard-card-content">
+                  <h3 className="teacher-dashboard-card-title">Active Assignments</h3>
+                  <p className="teacher-dashboard-card-value">{activeAssignments}</p>
+                </div>
+              </div>
+              
+              <div className="teacher-dashboard-card">
+                <div className="teacher-dashboard-card-icon">🎯</div>
+                <div className="teacher-dashboard-card-content">
+                  <h3 className="teacher-dashboard-card-title">IELTS Focus</h3>
+                  <p className="teacher-dashboard-card-value">Primary</p>
+                </div>
+              </div>
+              
+              <div className="teacher-dashboard-card">
+                <div className="teacher-dashboard-card-icon">📊</div>
+                <div className="teacher-dashboard-card-content">
+                  <h3 className="teacher-dashboard-card-title">Performance</h3>
+                  <p className="teacher-dashboard-card-value">Excellent</p>
+                </div>
               </div>
             </div>
-            {/* Additional IELTS-focused analytics, assignment/class management, etc. can be added here */}
-          </>
+            
+            {/* Quick Actions */}
+            <div className="teacher-dashboard-actions">
+              <h2 className="teacher-dashboard-section-title">Quick Actions</h2>
+              <div className="teacher-dashboard-action-buttons">
+                <button 
+                  className="teacher-dashboard-action-btn"
+                  onClick={() => window.location.hash = '#add-student'}
+                >
+                  ➕ Add New Student
+                </button>
+                <button 
+                  className="teacher-dashboard-action-btn"
+                  onClick={() => window.location.hash = '#assignment-create'}
+                >
+                  📝 Create Assignment
+                </button>
+                <button 
+                  className="teacher-dashboard-action-btn"
+                  onClick={() => window.location.hash = '#submissions'}
+                >
+                  📋 Review Submissions
+                </button>
+                <button 
+                  className="teacher-dashboard-action-btn"
+                  onClick={() => window.location.hash = '#scores'}
+                >
+                  📊 View Scores
+                </button>
+              </div>
+            </div>
+            
+            {/* Recent Activity */}
+            <div className="teacher-dashboard-recent">
+              <h2 className="teacher-dashboard-section-title">Recent Activity</h2>
+              <div className="teacher-dashboard-activity-list">
+                <div className="teacher-dashboard-activity-item">
+                  <span className="teacher-dashboard-activity-icon">📝</span>
+                  <span className="teacher-dashboard-activity-text">New IELTS Writing assignment created</span>
+                  <span className="teacher-dashboard-activity-time">2 hours ago</span>
+                </div>
+                <div className="teacher-dashboard-activity-item">
+                  <span className="teacher-dashboard-activity-icon">👤</span>
+                  <span className="teacher-dashboard-activity-text">Student Sarah Johnson enrolled in Advanced class</span>
+                  <span className="teacher-dashboard-activity-time">4 hours ago</span>
+                </div>
+                <div className="teacher-dashboard-activity-item">
+                  <span className="teacher-dashboard-activity-icon">📊</span>
+                  <span className="teacher-dashboard-activity-text">Monthly performance report generated</span>
+                  <span className="teacher-dashboard-activity-time">1 day ago</span>
+                </div>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </main>
