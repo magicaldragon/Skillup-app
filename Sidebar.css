@@ -1,23 +1,21 @@
-/* Sidebar.css */
+/* Ultimate vivid sidebar design */
 .sidebar {
-  background: linear-gradient(135deg, #fff 80%, #ffe9c2 100%);
+  background: linear-gradient(135deg, #fff 70%, #ffe9c2 100%);
   min-width: 260px;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 24px 0 0 0;
-  box-shadow: 2px 0 24px rgba(48, 118, 55, 0.12);
-}
-.sidebar-logo {
-  margin-bottom: 32px;
+  box-shadow: 2px 0 32px rgba(48, 118, 55, 0.13);
+  border-right: 2px solid #f5b802;
 }
 .sidebar-profile {
-  background: #fff;
+  background: rgba(255,255,255,0.95);
   border-radius: 18px;
-  box-shadow: 0 2px 12px rgba(48, 118, 55, 0.10);
+  box-shadow: 0 2px 16px rgba(48, 118, 55, 0.10);
   padding: 24px 18px 16px 18px;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -45,10 +43,10 @@
 .sidebar-profile-role {
   font-size: 0.98rem;
   font-weight: 600;
-  color: #295b37;
-  background: #ffe9c2;
+  color: #fff;
+  background: linear-gradient(90deg, #307637 60%, #f5b802 100%);
   border-radius: 8px;
-  padding: 2px 12px;
+  padding: 2px 16px;
   margin-bottom: 0.2rem;
   letter-spacing: 1.2px;
   box-shadow: 0 1px 4px #ffe9c2;
@@ -57,29 +55,28 @@
   width: 90%;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 14px;
 }
 .sidebar-btn {
-  background: #307637;
+  background: linear-gradient(90deg, #307637 80%, #295b37 100%);
   color: #fff;
   font-weight: bold;
-  font-size: 1.2rem;
-  border: 2px solid #295b37;
-  border-radius: 16px;
-  padding: 18px 0;
-  box-shadow: 0 2px 8px rgba(48, 118, 55, 0.12);
-  transition: background 0.2s, color 0.2s, box-shadow 0.2s, border 0.2s;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 14px;
+  padding: 14px 0;
+  box-shadow: 0 2px 8px rgba(48, 118, 55, 0.10);
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
   cursor: pointer;
   letter-spacing: 1px;
-  margin-bottom: 2px;
+  outline: none;
 }
 .sidebar-btn.active,
+.sidebar-btn:focus,
 .sidebar-btn:hover {
-  background: #f5b802;
+  background: linear-gradient(90deg, #f5b802 60%, #ffe9c2 100%);
   color: #307637;
-  border: 2px solid #f5b802;
   box-shadow: 0 4px 24px 0 #f5b802, 0 2px 8px #ffe9c2;
-  outline: none;
 }
 .sidebar-footer {
   margin-top: auto;
