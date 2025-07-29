@@ -111,7 +111,7 @@ const AccountsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow p-6 max-w-4xl mx-auto mt-8">
+    <div className="form-container">
       <h2 className="text-2xl font-bold mb-4">Accounts Management</h2>
       <p className="text-gray-600 mb-4">Manage all registered users including students, teachers, and admins</p>
       
@@ -137,7 +137,7 @@ const AccountsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
         {roleFilter && ` with role "${roleFilter}"`}
       </div>
       
-      <table className="w-full text-left">
+      <table className="custom-table">
         <thead className="bg-slate-50 border-b border-slate-200">
           <tr>
             <th className="p-2">Role</th>
@@ -178,21 +178,21 @@ const AccountsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
               </td>
               <td className="p-2 flex gap-2 items-center">
                 <button 
-                  className="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600 transition-colors" 
+                  className="form-btn bg-blue-500 text-white rounded text-xs hover:bg-blue-600 transition-colors" 
                   onClick={() => handleEdit(acc)} 
                   aria-label={`Edit account for ${acc.email}`}
                 >
                   Edit
                 </button>
                 <button 
-                  className="px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700 transition-colors" 
+                  className="form-btn bg-red-600 text-white rounded text-xs hover:bg-red-700 transition-colors" 
                   onClick={() => handleRemove(acc)} 
                   aria-label={`Delete account for ${acc.email}`}
                 >
                   Remove
                 </button>
                 <button 
-                  className="px-2 py-1 bg-yellow-500 text-white rounded text-xs hover:bg-yellow-600 transition-colors" 
+                  className="form-btn bg-yellow-500 text-white rounded text-xs hover:bg-yellow-600 transition-colors" 
                   onClick={() => handleResetPassword(acc)} 
                   disabled={resetting === acc.id}
                   aria-label={`Reset password for ${acc.email}`}
@@ -208,7 +208,7 @@ const AccountsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
       {/* Edit Modal */}
       {editing && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md vivid-card">
             <h3 className="text-xl font-bold mb-4">Edit Account</h3>
             <div className="space-y-3">
               <label className="block text-sm font-medium">Display Name
@@ -234,10 +234,10 @@ const AccountsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
               )}
             </div>
             <div className="flex gap-2 mt-4">
-              <button className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors" onClick={handleEditSave} disabled={loading} aria-label="Save account changes">
+              <button className="form-btn bg-green-600 text-white rounded hover:bg-green-700 transition-colors" onClick={handleEditSave} disabled={loading} aria-label="Save account changes">
                 {loading ? 'Saving...' : 'Save'}
               </button>
-              <button className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500 transition-colors" onClick={() => setEditing(null)} disabled={loading} aria-label="Cancel editing account">
+              <button className="form-btn bg-gray-400 text-white rounded hover:bg-gray-500 transition-colors" onClick={() => setEditing(null)} disabled={loading} aria-label="Cancel editing account">
                 Cancel
               </button>
             </div>

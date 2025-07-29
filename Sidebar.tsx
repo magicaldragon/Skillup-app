@@ -2,8 +2,8 @@
 // Professional, responsive sidebar navigation for all roles
 // Shows all sections for teachers/admins, limited for students
 // Modern design, clear icons, and role-based logic
-import React, { useState } from 'react';
-import { FaChalkboardTeacher, FaBook, FaUserGraduate, FaClipboardList, FaUsers, FaTasks, FaUserEdit, FaUserPlus, FaUserCheck, FaChartBar, FaHome, FaClipboardCheck, FaClipboard, FaUser, FaCheckCircle, FaTimesCircle, FaListAlt, FaMicrophone, FaPen, FaBookOpen, FaUserCog, FaFolderOpen, FaHourglassHalf, FaUserShield, FaUserTie, FaUserFriends, FaGem, FaArchive, FaSignOutAlt } from 'react-icons/fa';
+import { useState } from 'react';
+import { FaChalkboardTeacher, FaClipboardList, FaUsers, FaTasks, FaUserPlus, FaUserCheck, FaChartBar, FaHome, FaClipboardCheck, FaClipboard, FaUser, FaCheckCircle, FaTimesCircle, FaListAlt, FaMicrophone, FaPen, FaBookOpen, FaUserCog, FaFolderOpen, FaHourglassHalf, FaUserShield, FaUserTie, FaUserFriends, FaGem, FaArchive, FaSignOutAlt } from 'react-icons/fa';
 import './Sidebar.css';
 import DiceBearAvatar from './DiceBearAvatar';
 
@@ -146,7 +146,11 @@ const Sidebar = ({ role, activeKey, onNavigate, onLogout, user }: { role: string
   };
 
   return (
-    <aside className="sidebar sidebar-vivid" style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+    <aside className="sidebar">
+      {/* Logo section */}
+      <div className="sidebar-logo">
+        {/* You can place your logo image or text here */}
+      </div>
       {/* User profile section */}
       <div className="sidebar-profile">
         <div className="sidebar-profile-avatar">
@@ -159,8 +163,8 @@ const Sidebar = ({ role, activeKey, onNavigate, onLogout, user }: { role: string
         <div className="sidebar-profile-name">{user?.name || 'User'}</div>
         <div className="sidebar-profile-role">{role}</div>
       </div>
-      {/* Make nav scrollable but not the footer */}
-      <nav className="sidebar-nav" style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
+      {/* Main menu */}
+      <div className="sidebar-menu">
         {menu.map(item => {
           const hasChildren = !!item.children && item.children.some(child => child.visible);
           const isOpen = openSubmenus.has(item.key);
@@ -168,12 +172,12 @@ const Sidebar = ({ role, activeKey, onNavigate, onLogout, user }: { role: string
           return (
             <div key={item.key}>
               <button
-                className={`sidebar-menu-item vivid ${activeKey === item.key ? 'active' : ''}`}
+                className={`sidebar-btn${activeKey === item.key ? ' active' : ''}`}
                 onClick={() => handleMenuClick(item.key, hasChildren)}
               >
                 <span className="sidebar-menu-icon">{item.icon}</span> {item.label}
                 {hasChildren && (
-                  <span className={`sidebar-submenu-arrow ${isOpen ? 'open' : ''}`}>▶</span>
+                  <span className={`sidebar-submenu-arrow${isOpen ? ' open' : ''}`}>▶</span>
                 )}
               </button>
               {hasChildren && isOpen && (
@@ -184,12 +188,13 @@ const Sidebar = ({ role, activeKey, onNavigate, onLogout, user }: { role: string
                     return (
                       <div key={child.key}>
                         <button
-                          className={`sidebar-submenu-item vivid ${activeKey === child.key ? 'active' : ''}`}
+                          className={`sidebar-btn${activeKey === child.key ? ' active' : ''}`}
                           onClick={() => hasGrandChildren ? handleMenuClick(child.key, true) : onNavigate(child.key)}
+                          style={{ marginLeft: 16 }}
                         >
                           <span className="sidebar-menu-icon">{child.icon}</span> {child.label}
                           {hasGrandChildren && (
-                            <span className={`sidebar-submenu-arrow ${isChildOpen ? 'open' : ''}`}>▶</span>
+                            <span className={`sidebar-submenu-arrow${isChildOpen ? ' open' : ''}`}>▶</span>
                           )}
                         </button>
                         {hasGrandChildren && isChildOpen && (
@@ -197,8 +202,9 @@ const Sidebar = ({ role, activeKey, onNavigate, onLogout, user }: { role: string
                             {child.children.filter(grandChild => grandChild.visible).map(grandChild => (
                               <button
                                 key={grandChild.key}
-                                className={`sidebar-submenu-item vivid ${activeKey === grandChild.key ? 'active' : ''}`}
+                                className={`sidebar-btn${activeKey === grandChild.key ? ' active' : ''}`}
                                 onClick={() => onNavigate(grandChild.key)}
+                                style={{ marginLeft: 32 }}
                               >
                                 <span className="sidebar-menu-icon">{grandChild.icon}</span> {grandChild.label}
                               </button>
@@ -213,18 +219,18 @@ const Sidebar = ({ role, activeKey, onNavigate, onLogout, user }: { role: string
             </div>
           );
         })}
-      </nav>
+      </div>
       {/* Settings and Logout at the bottom, always visible */}
-      <div className="sidebar-footer" style={{ flexShrink: 0 }}>
+      <div className="sidebar-footer">
         <button
-          className={`sidebar-settings-btn ${activeKey === 'settings' ? 'active' : ''}`}
+          className={`sidebar-btn${activeKey === 'settings' ? ' active' : ''}`}
           onClick={() => onNavigate('settings')}
         >
           <span className="sidebar-menu-icon"><FaUserCog /></span> Settings
         </button>
         {onLogout && (
           <button
-            className="sidebar-logout-btn"
+            className="sidebar-btn"
             onClick={onLogout}
           >
             <span className="sidebar-menu-icon"><FaSignOutAlt /></span> Logout

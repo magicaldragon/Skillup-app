@@ -86,3 +86,19 @@
   flex-direction: column;
   gap: 12px;
 }
+/* Add vivid sidebar submenu and divider styles */
+.sidebar-submenu {
+  background: linear-gradient(90deg, #fff 90%, #ffe9c2 100%);
+  border-radius: 12px;
+  margin: 6px 0 6px 12px;
+  padding: 6px 0 6px 8px;
+  box-shadow: 0 1px 4px rgba(245, 184, 2, 0.07);
+  border-left: 3px solid #f5b802;
+}
+.sidebar-divider {
+  width: 80%;
+  height: 2px;
+  background: linear-gradient(90deg, #ffe9c2 0%, #f5b802 100%);
+  border-radius: 2px;
+  margin: 18px auto 12px auto;
+}
