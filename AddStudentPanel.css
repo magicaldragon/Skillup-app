@@ -1,0 +1,218 @@
+/* AddStudentPanel.css - Professional custom form styling */
+
+.add-student-panel {
+  display: flex;
+  flex-direction: row;
+  gap: 2.5rem;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem;
+  max-width: 1100px;
+  align-items: flex-start;
+}
+
+.add-student-card {
+  flex: 1;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 6px 32px rgba(48, 118, 55, 0.10), 0 1.5px 0 #b6e2c6;
+  padding: 2.5rem 2rem 2rem 2rem;
+  border: 2px solid #b6e2c6;
+  min-width: 340px;
+}
+
+.add-student-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.add-student-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #307637;
+  letter-spacing: 0.5px;
+}
+
+.add-student-subtitle {
+  font-size: 1rem;
+  color: #14532d;
+  background: #e6f4ea;
+  padding: 0.3rem 1rem;
+  border-radius: 8px;
+  font-weight: 500;
+  margin-left: 1.5rem;
+}
+
+.add-student-alert {
+  margin-bottom: 1.2rem;
+  padding: 1rem 1.2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+}
+.add-student-alert-error {
+  background: #fef2f2;
+  border: 1.5px solid #fca5a5;
+  color: #b91c1c;
+}
+.add-student-alert-success {
+  background: #f0fdf4;
+  border: 1.5px solid #bbf7d0;
+  color: #166534;
+}
+.add-student-alert-title {
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+}
+.add-student-alert-message {
+  white-space: pre-line;
+}
+
+.add-student-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.3rem;
+}
+
+.add-student-label {
+  display: block;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #14532d;
+  margin-bottom: 0.4rem;
+}
+
+.add-student-input,
+.add-student-select,
+.add-student-textarea {
+  width: 100%;
+  padding: 0.7rem 1rem;
+  border: 1.5px solid #b6e2c6;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #14532d;
+  background: #f6fff8;
+  transition: border 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+.add-student-input:focus,
+.add-student-select:focus,
+.add-student-textarea:focus {
+  border: 1.5px solid #307637;
+  box-shadow: 0 0 0 2px #bbf7d0;
+  background: #fff;
+}
+.add-student-input[disabled],
+.add-student-select[disabled],
+.add-student-textarea[disabled] {
+  background: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.add-student-btn-row {
+  display: flex;
+  justify-content: flex-end;
+}
+.add-student-btn {
+  padding: 0.7rem 2.2rem;
+  background: linear-gradient(90deg, #307637 0%, #65b891 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(48, 118, 55, 0.13);
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+}
+.add-student-btn:hover:not([disabled]) {
+  background: linear-gradient(90deg, #14532d 0%, #307637 100%);
+  box-shadow: 0 6px 24px rgba(48, 118, 55, 0.18);
+  transform: translateY(-2px) scale(1.03);
+}
+.add-student-btn:disabled {
+  background: #b6e2c6;
+  color: #fff;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.add-student-hint {
+  font-size: 0.92rem;
+  margin-top: 0.2rem;
+}
+.add-student-hint-checking {
+  color: #307637;
+}
+.add-student-hint-error {
+  color: #dc2626;
+}
+
+.add-student-preview {
+  width: 350px;
+  min-width: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.add-student-preview-card {
+  padding: 2rem 1.5rem;
+  background: linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 100%);
+  border: 2px solid #b6e2c6;
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgba(48, 118, 55, 0.10);
+  width: 100%;
+}
+.add-student-preview-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #307637;
+  margin-bottom: 1.2rem;
+  text-align: center;
+}
+.add-student-preview-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  font-size: 1.05rem;
+  color: #14532d;
+}
+.add-student-preview-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.add-student-preview-label {
+  font-weight: 600;
+}
+.add-student-preview-value {
+  font-family: 'Fira Mono', 'Consolas', monospace;
+  background: #bbf7d0;
+  padding: 0.2rem 0.7rem;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+.add-student-preview-note {
+  font-size: 0.98rem;
+  color: #307637;
+  margin-top: 1.2rem;
+  text-align: center;
+  font-style: italic;
+}
+
+@media (max-width: 900px) {
+  .add-student-panel {
+    flex-direction: column;
+    gap: 2rem;
+    padding: 1.5rem 0.5rem;
+    align-items: stretch;
+  }
+  .add-student-preview {
+    width: 100%;
+    min-width: 0;
+    margin-top: 1.5rem;
+  }
+}

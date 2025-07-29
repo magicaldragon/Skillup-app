@@ -4,6 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { userRegistrationService, NewUserData } from './services/userRegistrationService';
 import { safeTrim, isEmpty, isNotEmpty } from './utils/stringUtils';
+import './AddStudentPanel.css';
 
 const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) => {
   const [form, setForm] = useState({
@@ -171,56 +172,38 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
 
   // --- UI Layout: Two columns ---
   return (
-    <div className="flex flex-row gap-8">
+    <div className="add-student-panel">
       {/* Left: Form */}
-      <div className="flex-1 bg-white rounded-lg shadow-md p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">Add New Member</h2>
-          <div className="text-sm text-gray-500">
+      <div className="add-student-card">
+        <div className="add-student-header">
+          <h2 className="add-student-title">Add New Member</h2>
+          <div className="add-student-subtitle">
             {form.role === 'student' ? 'Student (Added to Accounts + Potential Students)' : form.role === 'teacher' ? 'Teacher (Added to Accounts)' : 'Admin (Added to Accounts)'} Registration
           </div>
         </div>
         {error && (
-          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <h3 className="text-sm font-medium text-red-800">Error</h3>
-                <div className="mt-2 text-sm text-red-700">{error}</div>
-              </div>
-            </div>
+          <div className="add-student-alert add-student-alert-error">
+            <div className="add-student-alert-title">Error</div>
+            <div className="add-student-alert-message">{error}</div>
           </div>
         )}
         {success && (
-          <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-md">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <h3 className="text-sm font-medium text-green-800">Success</h3>
-                <div className="mt-2 text-sm text-green-700 whitespace-pre-line">{success}</div>
-              </div>
-            </div>
+          <div className="add-student-alert add-student-alert-success">
+            <div className="add-student-alert-title">Success</div>
+            <div className="add-student-alert-message">{success}</div>
           </div>
         )}
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="add-student-form">
           {/* Role Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="add-student-label">
               Member Type *
             </label>
             <select
               name="role"
               value={form.role}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="add-student-select"
             >
               <option value="student">Student</option>
               <option value="teacher">Teacher</option>
@@ -229,7 +212,7 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
           </div>
           {/* Full Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="add-student-label">
               Full Name *
             </label>
             <input
@@ -238,13 +221,13 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
               value={form.fullname}
               onChange={handleChange}
               placeholder="Enter full name"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="add-student-input"
               required
             />
           </div>
           {/* Username (editable) */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="add-student-label">
               Username *
             </label>
             <input
@@ -253,15 +236,15 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
               value={form.username}
               onChange={handleUsernameChange}
               placeholder="Enter username"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="add-student-input"
               required
             />
-            {checkingUsername && <div className="text-xs text-green-500 mt-1">Checking username...</div>}
-            {usernameError && <div className="text-xs text-red-500 mt-1">{usernameError}</div>}
+            {checkingUsername && <div className="add-student-hint add-student-hint-checking">Checking username...</div>}
+            {usernameError && <div className="add-student-hint add-student-hint-error">{usernameError}</div>}
           </div>
           {/* English Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="add-student-label">
               English Name (Optional)
             </label>
             <input
@@ -270,12 +253,12 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
               value={form.englishName}
               onChange={handleChange}
               placeholder="Enter English name"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="add-student-input"
             />
           </div>
           {/* Phone */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="add-student-label">
               Phone Number (Optional)
             </label>
             <input
@@ -284,12 +267,12 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
               value={form.phone}
               onChange={handleChange}
               placeholder="Enter phone number"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="add-student-input"
             />
           </div>
           {/* Date of Birth */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="add-student-label">
               Date of Birth (Optional)
             </label>
             <input
@@ -297,19 +280,19 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
               name="dob"
               value={form.dob}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="add-student-input"
             />
           </div>
           {/* Gender */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="add-student-label">
               Gender (Optional)
             </label>
             <select
               name="gender"
               value={form.gender}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="add-student-select"
             >
               <option value="male">Male</option>
               <option value="female">Female</option>
@@ -318,7 +301,7 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
           </div>
           {/* Notes */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="add-student-label">
               Notes (Optional)
             </label>
             <textarea
@@ -327,15 +310,15 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
               onChange={handleChange}
               rows={3}
               placeholder="Enter any additional notes"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+              className="add-student-textarea"
             />
           </div>
           {/* Submit Button */}
-          <div className="flex justify-end">
+          <div className="add-student-btn-row">
             <button
               type="submit"
               disabled={loading || isEmpty(form.fullname) || isEmpty(form.username) || !!usernameError}
-              className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="add-student-btn"
             >
               {loading ? 'Creating User...' : 'Create User'}
             </button>
@@ -343,25 +326,25 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
         </form>
       </div>
       {/* Right: Credentials Preview */}
-      <div className="w-96 flex items-center justify-center">
+      <div className="add-student-preview">
         {generatedCredentials && (
-          <div className="p-6 bg-gradient-to-br from-green-50 to-emerald-100 border-2 border-green-300 rounded-lg shadow-lg">
-            <h4 className="text-lg font-semibold text-green-900 mb-4 text-center">Generated Credentials Preview:</h4>
-            <div className="space-y-3 text-base text-green-800">
-              <div className="flex justify-between items-center">
-                <span className="font-medium">Username:</span>
-                <span className="font-mono bg-green-200 px-2 py-1 rounded">{generatedCredentials.username}</span>
+          <div className="add-student-preview-card">
+            <h4 className="add-student-preview-title">Generated Credentials Preview:</h4>
+            <div className="add-student-preview-list">
+              <div className="add-student-preview-row">
+                <span className="add-student-preview-label">Username:</span>
+                <span className="add-student-preview-value">{generatedCredentials.username}</span>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="font-medium">Email:</span>
-                <span className="font-mono bg-green-200 px-2 py-1 rounded text-sm">{generatedCredentials.email}</span>
+              <div className="add-student-preview-row">
+                <span className="add-student-preview-label">Email:</span>
+                <span className="add-student-preview-value">{generatedCredentials.email}</span>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="font-medium">Password:</span>
-                <span className="font-mono bg-green-200 px-2 py-1 rounded">{generatedCredentials.password}</span>
+              <div className="add-student-preview-row">
+                <span className="add-student-preview-label">Password:</span>
+                <span className="add-student-preview-value">{generatedCredentials.password}</span>
               </div>
             </div>
-            <p className="text-sm text-green-700 mt-4 text-center italic">
+            <p className="add-student-preview-note">
               These credentials will be automatically generated and the user can log in immediately.
             </p>
           </div>
