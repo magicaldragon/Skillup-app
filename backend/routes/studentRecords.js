@@ -2,10 +2,10 @@ const express = require('express');
 const router = express.Router();
 const StudentRecord = require('../models/StudentRecord');
 const User = require('../models/User');
-const auth = require('../middleware/auth');
+const { verifyToken } = require('./auth');
 
 // Get all student records with filtering
-router.get('/', auth, async (req, res) => {
+router.get('/', verifyToken, async (req, res) => {
   try {
     const {
       studentId, action, category, performedBy,
@@ -59,7 +59,7 @@ router.get('/', auth, async (req, res) => {
 });
 
 // Get student records by student ID
-router.get('/student/:studentId', auth, async (req, res) => {
+router.get('/student/:studentId', verifyToken, async (req, res) => {
   try {
     const { studentId } = req.params;
     const { action, category, page = 1, limit = 20 } = req.query;
@@ -101,7 +101,7 @@ router.get('/student/:studentId', auth, async (req, res) => {
 });
 
 // Get student record by ID
-router.get('/:id', auth, async (req, res) => {
+router.get('/:id', verifyToken, async (req, res) => {
   try {
     const record = await StudentRecord.findById(req.params.id)
       .populate('studentId', 'name email')
@@ -130,7 +130,7 @@ router.get('/:id', auth, async (req, res) => {
 });
 
 // Create new student record
-router.post('/', auth, async (req, res) => {
+router.post('/', verifyToken, async (req, res) => {
   try {
     const {
       studentId, studentName, action, category, details,
@@ -195,7 +195,7 @@ router.post('/', auth, async (req, res) => {
 });
 
 // Update student record
-router.put('/:id', auth, async (req, res) => {
+router.put('/:id', verifyToken, async (req, res) => {
   try {
     const record = await StudentRecord.findById(req.params.id);
     
@@ -231,7 +231,7 @@ router.put('/:id', auth, async (req, res) => {
 });
 
 // Delete student record (soft delete)
-router.delete('/:id', auth, async (req, res) => {
+router.delete('/:id', verifyToken, async (req, res) => {
   try {
     const record = await StudentRecord.findById(req.params.id);
     
@@ -260,7 +260,7 @@ router.delete('/:id', auth, async (req, res) => {
 });
 
 // Get student records statistics
-router.get('/stats/overview', auth, async (req, res) => {
+router.get('/stats/overview', verifyToken, async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
     const dateFilter = {};
@@ -316,7 +316,7 @@ router.get('/stats/overview', auth, async (req, res) => {
 });
 
 // Get student activity timeline
-router.get('/student/:studentId/timeline', auth, async (req, res) => {
+router.get('/student/:studentId/timeline', verifyToken, async (req, res) => {
   try {
     const { studentId } = req.params;
     const { limit = 50 } = req.query;

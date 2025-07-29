@@ -3,10 +3,10 @@ const router = express.Router();
 const PotentialStudent = require('../models/PotentialStudent');
 const User = require('../models/User');
 const StudentRecord = require('../models/StudentRecord');
-const auth = require('../middleware/auth');
+const { verifyToken } = require('./auth');
 
 // Get all potential students
-router.get('/', auth, async (req, res) => {
+router.get('/', verifyToken, async (req, res) => {
   try {
     const { status, assignedTo, source, page = 1, limit = 20 } = req.query;
     const filter = {};
@@ -47,7 +47,7 @@ router.get('/', auth, async (req, res) => {
 });
 
 // Get potential student by ID
-router.get('/:id', auth, async (req, res) => {
+router.get('/:id', verifyToken, async (req, res) => {
   try {
     const potentialStudent = await PotentialStudent.findById(req.params.id)
       .populate('assignedTo', 'name email');
@@ -73,7 +73,7 @@ router.get('/:id', auth, async (req, res) => {
 });
 
 // Create new potential student
-router.post('/', auth, async (req, res) => {
+router.post('/', verifyToken, async (req, res) => {
   try {
     const {
       name, englishName, email, phone, gender, dob,
@@ -128,7 +128,7 @@ router.post('/', auth, async (req, res) => {
 });
 
 // Update potential student
-router.put('/:id', auth, async (req, res) => {
+router.put('/:id', verifyToken, async (req, res) => {
   try {
     const potentialStudent = await PotentialStudent.findById(req.params.id);
     
@@ -164,7 +164,7 @@ router.put('/:id', auth, async (req, res) => {
 });
 
 // Update potential student status
-router.patch('/:id/status', auth, async (req, res) => {
+router.patch('/:id/status', verifyToken, async (req, res) => {
   try {
     const { status } = req.body;
     const potentialStudent = await PotentialStudent.findById(req.params.id);
@@ -205,7 +205,7 @@ router.patch('/:id/status', auth, async (req, res) => {
 });
 
 // Convert potential student to regular user
-router.post('/:id/convert', auth, async (req, res) => {
+router.post('/:id/convert', verifyToken, async (req, res) => {
   try {
     const potentialStudent = await PotentialStudent.findById(req.params.id);
     
@@ -263,7 +263,7 @@ router.post('/:id/convert', auth, async (req, res) => {
 });
 
 // Delete potential student
-router.delete('/:id', auth, async (req, res) => {
+router.delete('/:id', verifyToken, async (req, res) => {
   try {
     const potentialStudent = await PotentialStudent.findById(req.params.id);
     
@@ -290,7 +290,7 @@ router.delete('/:id', auth, async (req, res) => {
 });
 
 // Get potential student statistics
-router.get('/stats/overview', auth, async (req, res) => {
+router.get('/stats/overview', verifyToken, async (req, res) => {
   try {
     const stats = await PotentialStudent.aggregate([
       {
