@@ -172,36 +172,36 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
 
   // --- UI Layout: Two columns ---
   return (
-    <div className="add-student-panel">
+    <div className="form-container">
       {/* Left: Form */}
-      <div className="add-student-card">
-        <div className="add-student-header">
-          <h2 className="add-student-title">Add New Member</h2>
+      <div className="form-card">
+        <div className="form-header">
+          <h2 className="form-title">Add New Member</h2>
           {/* Removed the registration label for a cleaner look */}
         </div>
         {error && (
-          <div className="add-student-alert add-student-alert-error">
-            <div className="add-student-alert-title">Error</div>
-            <div className="add-student-alert-message">{error}</div>
+          <div className="form-alert form-alert-error">
+            <div className="form-alert-title">Error</div>
+            <div className="form-alert-message">{error}</div>
           </div>
         )}
         {success && (
-          <div className="add-student-alert add-student-alert-success">
-            <div className="add-student-alert-title">Success</div>
-            <div className="add-student-alert-message">{success}</div>
+          <div className="form-alert form-alert-success">
+            <div className="form-alert-title">Success</div>
+            <div className="form-alert-message">{success}</div>
           </div>
         )}
-        <form onSubmit={handleSubmit} className="add-student-form">
+        <form onSubmit={handleSubmit} className="form-form">
           {/* Role Selection */}
           <div>
-            <label className="add-student-label">
+            <label className="form-label">
               Member Type *
             </label>
             <select
               name="role"
               value={form.role}
               onChange={handleChange}
-              className="add-student-select"
+              className="form-select"
             >
               <option value="student">Student</option>
               <option value="teacher">Teacher</option>
@@ -211,7 +211,7 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
           </div>
           {/* Full Name */}
           <div>
-            <label className="add-student-label">
+            <label className="form-label">
               Full Name *
             </label>
             <input
@@ -220,13 +220,13 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
               value={form.fullname}
               onChange={handleChange}
               placeholder="Enter full name"
-              className="add-student-input"
+              className="form-input"
               required
             />
           </div>
           {/* Username (editable) */}
           <div>
-            <label className="add-student-label">
+            <label className="form-label">
               Username *
             </label>
             <input
@@ -235,15 +235,15 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
               value={form.username}
               onChange={handleUsernameChange}
               placeholder="Enter username"
-              className="add-student-input"
+              className="form-input"
               required
             />
-            {checkingUsername && <div className="add-student-hint add-student-hint-checking">Checking username...</div>}
-            {usernameError && <div className="add-student-hint add-student-hint-error">{usernameError}</div>}
+            {checkingUsername && <div className="form-hint form-hint-checking">Checking username...</div>}
+            {usernameError && <div className="form-hint form-hint-error">{usernameError}</div>}
           </div>
           {/* English Name */}
           <div>
-            <label className="add-student-label">
+            <label className="form-label">
               English Name (Optional)
             </label>
             <input
@@ -252,12 +252,12 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
               value={form.englishName}
               onChange={handleChange}
               placeholder="Enter English name"
-              className="add-student-input"
+              className="form-input"
             />
           </div>
           {/* Phone */}
           <div>
-            <label className="add-student-label">
+            <label className="form-label">
               Phone Number (Optional)
             </label>
             <input
@@ -266,12 +266,12 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
               value={form.phone}
               onChange={handleChange}
               placeholder="Enter phone number"
-              className="add-student-input"
+              className="form-input"
             />
           </div>
           {/* Date of Birth */}
           <div>
-            <label className="add-student-label">
+            <label className="form-label">
               Date of Birth (Optional)
             </label>
             <input
@@ -279,19 +279,19 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
               name="dob"
               value={form.dob}
               onChange={handleChange}
-              className="add-student-input"
+              className="form-input"
             />
           </div>
           {/* Gender */}
           <div>
-            <label className="add-student-label">
+            <label className="form-label">
               Gender (Optional)
             </label>
             <select
               name="gender"
               value={form.gender}
               onChange={handleChange}
-              className="add-student-select"
+              className="form-select"
             >
               <option value="male">Male</option>
               <option value="female">Female</option>
@@ -300,7 +300,7 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
           </div>
           {/* Notes */}
           <div>
-            <label className="add-student-label">
+            <label className="form-label">
               Notes (Optional)
             </label>
             <textarea
@@ -309,15 +309,15 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
               onChange={handleChange}
               rows={3}
               placeholder="Enter any additional notes"
-              className="add-student-textarea"
+              className="form-textarea"
             />
           </div>
           {/* Submit Button */}
-          <div className="add-student-btn-row">
+          <div className="form-btn-row">
             <button
               type="submit"
               disabled={loading || isEmpty(form.fullname) || isEmpty(form.username) || !!usernameError}
-              className="add-student-btn"
+              className="form-btn"
             >
               {loading ? 'Creating User...' : 'Create User'}
             </button>
@@ -325,25 +325,25 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
         </form>
       </div>
       {/* Right: Credentials Preview */}
-      <div className="add-student-preview">
+      <div className="form-preview">
         {generatedCredentials && (
-          <div className="add-student-preview-card">
-            <h4 className="add-student-preview-title">Generated Credentials Preview:</h4>
-            <div className="add-student-preview-list">
-              <div className="add-student-preview-row">
-                <span className="add-student-preview-label">Username:</span>
-                <span className="add-student-preview-value">{generatedCredentials.username}</span>
+          <div className="form-preview-card">
+            <h4 className="form-preview-title">Generated Credentials Preview:</h4>
+            <div className="form-preview-list">
+              <div className="form-preview-row">
+                <span className="form-preview-label">Username:</span>
+                <span className="form-preview-value">{generatedCredentials.username}</span>
               </div>
-              <div className="add-student-preview-row">
-                <span className="add-student-preview-label">Email:</span>
-                <span className="add-student-preview-value">{generatedCredentials.email}</span>
+              <div className="form-preview-row">
+                <span className="form-preview-label">Email:</span>
+                <span className="form-preview-value">{generatedCredentials.email}</span>
               </div>
-              <div className="add-student-preview-row">
-                <span className="add-student-preview-label">Password:</span>
-                <span className="add-student-preview-value">{generatedCredentials.password}</span>
+              <div className="form-preview-row">
+                <span className="form-preview-label">Password:</span>
+                <span className="form-preview-value">{generatedCredentials.password}</span>
               </div>
             </div>
-            <p className="add-student-preview-note">
+            <p className="form-preview-note">
               These credentials will be automatically generated and the user can log in immediately.
             </p>
           </div>

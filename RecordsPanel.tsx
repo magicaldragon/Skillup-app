@@ -170,7 +170,7 @@ const RecordsPanel = () => {
           <h3>Error Loading Records</h3>
           <p>{error}</p>
           <button 
-            className="records-retry-btn"
+            className="form-btn"
             onClick={fetchRecords}
           >
             Try Again
@@ -194,7 +194,7 @@ const RecordsPanel = () => {
             placeholder="Search records..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="records-search-input"
+            className="form-input"
           />
         </div>
         
@@ -202,7 +202,7 @@ const RecordsPanel = () => {
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value as any)}
-            className="records-filter-select"
+            className="form-select"
           >
             <option value="all">All Categories</option>
             <option value="academic">Academic</option>
@@ -274,7 +274,7 @@ const RecordsPanel = () => {
       {pagination.pages > 1 && (
         <div className="records-pagination">
           <button 
-            className="records-page-btn"
+            className="form-btn"
             onClick={() => handlePageChange(pagination.page - 1)}
             disabled={pagination.page <= 1}
           >
@@ -284,7 +284,7 @@ const RecordsPanel = () => {
             Page {pagination.page} of {pagination.pages}
           </span>
           <button 
-            className="records-page-btn"
+            className="form-btn"
             onClick={() => handlePageChange(pagination.page + 1)}
             disabled={pagination.page >= pagination.pages}
           >
@@ -295,7 +295,7 @@ const RecordsPanel = () => {
 
       <div className="records-footer">
         <button 
-          className="records-refresh-btn"
+          className="form-btn"
           onClick={fetchRecords}
         >
           Refresh Records

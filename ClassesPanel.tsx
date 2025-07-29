@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { isEmpty } from './utils/stringUtils';
 import type { Student, StudentClass } from './types';
 import type { Level } from './types';
+import './ClassesPanel.css';
 
 const getNextClassCode = (classes: StudentClass[]) => {
   const codes = classes.map(c => parseInt(c.name.replace('SU-', ''), 10)).filter(n => !isNaN(n));
@@ -184,24 +185,24 @@ const ClassesPanel = ({ students, classes, onAddClass, onAssignLevel, onDataRefr
   const classStudents = selectedClass ? students.filter(s => (s.classIds || []).includes(selectedClass.id)) : [];
 
   return (
-    <div className="bg-white rounded-xl shadow p-6 max-w-2xl mx-auto mt-8">
+    <div className="form-container">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">Classes</h2>
         <input
-          className="p-2 border rounded mr-2"
+          className="form-input"
           placeholder="Search classes by name, code, or level..."
           value={classSearch}
           onChange={e => setClassSearch(e.target.value)}
         />
         <button
-          className="px-4 py-2 bg-[#307637] text-white rounded shadow hover:bg-[#245929]"
+          className="form-btn"
           onClick={handleAddClass}
           disabled={adding}
         >
           {adding ? 'Adding...' : 'Add New Class'}
         </button>
       </div>
-      <table className="w-full text-left">
+      <table className="custom-table">
         <thead className="bg-slate-50 border-b border-slate-200">
           <tr>
             <th className="p-2">Code</th>
@@ -216,14 +217,14 @@ const ClassesPanel = ({ students, classes, onAddClass, onAssignLevel, onDataRefr
             <tr key={c.id} className={selectedClassId === c.id ? 'bg-green-100 border-2 border-green-500' : ''} onClick={() => setSelectedClassId(c.id)} style={{ cursor: 'pointer' }}>
               <td className="p-2 font-semibold select-none">{c.name}</td>
               <td className="p-2 select-none">{editId === c.id ? (
-                <input value={editName} onChange={e => setEditName(e.target.value)} className="p-2 border rounded" autoFocus />
+                <input value={editName} onChange={e => setEditName(e.target.value)} className="form-input" autoFocus />
               ) : (
                 <span className="select-none">{c.name}</span>
               )}</td>
               <td className="p-2 select-none">
                 {editId === c.id ? (
                   <select
-                    className="p-2 border rounded"
+                    className="form-select"
                     value={classLevels[c.id] || ''}
                     onChange={e => setClassLevels(prev => ({ ...prev, [c.id]: e.target.value }))}
                   >
@@ -238,11 +239,11 @@ const ClassesPanel = ({ students, classes, onAddClass, onAssignLevel, onDataRefr
                 {selectedClassId === c.id && (
                   <>
                     {editId === c.id ? (
-                      <button className="px-4 py-2 bg-green-600 text-white rounded" onClick={e => { e.stopPropagation(); handleEditClass(c.id, editName, classLevels[c.id] || ''); }}>Confirm</button>
+                      <button className="form-btn" onClick={e => { e.stopPropagation(); handleEditClass(c.id, editName, classLevels[c.id] || ''); }}>Confirm</button>
                     ) : (
                       <>
-                        <button className="px-4 py-2 bg-yellow-500 text-white rounded" onClick={e => { e.stopPropagation(); setEditId(c.id); setEditName(c.name); }}>Edit</button>
-                        <button className="px-4 py-2 bg-red-600 text-white rounded" onClick={e => { e.stopPropagation(); handleDeleteClass(c.id); }}>Delete</button>
+                        <button className="form-btn" onClick={e => { e.stopPropagation(); setEditId(c.id); setEditName(c.name); }}>Edit</button>
+                        <button className="form-btn" onClick={e => { e.stopPropagation(); handleDeleteClass(c.id); }}>Delete</button>
                       </>
                     )}
                   </>
@@ -257,10 +258,10 @@ const ClassesPanel = ({ students, classes, onAddClass, onAssignLevel, onDataRefr
         <div className="mt-8 p-6 bg-slate-100 rounded-xl shadow">
           <h3 className="text-xl font-bold mb-4">Class Details: {selectedClass.name}</h3>
           <div className="flex gap-2 mb-4">
-            <button className="px-4 py-2 bg-blue-600 text-white rounded" onClick={() => setManaging(true)}>Manage</button>
+            <button className="form-btn" onClick={() => setManaging(true)}>Manage</button>
           </div>
           {managing && classStudents.length > 0 && (
-            <table className="w-full text-left mb-4">
+            <table className="custom-table mb-4">
               <thead>
                 <tr>
                   <th className="p-2">Student</th>
@@ -277,27 +278,27 @@ const ClassesPanel = ({ students, classes, onAddClass, onAssignLevel, onDataRefr
                     </td>
                     <td className="p-2">
                       {editStudentId === s.id ? (
-                        <input value={editStudentName} onChange={e => setEditStudentName(e.target.value)} className="p-2 border rounded" autoFocus />
+                        <input value={editStudentName} onChange={e => setEditStudentName(e.target.value)} className="form-input" autoFocus />
                       ) : (
                         <>{s.displayName || ''}</>
                       )}
                     </td>
                     <td className="p-2 flex gap-2 items-center">
                       {editStudentId === s.id ? (
-                        <button className="px-3 py-1 bg-green-600 text-white rounded" onClick={() => handleEditStudent(s.id, editStudentName)}>Confirm</button>
+                        <button className="form-btn" onClick={() => handleEditStudent(s.id, editStudentName)}>Confirm</button>
                       ) : (
                         <>
-                          <button className="px-3 py-1 bg-yellow-500 text-white rounded" onClick={() => { setEditStudentId(s.id); setEditStudentName(s.displayName || ''); }}>Edit</button>
+                          <button className="form-btn" onClick={() => { setEditStudentId(s.id); setEditStudentName(s.displayName || ''); }}>Edit</button>
                           {/* Assign to another class dropdown */}
-                          <select className="px-2 py-1 border rounded" onChange={e => handleAssignStudent(s.id, e.target.value)} defaultValue="">
+                          <select className="form-select" onChange={e => handleAssignStudent(s.id, e.target.value)} defaultValue="">
                             <option value="" disabled>Assign to another class</option>
                             {classes.filter(c2 => c2.id !== selectedClass.id).map(c2 => (
                               <option key={c2.id} value={c2.id}>{c2.name}</option>
                             ))}
                           </select>
                           {/* Remove from class and return to waiting list */}
-                          <button className="px-3 py-1 bg-red-600 text-white rounded" onClick={() => handleRemoveStudent(s.id)}>Remove & Return to Waiting List</button>
-                          <button className="px-3 py-1 bg-blue-500 text-white rounded" onClick={() => handleReportStudent(s.id)}>Report</button>
+                          <button className="form-btn" onClick={() => handleRemoveStudent(s.id)}>Remove & Return to Waiting List</button>
+                          <button className="form-btn" onClick={() => handleReportStudent(s.id)}>Report</button>
                         </>
                       )}
                     </td>
@@ -316,7 +317,7 @@ const ClassesPanel = ({ students, classes, onAddClass, onAssignLevel, onDataRefr
           <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
             <h3 className="text-xl font-bold mb-4">Report Student</h3>
             <textarea
-              className="w-full p-2 border rounded mb-4"
+              className="w-full p-2 border rounded mb-4 form-input"
               rows={4}
               placeholder="Describe the issue or note..."
               value={reportNote}
@@ -324,8 +325,8 @@ const ClassesPanel = ({ students, classes, onAddClass, onAssignLevel, onDataRefr
               autoFocus
             />
             <div className="flex gap-2 justify-end">
-              <button className="px-4 py-2 bg-gray-400 text-white rounded" onClick={() => setReportingStudentId(null)} disabled={reportSending}>Cancel</button>
-              <button className="px-4 py-2 bg-pink-600 text-white rounded" onClick={() => handleSendReport(reportingStudentId)} disabled={reportSending || isEmpty(reportNote)}>{reportSending ? 'Sending...' : 'Send'}</button>
+              <button className="form-btn" onClick={() => setReportingStudentId(null)} disabled={reportSending}>Cancel</button>
+              <button className="form-btn" onClick={() => handleSendReport(reportingStudentId)} disabled={reportSending || isEmpty(reportNote)}>{reportSending ? 'Sending...' : 'Send'}</button>
             </div>
           </div>
         </div>

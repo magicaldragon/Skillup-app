@@ -237,7 +237,7 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
           <h3>Error Loading Waiting Students</h3>
           <p>{error}</p>
           <button 
-            className="waiting-list-retry-btn"
+            className="form-btn waiting-list-retry-btn"
             onClick={fetchWaitingStudents}
           >
             Try Again
@@ -259,12 +259,12 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
           placeholder="Search by name, email, phone..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="waiting-list-search"
+          className="form-input waiting-list-search"
         />
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="waiting-list-status-filter"
+          className="form-select waiting-list-status-filter"
         >
           <option value="">All Status</option>
           <option value="waiting_for_class">Waiting for Class</option>
@@ -318,7 +318,7 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
               </div>
               <div className="waiting-list-student-actions">
                 <select
-                  className="waiting-list-class-select"
+                  className="form-select waiting-list-class-select"
                   onChange={(e) => {
                     if (e.target.value) {
                       handleAssignToClass(student._id, e.target.value);
@@ -333,13 +333,13 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
                   ))}
                 </select>
                   <button
-                  className="waiting-list-action-btn waiting-list-action-btn-secondary"
+                  className="form-btn waiting-list-action-btn waiting-list-action-btn-secondary"
                   onClick={() => handleMoveBackToPotential(student._id)}
                   >
                   Move to Potential
                   </button>
                   <button
-                  className="waiting-list-action-btn waiting-list-action-btn-danger"
+                  className="form-btn waiting-list-action-btn waiting-list-action-btn-danger"
                   onClick={() => handleDelete(student._id)}
                   >
                     Delete
