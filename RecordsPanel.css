@@ -172,6 +172,15 @@
   color: #1d4ed8;
 }
 
+.records-category {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: #f1f5f9;
+  color: #475569;
+}
+
 .records-date {
   font-size: 0.9rem;
   color: #64748b;
@@ -186,16 +195,54 @@
 
 .records-student-info,
 .records-details,
-.records-performed-by {
+.records-performed-by,
+.records-related-class,
+.records-related-assignment {
   font-size: 1rem;
   line-height: 1.5;
 }
 
 .records-student-info strong,
 .records-details strong,
-.records-performed-by strong {
+.records-performed-by strong,
+.records-related-class strong,
+.records-related-assignment strong {
   color: #374151;
   font-weight: 600;
+}
+
+.records-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.records-page-btn {
+  padding: 0.5rem 1rem;
+  background: #307637;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.records-page-btn:hover:not(:disabled) {
+  background: #245929;
+}
+
+.records-page-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.records-page-info {
+  font-size: 1rem;
+  color: #64748b;
+  font-weight: 500;
 }
 
 .records-footer {
@@ -307,5 +354,10 @@
   
   .records-title {
     font-size: 1.5rem;
+  }
+  
+  .records-pagination {
+    flex-direction: column;
+    gap: 0.5rem;
   }
 }

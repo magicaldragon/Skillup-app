@@ -4,26 +4,51 @@ import './RecordsPanel.css';
 
 const API_BASE_URL = 'https://skillup-backend-v6vm.onrender.com/api';
 
-interface Record {
-  id: string;
-  studentId: string;
+interface StudentRecord {
+  _id: string;
+  studentId: {
+    _id: string;
+    name: string;
+    email: string;
+  };
   studentName: string;
   action: string;
-  details: string;
-  date: string;
-  performedBy: string;
+  category: string;
+  details: any;
+  relatedClass?: {
+    _id: string;
+    name: string;
+  };
+  relatedAssignment?: {
+    _id: string;
+    title: string;
+  };
+  performedBy: {
+    _id: string;
+    name: string;
+    email: string;
+  };
+  performedByName: string;
+  timestamp: string;
+  isActive: boolean;
 }
 
 const RecordsPanel = () => {
-  const [records, setRecords] = useState<Record[]>([]);
+  const [records, setRecords] = useState<StudentRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<'all' | 'assignments' | 'deletions' | 'updates'>('all');
+  const [filter, setFilter] = useState<'all' | 'academic' | 'administrative' | 'financial' | 'attendance' | 'assessment'>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 20,
+    total: 0,
+    pages: 0
+  });
 
   useEffect(() => {
     fetchRecords();
-  }, []);
+  }, [pagination.page]);
 
   const fetchRecords = async () => {
     setLoading(true);
@@ -37,7 +62,16 @@ const RecordsPanel = () => {
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/change-logs`, {
+      const params = new URLSearchParams({
+        page: pagination.page.toString(),
+        limit: pagination.limit.toString()
+      });
+
+      if (filter !== 'all') {
+        params.append('category', filter);
+      }
+
+      const response = await fetch(`${API_BASE_URL}/student-records?${params}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -49,7 +83,12 @@ const RecordsPanel = () => {
 
       const data = await response.json();
       if (data.success) {
-        setRecords(data.logs || []);
+        setRecords(data.records || []);
+        setPagination(prev => ({
+          ...prev,
+          total: data.pagination.total,
+          pages: data.pagination.pages
+        }));
       } else {
         throw new Error(data.message || 'Failed to fetch records');
       }
@@ -62,16 +101,12 @@ const RecordsPanel = () => {
   };
 
   const filteredRecords = records.filter(record => {
-    const matchesFilter = filter === 'all' || 
-      (filter === 'assignments' && record.action.includes('assign')) ||
-      (filter === 'deletions' && record.action.includes('delete')) ||
-      (filter === 'updates' && record.action.includes('update'));
-    
     const matchesSearch = record.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          record.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         record.details.toLowerCase().includes(searchTerm.toLowerCase());
+                         record.performedByName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (record.details && typeof record.details === 'string' && record.details.toLowerCase().includes(searchTerm.toLowerCase()));
     
-    return matchesFilter && matchesSearch;
+    return matchesSearch;
   });
 
   const formatDate = (dateString: string) => {
@@ -79,10 +114,43 @@ const RecordsPanel = () => {
   };
 
   const getActionColor = (action: string) => {
-    if (action.includes('delete')) return 'records-action-delete';
-    if (action.includes('assign')) return 'records-action-assign';
-    if (action.includes('update')) return 'records-action-update';
+    if (action.includes('delete') || action.includes('withdrawal')) return 'records-action-delete';
+    if (action.includes('enrollment') || action.includes('assign')) return 'records-action-assign';
+    if (action.includes('update') || action.includes('grade')) return 'records-action-update';
     return 'records-action-default';
+  };
+
+  const getActionDisplayName = (action: string) => {
+    const actionMap: { [key: string]: string } = {
+      'enrollment': 'Enrollment',
+      'class_assignment': 'Class Assignment',
+      'class_removal': 'Class Removal',
+      'grade_update': 'Grade Update',
+      'attendance': 'Attendance',
+      'payment': 'Payment',
+      'withdrawal': 'Withdrawal',
+      're_enrollment': 'Re-enrollment',
+      'profile_update': 'Profile Update',
+      'status_change': 'Status Change',
+      'note_added': 'Note Added',
+      'test_result': 'Test Result'
+    };
+    return actionMap[action] || action.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  };
+
+  const getCategoryDisplayName = (category: string) => {
+    const categoryMap: { [key: string]: string } = {
+      'academic': 'Academic',
+      'administrative': 'Administrative',
+      'financial': 'Financial',
+      'attendance': 'Attendance',
+      'assessment': 'Assessment'
+    };
+    return categoryMap[category] || category;
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setPagination(prev => ({ ...prev, page: newPage }));
   };
 
   if (loading) {
@@ -137,10 +205,12 @@ const RecordsPanel = () => {
             onChange={(e) => setFilter(e.target.value as any)}
             className="records-filter-select"
           >
-            <option value="all">All Actions</option>
-            <option value="assignments">Assignments</option>
-            <option value="deletions">Deletions</option>
-            <option value="updates">Updates</option>
+            <option value="all">All Categories</option>
+            <option value="academic">Academic</option>
+            <option value="administrative">Administrative</option>
+            <option value="financial">Financial</option>
+            <option value="attendance">Attendance</option>
+            <option value="assessment">Assessment</option>
           </select>
         </div>
       </div>
@@ -148,11 +218,15 @@ const RecordsPanel = () => {
       <div className="records-stats">
         <div className="records-stat">
           <span className="records-stat-label">Total Records</span>
-          <span className="records-stat-value">{records.length}</span>
+          <span className="records-stat-value">{pagination.total}</span>
         </div>
         <div className="records-stat">
           <span className="records-stat-label">Filtered</span>
           <span className="records-stat-value">{filteredRecords.length}</span>
+        </div>
+        <div className="records-stat">
+          <span className="records-stat-label">Current Page</span>
+          <span className="records-stat-value">{pagination.page} / {pagination.pages}</span>
         </div>
       </div>
 
@@ -163,12 +237,13 @@ const RecordsPanel = () => {
       ) : (
         <div className="records-list">
           {filteredRecords.map((record) => (
-            <div key={record.id} className="records-item">
+            <div key={record._id} className="records-item">
               <div className="records-item-header">
                 <span className={`records-action ${getActionColor(record.action)}`}>
-                  {record.action}
+                  {getActionDisplayName(record.action)}
                 </span>
-                <span className="records-date">{formatDate(record.date)}</span>
+                <span className="records-category">{getCategoryDisplayName(record.category)}</span>
+                <span className="records-date">{formatDate(record.timestamp)}</span>
               </div>
               
               <div className="records-item-content">
@@ -176,14 +251,46 @@ const RecordsPanel = () => {
                   <strong>Student:</strong> {record.studentName}
                 </div>
                 <div className="records-details">
-                  <strong>Details:</strong> {record.details}
+                  <strong>Details:</strong> {record.details ? JSON.stringify(record.details) : 'No details available'}
                 </div>
                 <div className="records-performed-by">
-                  <strong>Performed by:</strong> {record.performedBy}
+                  <strong>Performed by:</strong> {record.performedByName}
                 </div>
+                {record.relatedClass && (
+                  <div className="records-related-class">
+                    <strong>Related Class:</strong> {record.relatedClass.name}
+                  </div>
+                )}
+                {record.relatedAssignment && (
+                  <div className="records-related-assignment">
+                    <strong>Related Assignment:</strong> {record.relatedAssignment.title}
+                  </div>
+                )}
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {pagination.pages > 1 && (
+        <div className="records-pagination">
+          <button 
+            className="records-page-btn"
+            onClick={() => handlePageChange(pagination.page - 1)}
+            disabled={pagination.page <= 1}
+          >
+            Previous
+          </button>
+          <span className="records-page-info">
+            Page {pagination.page} of {pagination.pages}
+          </span>
+          <button 
+            className="records-page-btn"
+            onClick={() => handlePageChange(pagination.page + 1)}
+            disabled={pagination.page >= pagination.pages}
+          >
+            Next
+          </button>
         </div>
       )}
 

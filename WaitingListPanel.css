@@ -24,6 +24,63 @@
   padding: 2rem;
 }
 
+.waiting-list-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  color: #64748b;
+}
+
+.waiting-list-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e2e8f0;
+  border-top: 4px solid #307637;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.waiting-list-error {
+  text-align: center;
+  padding: 3rem;
+  color: #dc2626;
+}
+
+.waiting-list-error h3 {
+  margin-bottom: 1rem;
+  color: #dc2626;
+}
+
+.waiting-list-error p {
+  margin-bottom: 1.5rem;
+  color: #64748b;
+}
+
+.waiting-list-retry-btn {
+  padding: 0.75rem 2rem;
+  background: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.waiting-list-retry-btn:hover {
+  background: #b91c1c;
+  transform: translateY(-1px);
+}
+
 .waiting-list-actions {
   display: flex;
   justify-content: center;
@@ -196,6 +253,19 @@
 .waiting-list-student-date {
   font-size: 0.75rem;
   color: #64748b;
+}
+
+.waiting-list-student-email {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.waiting-list-student-status {
+  font-size: 0.75rem;
+  color: #dc2626;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
 .waiting-list-assign-select {

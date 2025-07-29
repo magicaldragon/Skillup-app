@@ -73,9 +73,9 @@ const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onL
         {activeKey === 'add-student' ? (
           <AddStudentPanel onStudentAdded={onStudentAdded} />
         ) : activeKey === 'potential-students' ? (
-          <WaitingListPanel students={students} classes={classes} currentUser={user} onDataRefresh={onDataRefresh} />
+          <WaitingListPanel classes={classes} currentUser={user} onDataRefresh={onDataRefresh} />
         ) : activeKey === 'waiting-list' ? (
-          <WaitingListPanel students={students} classes={classes} currentUser={user} onDataRefresh={onDataRefresh} />
+          <WaitingListPanel classes={classes} currentUser={user} onDataRefresh={onDataRefresh} />
         ) : activeKey === 'classes' ? (
           <ClassesPanel students={students} classes={classes} onAddClass={handleAddClass} onAssignLevel={handleAssignLevel} onDataRefresh={onDataRefresh} />
         ) : activeKey === 'scores' ? (
