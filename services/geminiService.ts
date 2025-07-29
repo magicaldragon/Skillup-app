@@ -1,12 +1,13 @@
 
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { safeTrim } from '../utils/stringUtils';
 import type { GenerateContentResponse } from "@google/genai";
 
 if (!process.env.API_KEY) {
   throw new Error("API_KEY environment variable not set");
 }
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const ai = new GoogleGenerativeAI({ apiKey: process.env.API_KEY });
 
 const assignmentSchema = {
   type: Type.OBJECT,
@@ -79,9 +80,9 @@ Good luck!`;
       }
     });
 
-    const jsonText = (response.text || '').trim();
+    const jsonText = safeTrim(response.text || '');
     // In case the response is wrapped in markdown json block
-    const sanitizedJson = (jsonText.replace(/^```json/, '').replace(/```$/, '') || '').trim();
+    const sanitizedJson = safeTrim(jsonText.replace(/^```json/, '').replace(/```$/, '') || '');
     return JSON.parse(sanitizedJson);
 
   } catch (error) {

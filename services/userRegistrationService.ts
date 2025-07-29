@@ -1,6 +1,7 @@
 // User Registration Service for Hybrid Auth System
 import { auth } from './firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { safeTrim } from '../utils/stringUtils';
 
 const API_BASE_URL = 'https://skillup-backend-v6vm.onrender.com/api';
 
@@ -33,11 +34,10 @@ class UserRegistrationService {
   // Generate username from full name
   private generateUsername(fullname: string, role: string): string {
     // Remove special characters and convert to lowercase
-    const cleanName = fullname
+    const cleanName = safeTrim(fullname)
       .toLowerCase()
       .replace(/[^a-z0-9\s]/g, '')
-      .replace(/\s+/g, '')
-      .trim();
+      .replace(/\s+/g, '');
     
     // Generate base username (no role prefix, just clean name)
     let username = cleanName;

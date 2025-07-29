@@ -1,5 +1,6 @@
 import { auth } from './firebase';
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { safeTrim } from '../../utils/stringUtils';
 
 const API_BASE_URL = 'https://skillup-backend-v6vm.onrender.com/api';
 
@@ -33,7 +34,7 @@ class AuthService {
       }
 
       // Ensure email is trimmed and valid
-      const email = credentials.email.trim();
+      const email = safeTrim(credentials.email);
       const password = credentials.password;
 
       if (!email || !password) {
