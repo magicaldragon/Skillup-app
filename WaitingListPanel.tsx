@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import type { Student, StudentClass } from './types';
+import { useState, useEffect } from 'react';
+import type { StudentClass } from './types';
 import './WaitingListPanel.css';
 
 const API_BASE_URL = 'https://skillup-backend-v6vm.onrender.com/api';
@@ -24,7 +24,7 @@ interface WaitingStudent {
   updatedAt: string;
 }
 
-const WaitingListPanel = ({ classes, currentUser, onDataRefresh }: { classes: StudentClass[], currentUser: Student, onDataRefresh?: () => void }) => {
+const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[], onDataRefresh?: () => void }) => {
   const [waitingStudents, setWaitingStudents] = useState<WaitingStudent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -294,21 +294,21 @@ const WaitingListPanel = ({ classes, currentUser, onDataRefresh }: { classes: St
                   <div className="waiting-list-student-main-info">
                     <span className="waiting-list-student-name">{getDisplayName(student)}</span>
                     <span className="waiting-list-student-phone">📞 {getPhoneNumber(student)}</span>
-                  </div>
+              </div>
                   <div className="waiting-list-student-secondary-info">
                     <span className="waiting-list-student-email">📧 {student.email}</span>
                     <span className="waiting-list-student-date">📅 Added: {getDateTime(student)}</span>
-                  </div>
+            </div>
                   <div className="waiting-list-student-programs">
                     <span className="waiting-list-student-programs-label">🎯 Interested Programs:</span>
                     <span className="waiting-list-student-programs-text">{getInterestedPrograms(student)}</span>
-                  </div>
+                </div>
                   {student.preferredLevel && (
                     <div className="waiting-list-student-level">
                       <span className="waiting-list-student-level-label">📚 Preferred Level:</span>
                       <span className="waiting-list-student-level-text">{student.preferredLevel}</span>
-                    </div>
-                  )}
+            </div>
+          )}
                   <div className="waiting-list-student-notes">
                     <span className="waiting-list-student-notes-label">📝 Notes:</span>
                     <span className="waiting-list-student-notes-text">{getNotes(student)}</span>
@@ -332,18 +332,18 @@ const WaitingListPanel = ({ classes, currentUser, onDataRefresh }: { classes: St
                     </option>
                   ))}
                 </select>
-                <button
+                  <button
                   className="waiting-list-action-btn waiting-list-action-btn-secondary"
                   onClick={() => handleMoveBackToPotential(student._id)}
-                >
+                  >
                   Move to Potential
-                </button>
-                <button
+                  </button>
+                  <button
                   className="waiting-list-action-btn waiting-list-action-btn-danger"
                   onClick={() => handleDelete(student._id)}
-                >
-                  Delete
-                </button>
+                  >
+                    Delete
+                  </button>
               </div>
             </div>
           ))}

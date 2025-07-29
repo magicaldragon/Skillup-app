@@ -23,7 +23,7 @@ const DICEBEAR_STYLES = [
   { label: 'Fun Emoji', value: 'fun-emoji' },
 ];
 
-const SettingsPanel = ({ user, isAdmin, onLogout, classes, onDataRefresh }: { user: Student, isAdmin: boolean, onLogout?: () => void, classes: StudentClass[], onDataRefresh?: () => void }) => {
+const SettingsPanel = ({ user, classes, onDataRefresh }: { user: Student, classes: StudentClass[], onDataRefresh?: () => void }) => {
   const [form, setForm] = useState({
     dob: user.dob || '',
     phone: user.phone || '',
@@ -126,25 +126,20 @@ const SettingsPanel = ({ user, isAdmin, onLogout, classes, onDataRefresh }: { us
 
   // Modern card + dark mode
   return (
-    <div className={`max-w-xl mx-auto mt-10 p-0 rounded-3xl shadow-2xl border border-green-200 bg-gradient-to-br ${darkMode ? 'from-slate-900 to-slate-800 text-slate-100' : 'from-green-50 to-white text-slate-900'} transition-colors duration-500`}>
-      <div className="flex flex-row items-center gap-8 p-8">
-        {/* DiceBear Avatar with customization */}
-        <div className="flex flex-col items-center gap-2">
-          {avatarUrl ? (
-            <>
-              <img src={avatarUrl} alt="User Avatar" className="w-24 h-24 rounded-full border-4 border-green-300 shadow-lg object-cover bg-slate-100" />
-              <button
-                type="button"
-                onClick={handleRemoveAvatar}
-                className="mt-2 px-2 py-1 bg-red-200 rounded text-xs font-semibold hover:bg-red-300"
-                disabled={avatarUploading}
-              >
-                Remove Avatar
-              </button>
-            </>
-          ) : (
-            <DiceBearAvatar seed={avatarSeed} size={96} style={avatarStyle} />
-          )}
+    <div className={`max-w-2xl mx-auto mt-12 p-0 rounded-3xl shadow-2xl border-4 border-green-500 bg-gradient-to-br from-green-50 via-white to-green-100 relative overflow-hidden idcard transition-colors duration-500`} style={{ minHeight: 420 }}>
+      {/* Watermark or background pattern */}
+      <div className="absolute inset-0 opacity-10 pointer-events-none select-none" style={{ background: 'url(/logo-skillup.png) center/30% no-repeat' }} />
+      <div className="flex flex-row items-center gap-12 p-10 z-10 relative">
+        {/* Avatar and badge */}
+        <div className="flex flex-col items-center gap-3">
+          <div className="relative">
+            {avatarUrl ? (
+              <img src={avatarUrl} alt="User Avatar" className="w-32 h-32 rounded-2xl border-4 border-green-400 shadow-xl object-cover bg-slate-100" />
+            ) : (
+              <DiceBearAvatar seed={avatarSeed} size={128} style={avatarStyle} />
+            )}
+            <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-green-600 text-white text-xs font-bold shadow-md border-2 border-white uppercase tracking-widest" style={{ letterSpacing: 2 }}>{user.role}</span>
+          </div>
           <div className="flex gap-2 mt-2">
             <select
               value={avatarStyle}
@@ -172,69 +167,70 @@ const SettingsPanel = ({ user, isAdmin, onLogout, classes, onDataRefresh }: { us
             {avatarError && <span className="text-xs text-red-600">{avatarError}</span>}
           </div>
         </div>
+        {/* Info section */}
         <div className="flex-1">
           <div className="flex items-center gap-4 mb-2">
-            <span className="text-2xl font-bold tracking-wide">{user.name}</span>
-            <span className="text-lg text-green-700 font-semibold">{user.displayName}</span>
+            <span className="text-3xl font-extrabold tracking-wide text-green-900 drop-shadow">{user.name}</span>
+            {user.displayName && <span className="text-xl text-green-700 font-semibold">{user.displayName}</span>}
           </div>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-sm font-medium text-slate-500">Role:</span>
-            <span className="text-sm font-semibold text-green-800 capitalize">{user.role}</span>
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-base font-medium text-slate-500">Role:</span>
+            <span className="text-base font-semibold text-green-800 capitalize">{user.role}</span>
           </div>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-sm font-medium text-slate-500">Current Classes:</span>
-            <span className="text-sm font-semibold text-green-800">{currentClasses.length ? currentClasses.join(', ') : 'None'}</span>
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-base font-medium text-slate-500">Current Classes:</span>
+            <span className="text-base font-semibold text-green-800">{currentClasses.length ? currentClasses.join(', ') : 'None'}</span>
           </div>
           <div className="flex items-center gap-4 mt-4">
             <label className="flex items-center cursor-pointer gap-2">
               <input type="checkbox" checked={darkMode} onChange={toggleDarkMode} className="accent-green-600 w-5 h-5" />
-              <span className="text-sm font-semibold">Dark Mode</span>
+              <span className="text-base font-semibold">Dark Mode</span>
             </label>
           </div>
         </div>
       </div>
-      <form onSubmit={handleSave} className="px-8 pb-8 pt-0 space-y-5">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <form onSubmit={handleSave} className="px-10 pb-10 pt-0 space-y-6 z-10 relative">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
-            <label className="block text-sm font-medium mb-1">Full Name</label>
+            <label className="block text-base font-medium mb-1">Full Name</label>
             <input
               type="text"
               name="name"
               value={user.name}
               disabled
-              className="w-full p-2 border rounded bg-slate-100 cursor-not-allowed text-slate-400"
+              className="w-full p-3 border-2 border-green-200 rounded-lg bg-slate-100 cursor-not-allowed text-slate-400 text-lg"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">English Name</label>
+            <label className="block text-base font-medium mb-1">English Name</label>
             <input
               type="text"
               name="displayName"
               value={user.displayName || ''}
               disabled
-              className="w-full p-2 border rounded bg-slate-100 cursor-not-allowed text-slate-400"
+              className="w-full p-3 border-2 border-green-200 rounded-lg bg-slate-100 cursor-not-allowed text-slate-400 text-lg"
             />
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
-            <label className="block text-sm font-medium mb-1">Date of Birth</label>
+            <label className="block text-base font-medium mb-1">Date of Birth</label>
             <input
               type="date"
               name="dob"
               value={form.dob}
               onChange={handleChange}
-              className="w-full p-2 border rounded"
+              className="w-full p-3 border-2 border-green-200 rounded-lg text-lg"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Phone Number</label>
+            <label className="block text-base font-medium mb-1">Phone Number</label>
             <input
               type="tel"
               name="phone"
               value={form.phone}
               onChange={handleChange}
-              className="w-full p-2 border rounded"
+              className="w-full p-3 border-2 border-green-200 rounded-lg text-lg"
             />
           </div>
         </div>
@@ -243,7 +239,7 @@ const SettingsPanel = ({ user, isAdmin, onLogout, classes, onDataRefresh }: { us
         {edited && (
           <button
             type="submit"
-            className="px-4 py-2 bg-[#307637] text-white rounded shadow hover:bg-[#245929] w-full mt-2"
+            className="px-6 py-3 bg-[#307637] text-white rounded-xl shadow-lg hover:bg-[#245929] w-full mt-2 text-lg font-bold tracking-wide"
             disabled={loading}
           >
             {loading ? 'Saving...' : 'Save Changes'}

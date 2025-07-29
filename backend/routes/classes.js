@@ -2,6 +2,8 @@ const express = require('express');
 const { verifyToken } = require('./auth');
 const router = express.Router();
 const ChangeLog = require('../models/ChangeLog');
+const StudentRecord = require('../models/StudentRecord');
+const User = require('../models/User');
 
 // Mock data for now - in production this would come from a database
 let classes = [
@@ -321,6 +323,21 @@ router.post('/:id/students', verifyToken, async (req, res) => {
       details: { before, after },
       ip: req.ip
     });
+
+    // After successfully adding the student
+    // Fetch student and class info
+    const student = await User.findById(studentId);
+    const classObj = classes[classIndex];
+    if (student && classObj) {
+      await StudentRecord.createClassAssignmentRecord(
+        student._id,
+        student.name,
+        req.user.id,
+        req.user.name,
+        classObj.id,
+        classObj.name
+      );
+    }
 
     res.json({
       success: true,

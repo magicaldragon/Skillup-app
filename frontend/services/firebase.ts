@@ -5,7 +5,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyBfKDCo7PrTevI1XUCY3FvH6bED8AWSnnw",
   authDomain: "skillup-3beaf.firebaseapp.com",
   projectId: "skillup-3beaf",
-  storageBucket: "skillup-3beaf.firebasestorage.app",
+  storageBucket: "skillup-3beaf.appspot.com",
   messagingSenderId: "715786145271",
   appId: "1:715786145271:web:7115826d1172113c9832f2",
   measurementId: "G-03QYTPLVQG"
