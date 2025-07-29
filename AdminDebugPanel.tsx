@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import SystemHealthPanel from './admin-debug/SystemHealthPanel';
 import ApiErrorLogsPanel from './admin-debug/ApiErrorLogsPanel';
 import UserSyncStatusPanel from './admin-debug/UserSyncStatusPanel';
 import ManualToolsPanel from './admin-debug/ManualToolsPanel';
 import FrontendStatusPanel from './admin-debug/FrontendStatusPanel';
 import BackendStatusPanel from './admin-debug/BackendStatusPanel';
+import type { Student } from './types';
 
 const panels = {
   'admin-debug-health': <SystemHealthPanel />,
@@ -15,30 +16,85 @@ const panels = {
   'admin-debug-backend': <BackendStatusPanel />,
 };
 
+const API_BASE_URL = 'https://skillup-backend-v6vm.onrender.com/api';
+
+interface ApiUsage {
+  geminiRequests: number;
+  lastReset: string;
+  estimatedCost: string;
+}
+
 const AdminDebugPanel = ({ activeKey }: { activeKey: string }) => {
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'Not set';
-  const isLoggedIn = !!localStorage.getItem('token') || document.cookie.includes('session');
-  
-  return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-6">Admin Debug Panel</h1>
-      <div className="mb-4 p-2 bg-slate-100 rounded">
-        <div><b>API Base URL:</b> {apiBaseUrl}</div>
-        <div><b>Session/Token Present:</b> {isLoggedIn ? 'Yes' : 'No'}</div>
-      </div>
-      {activeKey === 'admin-debug-frontend' && <FrontendStatusPanel />}
-      {activeKey === 'admin-debug-backend' && <BackendStatusPanel />}
-      {panels[activeKey] ? (
-        panels[activeKey]
-      ) : (
-        <div className="p-4 bg-yellow-100 rounded">
-          <strong>No panel found for key:</strong> "{activeKey}"
-          <br />
-          <strong>Available keys:</strong> {Object.keys(panels).join(', ')}
+  const [apiUsage, setApiUsage] = useState<ApiUsage | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (activeKey === 'admin-debug-api-usage') {
+      fetchApiUsage();
+    }
+  }, [activeKey]);
+
+  const fetchApiUsage = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('authToken');
+      const response = await fetch(`${API_BASE_URL}/usage`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setApiUsage(data.usage);
+      }
+    } catch (error) {
+      console.error('Error fetching API usage:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (activeKey === 'admin-debug-api-usage') {
+    return (
+      <div className="admin-debug-panel">
+        <h2>API Usage Monitoring</h2>
+        <div className="admin-debug-section">
+          <h3>Cost Tracking</h3>
+          {loading ? (
+            <p>Loading usage data...</p>
+          ) : apiUsage ? (
+            <div className="usage-stats">
+              <div className="usage-stat">
+                <strong>Gemini API Requests:</strong> {apiUsage.geminiRequests}
+              </div>
+              <div className="usage-stat">
+                <strong>Estimated Cost:</strong> {apiUsage.estimatedCost}
+              </div>
+              <div className="usage-stat">
+                <strong>Last Reset:</strong> {new Date(apiUsage.lastReset).toLocaleString()}
+              </div>
+              <div className="usage-warning">
+                <strong>⚠️ Free Tier Limits:</strong>
+                <ul>
+                  <li>Gemini: 15 requests/minute, 1,500 requests/day</li>
+                  <li>MongoDB: 512MB storage</li>
+                  <li>Render: 750 hours/month</li>
+                </ul>
+              </div>
+            </div>
+          ) : (
+            <p>Failed to load usage data</p>
+          )}
+          <button onClick={fetchApiUsage} disabled={loading}>
+            Refresh Usage Data
+          </button>
         </div>
-      )}
-    </div>
-  );
+      </div>
+    );
+  }
+
+  return null;
 };
 
 export default AdminDebugPanel; 

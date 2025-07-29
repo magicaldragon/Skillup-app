@@ -8,20 +8,34 @@ const auth = require('../middleware/auth');
 // Get all potential students
 router.get('/', auth, async (req, res) => {
   try {
-    const { status, assignedTo, source } = req.query;
+    const { status, assignedTo, source, page = 1, limit = 20 } = req.query;
     const filter = {};
     
     if (status) filter.status = status;
     if (assignedTo) filter.assignedTo = assignedTo;
     if (source) filter.source = source;
     
+    // Add pagination to reduce data transfer
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    
     const potentialStudents = await PotentialStudent.find(filter)
       .populate('assignedTo', 'name email')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit))
+      .lean(); // Use lean() for better performance
+    
+    const total = await PotentialStudent.countDocuments(filter);
     
     res.json({
       success: true,
-      potentialStudents
+      potentialStudents,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / parseInt(limit))
+      }
     });
   } catch (error) {
     console.error('Error fetching potential students:', error);

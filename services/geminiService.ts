@@ -9,6 +9,39 @@ if (!process.env.API_KEY) {
 
 const ai = new GoogleGenerativeAI({ apiKey: process.env.API_KEY });
 
+// Rate limiting to stay within free tier (15 requests/minute)
+let requestCount = 0;
+let lastResetTime = Date.now();
+
+const checkRateLimit = () => {
+  const now = Date.now();
+  if (now - lastResetTime >= 60000) { // Reset every minute
+    requestCount = 0;
+    lastResetTime = now;
+  }
+  
+  if (requestCount >= 10) { // Conservative limit
+    throw new Error("Rate limit exceeded. Please try again in a minute.");
+  }
+  requestCount++;
+};
+
+// Simple cache to avoid duplicate requests
+const cache = new Map();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+const getCachedResponse = (key: string) => {
+  const cached = cache.get(key);
+  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+    return cached.data;
+  }
+  return null;
+};
+
+const setCachedResponse = (key: string, data: any) => {
+  cache.set(key, { data, timestamp: Date.now() });
+};
+
 const assignmentSchema = {
   type: Type.OBJECT,
   properties: {
@@ -24,9 +57,19 @@ const assignmentSchema = {
   required: ['title', 'description']
 };
 
-
 export const generateAssignmentContent = async (category: string, questionType: string, topic: string): Promise<{title: string, description: string}> => {
   try {
+    // Check rate limit
+    checkRateLimit();
+    
+    // Create cache key
+    const cacheKey = `assignment_${category}_${questionType}_${topic}`;
+    const cached = getCachedResponse(cacheKey);
+    if (cached) {
+      console.log("Using cached assignment content");
+      return cached;
+    }
+
     const prompt = `You are an expert curriculum designer for English language learners. Your primary goal is to generate a complete, high-quality assignment based on the provided specifications.
 
 **Assignment Specifications:**
@@ -69,21 +112,27 @@ Generate a JSON object with a 'title' and a 'description'.
 
 Good luck!`;
 
-
+    // Use cheaper model for cost efficiency
     const response: GenerateContentResponse = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-1.5-flash', // Cheaper than gemini-2.5-flash
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
         responseSchema: assignmentSchema,
-        temperature: 0.8,
+        temperature: 0.7, // Slightly lower for consistency
+        maxOutputTokens: 2000, // Limit output to save costs
       }
     });
 
     const jsonText = safeTrim(response.text || '');
     // In case the response is wrapped in markdown json block
     const sanitizedJson = safeTrim(jsonText.replace(/^```json/, '').replace(/```$/, '') || '');
-    return JSON.parse(sanitizedJson);
+    const result = JSON.parse(sanitizedJson);
+    
+    // Cache the result
+    setCachedResponse(cacheKey, result);
+    
+    return result;
 
   } catch (error) {
     console.error("Error generating assignment content:", error);
@@ -91,28 +140,46 @@ Good luck!`;
   }
 };
 
-
 export const generateFeedback = async (submissionText: string, assignmentTitle: string): Promise<string> => {
   try {
+    // Check rate limit
+    checkRateLimit();
+    
+    // Create cache key for similar feedback
+    const cacheKey = `feedback_${assignmentTitle}_${submissionText.substring(0, 100)}`;
+    const cached = getCachedResponse(cacheKey);
+    if (cached) {
+      console.log("Using cached feedback");
+      return cached;
+    }
+
     const prompt = `You are a helpful and encouraging English teacher providing feedback on a student's work. The assignment is titled "${assignmentTitle}".
 
-Please provide constructive feedback on the following submission. Start with a positive comment, then offer 1-2 specific, actionable suggestions for improvement focusing on clarity, grammar, or style. Keep the tone supportive and the feedback concise.
+Please provide constructive feedback on the following submission. Start with a positive comment, then offer 1-2 specific, actionable suggestions for improvement focusing on clarity, grammar, or style. Keep the tone supportive and the feedback concise (max 150 words).
 
 Student's Submission:
 ---
 ${submissionText}
 ---
 `;
+
+    // Use cheaper model and limit tokens
     const response: GenerateContentResponse = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-1.5-flash', // Cheaper model
       contents: prompt,
       config: {
         temperature: 0.5,
+        maxOutputTokens: 300, // Limit to save costs
         thinkingConfig: { thinkingBudget: 0 }
       }
     });
 
-    return response.text;
+    const feedback = response.text;
+    
+    // Cache the result
+    setCachedResponse(cacheKey, feedback);
+    
+    return feedback;
   } catch (error) {
     console.error("Error generating feedback:", error);
     throw new Error("Failed to generate feedback.");

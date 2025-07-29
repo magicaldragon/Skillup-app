@@ -7,6 +7,28 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Validate required environment variables
+const requiredEnvVars = ['MONGODB_URI'];
+const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
+
+if (missingEnvVars.length > 0) {
+  console.error('Missing required environment variables:', missingEnvVars);
+  process.exit(1);
+}
+
+// API usage monitoring
+let apiUsage = {
+  geminiRequests: 0,
+  lastReset: Date.now()
+};
+
+// Reset usage counter daily
+setInterval(() => {
+  apiUsage.geminiRequests = 0;
+  apiUsage.lastReset = Date.now();
+  console.log('API usage counter reset');
+}, 24 * 60 * 60 * 1000); // 24 hours
+
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
@@ -92,6 +114,18 @@ app.get('/api/cors-test', (req, res) => {
   });
 });
 
+// --- API usage monitoring route ---
+app.get('/api/usage', (req, res) => {
+  res.json({
+    success: true,
+    usage: {
+      geminiRequests: apiUsage.geminiRequests,
+      lastReset: new Date(apiUsage.lastReset).toISOString(),
+      estimatedCost: `$${(apiUsage.geminiRequests * 0.0001).toFixed(4)}` // Rough estimate
+    }
+  });
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -113,5 +147,8 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log('Environment:', process.env.NODE_ENV || 'development');
+  console.log('MongoDB URI configured:', !!process.env.MONGODB_URI);
+  console.log('API Key configured:', !!process.env.API_KEY);
 });
 // Fixed critical bugs: role variable scope and staff role support 
