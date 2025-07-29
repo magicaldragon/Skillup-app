@@ -18,6 +18,7 @@ import SubmissionListPanel from './SubmissionListPanel';
 import AssignmentCreationForm from './AssignmentCreationForm';
 import SubmissionGradingPanel from './SubmissionGradingPanel';
 import ChangeLogPanel from './ChangeLogPanel';
+import './TeacherDashboard.css';
 
 const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onLogout, onStudentAdded, onDataRefresh }: {
   user: Student,
@@ -58,10 +59,11 @@ const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onL
   };
 
   return (
-    <main className="flex-1 p-8 min-h-screen bg-slate-50">
+    <main className="teacher-dashboard">
+      <div className="teacher-dashboard-main">
         {/* Show avatar at the top of the dashboard */}
         {activeKey === undefined || activeKey === '' ? (
-          <div className="flex flex-col items-center mb-6">
+          <div className="teacher-dashboard-header">
             <DiceBearAvatar seed={user.name || user.email || user.id} size={96} style="avataaars" />
           </div>
         ) : null}
@@ -82,12 +84,12 @@ const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onL
         ) : activeKey === 'levels' ? (
           <LevelsPanel onDataRefresh={onDataRefresh} />
         ) : activeKey === 'records' ? (
-          <div className="bg-white rounded-xl shadow p-6 max-w-4xl mx-auto mt-8">
-            <h2 className="text-2xl font-bold mb-4">Records Management</h2>
-            <p className="text-slate-600">Student records and historical data management.</p>
+          <div className="teacher-dashboard-content">
+            <h2>Records Management</h2>
+            <p>Student records and historical data management.</p>
             {/* TODO: Implement RecordsPanel component */}
-            <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-              <p className="text-blue-800">Records management functionality coming soon...</p>
+            <div className="teacher-dashboard-placeholder">
+              <p>Records management functionality coming soon...</p>
             </div>
           </div>
         ) : activeKey === 'accounts' ? (
@@ -100,33 +102,35 @@ const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onL
           (selectedAssignment !== null && selectedSubmission !== null && selectedStudent !== null ? (
             <SubmissionGradingPanel assignment={selectedAssignment} submission={selectedSubmission} student={selectedStudent} onDataRefresh={onDataRefresh} />
           ) : (
-            <div className="p-8 text-center text-slate-400">No submission selected for grading.</div>
+            <div className="teacher-dashboard-content">
+              <p>No submission selected for grading.</p>
+            </div>
           ))
         ) : activeKey === 'my-classes' ? (
-          <div className="bg-white rounded-xl shadow p-6 max-w-4xl mx-auto mt-8">
-            <h2 className="text-2xl font-bold mb-4">My Classes</h2>
-            <p className="text-slate-600">View classes assigned to you.</p>
+          <div className="teacher-dashboard-content">
+            <h2>My Classes</h2>
+            <p>View classes assigned to you.</p>
             {/* TODO: Implement TeacherMyClassesPanel component */}
-            <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-              <p className="text-blue-800">My classes functionality coming soon...</p>
+            <div className="teacher-dashboard-placeholder">
+              <p>My classes functionality coming soon...</p>
             </div>
           </div>
         ) : activeKey === 'my-progress' ? (
-          <div className="bg-white rounded-xl shadow p-6 max-w-4xl mx-auto mt-8">
-            <h2 className="text-2xl font-bold mb-4">My Progress</h2>
-            <p className="text-slate-600">Track your teaching progress and performance.</p>
+          <div className="teacher-dashboard-content">
+            <h2>My Progress</h2>
+            <p>Track your teaching progress and performance.</p>
             {/* TODO: Implement TeacherProgressPanel component */}
-            <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-              <p className="text-blue-800">Progress tracking functionality coming soon...</p>
+            <div className="teacher-dashboard-placeholder">
+              <p>Progress tracking functionality coming soon...</p>
             </div>
           </div>
         ) : activeKey === 'my-scores' ? (
-          <div className="bg-white rounded-xl shadow p-6 max-w-4xl mx-auto mt-8">
-            <h2 className="text-2xl font-bold mb-4">My Scores & Feedback</h2>
-            <p className="text-slate-600">View your performance scores and feedback.</p>
+          <div className="teacher-dashboard-content">
+            <h2>My Scores & Feedback</h2>
+            <p>View your performance scores and feedback.</p>
             {/* TODO: Implement TeacherMyScoresPanel component */}
-            <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-              <p className="text-blue-800">My scores functionality coming soon...</p>
+            <div className="teacher-dashboard-placeholder">
+              <p>My scores functionality coming soon...</p>
             </div>
           </div>
         ) : activeKey === 'settings' ? (
@@ -139,21 +143,22 @@ const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onL
           </div>
         ) : (
           <>
-            <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
-            <div className="text-slate-600 mb-8">Welcome back! Here's a summary of your class.</div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <div className="bg-white rounded-xl shadow p-6 flex flex-col items-center">
-                <div className="text-slate-500 text-lg mb-2">Total Students</div>
-                <div className="text-5xl font-bold text-[#307637]">{totalStudents}</div>
+            <h1 className="teacher-dashboard-title">Dashboard</h1>
+            <div className="teacher-dashboard-subtitle">Welcome back! Here's a summary of your class.</div>
+            <div className="teacher-dashboard-grid">
+              <div className="teacher-dashboard-card">
+                <div className="teacher-dashboard-card-label">Total Students</div>
+                <div className="teacher-dashboard-card-value">{totalStudents}</div>
               </div>
-              <div className="bg-white rounded-xl shadow p-6 flex flex-col items-center">
-                <div className="text-slate-500 text-lg mb-2">Active Assignments</div>
-                <div className="text-5xl font-bold text-[#307637]">{activeAssignments}</div>
+              <div className="teacher-dashboard-card">
+                <div className="teacher-dashboard-card-label">Active Assignments</div>
+                <div className="teacher-dashboard-card-value">{activeAssignments}</div>
               </div>
             </div>
             {/* Additional IELTS-focused analytics, assignment/class management, etc. can be added here */}
           </>
         )}
+      </div>
     </main>
   );
 };

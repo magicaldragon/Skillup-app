@@ -4,6 +4,7 @@
 // Modern design, clear icons, and role-based logic
 import React, { useState } from 'react';
 import { FaChalkboardTeacher, FaBook, FaUserGraduate, FaClipboardList, FaUsers, FaTasks, FaUserEdit, FaUserPlus, FaUserCheck, FaChartBar, FaHome, FaClipboardCheck, FaClipboard, FaUser, FaCheckCircle, FaTimesCircle, FaListAlt, FaMicrophone, FaPen, FaBookOpen, FaUserCog, FaFolderOpen, FaHourglassHalf, FaUserShield, FaUserTie, FaUserFriends, FaGem, FaArchive, FaSignOutAlt } from 'react-icons/fa';
+import './Sidebar.css';
 
 const menuConfig = (role: string) => [
   {
@@ -144,11 +145,11 @@ const Sidebar = ({ role, activeKey, onNavigate, onLogout }: { role: string, acti
   };
 
   return (
-    <aside className="w-64 min-h-screen bg-gradient-to-b from-green-50 via-white to-green-100 border-r shadow-xl flex flex-col transition-all duration-500">
-      <div className="flex flex-col items-center justify-center pt-8 pb-6">
-        <img src="/logo-skillup.png" alt="Skillup Center Logo" className="h-20 w-auto object-contain drop-shadow-lg" style={{ aspectRatio: '1/1' }} />
+    <aside className="sidebar">
+      <div className="sidebar-header">
+        <img src="/logo-skillup.png" alt="Skillup Center Logo" className="sidebar-logo" />
       </div>
-      <nav className="flex-1 px-2 space-y-2 text-[16px] md:text-[17px] lg:text-[18px] font-medium">
+      <nav className="sidebar-nav">
         {menu.map(item => {
           const hasChildren = !!item.children && item.children.some(child => child.visible);
           const isOpen = openSubmenus.has(item.key);
@@ -156,19 +157,16 @@ const Sidebar = ({ role, activeKey, onNavigate, onLogout }: { role: string, acti
           return (
             <div key={item.key}>
               <button
-                className={`flex items-center gap-2 w-full px-4 py-2 rounded-lg text-left font-semibold text-[16px] md:text-[17px] lg:text-[18px] transition-all duration-300 transform shadow-sm bg-white/80
-              ${activeKey === item.key ? 'bg-green-200 text-[#307637] scale-[1.03] shadow-lg' : ''}
-              hover:bg-[#307637] hover:text-[#ffe9ca] hover:shadow-lg`}
+                className={`sidebar-menu-item ${activeKey === item.key ? 'active' : ''}`}
                 onClick={() => handleMenuClick(item.key, hasChildren)}
-                style={{ boxShadow: activeKey === item.key ? '0 4px 16px 0 rgba(48,118,55,0.10)' : undefined }}
               >
                 {item.icon} {item.label}
                 {hasChildren && (
-                  <span className={`ml-auto transition-transform ${isOpen ? 'rotate-90' : ''}`} style={{ color: '#14532d', fontWeight: 700, fontSize: 20 }}>▶</span>
+                  <span className={`sidebar-submenu-arrow ${isOpen ? 'open' : ''}`}>▶</span>
                 )}
               </button>
               {hasChildren && isOpen && (
-                <div className="ml-8 space-y-1 border-l-2 border-green-200 pl-4">
+                <div className="sidebar-submenu">
                   {item.children.filter(child => child.visible).map(child => {
                     const hasGrandChildren = !!child.children && child.children.some(grandChild => grandChild.visible);
                     const isChildOpen = openSubmenus.has(child.key);
@@ -176,27 +174,21 @@ const Sidebar = ({ role, activeKey, onNavigate, onLogout }: { role: string, acti
                     return (
                       <div key={child.key}>
                         <button
-                          className={`flex items-center gap-2 w-full px-2 py-1 rounded text-left font-medium text-[15px] md:text-[16px] lg:text-[17px] transition-colors bg-white/70
-                        hover:bg-[#307637] hover:text-[#ffe9ca] hover:shadow
-                        ${activeKey === child.key ? 'bg-green-100 text-[#307637] font-bold shadow' : ''}`}
+                          className={`sidebar-submenu-item ${activeKey === child.key ? 'active' : ''}`}
                           onClick={() => hasGrandChildren ? handleMenuClick(child.key, true) : onNavigate(child.key)}
-                          style={{ marginLeft: 8 }}
                         >
                           {child.icon} {child.label}
                           {hasGrandChildren && (
-                            <span className={`ml-auto transition-transform ${isChildOpen ? 'rotate-90' : ''}`} style={{ color: '#14532d', fontWeight: 700, fontSize: 16 }}>▶</span>
+                            <span className={`sidebar-submenu-arrow ${isChildOpen ? 'open' : ''}`}>▶</span>
                           )}
                         </button>
                         {hasGrandChildren && isChildOpen && (
-                          <div className="ml-8 space-y-1 border-l-2 border-green-100 pl-4 mt-1">
+                          <div className="sidebar-submenu">
                             {child.children.filter(grandChild => grandChild.visible).map(grandChild => (
                               <button
                                 key={grandChild.key}
-                                className={`flex items-center gap-2 w-full px-2 py-1 rounded text-left font-medium text-[14px] md:text-[15px] lg:text-[16px] transition-colors bg-white/60
-                              hover:bg-[#307637] hover:text-[#ffe9ca] hover:shadow
-                              ${activeKey === grandChild.key ? 'bg-green-100 text-[#307637] font-bold shadow' : ''}`}
+                                className={`sidebar-submenu-item ${activeKey === grandChild.key ? 'active' : ''}`}
                                 onClick={() => onNavigate(grandChild.key)}
-                                style={{ marginLeft: 8 }}
                               >
                                 {grandChild.icon} {grandChild.label}
                               </button>
@@ -213,19 +205,16 @@ const Sidebar = ({ role, activeKey, onNavigate, onLogout }: { role: string, acti
         })}
       </nav>
       {/* Settings and Logout at the bottom */}
-      <div className="mt-auto px-2 pb-4 space-y-2 text-[16px] md:text-[17px] lg:text-[18px]">
+      <div className="sidebar-footer">
         <button
-          className={`flex items-center gap-2 w-full px-4 py-2 rounded-lg text-left font-semibold transition-all duration-300 shadow-sm bg-white/80
-        hover:bg-[#307637] hover:text-[#ffe9ca] hover:shadow-lg
-        ${activeKey === 'settings' ? 'bg-green-200 text-[#307637] scale-[1.03] shadow-lg' : ''}`}
+          className={`sidebar-settings-btn ${activeKey === 'settings' ? 'active' : ''}`}
           onClick={() => onNavigate('settings')}
-          style={{ boxShadow: activeKey === 'settings' ? '0 4px 16px 0 rgba(48,118,55,0.10)' : undefined }}
         >
           <FaUserCog /> Settings
         </button>
         {onLogout && (
           <button
-            className="flex items-center gap-2 w-full px-4 py-2 rounded-lg text-left font-semibold text-red-600 hover:bg-red-50 transition-all duration-300 shadow-sm bg-white/80 hover:shadow-lg"
+            className="sidebar-logout-btn"
             onClick={onLogout}
           >
             <FaSignOutAlt /> Logout
