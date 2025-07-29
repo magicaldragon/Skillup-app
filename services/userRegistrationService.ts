@@ -288,9 +288,9 @@ class UserRegistrationService {
               gender: userData.gender,
               note: userData.note,
             });
-            console.log('✅ Student added to both accounts and waiting list');
+            console.log('✅ Student added to accounts and potential students list');
           } catch (potentialStudentError) {
-            console.warn('⚠️ Failed to add student to waiting list:', potentialStudentError);
+            console.warn('⚠️ Failed to add student to potential students list:', potentialStudentError);
             // Don't fail the entire registration if potential student creation fails
           }
         }
@@ -298,7 +298,7 @@ class UserRegistrationService {
         return {
           success: true,
           message: userData.role === 'student' 
-            ? 'Student registered successfully and added to waiting list' 
+            ? 'Student registered successfully and added to potential students list' 
             : 'User registered successfully',
           user: {
             id: mongoUser.id,

@@ -269,6 +269,108 @@ const WaitingListPanel = ({ classes, currentUser, onDataRefresh }: { classes: St
     }
   };
 
+  // Move to Records (when student doesn't confirm interest)
+  const handleMoveToRecords = async (studentId: string) => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      alert('No authentication token found');
+      return;
+    }
+
+    if (!window.confirm('Move this student to Records? This will archive their information for future reference.')) {
+      return;
+    }
+
+    try {
+      // First, create a record entry
+      const student = potentialStudents.find(s => s._id === studentId);
+      if (!student) {
+        throw new Error('Student not found');
+      }
+
+      const recordData = {
+        studentId: null, // Potential students don't have User records yet
+        studentName: student.name,
+        action: 'moved_to_records',
+        category: 'administrative',
+        details: {
+          reason: 'Student did not confirm interest in courses',
+          originalStatus: student.status,
+          movedBy: currentUser.name,
+          movedAt: new Date().toISOString(),
+          potentialStudentId: studentId, // Store the potential student ID for reference
+          email: student.email,
+          phone: student.phone
+        },
+        performedBy: currentUser.id,
+        performedByName: currentUser.name
+      };
+
+      const recordResponse = await fetch(`${API_BASE_URL}/student-records`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(recordData),
+      });
+
+      if (!recordResponse.ok) {
+        throw new Error('Failed to create record entry');
+      }
+
+      // Then delete from potential students
+      const deleteResponse = await fetch(`${API_BASE_URL}/potential-students/${studentId}`, {
+        method: 'DELETE',
+        headers: { 
+          'Authorization': `Bearer ${token}`
+        },
+      });
+      
+      if (!deleteResponse.ok) {
+        throw new Error('Failed to remove from potential students');
+      }
+
+      alert('Student moved to Records successfully');
+      fetchPotentialStudents();
+      if (onDataRefresh) onDataRefresh();
+    } catch (error) {
+      console.error('Move to records error:', error);
+      alert('Failed to move student to Records. Please try again.');
+    }
+  };
+
+  // Move to Waiting List (when student confirms interest)
+  const handleMoveToWaitingList = async (studentId: string) => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      alert('No authentication token found');
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/potential-students/${studentId}/status`, {
+        method: 'PATCH',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ status: 'waiting_for_class' }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to move student to waiting list');
+      }
+
+      alert('Student moved to Waiting List successfully');
+      fetchPotentialStudents();
+      if (onDataRefresh) onDataRefresh();
+    } catch (error) {
+      console.error('Move to waiting list error:', error);
+      alert('Failed to move student to Waiting List. Please try again.');
+    }
+  };
+
   if (loading) {
     return (
       <div className="waiting-list-panel">
@@ -425,6 +527,18 @@ const WaitingListPanel = ({ classes, currentUser, onDataRefresh }: { classes: St
                   onClick={() => handleConvertToUser(student._id)}
                 >
                   Convert to User
+                </button>
+                <button
+                  className="waiting-list-confirm-assign-btn"
+                  onClick={() => handleMoveToWaitingList(student._id)}
+                >
+                  Move to Waiting List
+                </button>
+                <button
+                  className="waiting-list-confirm-assign-btn"
+                  onClick={() => handleMoveToRecords(student._id)}
+                >
+                  Move to Records
                 </button>
                 <button
                   className="waiting-list-delete-btn"

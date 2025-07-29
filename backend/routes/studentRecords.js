@@ -137,18 +137,20 @@ router.post('/', auth, async (req, res) => {
       relatedClass, relatedAssignment
     } = req.body;
     
-    // Validate student exists
-    const student = await User.findById(studentId);
-    if (!student) {
-      return res.status(404).json({
-        success: false,
-        message: 'Student not found'
-      });
+    // Validate student exists (if studentId is provided)
+    if (studentId) {
+      const student = await User.findById(studentId);
+      if (!student) {
+        return res.status(404).json({
+          success: false,
+          message: 'Student not found'
+        });
+      }
     }
     
     const record = new StudentRecord({
       studentId,
-      studentName: studentName || student.name,
+      studentName: studentName || (studentId ? (await User.findById(studentId)).name : 'Unknown'),
       action,
       category,
       details,
@@ -162,13 +164,21 @@ router.post('/', auth, async (req, res) => {
     
     await record.save();
     
-    // Populate the record for response
-    await record.populate([
-      { path: 'studentId', select: 'name email' },
-      { path: 'performedBy', select: 'name email' },
-      { path: 'relatedClass', select: 'name' },
-      { path: 'relatedAssignment', select: 'title' }
-    ]);
+    // Populate the record for response (only if studentId exists)
+    if (studentId) {
+      await record.populate([
+        { path: 'studentId', select: 'name email' },
+        { path: 'performedBy', select: 'name email' },
+        { path: 'relatedClass', select: 'name' },
+        { path: 'relatedAssignment', select: 'title' }
+      ]);
+    } else {
+      await record.populate([
+        { path: 'performedBy', select: 'name email' },
+        { path: 'relatedClass', select: 'name' },
+        { path: 'relatedAssignment', select: 'title' }
+      ]);
+    }
     
     res.status(201).json({
       success: true,
