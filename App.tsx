@@ -306,85 +306,77 @@ const App: React.FC = () => {
   // Ensure we have a user before rendering the main app
   if (!user) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc' }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ color: '#d32f2f', fontSize: '1.2rem', marginBottom: 16 }}>No User Data</div>
-          <p style={{ color: '#475569', marginBottom: 16 }}>Please log in to continue.</p>
-          <button onClick={() => window.location.reload()} style={{ padding: '8px 20px', background: '#307637', color: '#fff', borderRadius: 6, border: 'none', fontWeight: 600, cursor: 'pointer' }}>Reload</button>
-        </div>
-      </div>
+      <Suspense fallback={<div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc' }}><div style={{ margin: '0 auto 1rem', width: 48, height: 48, borderRadius: '50%', borderBottom: '4px solid #307637', animation: 'spin 1s linear infinite' }} /><p style={{ fontSize: '1.1rem', color: '#475569' }}>Loading...</p></div>}>
+        <Login onLoginSuccess={handleLoginSuccess} />
+      </Suspense>
     );
   }
 
   return (
     <DarkModeContext.Provider value={{ darkMode, toggleDarkMode }}>
       <Suspense fallback={<div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div style={{ margin: '0 auto 1rem', width: 48, height: 48, borderRadius: '50%', borderBottom: '4px solid #307637', animation: 'spin 1s linear infinite' }} /><p style={{ fontSize: '1.1rem', color: '#475569' }}>Loading...</p></div>}>
-        {!user ? (
-          <Login onLoginSuccess={handleLoginSuccess} />
-        ) : (
-          <div style={{ minHeight: '100vh', background: darkMode ? '#181f1b' : '#f8fafc' }}>
-            <div style={{ display: 'flex' }}>
-              <Sidebar 
-                role={user.role} 
-                activeKey={navKey} 
-                onNavigate={setNavKey}
-                onLogout={handleLogout}
-              />
-              <div style={{ flex: 1 }}>
-                {dataLoading && (
-                  <div style={{ position: 'fixed', top: 16, right: 16, background: '#307637', color: '#fff', padding: '8px 20px', borderRadius: 8, boxShadow: '0 2px 8px #30763722', zIndex: 50 }}>
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                      <div style={{ marginRight: 8, width: 16, height: 16, borderRadius: '50%', borderBottom: '2px solid #fff', animation: 'spin 1s linear infinite' }} />
-                      Loading data...
-                    </div>
+        <div style={{ minHeight: '100vh', background: darkMode ? '#181f1b' : '#f8fafc' }}>
+          <div style={{ display: 'flex' }}>
+            <Sidebar 
+              role={user.role} 
+              activeKey={navKey} 
+              onNavigate={setNavKey}
+              onLogout={handleLogout}
+            />
+            <div style={{ flex: 1 }}>
+              {dataLoading && (
+                <div style={{ position: 'fixed', top: 16, right: 16, background: '#307637', color: '#fff', padding: '8px 20px', borderRadius: 8, boxShadow: '0 2px 8px #30763722', zIndex: 50 }}>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <div style={{ marginRight: 8, width: 16, height: 16, borderRadius: '50%', borderBottom: '2px solid #fff', animation: 'spin 1s linear infinite' }} />
+                    Loading data...
+                  </div>
+                </div>
+              )}
+              <div style={{ display: 'flex', minHeight: '100vh', background: darkMode ? '#181f1b' : '#f8fafc' }}>
+                {user.role === "student" ? (
+                  <div style={{ flex: 1, overflow: 'auto' }}>
+                    <StudentDashboard 
+                      user={user}
+                      assignments={assignments}
+                      submissions={submissions}
+                      classes={classes}
+                      onNavigate={setNavKey}
+                      activeKey={navKey}
+                      onLogout={handleLogout}
+                    />
+                  </div>
+                ) : user.role === "teacher" || user.role === "admin" ? (
+                  <div style={{ flex: 1, overflow: 'auto' }}>
+                    <TeacherDashboard 
+                      user={user}
+                      students={students}
+                      assignments={assignments}
+                      classes={classes}
+                      activeKey={navKey}
+                      onLogout={handleLogout}
+                      onStudentAdded={fetchStudents}
+                      onDataRefresh={refreshData}
+                    />
+                  </div>
+                ) : (
+                  <div style={{ flex: 1, overflow: 'auto' }}>
+                    <Dashboard 
+                      assignments={assignments}
+                      submissions={submissions}
+                      students={students}
+                      classes={classes}
+                      loading={dataLoading}
+                      error={dataError}
+                      user={user}
+                      activeKey={navKey}
+                      onLogout={handleLogout}
+                    />
                   </div>
                 )}
-                <div style={{ display: 'flex', minHeight: '100vh', background: darkMode ? '#181f1b' : '#f8fafc' }}>
-                  {user.role === "student" ? (
-                    <div style={{ flex: 1, overflow: 'auto' }}>
-                      <StudentDashboard 
-                        user={user}
-                        assignments={assignments}
-                        submissions={submissions}
-                        classes={classes}
-                        onNavigate={setNavKey}
-                        activeKey={navKey}
-                        onLogout={handleLogout}
-                      />
-                    </div>
-                  ) : user.role === "teacher" || user.role === "admin" ? (
-                    <div style={{ flex: 1, overflow: 'auto' }}>
-                      <TeacherDashboard 
-                        user={user}
-                        students={students}
-                        assignments={assignments}
-                        classes={classes}
-                        activeKey={navKey}
-                        onLogout={handleLogout}
-                        onStudentAdded={fetchStudents}
-                        onDataRefresh={refreshData}
-                      />
-                    </div>
-                  ) : (
-                    <div style={{ flex: 1, overflow: 'auto' }}>
-                      <Dashboard 
-                        assignments={assignments}
-                        submissions={submissions}
-                        students={students}
-                        classes={classes}
-                        loading={dataLoading}
-                        error={dataError}
-                        user={user}
-                        activeKey={navKey}
-                        onLogout={handleLogout}
-                      />
-                    </div>
-                  )}
-                </div>
               </div>
             </div>
           </div>
-        )}
+        </div>
       </Suspense>
     </DarkModeContext.Provider>
   );
