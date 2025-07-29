@@ -18,6 +18,7 @@ import SubmissionListPanel from './SubmissionListPanel';
 import AssignmentCreationForm from './AssignmentCreationForm';
 import SubmissionGradingPanel from './SubmissionGradingPanel';
 import ChangeLogPanel from './ChangeLogPanel';
+import RecordsPanel from './RecordsPanel';
 import './TeacherDashboard.css';
 
 const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onLogout, onStudentAdded, onDataRefresh }: {
@@ -84,14 +85,7 @@ const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onL
         ) : activeKey === 'levels' ? (
           <LevelsPanel onDataRefresh={onDataRefresh} />
         ) : activeKey === 'records' ? (
-          <div className="teacher-dashboard-content">
-            <h2>Records Management</h2>
-            <p>Student records and historical data management.</p>
-            {/* TODO: Implement RecordsPanel component */}
-            <div className="teacher-dashboard-placeholder">
-              <p>Records management functionality coming soon...</p>
-            </div>
-          </div>
+          <RecordsPanel />
         ) : activeKey === 'accounts' ? (
           <AccountsPanel onDataRefresh={onDataRefresh} />
         ) : activeKey === 'assignments' ? (

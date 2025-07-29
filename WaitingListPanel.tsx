@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import type { Student, StudentClass } from './types';
-
 import { deleteAccountCompletely } from './services/firebase';
+import './WaitingListPanel.css';
+
+const API_BASE_URL = 'https://skillup-backend-v6vm.onrender.com/api';
 
 const WaitingListPanel = ({ students, classes, currentUser, onDataRefresh }: { students: Student[], classes: StudentClass[], currentUser: Student, onDataRefresh?: () => void }) => {
   
@@ -31,34 +33,68 @@ const WaitingListPanel = ({ students, classes, currentUser, onDataRefresh }: { s
   // Bulk assign to class
   const handleBulkAssign = async () => {
     setConfirmingBulk(false);
-    for (const id of selectedIds) {
-      await fetch(`/api/users/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ classIds: [bulkClassId] }),
-      });
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      console.error('No auth token found');
+      return;
     }
-    setSelectedIds([]);
-    setBulkClassId('');
-    setBulkAction(null);
-    onDataRefresh?.();
+
+    try {
+      for (const id of selectedIds) {
+        const response = await fetch(`${API_BASE_URL}/users/${id}`, {
+          method: 'PUT',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ classIds: [bulkClassId] }),
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to assign student ${id} to class`);
+        }
+      }
+      setSelectedIds([]);
+      setBulkClassId('');
+      setBulkAction(null);
+      onDataRefresh?.();
+    } catch (error) {
+      console.error('Bulk assign error:', error);
+      alert('Failed to assign students to class. Please try again.');
+    }
   };
 
   // Bulk move to records (simulate by setting a status, e.g., status: 'record')
   const handleBulkMoveToRecords = async () => {
     setConfirmingBulk(false);
-    for (const id of selectedIds) {
-      await fetch(`/api/users/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ status: 'record' }),
-      });
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      console.error('No auth token found');
+      return;
     }
-    setSelectedIds([]);
-    setBulkAction(null);
-    onDataRefresh?.();
+
+    try {
+      for (const id of selectedIds) {
+        const response = await fetch(`${API_BASE_URL}/users/${id}`, {
+          method: 'PUT',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ status: 'record' }),
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to move student ${id} to records`);
+        }
+      }
+      setSelectedIds([]);
+      setBulkAction(null);
+      onDataRefresh?.();
+    } catch (error) {
+      console.error('Bulk move to records error:', error);
+      alert('Failed to move students to records. Please try again.');
+    }
   };
 
   // Individual select
@@ -83,17 +119,32 @@ const WaitingListPanel = ({ students, classes, currentUser, onDataRefresh }: { s
   const handleConfirm = async (studentId: string) => {
     const classId = pendingAssignments[studentId];
     if (!classId) return;
+    
     setLoading(prev => ({ ...prev, [studentId]: true }));
-    await fetch(`/api/users/${studentId}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ classIds: [classId] }),
-    });
-    setLoading(prev => ({ ...prev, [studentId]: false }));
-    setPendingAssignments(prev => { const copy = { ...prev }; delete copy[studentId]; return copy; });
-    onDataRefresh?.();
-    // Optionally, refresh students list in parent
+    const token = localStorage.getItem('authToken');
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/${studentId}`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ classIds: [classId] }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to assign student to class');
+      }
+      
+      setLoading(prev => ({ ...prev, [studentId]: false }));
+      setPendingAssignments(prev => { const copy = { ...prev }; delete copy[studentId]; return copy; });
+      onDataRefresh?.();
+    } catch (error) {
+      console.error('Assign student error:', error);
+      setLoading(prev => ({ ...prev, [studentId]: false }));
+      alert('Failed to assign student to class. Please try again.');
+    }
   };
 
   const canDelete = (s: Student) => {
@@ -106,52 +157,58 @@ const WaitingListPanel = ({ students, classes, currentUser, onDataRefresh }: { s
     if (!deleteTarget) return;
     setDeleting(true);
     setDeleteError(null);
-    const res = await deleteAccountCompletely(deleteTarget.id, deleteTarget.email || '', deleteTarget.role === 'admin');
-    if (!res.success) {
-      setDeleteError(res.message);
+    
+    try {
+      const res = await deleteAccountCompletely(deleteTarget.id, deleteTarget.email || '', deleteTarget.role === 'admin');
+      if (!res.success) {
+        setDeleteError(res.message);
+        setDeleting(false);
+        return;
+      }
+      setDeleteTarget(null);
       setDeleting(false);
-      return;
+      onDataRefresh?.();
+    } catch (error) {
+      console.error('Delete error:', error);
+      setDeleteError('Failed to delete account. Please try again.');
+      setDeleting(false);
     }
-    setDeleteTarget(null);
-    setDeleting(false);
-    onDataRefresh?.();
-    // Optionally refresh list
   };
 
   return (
-    <div className="bg-white rounded-xl shadow p-6 max-w-3xl mx-auto mt-8">
-      <h2 className="text-2xl font-bold mb-4 text-center">Potential Students</h2>
+    <div className="waiting-list-panel">
+      <h2 className="waiting-list-title">Potential Students</h2>
       {waitingStudents.length === 0 ? (
-        <div className="text-slate-400 text-center">No students in waiting list.</div>
+        <div className="waiting-list-empty">No students in waiting list.</div>
       ) : (
         <>
-          <div className="flex justify-center gap-4 mb-4">
+          <div className="waiting-list-actions">
             <button
-              className={`px-4 py-2 rounded font-semibold ${bulkAction === 'assign' ? 'bg-green-700 text-white' : 'bg-green-100 text-green-800 hover:bg-green-200'}`}
+              className={`waiting-list-btn waiting-list-btn-primary ${bulkAction === 'assign' ? 'active' : ''}`}
               onClick={() => { setBulkAction('assign'); setConfirmingBulk(false); }}
               disabled={selectedIds.length === 0}
             >Assign to Class</button>
             <button
-              className={`px-4 py-2 rounded font-semibold ${bulkAction === 'records' ? 'bg-orange-700 text-white' : 'bg-orange-100 text-orange-800 hover:bg-orange-200'}`}
+              className={`waiting-list-btn waiting-list-btn-secondary ${bulkAction === 'records' ? 'active' : ''}`}
               onClick={() => { setBulkAction('records'); setConfirmingBulk(false); }}
               disabled={selectedIds.length === 0}
             >Move to Records</button>
             <button
-              className="px-4 py-2 rounded bg-slate-100 text-slate-700 hover:bg-slate-200 font-semibold"
+              className="waiting-list-btn waiting-list-btn-neutral"
               onClick={selectAll}
               disabled={selectedIds.length === waitingStudents.length}
             >Select All</button>
             <button
-              className="px-4 py-2 rounded bg-slate-100 text-slate-700 hover:bg-slate-200 font-semibold"
+              className="waiting-list-btn waiting-list-btn-neutral"
               onClick={clearAll}
               disabled={selectedIds.length === 0}
             >Clear</button>
           </div>
           {bulkAction && (
-            <div className="flex flex-col items-center mb-4">
+            <div className="waiting-list-bulk-section">
               {bulkAction === 'assign' && (
                 <select
-                  className="p-2 border rounded mb-2"
+                  className="waiting-list-select"
                   value={bulkClassId}
                   onChange={e => setBulkClassId(e.target.value)}
                 >
@@ -161,62 +218,64 @@ const WaitingListPanel = ({ students, classes, currentUser, onDataRefresh }: { s
                   ))}
                 </select>
               )}
-              <div className="flex gap-2">
+              <div className="waiting-list-confirm-buttons">
                 <button
-                  className="px-4 py-2 rounded bg-green-600 text-white font-semibold hover:bg-green-700"
+                  className="waiting-list-confirm-btn waiting-list-confirm-btn-success"
                   onClick={() => { setConfirmingBulk(true); }}
                   disabled={bulkAction === 'assign' && !bulkClassId}
                 >Confirm</button>
                 <button
-                  className="px-4 py-2 rounded bg-slate-300 text-slate-800 font-semibold hover:bg-slate-400"
+                  className="waiting-list-confirm-btn waiting-list-confirm-btn-cancel"
                   onClick={() => { setBulkAction(null); setBulkClassId(''); setConfirmingBulk(false); }}
                 >Cancel</button>
               </div>
             </div>
           )}
           {confirmingBulk && (
-            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
-              <div className="bg-white rounded-xl shadow-lg p-8 max-w-sm w-full">
-                <div className="text-lg font-bold mb-4">Confirm Bulk Action</div>
-                <div className="mb-4 text-slate-600">Are you sure to {bulkAction === 'assign' ? 'assign selected students to class' : 'move selected students to records'}?</div>
-                <div className="flex gap-4 justify-end">
+            <div className="waiting-list-modal">
+              <div className="waiting-list-modal-content">
+                <div className="waiting-list-modal-title">Confirm Bulk Action</div>
+                <div className="waiting-list-modal-message">Are you sure to {bulkAction === 'assign' ? 'assign selected students to class' : 'move selected students to records'}?</div>
+                <div className="waiting-list-modal-buttons">
                   <button
-                    className="px-4 py-2 rounded bg-slate-200 hover:bg-slate-300 font-semibold"
+                    className="waiting-list-modal-btn waiting-list-modal-btn-cancel"
                     onClick={() => setConfirmingBulk(false)}
                   >Cancel</button>
                   <button
-                    className="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700 font-semibold"
+                    className="waiting-list-modal-btn waiting-list-modal-btn-confirm"
                     onClick={bulkAction === 'assign' ? handleBulkAssign : handleBulkMoveToRecords}
                   >Confirm</button>
                 </div>
               </div>
             </div>
           )}
-          <ul className="space-y-4">
+          <div className="waiting-list-students">
             {waitingStudents.map(s => (
-              <li
+              <div
                 key={s.id}
-                className={`flex items-center gap-4 p-4 bg-white rounded-2xl shadow-md transition-shadow hover:shadow-xl border border-green-100 ${selectedIds.includes(s.id) ? 'ring-2 ring-green-400' : ''}`}
-                style={{ alignItems: 'center' }}
+                className={`waiting-list-student-item ${selectedIds.includes(s.id) ? 'selected' : ''}`}
               >
-                <input type="checkbox" checked={selectedIds.includes(s.id)} onChange={() => toggleSelect(s.id)} className="accent-green-600 w-5 h-5" />
-                <div className="flex items-center gap-3 min-w-[180px]">
+                <input 
+                  type="checkbox" 
+                  checked={selectedIds.includes(s.id)} 
+                  onChange={() => toggleSelect(s.id)} 
+                  className="waiting-list-checkbox" 
+                />
+                <div className="waiting-list-student-info">
                   <img
                     src={getAvatar(s)}
                     alt="avatar"
-                    className="w-12 h-12 rounded-full border-2 border-green-200 shadow-sm object-cover bg-slate-100"
-                    style={{ boxShadow: '0 2px 8px 0 rgba(48,118,55,0.08)' }}
+                    className="waiting-list-avatar"
                   />
-                  <div className="flex flex-col">
-                    <span className="font-semibold text-lg text-green-900">{getDisplayName(s)}</span>
-                    <span className="text-xs text-slate-500">{getDateTime(s)}</span>
+                  <div className="waiting-list-student-details">
+                    <span className="waiting-list-student-name">{getDisplayName(s)}</span>
+                    <span className="waiting-list-student-date">{getDateTime(s)}</span>
                   </div>
                 </div>
                 <select
-                  className="ml-auto p-2 border rounded-lg bg-green-50 text-green-900 font-medium shadow-sm hover:border-green-400 focus:border-green-600 transition-colors"
+                  className="waiting-list-assign-select"
                   value={pendingAssignments[s.id] || ''}
                   onChange={e => handleSelectClass(s.id, e.target.value)}
-                  style={{ minWidth: 140 }}
                 >
                   <option value="">Assign to class...</option>
                   {classes.map(c => (
@@ -225,7 +284,7 @@ const WaitingListPanel = ({ students, classes, currentUser, onDataRefresh }: { s
                 </select>
                 {pendingAssignments[s.id] && (
                   <button
-                    className="ml-2 px-4 py-2 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-lg shadow font-semibold hover:from-green-700 hover:to-green-600 transition-colors"
+                    className="waiting-list-confirm-assign-btn"
                     onClick={() => handleConfirm(s.id)}
                     disabled={loading[s.id]}
                   >
@@ -234,32 +293,32 @@ const WaitingListPanel = ({ students, classes, currentUser, onDataRefresh }: { s
                 )}
                 {canDelete(s) && (
                   <button
-                    className="ml-2 px-4 py-2 bg-gradient-to-r from-red-500 to-red-400 text-white rounded-lg shadow font-semibold hover:from-red-600 hover:to-red-500 transition-colors"
+                    className="waiting-list-delete-btn"
                     onClick={() => setDeleteTarget(s)}
                     disabled={deleting}
                   >
                     Delete
                   </button>
                 )}
-              </li>
+              </div>
             ))}
-          </ul>
+          </div>
         </>
       )}
       {deleteTarget && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50">
-          <div className="bg-white rounded-xl shadow-lg p-8 max-w-sm w-full">
-            <div className="text-lg font-bold mb-4">Are you sure to delete this account?</div>
-            <div className="mb-4 text-slate-600">This action cannot be undone.</div>
-            {deleteError && <div className="text-red-600 font-semibold mb-2">{deleteError}</div>}
-            <div className="flex gap-4 justify-end">
+        <div className="waiting-list-modal">
+          <div className="waiting-list-modal-content">
+            <div className="waiting-list-modal-title">Are you sure to delete this account?</div>
+            <div className="waiting-list-modal-message">This action cannot be undone.</div>
+            {deleteError && <div className="waiting-list-modal-error">{deleteError}</div>}
+            <div className="waiting-list-modal-buttons">
               <button
-                className="px-4 py-2 rounded bg-slate-200 hover:bg-slate-300 font-semibold"
+                className="waiting-list-modal-btn waiting-list-modal-btn-cancel"
                 onClick={() => setDeleteTarget(null)}
                 disabled={deleting}
               >Cancel</button>
               <button
-                className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700 font-semibold"
+                className="waiting-list-modal-btn waiting-list-modal-btn-danger"
                 onClick={handleDelete}
                 disabled={deleting}
               >{deleting ? 'Deleting...' : 'Confirm'}</button>

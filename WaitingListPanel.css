@@ -1,0 +1,389 @@
+/* WaitingListPanel.css - Professional custom styling */
+
+.waiting-list-panel {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  max-width: 1000px;
+  margin: 2rem auto;
+}
+
+.waiting-list-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #1e293b;
+  text-align: center;
+}
+
+.waiting-list-empty {
+  color: #64748b;
+  text-align: center;
+  font-size: 1.1rem;
+  padding: 2rem;
+}
+
+.waiting-list-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.waiting-list-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.waiting-list-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.waiting-list-btn-primary {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.waiting-list-btn-primary:hover:not(:disabled) {
+  background: #bbf7d0;
+}
+
+.waiting-list-btn-primary.active {
+  background: #166534;
+  color: white;
+}
+
+.waiting-list-btn-secondary {
+  background: #fed7aa;
+  color: #9a3412;
+}
+
+.waiting-list-btn-secondary:hover:not(:disabled) {
+  background: #fdba74;
+}
+
+.waiting-list-btn-secondary.active {
+  background: #9a3412;
+  color: white;
+}
+
+.waiting-list-btn-neutral {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.waiting-list-btn-neutral:hover:not(:disabled) {
+  background: #e2e8f0;
+}
+
+.waiting-list-bulk-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.waiting-list-select {
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  background: white;
+  min-width: 200px;
+}
+
+.waiting-list-confirm-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.waiting-list-confirm-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.waiting-list-confirm-btn-success {
+  background: #16a34a;
+  color: white;
+}
+
+.waiting-list-confirm-btn-success:hover {
+  background: #15803d;
+}
+
+.waiting-list-confirm-btn-cancel {
+  background: #d1d5db;
+  color: #374151;
+}
+
+.waiting-list-confirm-btn-cancel:hover {
+  background: #9ca3af;
+}
+
+.waiting-list-students {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.waiting-list-student-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+  border: 1px solid #e5e7eb;
+}
+
+.waiting-list-student-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.waiting-list-student-item.selected {
+  border: 2px solid #16a34a;
+  box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.1);
+}
+
+.waiting-list-checkbox {
+  accent-color: #16a34a;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.waiting-list-student-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 200px;
+}
+
+.waiting-list-avatar {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  border: 2px solid #dcfce7;
+  box-shadow: 0 2px 8px rgba(48, 118, 55, 0.08);
+  object-fit: cover;
+  background: #f1f5f9;
+}
+
+.waiting-list-student-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.waiting-list-student-name {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #166534;
+}
+
+.waiting-list-student-date {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.waiting-list-assign-select {
+  margin-left: auto;
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #f0fdf4;
+  color: #166534;
+  font-weight: 500;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+  min-width: 140px;
+}
+
+.waiting-list-assign-select:hover {
+  border-color: #16a34a;
+}
+
+.waiting-list-assign-select:focus {
+  outline: none;
+  border-color: #16a34a;
+  box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.2);
+}
+
+.waiting-list-confirm-assign-btn {
+  margin-left: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
+  color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.waiting-list-confirm-assign-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #15803d 0%, #16a34a 100%);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.waiting-list-confirm-assign-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.waiting-list-delete-btn {
+  margin-left: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+  color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.waiting-list-delete-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.waiting-list-delete-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Modal styles */
+.waiting-list-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 50;
+}
+
+.waiting-list-modal-content {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 25px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  max-width: 400px;
+  width: 100%;
+}
+
+.waiting-list-modal-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #1e293b;
+}
+
+.waiting-list-modal-message {
+  margin-bottom: 1rem;
+  color: #64748b;
+}
+
+.waiting-list-modal-error {
+  color: #dc2626;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.waiting-list-modal-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.waiting-list-modal-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.waiting-list-modal-btn-cancel {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.waiting-list-modal-btn-cancel:hover {
+  background: #d1d5db;
+}
+
+.waiting-list-modal-btn-confirm {
+  background: #16a34a;
+  color: white;
+}
+
+.waiting-list-modal-btn-confirm:hover {
+  background: #15803d;
+}
+
+.waiting-list-modal-btn-danger {
+  background: #dc2626;
+  color: white;
+}
+
+.waiting-list-modal-btn-danger:hover {
+  background: #b91c1c;
+}
+
+.waiting-list-modal-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .waiting-list-panel {
+    margin: 1rem;
+    padding: 1rem;
+  }
+  
+  .waiting-list-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .waiting-list-student-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .waiting-list-student-info {
+    min-width: auto;
+    width: 100%;
+  }
+  
+  .waiting-list-assign-select {
+    margin-left: 0;
+    width: 100%;
+  }
+  
+  .waiting-list-confirm-assign-btn,
+  .waiting-list-delete-btn {
+    margin-left: 0;
+    margin-top: 0.5rem;
+    width: 100%;
+  }
+}
