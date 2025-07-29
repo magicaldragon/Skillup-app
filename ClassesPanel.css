@@ -1,11 +1,41 @@
-/* AddStudentPanel.css */
+/* ClassesPanel.css */
+.custom-table {
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(48, 118, 55, 0.10);
+  background: #fff;
+  margin-bottom: 24px;
+}
+.custom-table th {
+  background: #307637;
+  color: #fff;
+  font-weight: bold;
+  padding: 14px;
+  border-bottom: 2px solid #295b37;
+}
+.custom-table tr:nth-child(even) {
+  background: #ffe9c2;
+}
+.custom-table tr:nth-child(odd) {
+  background: #fff;
+}
+.custom-table td {
+  padding: 12px;
+  color: #295b37;
+  border-bottom: 1px solid #e0e0e0;
+}
+.custom-table tr:last-child td {
+  border-bottom: none;
+}
+/* Reuse form styles from AddStudentPanel.css for consistency */
 .form-container {
   background: #ffe9c2;
   border-radius: 18px;
   padding: 32px 24px;
   box-shadow: 0 2px 12px rgba(48, 118, 55, 0.10);
   max-width: 500px;
-  margin: 0 auto;
+  margin: 0 auto 24px auto;
 }
 .form-label {
   color: #295b37;
