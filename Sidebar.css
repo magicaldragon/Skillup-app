@@ -12,8 +12,6 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: stretch;
   height: 100vh;
 }
 
@@ -70,12 +68,12 @@
   border-radius: 18px;
   box-shadow: 0 2px 16px rgba(48, 118, 55, 0.10);
   padding: 24px 18px 16px 18px;
-  margin-bottom: 28px;
+  margin: 24px 16px 28px 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: calc(100% - 32px); /* Account for sidebar padding */
-  max-width: 280px; /* Prevent exceeding sidebar limits */
+  width: calc(100% - 32px);
+  max-width: 280px;
   box-sizing: border-box;
   margin-left: auto;
   margin-right: auto;
@@ -153,8 +151,8 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   gap: 14px;
+  padding: 0 16px;
   box-sizing: border-box;
 }
 .sidebar-btn {

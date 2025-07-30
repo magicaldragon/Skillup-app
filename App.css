@@ -48,7 +48,7 @@ input:focus {
 .main-content {
   flex: 1;
   min-width: 0;
-  padding: 32px;
+  padding: 24px 32px;
   background: #f8fafc;
   overflow-x: auto;
   margin: 0;
@@ -61,7 +61,7 @@ input:focus {
 .settings-panel-wrapper {
   width: 100%;
   max-width: 520px;
-  margin-top: 32px;
+  margin-top: 0;
   margin-left: 0;
   margin-right: auto;
   background: none;
