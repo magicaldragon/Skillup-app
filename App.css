@@ -52,6 +52,18 @@ input:focus {
   overflow-x: auto;
   margin: 0;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.settings-panel-wrapper {
+  width: 100%;
+  max-width: 520px;
+  margin-top: 32px;
+  margin-left: 0;
+  margin-right: auto;
+  background: none;
 }
 
 /* Content Centering for Forms, Tables, Charts */

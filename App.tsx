@@ -302,28 +302,15 @@ const App: React.FC = () => {
   return (
     <Suspense fallback={<div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div style={{ margin: '0 auto 1rem', width: 48, height: 48, borderRadius: '50%', borderBottom: '4px solid #307637', animation: 'spin 1s linear infinite' }} /><p style={{ fontSize: '1.1rem', color: '#475569' }}>Loading...</p></div>}>
       <div className="app-container">
-        {/* Sidebar toggle button for mobile */}
-        <button
-          className="sidebar-toggle-btn"
-          aria-label={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
-          onClick={() => setSidebarOpen((open) => !open)}
-        >
-          {sidebarOpen ? '\u2715' : '\u2630'}
-        </button>
-        {/* Sidebar overlay for mobile */}
-        {sidebarOpen && <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />}
+        {/* Remove sidebar toggle button and overlay */}
         <Sidebar
           role={user.role}
           activeKey={navKey}
-          onNavigate={(key) => {
-            setNavKey(key);
-            setSidebarOpen(false); // close sidebar on navigation (mobile)
-          }}
+          onNavigate={setNavKey}
           onLogout={handleLogout}
           user={user}
-          className={sidebarOpen ? 'open' : ''}
         />
-        <div className="main-content" onClick={() => sidebarOpen && setSidebarOpen(false)}>
+        <div className="main-content">
           {dataLoading && (
             <div style={{ position: 'fixed', top: 16, right: 16, background: '#307637', color: '#fff', padding: '8px 20px', borderRadius: 8, boxShadow: '0 2px 8px #30763722', zIndex: 50 }}>
               <div style={{ display: 'flex', alignItems: 'center' }}>

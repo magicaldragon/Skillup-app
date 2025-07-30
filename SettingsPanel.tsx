@@ -139,7 +139,7 @@ const SettingsPanel = ({ user, classes, onDataRefresh }: { user: Student, classe
   // --- ID Card Display Mode ---
   if (!editMode) {
     return (
-      <div className="content-center">
+      <div className="settings-panel-wrapper">
         <div className="settings-id-card">
           <h2>User Profile</h2>
           {/* Avatar and badge */}
@@ -216,7 +216,7 @@ const SettingsPanel = ({ user, classes, onDataRefresh }: { user: Student, classe
   // --- Edit Mode (Admin/Teacher/Staff Only) ---
   if (!canEdit) {
     return (
-      <div className="content-center">
+      <div className="settings-panel-wrapper">
         <div className="settings-id-card">
           <div className="text-center text-red-600 font-semibold">
             You don't have permission to edit your profile. Please contact an administrator.
@@ -227,7 +227,7 @@ const SettingsPanel = ({ user, classes, onDataRefresh }: { user: Student, classe
   }
 
   return (
-    <div className="content-center">
+    <div className="settings-panel-wrapper">
       <div className="settings-id-card">
         <h2>Edit Profile</h2>
         <form onSubmit={handleSave} className="flex flex-col items-center gap-4">
