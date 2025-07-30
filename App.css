@@ -128,45 +128,133 @@ input:focus {
 
 /* Settings Panel ID Card Improvements */
 .settings-id-card {
-  background: linear-gradient(135deg, #fff 0%, #f8fafc 100%);
+  background: linear-gradient(135deg, #fffbe6 0%, #ffe9c2 80%, #fff5e6 100%);
   border: 3px solid #307637;
-  border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(48, 118, 55, 0.15);
-  padding: 32px 28px;
+  border-radius: 28px;
+  box-shadow: 0 12px 48px rgba(48, 118, 55, 0.18), 0 2px 0 #f5b802 inset;
+  padding: 48px 40px;
   width: 100%;
-  max-width: 500px;
+  max-width: 520px;
   margin: 0 auto;
   text-align: center;
   position: relative;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: box-shadow 0.2s, border-color 0.2s;
 }
 
 .settings-id-card h2 {
-  color: #307637;
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin-bottom: 24px;
+  color: #ff8c42;
+  font-size: 2.2rem;
+  font-weight: 900;
+  margin-bottom: 32px;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
+  text-shadow: 0 4px 12px rgba(48, 118, 55, 0.13), 0 1px 0 #fffbe6;
 }
 
-.settings-id-card .info-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 0;
-  border-bottom: 1px solid #e5e7eb;
+.settings-id-card .avatar-section {
+  margin-bottom: 24px;
+}
+
+.settings-id-card .avatar-img, .settings-id-card .avatar-svg {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  border: 5px solid #f5b802;
+  background: #fff;
+  object-fit: cover;
+  box-shadow: 0 4px 24px #ffe9c2;
   margin-bottom: 8px;
 }
 
+.settings-id-card .role-badge {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 6px 24px;
+  border-radius: 16px;
+  background: #307637;
+  color: #fffbe6;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  box-shadow: 0 2px 8px #ffe9c2;
+  border: 2px solid #fffbe6;
+  text-transform: uppercase;
+}
+
+.settings-id-card .user-name {
+  font-size: 2.1rem;
+  font-weight: 900;
+  color: #307637;
+  margin-bottom: 4px;
+  letter-spacing: 1px;
+}
+
+.settings-id-card .user-english {
+  font-size: 1.2rem;
+  color: #ff8c42;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.settings-id-card .student-code {
+  font-size: 1.1rem;
+  color: #1e40af;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.settings-id-card .info-list {
+  width: 100%;
+  margin: 0 auto 16px auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.settings-id-card .info-row {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
 .settings-id-card .info-label {
-  font-weight: 600;
+  font-weight: 700;
   color: #374151;
-  font-size: 0.95rem;
+  font-size: 1rem;
+  margin-bottom: 2px;
 }
 
 .settings-id-card .info-value {
   font-weight: 500;
   color: #1f2937;
-  font-size: 0.95rem;
+  font-size: 1rem;
+}
+
+.settings-id-card .settings-btn {
+  margin-top: 24px;
+  padding: 14px 32px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  background: #307637;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(48, 118, 55, 0.3);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.settings-id-card .settings-btn:hover {
+  background: #245929;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(48, 118, 55, 0.4);
 } 

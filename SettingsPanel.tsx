@@ -62,7 +62,7 @@ const SettingsPanel = ({ user, classes, onDataRefresh }: { user: Student, classe
         method: 'POST',
         body: formData,
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('skillup_token')}`,
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
         },
       });
       const data = await res.json();
@@ -85,7 +85,7 @@ const SettingsPanel = ({ user, classes, onDataRefresh }: { user: Student, classe
       const res = await fetch(`${apiUrl}/users/${user.id}/avatar`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('skillup_token')}`,
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
         },
       });
       const data = await res.json();
@@ -111,7 +111,7 @@ const SettingsPanel = ({ user, classes, onDataRefresh }: { user: Student, classe
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('skillup_token')}`,
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
         },
         body: JSON.stringify({ 
           dob: form.dob, 
