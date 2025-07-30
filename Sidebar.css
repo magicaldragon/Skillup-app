@@ -211,6 +211,7 @@
   max-width: 260px; /* Prevent exceeding sidebar limits */
   position: relative;
   min-height: 50px; /* Ensure minimum height for taller buttons */
+  gap: 12px; /* Add consistent spacing between icon and text */
 }
 
 /* Dark mode submenu buttons */

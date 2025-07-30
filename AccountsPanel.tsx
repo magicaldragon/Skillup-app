@@ -12,7 +12,8 @@ const AccountsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
 
   const fetchAccounts = async () => {
     try {
-      const res = await fetch('/api/users', { credentials: 'include' });
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+      const res = await fetch(`${apiUrl}/users`, { credentials: 'include' });
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
@@ -57,7 +58,8 @@ const AccountsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
   const handleEditSave = async () => {
     setLoading(true);
     try {
-      await fetch(`/api/users/${editing!.id}`, {
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+      await fetch(`${apiUrl}/users/${editing!.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -87,7 +89,8 @@ const AccountsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
     }
     setLoading(true);
     try {
-      await fetch(`/api/users/${acc.id}`, { 
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+      await fetch(`${apiUrl}/users/${acc.id}`, { 
         method: 'DELETE',
         credentials: 'include'
       });
@@ -127,6 +130,7 @@ const AccountsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
             <option value="">All Roles</option>
             <option value="student">Student</option>
             <option value="teacher">Teacher</option>
+            <option value="staff">Staff</option>
             <option value="admin">Admin</option>
             <option value="records">Records (Archived)</option>
           </select>

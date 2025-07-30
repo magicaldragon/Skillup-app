@@ -10,12 +10,13 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
   const [form, setForm] = useState({
     fullname: '',
     username: '', // <-- add username field
+    email: '', // Add missing email field
     dob: '',
     englishName: '',
     phone: '',
     note: '',
     role: 'student',
-    gender: 'male',
+    gender: 'male', // Add missing gender field
     status: 'potential',
   });
   const [error, setError] = useState<string | null>(null);
@@ -101,6 +102,26 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+  };
+
+  // Add missing handleReset function
+  const handleReset = () => {
+    setForm({
+      fullname: '',
+      username: '',
+      email: '',
+      dob: '',
+      englishName: '',
+      phone: '',
+      note: '',
+      role: 'student',
+      gender: 'male',
+      status: 'potential',
+    });
+    setError(null);
+    setSuccess(null);
+    setGeneratedCredentials(null);
+    setUsernameError(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
