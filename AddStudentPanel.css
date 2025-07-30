@@ -1,14 +1,14 @@
 /* AddStudentPanel.css - Ultimate vivid design */
 .form-container {
-  background: linear-gradient(135deg, #ffe9c2 80%, #fff 100%);
+  background: linear-gradient(135deg, #ffe9c2 80%, #fff5e6 100%);
   border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(48, 118, 55, 0.15);
   padding: 32px 24px;
-  box-shadow: 0 4px 24px rgba(48, 118, 55, 0.13);
-  max-width: 500px;
-  margin: 0 auto;
-  border: 1.5px solid #f5b802;
-  box-sizing: border-box;
   width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  border: 1.5px solid #f5b802;
 }
 
 .form-title {
@@ -166,4 +166,10 @@
   .form-hint {
     color: #9ca3af;
   }
+}
+
+/* Required field indicator */
+.required {
+  color: #dc2626;
+  font-weight: bold;
 }

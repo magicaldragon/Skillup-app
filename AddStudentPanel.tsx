@@ -195,14 +195,14 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
   return (
     <div className="content-center">
       <div className="form-container">
-        <h2 className="form-title">Add New Member</h2>
+        <h2 className="form-title">Registration Form</h2>
         {error && <div className="form-alert error">{error}</div>}
         {success && <div className="form-alert success">{success}</div>}
         
         <form onSubmit={handleSubmit} className="form-form">
           <div className="form-row">
             <div className="form-group">
-              <label className="form-label">Full Name *</label>
+              <label className="form-label">Full Name <span className="required">*</span></label>
               <input
                 type="text"
                 name="fullname"
@@ -214,7 +214,7 @@ const AddStudentPanel = ({ onStudentAdded }: { onStudentAdded?: () => void }) =>
               />
             </div>
             <div className="form-group">
-              <label className="form-label">Role *</label>
+              <label className="form-label">Role <span className="required">*</span></label>
               <select
                 name="role"
                 value={form.role}
