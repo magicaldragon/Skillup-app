@@ -2,6 +2,7 @@
 export interface Student {
   id: string;
   name: string;
+  displayName?: string;
   email: string;
   role: string;
   gender?: string;
@@ -32,6 +33,7 @@ export interface StudentClass {
   id:string;
   name: string; // e.g., "SU-001"
   levelId: string | null; // A class can be unassigned from a level
+  studentIds: string[];
 }
 
 export type AssignmentCategory = 'Reading' | 'Listening' | 'Writing' | 'Speaking' | 'Full Practice Tests' | 'Mini Tests';

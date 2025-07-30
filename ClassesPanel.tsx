@@ -1,7 +1,6 @@
 // ClassesPanel.tsx
 // Professional panel to show and manage classes with code names (SU-001, SU-002, ...)
 import { useState, useEffect } from 'react';
-import { isEmpty } from './utils/stringUtils';
 import type { Student, StudentClass } from './types';
 import type { Level } from './types';
 import './ClassesPanel.css';
@@ -12,11 +11,10 @@ const getNextClassCode = (classes: StudentClass[]) => {
   return `SU-${next.toString().padStart(3, '0')}`;
 };
 
-const ClassesPanel = ({ students, classes, onAddClass, onAssignLevel, onDataRefresh }: { 
+const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: { 
   students: Student[], 
   classes: StudentClass[], 
   onAddClass?: (code: string) => void, 
-  onAssignLevel?: (classId: string, level: string) => void, 
   onDataRefresh?: () => void
 }) => {
   const [adding, setAdding] = useState(false);
@@ -28,9 +26,6 @@ const ClassesPanel = ({ students, classes, onAddClass, onAssignLevel, onDataRefr
   const [levels, setLevels] = useState<Level[]>([]);
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
   const [classSearch, setClassSearch] = useState('');
-  const [managing, setManaging] = useState(false);
-  const [editStudentId, setEditStudentId] = useState<string | null>(null);
-  const [editStudentName, setEditStudentName] = useState('');
   const [reportingStudentId, setReportingStudentId] = useState<string | null>(null);
   const [reportNote, setReportNote] = useState('');
   const [reportSending, setReportSending] = useState(false);
@@ -131,24 +126,6 @@ const ClassesPanel = ({ students, classes, onAddClass, onAssignLevel, onDataRefr
       onDataRefresh?.();
     } catch (error) {
       console.error('Error assigning student:', error);
-    }
-  };
-
-  // Edit student name
-  const handleEditStudent = async (studentId: string, newName: string) => {
-    try {
-      const res = await fetch(`/api/users/${studentId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ displayName: newName }),
-      });
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-      onDataRefresh?.();
-    } catch (error) {
-      console.error('Error updating student:', error);
     }
   };
 
@@ -326,12 +303,6 @@ const ClassesPanel = ({ students, classes, onAddClass, onAssignLevel, onDataRefr
                     <div key={student.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
                       <span>{student.displayName || student.name}</span>
                       <div className="flex gap-2">
-                        <button 
-                          onClick={() => setEditStudentId(student.id)}
-                          className="form-btn bg-blue-600 text-white text-xs"
-                        >
-                          Edit
-                        </button>
                         <button 
                           onClick={() => handleRemoveStudent(student.id)}
                           className="form-btn bg-red-600 text-white text-xs"
