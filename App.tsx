@@ -302,7 +302,6 @@ const App: React.FC = () => {
   return (
     <Suspense fallback={<div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div style={{ margin: '0 auto 1rem', width: 48, height: 48, borderRadius: '50%', borderBottom: '4px solid #307637', animation: 'spin 1s linear infinite' }} /><p style={{ fontSize: '1.1rem', color: '#475569' }}>Loading...</p></div>}>
       <div className="app-container">
-        {/* Remove sidebar toggle button and overlay */}
         <Sidebar
           role={user.role}
           activeKey={navKey}
