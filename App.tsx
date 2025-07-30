@@ -310,6 +310,8 @@ const App: React.FC = () => {
         >
           {sidebarOpen ? '\u2715' : '\u2630'}
         </button>
+        {/* Sidebar overlay for mobile */}
+        {sidebarOpen && <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />}
         <Sidebar
           role={user.role}
           activeKey={navKey}
@@ -319,7 +321,7 @@ const App: React.FC = () => {
           }}
           onLogout={handleLogout}
           user={user}
-          className={sidebarOpen ? 'sidebar open' : 'sidebar'}
+          className={sidebarOpen ? 'open' : ''}
         />
         <div className="main-content" onClick={() => sidebarOpen && setSidebarOpen(false)}>
           {dataLoading && (
