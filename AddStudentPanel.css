@@ -272,26 +272,61 @@
 }
 
 /* Registration Form Specific Styles - High specificity */
+/* Vertically center the form */
+.content-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 24px;
+  box-sizing: border-box;
+  background: none;
+}
+
+/* Visually striking form container */
 .content-center .form-container {
-  background: linear-gradient(135deg, #ffe9c2 80%, #fff5e6 100%);
-  border-radius: 18px;
-  box-shadow: 0 4px 24px rgba(48, 118, 55, 0.15);
-  padding: 40px 32px;
+  background: linear-gradient(135deg, #fffbe6 0%, #ffe9c2 80%, #fff5e6 100%);
+  border-radius: 28px;
+  box-shadow: 0 8px 40px 0 rgba(48, 118, 55, 0.22), 0 1.5px 0 #f5b802 inset;
+  padding: 48px 40px;
   width: 100%;
   max-width: 800px;
   margin: 0 auto;
   box-sizing: border-box;
-  border: 2px solid #f5b802;
+  border: 3px solid #f5b802;
+  position: relative;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.content-center .form-container:hover {
+  box-shadow: 0 12px 56px 0 rgba(48, 118, 55, 0.28), 0 2px 0 #f5b802 inset;
+  border-color: #ff8c42;
+}
+
+/* Add a faint inner highlight */
+.content-center .form-container::after {
+  content: '';
+  position: absolute;
+  top: 10px; left: 10px; right: 10px; bottom: 10px;
+  border-radius: 22px;
+  pointer-events: none;
+  box-shadow: 0 0 32px 8px #fffbe6 inset;
+  opacity: 0.5;
 }
 
 .content-center .form-title {
   color: #ff8c42;
-  font-size: 2.2rem;
-  font-weight: 800;
+  font-size: 2.7rem;
+  font-weight: 900;
   text-align: center;
-  margin-bottom: 32px;
-  letter-spacing: 1px;
-  text-shadow: 0 2px 4px rgba(48, 118, 55, 0.1);
+  margin-bottom: 40px;
+  letter-spacing: 1.5px;
+  text-shadow: 0 4px 12px rgba(48, 118, 55, 0.13), 0 1px 0 #fffbe6;
+  text-transform: uppercase;
 }
 
 .content-center .registration-form {
