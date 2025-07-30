@@ -20,6 +20,7 @@ const App: React.FC = () => {
   const [dataLoading, setDataLoading] = useState(false);
   const [dataError, setDataError] = useState<string | null>(null);
   const [navKey, setNavKey] = useState('dashboard');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -301,14 +302,26 @@ const App: React.FC = () => {
   return (
     <Suspense fallback={<div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div style={{ margin: '0 auto 1rem', width: 48, height: 48, borderRadius: '50%', borderBottom: '4px solid #307637', animation: 'spin 1s linear infinite' }} /><p style={{ fontSize: '1.1rem', color: '#475569' }}>Loading...</p></div>}>
       <div className="app-container">
-        <Sidebar 
-          role={user.role} 
-          activeKey={navKey} 
-          onNavigate={setNavKey}
+        {/* Sidebar toggle button for mobile */}
+        <button
+          className="sidebar-toggle-btn"
+          aria-label={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
+          onClick={() => setSidebarOpen((open) => !open)}
+        >
+          {sidebarOpen ? '\u2715' : '\u2630'}
+        </button>
+        <Sidebar
+          role={user.role}
+          activeKey={navKey}
+          onNavigate={(key) => {
+            setNavKey(key);
+            setSidebarOpen(false); // close sidebar on navigation (mobile)
+          }}
           onLogout={handleLogout}
           user={user}
+          className={sidebarOpen ? 'sidebar open' : 'sidebar'}
         />
-        <div className="main-content">
+        <div className="main-content" onClick={() => sidebarOpen && setSidebarOpen(false)}>
           {dataLoading && (
             <div style={{ position: 'fixed', top: 16, right: 16, background: '#307637', color: '#fff', padding: '8px 20px', borderRadius: 8, boxShadow: '0 2px 8px #30763722', zIndex: 50 }}>
               <div style={{ display: 'flex', alignItems: 'center' }}>
