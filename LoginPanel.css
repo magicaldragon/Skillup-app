@@ -36,6 +36,29 @@
   filter: drop-shadow(0 2px 8px #30763733);
 }
 
+/* Backend status indicators */
+.login-status {
+  width: 100%;
+  padding: 0.7rem 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  text-align: center;
+  font-weight: 500;
+}
+
+.login-status.checking {
+  background: #fff3cd;
+  color: #856404;
+  border: 1.5px solid #ffeaa7;
+}
+
+.login-status.disconnected {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1.5px solid #f5c6cb;
+}
+
 .login-form {
   width: 100%;
   display: flex;

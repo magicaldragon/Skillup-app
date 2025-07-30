@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './LoginPanel.css';
 import { authService } from './frontend/services/authService';
 
@@ -12,13 +12,41 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState(0);
+  const [backendStatus, setBackendStatus] = useState<'checking' | 'connected' | 'disconnected'>('checking');
   const MAX_ATTEMPTS = 3;
+
+  // Test backend connectivity on component mount
+  useEffect(() => {
+    const testConnection = async () => {
+      try {
+        const isConnected = await authService.testBackendConnection();
+        setBackendStatus(isConnected ? 'connected' : 'disconnected');
+      } catch (error) {
+        console.error('Backend connection test failed:', error);
+        setBackendStatus('disconnected');
+      }
+    };
+    
+    testConnection();
+  }, []);
 
   const handleAuthAction = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
+    
     try {
+      // Test backend connection first
+      if (backendStatus !== 'connected') {
+        const isConnected = await authService.testBackendConnection();
+        if (!isConnected) {
+          setError('Cannot connect to server. Please check your internet connection and try again.');
+          setIsLoading(false);
+          return;
+        }
+        setBackendStatus('connected');
+      }
+
       const response = await authService.login({ email, password });
       if (response.success && response.user) {
         setFailedAttempts(0);
@@ -43,6 +71,19 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         <div className="login-logo-wrap">
           <img src="/logo-skillup.png" alt="Skillup Center Logo" className="login-logo" />
         </div>
+        
+        {/* Backend status indicator */}
+        {backendStatus === 'checking' && (
+          <div className="login-status checking">
+            Checking server connection...
+          </div>
+        )}
+        {backendStatus === 'disconnected' && (
+          <div className="login-status disconnected">
+            ⚠️ Server connection failed. Please check your internet connection.
+          </div>
+        )}
+        
         <form className="login-form" onSubmit={handleAuthAction} autoComplete="on">
           <label htmlFor="email" className="login-label">Email</label>
           <input
@@ -74,7 +115,12 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
               <button type="button" className="login-btn" onClick={() => setFailedAttempts(0)} aria-label="Try logging in again after too many failed attempts">Try Again</button>
             </div>
           ) : (
-            <button type="submit" className="login-btn" disabled={isLoading || failedAttempts >= MAX_ATTEMPTS} aria-label="Sign in to SkillUp Center">
+            <button 
+              type="submit" 
+              className="login-btn" 
+              disabled={isLoading || failedAttempts >= MAX_ATTEMPTS || backendStatus === 'disconnected'} 
+              aria-label="Sign in to SkillUp Center"
+            >
               {isLoading ? 'Processing...' : 'Sign In'}
             </button>
           )}
