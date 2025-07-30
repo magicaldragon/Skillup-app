@@ -19,15 +19,16 @@ input:focus {
 
 .main-content {
   flex: 1;
-  padding: 32px;
+  padding: 20px 32px;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   justify-content: flex-start;
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
   box-sizing: border-box;
+  overflow-y: auto;
 }
 
 /* Content Centering for Forms, Tables, Charts */
@@ -35,12 +36,13 @@ input:focus {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   width: 100%;
   max-width: 800px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 20px 24px;
   box-sizing: border-box;
+  min-height: calc(100vh - 40px);
 }
 
 .form-container {

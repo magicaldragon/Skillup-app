@@ -4,12 +4,17 @@ import { S3Client, PutObjectCommand, GetObjectCommand, ListObjectsV2Command } fr
 
 // --- VStorage (VNG Cloud S3) Config ---
 export const vstorageConfig = {
-  accessKeyId: 'f859f5c6b54f5306bd7ed5cbc7c23240',
-  secretAccessKey: 't3zLotqNc9M2A1XZ0dt90M7vtXFuN8Csg0zXTIBW',
-  endpoint: 'https://s3.vngcloud.vn', // Default endpoint for VNG Cloud S3
-  region: 'sgn', // Use your actual region if different
-  bucket: 'skillup', // Set your actual bucket name here
+  accessKeyId: import.meta.env.VITE_VSTORAGE_ACCESS_KEY || '',
+  secretAccessKey: import.meta.env.VITE_VSTORAGE_SECRET_KEY || '',
+  endpoint: import.meta.env.VITE_VSTORAGE_ENDPOINT || 'https://s3.vngcloud.vn',
+  region: import.meta.env.VITE_VSTORAGE_REGION || 'sgn',
+  bucket: import.meta.env.VITE_VSTORAGE_BUCKET || 'skillup',
 };
+
+// Validate configuration
+if (!vstorageConfig.accessKeyId || !vstorageConfig.secretAccessKey) {
+  console.warn('VStorage credentials not configured. Please set VITE_VSTORAGE_ACCESS_KEY and VITE_VSTORAGE_SECRET_KEY environment variables.');
+}
 
 // --- S3 Client ---
 export const s3 = new S3Client({
@@ -24,6 +29,10 @@ export const s3 = new S3Client({
 
 // --- Helper: Upload File ---
 export async function uploadFile(key: string, file: Blob | Buffer | Uint8Array, contentType = 'application/octet-stream') {
+  if (!vstorageConfig.accessKeyId || !vstorageConfig.secretAccessKey) {
+    throw new Error('VStorage credentials not configured');
+  }
+  
   const command = new PutObjectCommand({
     Bucket: vstorageConfig.bucket,
     Key: key,
@@ -35,6 +44,10 @@ export async function uploadFile(key: string, file: Blob | Buffer | Uint8Array, 
 
 // --- Helper: Get File (returns a presigned URL or stream) ---
 export async function getFile(key: string) {
+  if (!vstorageConfig.accessKeyId || !vstorageConfig.secretAccessKey) {
+    throw new Error('VStorage credentials not configured');
+  }
+  
   const command = new GetObjectCommand({
     Bucket: vstorageConfig.bucket,
     Key: key,
@@ -44,6 +57,10 @@ export async function getFile(key: string) {
 
 // --- Helper: List Files ---
 export async function listFiles(prefix = '') {
+  if (!vstorageConfig.accessKeyId || !vstorageConfig.secretAccessKey) {
+    throw new Error('VStorage credentials not configured');
+  }
+  
   const command = new ListObjectsV2Command({
     Bucket: vstorageConfig.bucket,
     Prefix: prefix,
