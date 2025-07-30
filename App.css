@@ -329,21 +329,6 @@ input:focus {
   .main-content {
     padding: 16px 4px;
   }
-  .sidebar-toggle-btn {
-    display: block;
-    position: fixed;
-    top: 16px;
-    left: 16px;
-    z-index: 200;
-    background: #295b37;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    padding: 10px 14px;
-    font-size: 1.5rem;
-    box-shadow: 0 2px 8px rgba(41,91,55,0.15);
-    cursor: pointer;
-  }
   .sidebar-overlay {
     display: block;
     position: fixed;
@@ -353,9 +338,6 @@ input:focus {
   }
 }
 @media (min-width: 901px) {
-  .sidebar-toggle-btn {
-    display: none;
-  }
   .sidebar-overlay {
     display: none;
   }
