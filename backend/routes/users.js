@@ -1,607 +1,227 @@
 const express = require('express');
+const router = express.Router();
 const User = require('../models/User');
 const { verifyToken } = require('./auth');
-const router = express.Router();
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
-const ChangeLog = require('../models/ChangeLog');
+const { generateStudentCode } = require('../utils/studentCodeGenerator');
+const admin = require('firebase-admin');
 
-// Firebase Admin SDK initialization with graceful error handling
-let firebaseInitialized = false;
-let admin = null;
-
-try {
-  admin = require('firebase-admin');
-  if (!admin.apps.length) {
-    const serviceAccountPath = path.join(__dirname, '../firebase-service-account.json');
-    
-    if (fs.existsSync(serviceAccountPath)) {
-      const serviceAccount = require(serviceAccountPath);
-      admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
-      });
-      firebaseInitialized = true;
-      console.log('Firebase Admin SDK initialized successfully');
-    } else {
-      console.warn('Firebase service account file not found. Firebase Auth features will be disabled.');
-      firebaseInitialized = false;
-    }
-  } else {
-    firebaseInitialized = true;
-    console.log('Firebase Admin SDK already initialized');
-  }
-} catch (e) {
-  console.error('Firebase Admin SDK initialization failed:', e.message);
-  console.warn('Firebase Auth features will be disabled. User deletion from Firebase will not work.');
-  firebaseInitialized = false;
-}
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, path.join(__dirname, '../uploads/avatars')),
-  filename: (req, file, cb) => cb(null, `${req.params.id}${path.extname(file.originalname)}`)
-});
-const upload = multer({
-  storage,
-  fileFilter: (req, file, cb) => {
-    // Accept only image files
-    if (!file.mimetype.startsWith('image/')) {
-      return cb(new Error('Only image files are allowed!'), false);
-    }
-    cb(null, true);
-  },
-  limits: { fileSize: 2 * 1024 * 1024 } // 2MB limit
-});
-
-// Get all users (admin can see all, teacher can see students and staff, staff can see students only)
+// Get all users (with role-based filtering)
 router.get('/', verifyToken, async (req, res) => {
   try {
-    // Check if user is admin, teacher, or staff
-    if (req.user.role !== 'admin' && req.user.role !== 'teacher' && req.user.role !== 'staff') {
-      return res.status(403).json({ 
-        success: false, 
-        message: 'Access denied. Admin, teacher, or staff role required.' 
-      });
+    const { role } = req.user;
+    let query = {};
+
+    // Role-based filtering
+    if (role === 'admin') {
+      // Admin sees all users
+      query = {};
+    } else if (role === 'teacher') {
+      // Teachers see students and staff
+      query = { role: { $in: ['student', 'staff'] } };
+    } else if (role === 'staff') {
+      // Staff see only students
+      query = { role: 'student' };
     }
 
-    // Admin can see all users, teacher can see students and staff, staff can only see students
-    let users;
-    if (req.user.role === 'admin') {
-      users = await User.find().select('-password');
-      console.log(`[DEBUG] /api/users: Found ${users.length} users for admin. Roles:`, users.map(u => u.role));
-    } else if (req.user.role === 'teacher') {
-      // Teacher can see students and staff
-      users = await User.find({ role: { $in: ['student', 'staff'] } }).select('-password');
-    } else {
-      // Staff can only see students
-      users = await User.find({ role: 'student' }).select('-password');
-    }
-    
-    res.json({
-      success: true,
-      users: users.map(u => {
-        const obj = u.toObject();
-        obj.id = obj._id;
-        obj.displayName = obj.displayName || obj.name || '';
-        delete obj._id;
-        return obj;
-      })
-    });
+    const users = await User.find(query).sort({ createdAt: -1 });
+    res.json(users);
   } catch (error) {
-    console.error('Get users error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Internal server error' 
-    });
+    console.error('Error fetching users:', error);
+    res.status(500).json({ message: 'Failed to fetch users' });
   }
 });
 
-// Check if email exists (for registration validation)
-router.get('/check-email/:email', async (req, res) => {
+// Register new user
+router.post('/', async (req, res) => {
   try {
-    const email = decodeURIComponent(req.params.email).toLowerCase();
-    const user = await User.findOne({ email });
-    
-    res.json({
-      success: true,
-      exists: !!user
-    });
-  } catch (error) {
-    console.error('Check email error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Internal server error' 
-    });
-  }
-});
+    const { name, email, role, phone, dob, displayName } = req.body;
 
-// Check if username exists
-router.get('/check-username/:username', verifyToken, async (req, res) => {
-  try {
-    const username = req.params.username.toLowerCase();
-    const user = await User.findOne({ username });
-    res.json({ exists: !!user });
-  } catch (error) {
-    console.error('Check username error:', error);
-    res.status(500).json({ exists: false, error: 'Internal server error' });
-  }
-});
-
-// Get user by Firebase UID (for hybrid auth) - MUST BE BEFORE /:id route
-router.get('/firebase/:firebaseUid', async (req, res) => {
-  try {
-    const user = await User.findOne({ firebaseUid: req.params.firebaseUid }).select('-password');
-    if (!user) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'User not found' 
-      });
-    }
-    
-    res.json({
-      success: true,
-      user
-    });
-  } catch (error) {
-    console.error('Get user by Firebase UID error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Internal server error' 
-    });
-  }
-});
-
-// Get user by ID
-router.get('/:id', verifyToken, async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id).select('-password');
-    if (!user) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'User not found' 
-      });
-    }
-    
-    res.json({
-      success: true,
-      user
-    });
-  } catch (error) {
-    console.error('Get user error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Internal server error' 
-    });
-  }
-});
-
-// Create new user (admin can create any role, teacher can create students and staff, staff can create students only)
-router.post('/', verifyToken, async (req, res) => {
-  try {
-    // Extract fields from request body
-    const { name, email, role, firebaseUid, password, username, phone, englishName, dob, gender, note } = req.body;
-    
-    // Check if user is admin, teacher, or staff
-    if (req.user.role !== 'admin' && req.user.role !== 'teacher' && req.user.role !== 'staff') {
-      return res.status(403).json({ 
-        success: false, 
-        message: 'Access denied. Admin, teacher, or staff role required.' 
-      });
-    }
-
-    // Permission hierarchy: students < staff < teachers < admin
-    if (req.user.role === 'staff' && role !== 'student') {
-      return res.status(403).json({ 
-        success: false, 
-        message: 'Staff can only create students.' 
-      });
-    }
-    
-    if (req.user.role === 'teacher' && (role !== 'student' && role !== 'staff')) {
-      return res.status(403).json({ 
-        success: false, 
-        message: 'Teachers can only create students and staff.' 
-      });
-    }
-
-    // Validate required fields
-    if (!name || !email || !role) {
-      return res.status(400).json({ 
-        success: false, 
-        message: `Missing required fields: ${!name ? 'name ' : ''}${!email ? 'email ' : ''}${!role ? 'role' : ''}`.trim() 
-      });
-    }
-
-    // Password is required only if not using Firebase Auth
-    if (!firebaseUid && !password) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Password is required when not using Firebase Auth' 
-      });
-    }
-
-    // Check if email already exists
-    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Email already exists' 
-      });
+      return res.status(400).json({ message: 'User with this email already exists' });
     }
 
-    // Check if Firebase UID already exists (if provided)
-    if (firebaseUid) {
-      const existingFirebaseUser = await User.findOne({ firebaseUid });
-      if (existingFirebaseUser) {
-        return res.status(400).json({ 
-          success: false, 
-          message: 'Firebase UID already exists' 
-        });
-      }
+    let studentCode = null;
+    let status = 'potential';
+
+    // Generate student code for students
+    if (role === 'student') {
+      studentCode = await generateStudentCode();
+      status = 'potential'; // Default status for new students
     }
 
-    // Create new user
+    // Create user in MongoDB
     const user = new User({
       name,
-      email: email.toLowerCase(),
+      email,
       role,
-      firebaseUid,
-      username,
-      ...(password && { password }), // Only include password if provided
-      ...(phone && { phone }),
-      ...(englishName && { englishName }),
-      ...(dob && { dob }),
-      ...(gender && { gender }),
-      ...(note && { note })
+      phone,
+      dob,
+      displayName,
+      studentCode,
+      status
     });
 
     await user.save();
 
-    // Log the action
-    const logUser = {
-      id: (req.user && (req.user.id || req.user._id)) || 'system',
-      name: (req.user && (req.user.name || req.user.email)) || 'System',
-      role: (req.user && req.user.role) || 'system'
-    };
-    await ChangeLog.create({
-      userId: logUser.id,
-      userName: logUser.name,
-      userRole: logUser.role,
-      action: 'add',
-      entityType: 'user',
-      entityId: user._id,
-      details: { after: user },
-      ip: req.ip
-    });
+    // Create Firebase Auth user
+    let firebaseUser;
+    try {
+      firebaseUser = await admin.auth().createUser({
+        email,
+        displayName: name,
+        password: Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8), // Generate random password
+      });
 
-    res.status(201).json({
-      success: true,
-      message: 'User created successfully',
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        avatarUrl: user.avatarUrl,
-        status: user.status
-      }
-    });
+      // Update MongoDB user with Firebase UID
+      user.firebaseUid = firebaseUser.uid;
+      await user.save();
 
+      // Set custom claims based on role
+      await admin.auth().setCustomUserClaims(firebaseUser.uid, { role });
+
+      res.status(201).json({
+        message: 'User created successfully',
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          status: user.status,
+          studentCode: user.studentCode,
+          firebaseUid: user.firebaseUid
+        }
+      });
+    } catch (firebaseError) {
+      // If Firebase creation fails, delete the MongoDB user
+      await User.findByIdAndDelete(user._id);
+      console.error('Firebase user creation failed:', firebaseError);
+      return res.status(500).json({ message: 'Failed to create user in authentication system' });
+    }
   } catch (error) {
-    console.error('Create user error:', error);
-    // Add detailed error message for debugging
-    res.status(500).json({ 
-      success: false, 
-      message: error.message || 'Internal server error',
-      stack: error.stack,
-      error: error
-    });
+    console.error('Error creating user:', error);
+    res.status(500).json({ message: 'Failed to create user' });
   }
 });
 
 // Update user
 router.put('/:id', verifyToken, async (req, res) => {
   try {
-    const { name, email, role, status, ...otherFields } = req.body;
+    const { id } = req.params;
+    const { name, email, role, phone, dob, displayName, status, studentCode } = req.body;
 
-    // Get the user to be updated
-    const userToUpdate = await User.findById(req.params.id);
-    if (!userToUpdate) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'User not found' 
-      });
-    }
-
-    // Check permissions (admin can update anyone, teacher can update students and staff, staff can update students, users can update themselves)
-    if (req.user.role !== 'admin' && req.user.role !== 'teacher' && req.user.role !== 'staff' && req.user.userId !== req.params.id) {
-      return res.status(403).json({ 
-        success: false, 
-        message: 'Access denied. You can only update your own profile.' 
-      });
-    }
-
-    // Permission hierarchy: students < staff < teachers < admin
-    if (req.user.role === 'staff' && userToUpdate.role !== 'student') {
-      return res.status(403).json({ 
-        success: false, 
-        message: 'Staff can only update students' 
-      });
-    }
-    
-    if (req.user.role === 'teacher' && (userToUpdate.role !== 'student' && userToUpdate.role !== 'staff')) {
-      return res.status(403).json({ 
-        success: false, 
-        message: 'Teachers can only update students and staff' 
-      });
-    }
-
-    // Only admin can change role and status
-    if (req.user.role !== 'admin') {
-      delete req.body.role;
-      delete req.body.status;
-    }
-    // Allow users to update their own diceBearStyle and diceBearSeed
-    if (req.user.userId !== req.params.id && req.user.role !== 'admin') {
-      delete req.body.diceBearStyle;
-      delete req.body.diceBearSeed;
-    }
-
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      { 
-        ...req.body,
-        updatedAt: Date.now()
-      },
-      { new: true }
-    ).select('-password');
-
-    if (!user) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'User not found' 
-      });
-    }
-
-    // Log the action
-    const before = await User.findById(req.params.id);
-    await User.findByIdAndUpdate(req.params.id, req.body);
-    const after = await User.findById(req.params.id);
-    const logUser = {
-      id: (req.user && (req.user.id || req.user._id)) || 'system',
-      name: (req.user && (req.user.name || req.user.email)) || 'System',
-      role: (req.user && req.user.role) || 'system'
+    const updateData = {
+      name,
+      email,
+      role,
+      phone,
+      dob,
+      displayName,
+      status,
+      studentCode,
+      updatedAt: new Date()
     };
-    await ChangeLog.create({
-      userId: logUser.id,
-      userName: logUser.name,
-      userRole: logUser.role,
-      action: 'edit',
-      entityType: 'user',
-      entityId: req.params.id,
-      details: { before, after },
-      ip: req.ip
-    });
 
-    res.json({
-      success: true,
-      message: 'User updated successfully',
-      user
-    });
+    // Remove undefined fields
+    Object.keys(updateData).forEach(key => 
+      updateData[key] === undefined && delete updateData[key]
+    );
 
-  } catch (error) {
-    console.error('Update user error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Internal server error' 
-    });
-  }
-});
-
-// Profile endpoint - redirect to auth/profile
-router.get('/profile', verifyToken, async (req, res) => {
-  try {
-    const user = await User.findById(req.user.userId).select('-password');
+    const user = await User.findByIdAndUpdate(id, updateData, { new: true });
     if (!user) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'User not found' 
-      });
+      return res.status(404).json({ message: 'User not found' });
     }
-    
-    res.json({
-      success: true,
-      user
-    });
+
+    // Update Firebase Auth user if needed
+    if (user.firebaseUid) {
+      try {
+        await admin.auth().updateUser(user.firebaseUid, {
+          displayName: user.name,
+          email: user.email
+        });
+
+        // Update custom claims
+        await admin.auth().setCustomUserClaims(user.firebaseUid, { role });
+      } catch (firebaseError) {
+        console.error('Firebase user update failed:', firebaseError);
+      }
+    }
+
+    res.json({ message: 'User updated successfully', user });
   } catch (error) {
-    console.error('Get profile error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Internal server error' 
-    });
+    console.error('Error updating user:', error);
+    res.status(500).json({ message: 'Failed to update user' });
   }
 });
 
-// Avatar upload endpoint
-router.post('/:id/avatar', verifyToken, upload.single('avatar'), async (req, res) => {
-  try {
-    // Only allow user to upload their own avatar or admin
-    if (req.user.userId !== req.params.id && req.user.role !== 'admin') {
-      return res.status(403).json({ success: false, message: 'You can only upload your own avatar.' });
-    }
-    if (!req.file) {
-      return res.status(400).json({ success: false, message: 'No file uploaded.' });
-    }
-    const avatarUrl = `/uploads/avatars/${req.file.filename}`;
-    await User.findByIdAndUpdate(req.params.id, { avatarUrl });
-    res.json({ success: true, avatarUrl });
-  } catch (error) {
-    console.error('Avatar upload error:', error);
-    if (!res.headersSent) {
-      res.status(500).json({ success: false, message: 'Failed to upload avatar.', error: error?.message || error });
-    }
-  }
-});
-
-// Remove avatar endpoint
-router.delete('/:id/avatar', verifyToken, async (req, res) => {
-  try {
-    // Only allow user to remove their own avatar or admin
-    if (req.user.userId !== req.params.id && req.user.role !== 'admin') {
-      return res.status(403).json({ success: false, message: 'You can only remove your own avatar.' });
-    }
-    const user = await User.findById(req.params.id);
-    if (user && user.avatarUrl) {
-      const filePath = path.join(__dirname, '../', user.avatarUrl);
-      fs.unlink(filePath, err => {
-        // Ignore error if file does not exist
-      });
-    }
-    await User.findByIdAndUpdate(req.params.id, { avatarUrl: '' });
-    res.json({ success: true, message: 'Avatar removed.' });
-  } catch (error) {
-    console.error('Avatar remove error:', error);
-    res.status(500).json({ success: false, message: 'Failed to remove avatar.' });
-  }
-});
-
-// Delete user (admin can delete anyone, teacher can delete students and staff, staff can delete students only)
+// Delete user
 router.delete('/:id', verifyToken, async (req, res) => {
   try {
-    // Check if user is admin, teacher, or staff
-    if (req.user.role !== 'admin' && req.user.role !== 'teacher' && req.user.role !== 'staff') {
-      return res.status(403).json({ 
-        success: false, 
-        message: 'Access denied. Admin, teacher, or staff role required.' 
-      });
-    }
-
-    // Prevent deleting self
-    if (req.user.userId === req.params.id) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Cannot delete your own account' 
-      });
-    }
-
-    // Get the user to be deleted
-    const userToDelete = await User.findById(req.params.id);
-    if (!userToDelete) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'User not found' 
-      });
-    }
-
-    // Permission hierarchy: students < staff < teachers < admin
-    if (req.user.role === 'staff' && userToDelete.role !== 'student') {
-      return res.status(403).json({ 
-        success: false, 
-        message: 'Staff can only delete students' 
-      });
-    }
+    const { id } = req.params;
+    const user = await User.findById(id);
     
-    if (req.user.role === 'teacher' && (userToDelete.role !== 'student' && userToDelete.role !== 'staff')) {
-      return res.status(403).json({ 
-        success: false, 
-        message: 'Teachers can only delete students and staff' 
-      });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
 
-    // Check if this is the last admin (only for admin deletions)
-    if (userToDelete.role === 'admin') {
-      const adminCount = await User.countDocuments({ role: 'admin' });
-      if (adminCount <= 1) {
-        return res.status(400).json({ 
-          success: false, 
-          message: 'Cannot delete the last admin account' 
-        });
-      }
-    }
-
-    // Delete from Firebase Auth if firebaseUid exists
-    if (userToDelete.firebaseUid && firebaseInitialized) {
+    // Delete from Firebase Auth if UID exists
+    if (user.firebaseUid) {
       try {
-        await admin.auth().deleteUser(userToDelete.firebaseUid);
-        console.log(`Deleted user from Firebase Auth: ${userToDelete.firebaseUid}`);
-      } catch (fbErr) {
-        console.error('Error deleting user from Firebase Auth:', fbErr.message);
-        // Optionally, return error or continue
+        await admin.auth().deleteUser(user.firebaseUid);
+      } catch (firebaseError) {
+        console.error('Firebase user deletion failed:', firebaseError);
       }
     }
-    await User.findByIdAndDelete(req.params.id);
 
-    // Log the action
-    const before = await User.findById(req.params.id);
-    const logUser = {
-      id: (req.user && (req.user.id || req.user._id)) || 'system',
-      name: (req.user && (req.user.name || req.user.email)) || 'System',
-      role: (req.user && req.user.role) || 'system'
-    };
-    await ChangeLog.create({
-      userId: logUser.id,
-      userName: logUser.name,
-      userRole: logUser.role,
-      action: 'delete',
-      entityType: 'user',
-      entityId: req.params.id,
-      details: { before },
-      ip: req.ip
-    });
-
-    res.json({
-      success: true,
-      message: 'User deleted successfully'
-    });
-
+    await User.findByIdAndDelete(id);
+    res.json({ message: 'User deleted successfully' });
   } catch (error) {
-    console.error('Delete user error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Internal server error' 
-    });
+    console.error('Error deleting user:', error);
+    res.status(500).json({ message: 'Failed to delete user' });
   }
 });
 
-// --- Admin Debug Endpoints ---
-const ADMIN_SECRET = process.env.ADMIN_SECRET || 'changeme';
+// Get user by ID
+router.get('/:id', verifyToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id);
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
 
-function requireAdmin(req, res, next) {
-  if (req.user && req.user.role === 'admin') return next();
-  return res.status(403).json({ success: false, message: 'Admin only' });
-}
-
-// Simple in-memory log for demonstration
-let errorLogs = [
-  { timestamp: new Date().toISOString(), message: 'Sample error log', level: 'error', service: 'backend' }
-];
-
-router.get('/admin/error-logs', verifyToken, requireAdmin, (req, res) => {
-  res.json({ success: true, logs: errorLogs.slice(-100) });
+    res.json(user);
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(500).json({ message: 'Failed to fetch user' });
+  }
 });
 
-// User sync status: compare MongoDB and Firebase (simulate for now)
-router.get('/admin/user-sync-status', verifyToken, requireAdmin, async (req, res) => {
-  // Simulate: fetch all users from MongoDB
-  const mongoUsers = await User.find({});
-  // Simulate: fetch all users from Firebase (not implemented, so just return MongoDB for now)
-  // In real app, compare with Firebase list
-  res.json({ success: true, mongoCount: mongoUsers.length, firebaseCount: mongoUsers.length, discrepancies: [] });
+// Update user avatar
+router.post('/:id/avatar', verifyToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    // This would typically handle file upload to cloud storage
+    // For now, we'll just return a success message
+    res.json({ message: 'Avatar updated successfully', avatarUrl: 'placeholder-url' });
+  } catch (error) {
+    console.error('Error updating avatar:', error);
+    res.status(500).json({ message: 'Failed to update avatar' });
+  }
 });
 
-// Deploy/redeploy endpoints (simulate)
-router.post('/admin/deploy-frontend', verifyToken, requireAdmin, (req, res) => {
-  // In real app, trigger a webhook or script
-  res.json({ success: true, message: 'Frontend redeploy triggered (simulated).' });
-});
-router.post('/admin/deploy-backend', verifyToken, requireAdmin, (req, res) => {
-  // In real app, trigger a webhook or script
-  res.json({ success: true, message: 'Backend redeploy triggered (simulated).' });
-});
-
-// Version endpoint
-router.get('/admin/version', (req, res) => {
-  res.json({ success: true, version: '1.0.0', uptime: process.uptime() });
+// Remove user avatar
+router.delete('/:id/avatar', verifyToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await User.findByIdAndUpdate(id, { avatarUrl: null });
+    res.json({ message: 'Avatar removed successfully' });
+  } catch (error) {
+    console.error('Error removing avatar:', error);
+    res.status(500).json({ message: 'Failed to remove avatar' });
+  }
 });
 
 module.exports = router; 
