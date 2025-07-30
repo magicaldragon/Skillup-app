@@ -128,7 +128,7 @@ const menuConfig = (role: string) => [
   },
 ];
 
-const Sidebar = ({ role, activeKey, onNavigate, onLogout, user }: { role: string, activeKey: string, onNavigate: (key: string) => void, onLogout?: () => void, user?: { name: string, avatarSeed?: string, avatarUrl?: string } }) => {
+const Sidebar = ({ role, activeKey, onNavigate, onLogout, user, className }: { role: string, activeKey: string, onNavigate: (key: string) => void, onLogout?: () => void, user?: { name: string, avatarSeed?: string, avatarUrl?: string }, className?: string }) => {
   const menu = menuConfig(role);
   // By default, open the section containing the activeKey
   const getDefaultOpen = () => {
@@ -160,7 +160,7 @@ const Sidebar = ({ role, activeKey, onNavigate, onLogout, user }: { role: string
   };
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar${className ? ' ' + className : ''}`}>
       {/* Logo section */}
       <div className="sidebar-logo">
         {/* You can place your logo image or text here */}
