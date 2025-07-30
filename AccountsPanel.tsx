@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import type { Student } from './types';
+import { authService } from './services/authService';
 
 const AccountsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
   const [accounts, setAccounts] = useState<Student[]>([]);
@@ -13,13 +14,36 @@ const AccountsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
   const fetchAccounts = async () => {
     try {
       const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
-      const res = await fetch(`${apiUrl}/users`, { credentials: 'include' });
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
+      console.log('Fetching accounts from:', `${apiUrl}/users`);
+      
+      const token = authService.getToken();
+      if (!token) {
+        console.error('No authentication token available');
+        setAccounts([]);
+        return;
       }
+      
+      const res = await fetch(`${apiUrl}/users`, { 
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        }
+      });
+      
+      console.log('Response status:', res.status);
+      
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error('HTTP error response:', errorText);
+        throw new Error(`HTTP error! status: ${res.status}, message: ${errorText}`);
+      }
+      
       const data = await res.json();
+      console.log('Fetched accounts data:', data);
+      
       // Map _id to id for frontend compatibility
       const users = (data.users || []).map((u: any) => ({ ...u, id: u.id || u._id }));
+      console.log('Processed users:', users);
       setAccounts(users as Student[]);
     } catch (error) {
       console.error('Error fetching accounts:', error);
@@ -59,10 +83,14 @@ const AccountsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
     setLoading(true);
     try {
       const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+      const token = authService.getToken();
+      
       await fetch(`${apiUrl}/users/${editing!.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
         body: JSON.stringify({
           displayName: editForm.displayName,
           dob: editForm.dob,
@@ -90,9 +118,13 @@ const AccountsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
     setLoading(true);
     try {
       const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+      const token = authService.getToken();
+      
       await fetch(`${apiUrl}/users/${acc.id}`, { 
         method: 'DELETE',
-        credentials: 'include'
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
       });
       // Optionally, also remove from Firebase Auth and VStorage
       onDataRefresh?.();
