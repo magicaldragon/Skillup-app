@@ -1,3 +1,11 @@
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  box-sizing: border-box;
+}
+
 /* Hide blinking caret in all input fields */
 input:focus {
   caret-color: transparent;
@@ -15,6 +23,8 @@ input:focus {
   min-height: 100vh;
   width: 100vw;
   background: #fff;
+  margin: 0;
+  padding: 0;
 }
 
 .sidebar {
@@ -40,7 +50,8 @@ input:focus {
   padding: 32px;
   background: #f8fafc;
   overflow-x: auto;
-  transition: padding 0.3s;
+  margin: 0;
+  box-sizing: border-box;
 }
 
 /* Content Centering for Forms, Tables, Charts */
