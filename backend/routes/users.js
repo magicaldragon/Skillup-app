@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const { verifyToken } = require('./auth');
-const { generateStudentCode } = require('../utils/studentCodeGenerator');
+const { generateStudentCode, reassignAllStudentCodes, findStudentCodeGaps } = require('../utils/studentCodeGenerator');
 const admin = require('firebase-admin');
 
 // Get all users (with role-based filtering)
@@ -28,6 +28,36 @@ router.get('/', verifyToken, async (req, res) => {
   } catch (error) {
     console.error('Error fetching users:', error);
     res.status(500).json({ message: 'Failed to fetch users' });
+  }
+});
+
+// Admin endpoint to get student code statistics
+router.get('/admin/student-codes/stats', verifyToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Admin access required' });
+    }
+
+    const stats = await findStudentCodeGaps();
+    res.json(stats);
+  } catch (error) {
+    console.error('Error getting student code stats:', error);
+    res.status(500).json({ message: 'Failed to get student code statistics' });
+  }
+});
+
+// Admin endpoint to reassign all student codes
+router.post('/admin/student-codes/reassign', verifyToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Admin access required' });
+    }
+
+    const result = await reassignAllStudentCodes();
+    res.json(result);
+  } catch (error) {
+    console.error('Error reassigning student codes:', error);
+    res.status(500).json({ message: 'Failed to reassign student codes' });
   }
 });
 
