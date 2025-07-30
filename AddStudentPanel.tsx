@@ -182,16 +182,13 @@ const AddStudentPanel = () => {
 
           {/* Email */}
           <div className="form-group">
-            <label className="form-label">
-              Email <span className="required">*</span>
-            </label>
+            <label className="form-label">Email</label>
             <input
               type="email"
               name="email"
               value={form.email}
               onChange={handleChange}
               className="form-input"
-              required
             />
           </div>
 
