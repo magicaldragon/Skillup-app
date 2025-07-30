@@ -188,7 +188,7 @@ const AccountsPanel = () => {
 
             <div className="filters-section">
               <div className="search-box">
-                <input
+        <input
                   type="text"
                   placeholder="Search by name, email, or student code..."
                   value={searchTerm}
@@ -207,7 +207,7 @@ const AccountsPanel = () => {
                   <option value="admin">Admin</option>
                   <option value="teacher">Teacher</option>
                   <option value="staff">Staff</option>
-                  <option value="student">Student</option>
+          <option value="student">Student</option>
                 </select>
                 
                 <select
@@ -222,8 +222,8 @@ const AccountsPanel = () => {
                   <option value="postponed">Postponed</option>
                   <option value="off">Off</option>
                   <option value="alumni">Alumni</option>
-                </select>
-              </div>
+        </select>
+      </div>
             </div>
 
             <div className="table-wrapper">
@@ -241,9 +241,9 @@ const AccountsPanel = () => {
                     <th>Parent's Name</th>
                     <th>Parent's Phone</th>
                     <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
+          </tr>
+        </thead>
+        <tbody>
                   {filteredAccounts.map(account => (
                     <tr key={account._id}>
                       <td>
@@ -392,11 +392,11 @@ const AccountsPanel = () => {
                             <button onClick={() => handleRemove(account._id)} className="delete-btn">Delete</button>
                           </div>
                         )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
             </div>
 
             {filteredAccounts.length === 0 && (
@@ -404,7 +404,7 @@ const AccountsPanel = () => {
                 {searchTerm || filterRole !== 'all' || filterStatus !== 'all' 
                   ? 'No accounts match your search criteria.' 
                   : 'No accounts found.'}
-              </div>
+            </div>
             )}
           </div>
         </div>
