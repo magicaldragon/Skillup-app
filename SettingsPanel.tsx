@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import type { Student, StudentClass } from './types';
 import DiceBearAvatar from './DiceBearAvatar';
-import { useDarkMode } from './App';
 
 const DICEBEAR_STYLES = [
   { label: 'Cartoon', value: 'avataaars' },
@@ -28,8 +27,6 @@ const SettingsPanel = ({ user, classes, onDataRefresh }: { user: Student, classe
   const [avatarError, setAvatarError] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
 
-  const { darkMode, toggleDarkMode } = useDarkMode();
-
   const currentClasses = useMemo(() => {
     if (!user.classIds || !classes.length) return [];
     return classes.filter(c => user.classIds?.includes(c.id)).map(c => c.name);
@@ -53,10 +50,13 @@ const SettingsPanel = ({ user, classes, onDataRefresh }: { user: Student, classe
     const formData = new FormData();
     formData.append('avatar', file);
     try {
-      const res = await fetch(`/api/users/${user.id}/avatar`, {
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+      const res = await fetch(`${apiUrl}/users/${user.id}/avatar`, {
         method: 'POST',
         body: formData,
-        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('skillup_token')}`,
+        },
       });
       const data = await res.json();
       if (!res.ok || !data.avatarUrl) throw new Error(data.message || 'Upload failed');
@@ -74,9 +74,12 @@ const SettingsPanel = ({ user, classes, onDataRefresh }: { user: Student, classe
     setAvatarUploading(true);
     setAvatarError(null);
     try {
-      const res = await fetch(`/api/users/${user.id}/avatar`, {
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+      const res = await fetch(`${apiUrl}/users/${user.id}/avatar`, {
         method: 'DELETE',
-        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('skillup_token')}`,
+        },
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Failed to remove avatar');
@@ -96,10 +99,19 @@ const SettingsPanel = ({ user, classes, onDataRefresh }: { user: Student, classe
     setSuccess(null);
     setError(null);
     try {
-      const res = await fetch(`/api/users/${user.id}`, {
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+      const res = await fetch(`${apiUrl}/users/${user.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ dob: form.dob, phone: form.phone, diceBearStyle: avatarStyle, diceBearSeed: avatarSeed }),
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('skillup_token')}`,
+        },
+        body: JSON.stringify({ 
+          dob: form.dob, 
+          phone: form.phone, 
+          diceBearStyle: avatarStyle, 
+          diceBearSeed: avatarSeed 
+        }),
       });
       if (!res.ok) throw new Error('Failed to update user');
       setSuccess('Profile updated successfully!');
@@ -154,10 +166,6 @@ const SettingsPanel = ({ user, classes, onDataRefresh }: { user: Student, classe
           </div>
           <div className="flex gap-4 mt-6 justify-center">
             <button className="px-6 py-2 bg-[#307637] text-white rounded-xl shadow-lg hover:bg-[#245929] text-lg font-bold tracking-wide" onClick={() => setEditMode(true)}>Edit</button>
-            <label className="flex items-center cursor-pointer gap-2">
-              <input type="checkbox" checked={darkMode} onChange={toggleDarkMode} className="accent-green-600 w-5 h-5" />
-              <span className="text-base font-semibold">Dark Mode</span>
-            </label>
           </div>
         </div>
       </div>
