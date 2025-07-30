@@ -36,17 +36,7 @@ input:focus {
   box-sizing: border-box;
 }
 
-.form-container {
-  background: linear-gradient(135deg, #ffe9c2 80%, #fff5e6 100%);
-  border-radius: 18px;
-  box-shadow: 0 4px 24px rgba(48, 118, 55, 0.15);
-  padding: 32px 24px;
-  width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
-  box-sizing: border-box;
-  border: 1.5px solid #f5b802;
-}
+/* Remove conflicting form-container styles - let individual components handle their own styling */
 
 .table-container {
   background: #fff;
