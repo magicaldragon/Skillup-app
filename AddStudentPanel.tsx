@@ -9,8 +9,8 @@ const AddStudentPanel = () => {
   const [form, setForm] = useState({
     name: '',
     email: '',
-    role: 'student',
-    gender: 'male',
+    role: 'student' as 'student' | 'teacher' | 'admin' | 'staff',
+    gender: 'male' as 'male' | 'female' | 'other',
     englishName: '',
     dob: '',
     phone: '',
@@ -116,7 +116,7 @@ const AddStudentPanel = () => {
               name="role"
               value={form.role}
               onChange={handleChange}
-              className="form-input"
+              className="form-select"
               required
             >
               <option value="student">Student</option>
@@ -135,7 +135,7 @@ const AddStudentPanel = () => {
               name="gender"
               value={form.gender}
               onChange={handleChange}
-              className="form-input"
+              className="form-select"
               required
             >
               <option value="male">Male</option>
@@ -219,8 +219,8 @@ const AddStudentPanel = () => {
             />
           </div>
 
-          {/* Notes */}
-          <div className="form-group">
+          {/* Notes - Full Width */}
+          <div className="form-group full-width">
             <label className="form-label">Notes</label>
             <textarea
               name="notes"
@@ -232,9 +232,9 @@ const AddStudentPanel = () => {
             />
           </div>
 
-          {/* Status (only for students) */}
+          {/* Status (only for students) - Full Width */}
           {form.role === 'student' && (
-            <div className="form-group">
+            <div className="form-group full-width">
               <label className="form-label">
                 Status <span className="required">*</span>
               </label>
@@ -242,7 +242,7 @@ const AddStudentPanel = () => {
                 name="status"
                 value={form.status}
                 onChange={handleChange}
-                className="form-input"
+                className="form-select"
                 required
               >
                 <option value="potential">Potential</option>

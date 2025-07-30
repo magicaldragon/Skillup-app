@@ -11,19 +11,17 @@ router.get('/', verifyToken, async (req, res) => {
     const { role } = req.user;
     let query = {};
 
-    // Role-based filtering
-    if (role === 'admin') {
-      // Admin sees all users
+    // Role-based filtering - allow admin, teacher, and staff to see all users
+    if (role === 'admin' || role === 'teacher' || role === 'staff') {
+      // Admin, teachers, and staff see all users
       query = {};
-    } else if (role === 'teacher') {
-      // Teachers see students and staff
-      query = { role: { $in: ['student', 'staff'] } };
-    } else if (role === 'staff') {
-      // Staff see only students
-      query = { role: 'student' };
+    } else if (role === 'student') {
+      // Students see only themselves (for security)
+      query = { _id: req.user.id };
     }
 
     const users = await User.find(query).sort({ createdAt: -1 });
+    console.log(`Fetched ${users.length} users for role: ${role}`);
     res.json(users);
   } catch (error) {
     console.error('Error fetching users:', error);
