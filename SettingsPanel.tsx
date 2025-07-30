@@ -15,6 +15,10 @@ const SettingsPanel = ({ user, classes, onDataRefresh }: { user: Student, classe
   const [form, setForm] = useState({
     dob: user.dob || '',
     phone: user.phone || '',
+    englishName: user.englishName || '',
+    parentName: user.parentName || '',
+    parentPhone: user.parentPhone || '',
+    notes: user.notes || '',
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
@@ -32,12 +36,15 @@ const SettingsPanel = ({ user, classes, onDataRefresh }: { user: Student, classe
     return classes.filter(c => user.classIds?.includes(c.id)).map(c => c.name);
   }, [user.classIds, classes]);
 
+  // Check if user can edit their information
+  const canEdit = user.role === 'admin' || user.role === 'teacher' || user.role === 'staff';
+
   const handleRandomize = () => {
     setAvatarSeed(Math.random().toString(36).substring(2, 10));
     setEdited(true);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm(f => ({ ...f, [e.target.name]: e.target.value }));
     setEdited(true);
   };
@@ -108,7 +115,11 @@ const SettingsPanel = ({ user, classes, onDataRefresh }: { user: Student, classe
         },
         body: JSON.stringify({ 
           dob: form.dob, 
-          phone: form.phone, 
+          phone: form.phone,
+          englishName: form.englishName,
+          parentName: form.parentName,
+          parentPhone: form.parentPhone,
+          notes: form.notes,
           diceBearStyle: avatarStyle, 
           diceBearSeed: avatarSeed 
         }),
@@ -143,11 +154,17 @@ const SettingsPanel = ({ user, classes, onDataRefresh }: { user: Student, classe
             <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 px-5 py-1 rounded-full bg-green-700 text-white text-xs font-bold shadow-md border-2 border-white uppercase tracking-widest" style={{ letterSpacing: 2 }}>{user.role}</span>
           </div>
           <div className="text-3xl font-extrabold tracking-wide text-green-900 drop-shadow mb-1">{user.name}</div>
-          {user.displayName && <div className="text-lg text-green-700 font-semibold mb-4">{user.displayName}</div>}
+          {user.englishName && <div className="text-lg text-green-700 font-semibold mb-4">{user.englishName}</div>}
+          {user.studentCode && <div className="text-lg text-blue-600 font-semibold mb-4">Student Code: {user.studentCode}</div>}
+          
           <div className="flex flex-col gap-2 w-full max-w-md mt-4">
             <div className="info-row">
               <span className="info-label">Email:</span>
               <span className="info-value">{user.email}</span>
+            </div>
+            <div className="info-row">
+              <span className="info-label">Gender:</span>
+              <span className="info-value">{user.gender || '—'}</span>
             </div>
             <div className="info-row">
               <span className="info-label">Phone:</span>
@@ -157,22 +174,58 @@ const SettingsPanel = ({ user, classes, onDataRefresh }: { user: Student, classe
               <span className="info-label">Date of Birth:</span>
               <span className="info-value">{form.dob || '—'}</span>
             </div>
+            {user.role === 'student' && (
+              <>
+                <div className="info-row">
+                  <span className="info-label">Parent's Name:</span>
+                  <span className="info-value">{form.parentName || '—'}</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Parent's Phone:</span>
+                  <span className="info-value">{form.parentPhone || '—'}</span>
+                </div>
+                <div className="info-row">
+                  <span className="info-label">Status:</span>
+                  <span className="info-value">{user.status || '—'}</span>
+                </div>
+              </>
+            )}
             {currentClasses.length > 0 && (
               <div className="info-row">
                 <span className="info-label">Current Classes:</span>
                 <span className="info-value">{currentClasses.join(', ')}</span>
               </div>
             )}
+            {form.notes && (
+              <div className="info-row">
+                <span className="info-label">Notes:</span>
+                <span className="info-value">{form.notes}</span>
+              </div>
+            )}
           </div>
           <div className="flex gap-4 mt-6 justify-center">
-            <button className="px-6 py-2 bg-[#307637] text-white rounded-xl shadow-lg hover:bg-[#245929] text-lg font-bold tracking-wide" onClick={() => setEditMode(true)}>Edit</button>
+            {canEdit && (
+              <button className="px-6 py-2 bg-[#307637] text-white rounded-xl shadow-lg hover:bg-[#245929] text-lg font-bold tracking-wide" onClick={() => setEditMode(true)}>Edit</button>
+            )}
           </div>
         </div>
       </div>
     );
   }
 
-  // --- Edit Mode ---
+  // --- Edit Mode (Admin/Teacher/Staff Only) ---
+  if (!canEdit) {
+    return (
+      <div className="content-center">
+        <div className="settings-id-card">
+          <div className="text-center text-red-600 font-semibold">
+            You don't have permission to edit your profile. Please contact an administrator.
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="content-center">
       <div className="settings-id-card">
@@ -215,6 +268,14 @@ const SettingsPanel = ({ user, classes, onDataRefresh }: { user: Student, classe
             {avatarError && <span className="text-xs text-red-600">{avatarError}</span>}
           </div>
           <div className="flex flex-col gap-2 w-full max-w-md mt-4">
+            <label className="text-base font-medium text-slate-700">English Name</label>
+            <input
+              type="text"
+              name="englishName"
+              value={form.englishName}
+              onChange={handleChange}
+              className="w-full p-3 border-2 border-green-200 rounded-lg text-lg"
+            />
             <label className="text-base font-medium text-slate-700">Phone Number</label>
             <input
               type="tel"
@@ -231,6 +292,34 @@ const SettingsPanel = ({ user, classes, onDataRefresh }: { user: Student, classe
               onChange={handleChange}
               className="w-full p-3 border-2 border-green-200 rounded-lg text-lg"
             />
+            {user.role === 'student' && (
+              <>
+                <label className="text-base font-medium text-slate-700">Parent's Name</label>
+                <input
+                  type="text"
+                  name="parentName"
+                  value={form.parentName}
+                  onChange={handleChange}
+                  className="w-full p-3 border-2 border-green-200 rounded-lg text-lg"
+                />
+                <label className="text-base font-medium text-slate-700">Parent's Phone</label>
+                <input
+                  type="tel"
+                  name="parentPhone"
+                  value={form.parentPhone}
+                  onChange={handleChange}
+                  className="w-full p-3 border-2 border-green-200 rounded-lg text-lg"
+                />
+                <label className="text-base font-medium text-slate-700">Notes</label>
+                <textarea
+                  name="notes"
+                  value={form.notes}
+                  onChange={handleChange}
+                  className="w-full p-3 border-2 border-green-200 rounded-lg text-lg"
+                  rows={3}
+                />
+              </>
+            )}
           </div>
           {error && <div className="text-red-600 font-semibold text-center">{error}</div>}
           {success && <div className="text-green-600 font-semibold text-center">{success}</div>}

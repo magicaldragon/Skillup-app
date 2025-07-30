@@ -7,11 +7,15 @@ interface User {
   name: string;
   email: string;
   role: string;
+  gender?: string;
+  englishName?: string;
+  dob?: string;
+  phone?: string;
+  parentName?: string;
+  parentPhone?: string;
+  notes?: string;
   status?: string;
   studentCode?: string;
-  phone?: string;
-  dob?: string;
-  displayName?: string;
   createdAt: string;
 }
 
@@ -65,11 +69,15 @@ const AccountsPanel = () => {
       name: user.name,
       email: user.email,
       role: user.role,
-      status: user.status,
-      studentCode: user.studentCode,
-      phone: user.phone,
+      gender: user.gender,
+      englishName: user.englishName,
       dob: user.dob,
-      displayName: user.displayName
+      phone: user.phone,
+      parentName: user.parentName,
+      parentPhone: user.parentPhone,
+      notes: user.notes,
+      status: user.status,
+      studentCode: user.studentCode
     });
   };
 
@@ -213,11 +221,15 @@ const AccountsPanel = () => {
             <thead>
               <tr>
                 <th>Name</th>
+                <th>English Name</th>
                 <th>Email</th>
                 <th>Role</th>
+                <th>Gender</th>
                 <th>Status</th>
                 <th>Student Code</th>
                 <th>Phone</th>
+                <th>Parent's Name</th>
+                <th>Parent's Phone</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -234,6 +246,18 @@ const AccountsPanel = () => {
                       />
                     ) : (
                       account.name
+                    )}
+                  </td>
+                  <td>
+                    {editingId === account._id ? (
+                      <input
+                        type="text"
+                        value={editForm.englishName || ''}
+                        onChange={(e) => setEditForm(prev => ({ ...prev, englishName: e.target.value }))}
+                        className="edit-input"
+                      />
+                    ) : (
+                      account.englishName || '—'
                     )}
                   </td>
                   <td>
@@ -262,6 +286,21 @@ const AccountsPanel = () => {
                       </select>
                     ) : (
                       account.role
+                    )}
+                  </td>
+                  <td>
+                    {editingId === account._id ? (
+                      <select
+                        value={editForm.gender || ''}
+                        onChange={(e) => setEditForm(prev => ({ ...prev, gender: e.target.value }))}
+                        className="edit-select"
+                      >
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                      </select>
+                    ) : (
+                      account.gender || '—'
                     )}
                   </td>
                   <td>
@@ -305,6 +344,30 @@ const AccountsPanel = () => {
                       />
                     ) : (
                       account.phone || '—'
+                    )}
+                  </td>
+                  <td>
+                    {editingId === account._id ? (
+                      <input
+                        type="text"
+                        value={editForm.parentName || ''}
+                        onChange={(e) => setEditForm(prev => ({ ...prev, parentName: e.target.value }))}
+                        className="edit-input"
+                      />
+                    ) : (
+                      account.parentName || '—'
+                    )}
+                  </td>
+                  <td>
+                    {editingId === account._id ? (
+                      <input
+                        type="tel"
+                        value={editForm.parentPhone || ''}
+                        onChange={(e) => setEditForm(prev => ({ ...prev, parentPhone: e.target.value }))}
+                        className="edit-input"
+                      />
+                    ) : (
+                      account.parentPhone || '—'
                     )}
                   </td>
                   <td>

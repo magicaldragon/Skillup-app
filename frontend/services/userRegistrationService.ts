@@ -6,9 +6,13 @@ export interface RegistrationData {
   name: string;
   email: string;
   role: 'student' | 'teacher' | 'admin' | 'staff';
-  phone?: string;
+  gender?: 'male' | 'female' | 'other';
+  englishName?: string;
   dob?: string;
-  displayName?: string;
+  phone?: string;
+  parentName?: string;
+  parentPhone?: string;
+  notes?: string;
 }
 
 export interface RegistrationResponse {

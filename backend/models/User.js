@@ -1,14 +1,18 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
   firebaseUid: { type: String, unique: true, sparse: true },
   name: { type: String, required: true },
   displayName: String,
   email: { type: String, required: true, unique: true },
-  phone: String,
-  dob: String,
   role: { type: String, enum: ['student', 'teacher', 'admin', 'staff'], default: 'student' },
+  gender: { type: String, enum: ['male', 'female', 'other'] },
+  englishName: String,
+  dob: String,
+  phone: String,
+  parentName: String,
+  parentPhone: String,
+  notes: String,
   status: { type: String, enum: ['potential', 'contacted', 'studying', 'postponed', 'off', 'alumni'], default: 'potential' },
   studentCode: { type: String, unique: true, sparse: true },
   avatarUrl: String,

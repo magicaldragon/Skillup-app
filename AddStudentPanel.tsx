@@ -10,9 +10,13 @@ const AddStudentPanel = () => {
     name: '',
     email: '',
     role: 'student',
-    phone: '',
+    gender: 'male',
+    englishName: '',
     dob: '',
-    displayName: '',
+    phone: '',
+    parentName: '',
+    parentPhone: '',
+    notes: '',
     status: 'potential'
   });
   const [loading, setLoading] = useState(false);
@@ -20,7 +24,7 @@ const AddStudentPanel = () => {
   const [success, setSuccess] = useState<string | null>(null);
   const [generatedStudentCode, setGeneratedStudentCode] = useState<string | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
     setError(null);
@@ -32,9 +36,13 @@ const AddStudentPanel = () => {
       name: '',
       email: '',
       role: 'student',
-      phone: '',
+      gender: 'male',
+      englishName: '',
       dob: '',
-      displayName: '',
+      phone: '',
+      parentName: '',
+      parentPhone: '',
+      notes: '',
       status: 'potential'
     });
     setError(null);
@@ -84,6 +92,7 @@ const AddStudentPanel = () => {
         )}
 
         <form onSubmit={handleSubmit} className="registration-form">
+          {/* Full Name */}
           <div className="form-group">
             <label className="form-label">
               Full Name <span className="required">*</span>
@@ -98,20 +107,7 @@ const AddStudentPanel = () => {
             />
           </div>
 
-          <div className="form-group">
-            <label className="form-label">
-              Email <span className="required">*</span>
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              className="form-input"
-              required
-            />
-          </div>
-
+          {/* Role */}
           <div className="form-group">
             <label className="form-label">
               Role <span className="required">*</span>
@@ -130,6 +126,113 @@ const AddStudentPanel = () => {
             </select>
           </div>
 
+          {/* Gender */}
+          <div className="form-group">
+            <label className="form-label">
+              Gender <span className="required">*</span>
+            </label>
+            <select
+              name="gender"
+              value={form.gender}
+              onChange={handleChange}
+              className="form-input"
+              required
+            >
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          {/* English Name */}
+          <div className="form-group">
+            <label className="form-label">English Name</label>
+            <input
+              type="text"
+              name="englishName"
+              value={form.englishName}
+              onChange={handleChange}
+              className="form-input"
+            />
+          </div>
+
+          {/* Date of Birth */}
+          <div className="form-group">
+            <label className="form-label">Date of Birth</label>
+            <input
+              type="date"
+              name="dob"
+              value={form.dob}
+              onChange={handleChange}
+              className="form-input"
+            />
+          </div>
+
+          {/* Phone */}
+          <div className="form-group">
+            <label className="form-label">Phone Number</label>
+            <input
+              type="tel"
+              name="phone"
+              value={form.phone}
+              onChange={handleChange}
+              className="form-input"
+            />
+          </div>
+
+          {/* Email */}
+          <div className="form-group">
+            <label className="form-label">
+              Email <span className="required">*</span>
+            </label>
+            <input
+              type="email"
+              name="email"
+              value={form.email}
+              onChange={handleChange}
+              className="form-input"
+              required
+            />
+          </div>
+
+          {/* Parent's Name */}
+          <div className="form-group">
+            <label className="form-label">Parent's Name</label>
+            <input
+              type="text"
+              name="parentName"
+              value={form.parentName}
+              onChange={handleChange}
+              className="form-input"
+            />
+          </div>
+
+          {/* Parent's Phone */}
+          <div className="form-group">
+            <label className="form-label">Parent's Phone</label>
+            <input
+              type="tel"
+              name="parentPhone"
+              value={form.parentPhone}
+              onChange={handleChange}
+              className="form-input"
+            />
+          </div>
+
+          {/* Notes */}
+          <div className="form-group">
+            <label className="form-label">Notes</label>
+            <textarea
+              name="notes"
+              value={form.notes}
+              onChange={handleChange}
+              className="form-textarea"
+              rows={3}
+              placeholder="Any additional notes or information..."
+            />
+          </div>
+
+          {/* Status (only for students) */}
           {form.role === 'student' && (
             <div className="form-group">
               <label className="form-label">
@@ -151,39 +254,6 @@ const AddStudentPanel = () => {
               </select>
             </div>
           )}
-
-          <div className="form-group">
-            <label className="form-label">Phone Number</label>
-            <input
-              type="tel"
-              name="phone"
-              value={form.phone}
-              onChange={handleChange}
-              className="form-input"
-            />
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">Date of Birth</label>
-            <input
-              type="date"
-              name="dob"
-              value={form.dob}
-              onChange={handleChange}
-              className="form-input"
-            />
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">Display Name</label>
-            <input
-              type="text"
-              name="displayName"
-              value={form.displayName}
-              onChange={handleChange}
-              className="form-input"
-            />
-          </div>
 
           <div className="form-actions">
             <button

@@ -1,23 +1,24 @@
 
 export interface Student {
   id: string;
-  name: string; // For students, it's their full name. For teachers, it's their username.
-  displayName?: string; // Short or English name for display
-  avatarUrl: string;
-  email?: string;
+  name: string;
+  email: string;
+  role: string;
+  gender?: string;
+  englishName?: string;
   dob?: string;
   phone?: string;
-  role: 'admin' | 'teacher' | 'staff' | 'student';
-  classIds?: string[];
-  note?: string;
-  status?: 'active' | 'inactive' | 'pending'; // Changed from active?: boolean to match backend
-  // Added fields for UI and backend compatibility:
-  gender?: 'male' | 'female' | 'other';
-  englishName?: string;
-  username?: string;
-  createdAt?: string;
+  parentName?: string;
+  parentPhone?: string;
+  notes?: string;
+  status?: string;
+  studentCode?: string;
+  avatarUrl?: string;
   diceBearStyle?: string;
   diceBearSeed?: string;
+  classIds?: string[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Level {

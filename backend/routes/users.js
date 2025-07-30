@@ -64,7 +64,18 @@ router.post('/admin/student-codes/reassign', verifyToken, async (req, res) => {
 // Register new user
 router.post('/', async (req, res) => {
   try {
-    const { name, email, role, phone, dob, displayName } = req.body;
+    const { 
+      name, 
+      email, 
+      role, 
+      gender, 
+      englishName, 
+      dob, 
+      phone, 
+      parentName, 
+      parentPhone, 
+      notes 
+    } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -86,9 +97,13 @@ router.post('/', async (req, res) => {
       name,
       email,
       role,
-      phone,
+      gender,
+      englishName,
       dob,
-      displayName,
+      phone,
+      parentName,
+      parentPhone,
+      notes,
       studentCode,
       status
     });
@@ -139,15 +154,32 @@ router.post('/', async (req, res) => {
 router.put('/:id', verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, email, role, phone, dob, displayName, status, studentCode } = req.body;
+    const { 
+      name, 
+      email, 
+      role, 
+      gender, 
+      englishName, 
+      dob, 
+      phone, 
+      parentName, 
+      parentPhone, 
+      notes, 
+      status, 
+      studentCode 
+    } = req.body;
 
     const updateData = {
       name,
       email,
       role,
-      phone,
+      gender,
+      englishName,
       dob,
-      displayName,
+      phone,
+      parentName,
+      parentPhone,
+      notes,
       status,
       studentCode,
       updatedAt: new Date()
