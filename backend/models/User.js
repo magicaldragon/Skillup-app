@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema({
   parentName: String,
   parentPhone: String,
   notes: String,
-  status: { type: String, enum: ['potential', 'contacted', 'studying', 'postponed', 'off', 'alumni'], default: 'potential' },
+  status: { type: String, enum: ['active', 'potential', 'contacted', 'studying', 'postponed', 'off', 'alumni'], default: 'potential' },
   studentCode: { type: String, unique: true, sparse: true },
   avatarUrl: String,
   diceBearStyle: { type: String, default: 'avataaars' },

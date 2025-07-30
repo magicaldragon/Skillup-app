@@ -62,7 +62,6 @@ async function syncUsers() {
           name,
           email,
           role,
-          username,
           firebaseUid,
           status: 'active',
         });
@@ -74,7 +73,6 @@ async function syncUsers() {
         if (mongoUser.name !== name) { mongoUser.name = name; updated = true; }
         if (mongoUser.email !== email) { mongoUser.email = email; updated = true; }
         if (mongoUser.role !== role) { mongoUser.role = role; updated = true; }
-        if (mongoUser.username !== username) { mongoUser.username = username; updated = true; }
         if (mongoUser.firebaseUid !== firebaseUid) { mongoUser.firebaseUid = firebaseUid; updated = true; }
         if (mongoUser.status !== 'active') { mongoUser.status = 'active'; updated = true; }
         if (updated) {
@@ -91,9 +89,9 @@ async function syncUsers() {
     const allMongoUsers = await User.find();
     for (const user of allMongoUsers) {
       if (user.firebaseUid && !firebaseUids.has(user.firebaseUid)) {
-        user.status = 'inactive';
+        user.status = 'off'; // Use 'off' instead of 'inactive'
         await user.save();
-        console.log(`⚠️  Marked user as inactive (not in Firebase): ${user.name} (${user.email})`);
+        console.log(`⚠️  Marked user as off (not in Firebase): ${user.name} (${user.email})`);
       }
     }
 
