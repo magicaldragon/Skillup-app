@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { Assignment, Submission, Student, StudentClass } from './types';
-import AssignmentListPanel from './AssignmentListPanel';
-import SubmissionListPanel from './SubmissionListPanel';
-import SubmissionGradingPanel from './SubmissionGradingPanel';
-import AnalyticsDashboard from './AnalyticsDashboard';
-import SettingsPanel from './SettingsPanel';
-import './AddStudentPanel.css';
+import ClassesPanel from './ClassesPanel';
+import AddStudentPanel from './AddStudentPanel';
+import LevelsPanel from './LevelsPanel';
+import WaitingListPanel from './WaitingListPanel';
+import PotentialStudentsPanel from './PotentialStudentsPanel';
+import './AddNewMembers.css';
 
 interface DashboardProps {
   assignments: Assignment[];
