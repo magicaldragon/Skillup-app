@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { Assignment, Submission, Student, StudentClass } from './types';
 import ClassesPanel from './ClassesPanel';
-import AddStudentPanel from './AddStudentPanel';
+import AddNewMembers from './AddNewMembers';
 import LevelsPanel from './LevelsPanel';
 import WaitingListPanel from './WaitingListPanel';
 import PotentialStudentsPanel from './PotentialStudentsPanel';

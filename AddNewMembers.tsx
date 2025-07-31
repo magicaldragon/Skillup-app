@@ -1,11 +1,11 @@
-// AddStudentPanel.tsx
-// Professional panel to add new students, with Hybrid Auth (Firebase + MongoDB) integration
+// AddNewMembers.tsx
+// Professional panel to add new members (students, teachers, staff, admins), with Hybrid Auth (Firebase + MongoDB) integration
 // [NOTE] Updated for hybrid authentication system and proper layout
 import React, { useState } from 'react';
 import { userRegistrationService } from './frontend/services/userRegistrationService';
 import './AddNewMembers.css';
 
-const AddStudentPanel = () => {
+const AddNewMembers = () => {
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -315,4 +315,4 @@ const AddStudentPanel = () => {
   );
 };
 
-export default AddStudentPanel; 
+export default AddNewMembers; 

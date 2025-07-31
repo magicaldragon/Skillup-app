@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import type { Assignment, Student, StudentClass } from './types';
 import ClassesPanel from './ClassesPanel';
-import AddStudentPanel from './AddStudentPanel';
+import AddNewMembers from './AddNewMembers';
 import LevelsPanel from './LevelsPanel';
 import WaitingListPanel from './WaitingListPanel';
 import PotentialStudentsPanel from './PotentialStudentsPanel';
@@ -62,7 +62,7 @@ const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onL
         
         {/* Management Submenu Items */}
         {activeKey === 'add-student' ? (
-          <AddStudentPanel onStudentAdded={onStudentAdded} />
+          <AddNewMembers onStudentAdded={onStudentAdded} />
         ) : activeKey === 'potential-students' ? (
           <PotentialStudentsPanel classes={classes} currentUser={user} onDataRefresh={onDataRefresh} />
         ) : activeKey === 'waiting-list' ? (
