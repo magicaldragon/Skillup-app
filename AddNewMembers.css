@@ -1,9 +1,8 @@
-/* AddStudentPanel.css - Complete rewrite for proper layout */
+/* AddNewMembers.css - Complete rewrite for proper layout */
 
 /* Main container - works within TeacherDashboard */
 .add-student-container {
   width: 100%;
-  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -22,7 +21,6 @@
   justify-content: flex-start;
   gap: 32px;
   padding: 20px 0;
-  min-height: auto;
 }
 
 /* Registration form section */
