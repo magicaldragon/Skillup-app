@@ -3,7 +3,7 @@
 // [NOTE] Updated for hybrid authentication system and proper layout
 import React, { useState } from 'react';
 import { userRegistrationService } from './frontend/services/userRegistrationService';
-import './AddStudentPanel.css';
+import './AddNewMembers.css';
 
 const AddStudentPanel = () => {
   const [form, setForm] = useState({
@@ -99,6 +99,101 @@ const AddStudentPanel = () => {
             )}
 
             <form onSubmit={handleSubmit} className="registration-form">
+              {/* Left Column */}
+              {/* Full Name */}
+              <div className="form-group">
+                <label className="form-label">
+                  Full Name <span className="required">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={form.name}
+                  onChange={handleChange}
+                  className="form-input"
+                  required
+                />
+              </div>
+
+              {/* Right Column */}
+              {/* Role */}
+              <div className="form-group">
+                <label className="form-label">
+                  Role <span className="required">*</span>
+                </label>
+                <select
+                  name="role"
+                  value={form.role}
+                  onChange={handleChange}
+                  className="form-select"
+                  required
+                >
+                  <option value="student">Student</option>
+                  <option value="teacher">Teacher</option>
+                  <option value="staff">Staff</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+
+              {/* Left Column */}
+              {/* Gender */}
+              <div className="form-group">
+                <label className="form-label">
+                  Gender <span className="required">*</span>
+                </label>
+                <select
+                  name="gender"
+                  value={form.gender}
+                  onChange={handleChange}
+                  className="form-select"
+                  required
+                >
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+
+              {/* Right Column */}
+              {/* English Name */}
+              <div className="form-group">
+                <label className="form-label">English Name</label>
+                <input
+                  type="text"
+                  name="englishName"
+                  value={form.englishName}
+                  onChange={handleChange}
+                  className="form-input"
+                />
+              </div>
+
+              {/* Left Column */}
+              {/* Date of Birth */}
+              <div className="form-group">
+                <label className="form-label">Date of Birth</label>
+                <input
+                  type="date"
+                  name="dob"
+                  value={form.dob}
+                  onChange={handleChange}
+                  className="form-input"
+                />
+              </div>
+
+              {/* Right Column */}
+              {/* Phone Number */}
+              <div className="form-group">
+                <label className="form-label">Phone Number</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={form.phone}
+                  onChange={handleChange}
+                  className="form-input"
+                />
+              </div>
+
+              {/* Left Column */}
               {/* Email */}
               <div className="form-group">
                 <label className="form-label">Email</label>
@@ -111,6 +206,7 @@ const AddStudentPanel = () => {
                 />
               </div>
 
+              {/* Right Column */}
               {/* Status */}
               <div className="form-group">
                 <label className="form-label">
@@ -132,6 +228,7 @@ const AddStudentPanel = () => {
                 </select>
               </div>
 
+              {/* Left Column */}
               {/* Parent's Name */}
               <div className="form-group">
                 <label className="form-label">Parent's Name</label>
@@ -144,6 +241,7 @@ const AddStudentPanel = () => {
                 />
               </div>
 
+              {/* Right Column */}
               {/* Parent's Phone */}
               <div className="form-group">
                 <label className="form-label">Parent's Phone</label>
@@ -156,7 +254,7 @@ const AddStudentPanel = () => {
                 />
               </div>
 
-              {/* Notes - Full Width */}
+              {/* Notes - Full Width at the end */}
               <div className="form-group full-width">
                 <label className="form-label">Notes</label>
                 <textarea
@@ -169,96 +267,13 @@ const AddStudentPanel = () => {
                 />
               </div>
 
-              {/* Additional fields for complete registration */}
-              <div className="form-group">
-                <label className="form-label">
-                  Full Name <span className="required">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={form.name}
-                  onChange={handleChange}
-                  className="form-input"
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">
-                  Role <span className="required">*</span>
-                </label>
-                <select
-                  name="role"
-                  value={form.role}
-                  onChange={handleChange}
-                  className="form-select"
-                  required
-                >
-                  <option value="student">Student</option>
-                  <option value="teacher">Teacher</option>
-                  <option value="staff">Staff</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">
-                  Gender <span className="required">*</span>
-                </label>
-                <select
-                  name="gender"
-                  value={form.gender}
-                  onChange={handleChange}
-                  className="form-select"
-                  required
-                >
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">English Name</label>
-                <input
-                  type="text"
-                  name="englishName"
-                  value={form.englishName}
-                  onChange={handleChange}
-                  className="form-input"
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Date of Birth</label>
-                <input
-                  type="date"
-                  name="dob"
-                  value={form.dob}
-                  onChange={handleChange}
-                  className="form-input"
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Phone Number</label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={form.phone}
-                  onChange={handleChange}
-                  className="form-input"
-                />
-              </div>
-
               <div className="form-actions">
                 <button
                   type="submit"
                   className="submit-btn"
                   disabled={loading}
                 >
-                  {loading ? 'Registering...' : 'Register User'}
+                  {loading ? 'Registering...' : 'Register'}
                 </button>
                 <button
                   type="button"
@@ -266,7 +281,7 @@ const AddStudentPanel = () => {
                   onClick={handleReset}
                   disabled={loading}
                 >
-                  Reset Form
+                  Reset
                 </button>
               </div>
             </form>

@@ -34,9 +34,9 @@
 
 /* Form container styling */
 .form-container {
-  background: linear-gradient(135deg, #fffbe6 0%, #ffe9c2 80%, #fff5e6 100%);
+  background: linear-gradient(135deg, #ffe9c2 0%, #ffd700 50%, #ffb347 100%);
   border-radius: 28px;
-  box-shadow: 0 8px 40px 0 rgba(48, 118, 55, 0.22), 0 1.5px 0 #f5b802 inset;
+  box-shadow: 0 8px 40px 0 rgba(255, 165, 0, 0.22), 0 1.5px 0 #f5b802 inset;
   padding: 48px 40px;
   width: 100%;
   box-sizing: border-box;
@@ -46,7 +46,7 @@
 }
 
 .form-container:hover {
-  box-shadow: 0 12px 56px 0 rgba(48, 118, 55, 0.28), 0 2px 0 #f5b802 inset;
+  box-shadow: 0 12px 56px 0 rgba(255, 165, 0, 0.28), 0 2px 0 #f5b802 inset;
   border-color: #ff8c42;
 }
 
