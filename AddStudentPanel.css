@@ -1,57 +1,87 @@
-/* AddStudentPanel.css - Ultimate vivid design */
-.form-container {
-  background: linear-gradient(135deg, #ffe9c2 80%, #fff5e6 100%);
-  border-radius: 18px;
-  box-shadow: 0 4px 24px rgba(48, 118, 55, 0.15);
-  padding: 40px 32px;
+/* AddStudentPanel.css - Complete rewrite for proper layout */
+
+/* Main container - works within TeacherDashboard */
+.add-student-container {
   width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
-  box-sizing: border-box;
-  border: 2px solid #f5b802;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 0;
+  margin: 0;
+  background: none;
 }
 
+/* Content wrapper */
+.add-student-content {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 32px;
+  padding: 20px 0;
+  min-height: auto;
+}
+
+/* Registration form section */
+.registration-form-section {
+  flex: 1;
+  max-width: 800px;
+  min-width: 0;
+}
+
+/* Form container styling */
+.form-container {
+  background: linear-gradient(135deg, #fffbe6 0%, #ffe9c2 80%, #fff5e6 100%);
+  border-radius: 28px;
+  box-shadow: 0 8px 40px 0 rgba(48, 118, 55, 0.22), 0 1.5px 0 #f5b802 inset;
+  padding: 48px 40px;
+  width: 100%;
+  box-sizing: border-box;
+  border: 3px solid #f5b802;
+  position: relative;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.form-container:hover {
+  box-shadow: 0 12px 56px 0 rgba(48, 118, 55, 0.28), 0 2px 0 #f5b802 inset;
+  border-color: #ff8c42;
+}
+
+/* Add a faint inner highlight */
+.form-container::after {
+  content: '';
+  position: absolute;
+  top: 10px; left: 10px; right: 10px; bottom: 10px;
+  border-radius: 22px;
+  pointer-events: none;
+  box-shadow: 0 0 32px 8px #fffbe6 inset;
+  opacity: 0.5;
+}
+
+/* Form title */
 .form-title {
   color: #ff8c42;
-  font-size: 2.2rem;
-  font-weight: 800;
+  font-size: 2.7rem;
+  font-weight: 900;
   text-align: center;
-  margin-bottom: 32px;
-  letter-spacing: 1px;
-  text-shadow: 0 2px 4px rgba(48, 118, 55, 0.1);
+  margin-bottom: 40px;
+  letter-spacing: 1.5px;
+  text-shadow: 0 4px 12px rgba(48, 118, 55, 0.13), 0 1px 0 #fffbe6;
+  text-transform: uppercase;
 }
 
-.form-alert {
-  padding: 12px 16px;
-  border-radius: 10px;
-  margin-bottom: 20px;
-  font-weight: 600;
-}
-
-.form-alert.error {
-  background: #fee2e2;
-  color: #dc2626;
-  border: 1px solid #fecaca;
-}
-
-.form-alert.success {
-  background: #dcfce7;
-  color: #16a34a;
-  border: 1px solid #bbf7d0;
-}
-
-.form-form {
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.form-row {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 20px;
+/* Registration form grid layout */
+.registration-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
   width: 100%;
 }
 
+/* Form groups */
 .form-group {
   display: flex;
   flex-direction: column;
@@ -63,6 +93,7 @@
   grid-column: 1 / -1;
 }
 
+/* Form labels */
 .form-label {
   display: block;
   margin-bottom: 8px;
@@ -72,6 +103,13 @@
   letter-spacing: 0.5px;
 }
 
+/* Required field indicator */
+.required {
+  color: #ff4444;
+  font-weight: 700;
+}
+
+/* Form inputs */
 .form-input,
 .form-select,
 .form-textarea {
@@ -99,14 +137,7 @@
   font-family: inherit;
 }
 
-.form-hint {
-  font-size: 0.85rem;
-  color: #6b7280;
-  margin-top: -12px;
-  margin-bottom: 16px;
-  font-style: italic;
-}
-
+/* Form actions */
 .form-actions {
   grid-column: 1 / -1;
   display: flex;
@@ -115,114 +146,7 @@
   margin-top: 24px;
 }
 
-.form-btn {
-  background: linear-gradient(90deg, #307637 80%, #295b37 100%);
-  color: #fff;
-  font-weight: bold;
-  border: none;
-  border-radius: 10px;
-  padding: 14px 0;
-  width: 100%;
-  font-size: 1.1rem;
-  box-shadow: 0 2px 8px rgba(48, 118, 55, 0.13);
-  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-  cursor: pointer;
-  letter-spacing: 1px;
-  box-sizing: border-box;
-}
-
-.form-btn.primary {
-  background: linear-gradient(90deg, #307637 80%, #295b37 100%);
-}
-
-.form-btn.secondary {
-  background: linear-gradient(90deg, #6b7280 80%, #4b5563 100%);
-}
-
-.form-btn:hover, .form-btn:focus {
-  background: linear-gradient(90deg, #f5b802 60%, #ffe9c2 100%);
-  color: #307637;
-  box-shadow: 0 4px 24px 0 #f5b802, 0 2px 8px #ffe9c2;
-  outline: none;
-}
-
-.form-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* Dark mode styles */
-@media (prefers-color-scheme: dark) {
-  .form-container {
-    background: linear-gradient(135deg, #1a3d2a 80%, #295b37 100%);
-    border-color: #f5b802;
-  }
-  
-  .form-title {
-    color: #ffe9c2;
-  }
-  
-  .form-label {
-    color: #ffe9c2;
-  }
-  
-  .form-input, .form-select, .form-textarea {
-    background: #295b37;
-    color: #ffe9c2;
-    border-color: #f5b802;
-  }
-  
-  .form-input:focus, .form-select:focus, .form-textarea:focus {
-    border-color: #ffe9c2;
-    box-shadow: 0 0 0 2px #f5b802;
-  }
-  
-  .form-hint {
-    color: #9ca3af;
-  }
-}
-
-/* Required field indicator */
-.required {
-  color: #ff4444;
-  font-weight: 700;
-}
-
-.error-message {
-  background: #fef2f2;
-  border: 2px solid #fecaca;
-  color: #dc2626;
-  padding: 16px;
-  border-radius: 8px;
-  margin-bottom: 16px;
-  font-weight: 600;
-  text-align: center;
-}
-
-.success-message {
-  background: #f0fdf4;
-  border: 2px solid #bbf7d0;
-  color: #16a34a;
-  padding: 16px;
-  border-radius: 8px;
-  margin-bottom: 16px;
-  font-weight: 600;
-  text-align: center;
-}
-
-.student-code-display {
-  background: #eff6ff;
-  border: 2px solid #3b82f6;
-  color: #1e40af;
-  padding: 16px;
-  border-radius: 8px;
-  margin-bottom: 16px;
-  text-align: center;
-  font-size: 1.1rem;
-  font-weight: 600;
-  grid-column: 1 / -1;
-}
-
+/* Buttons */
 .submit-btn,
 .reset-btn {
   padding: 14px 32px;
@@ -271,178 +195,8 @@
   transform: none;
 }
 
-/* Registration Form Specific Styles - Fixed for sidebar layout */
-/* Remove full-height centering - make it fit in main content area */
-.add-student-layout {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: center;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px 24px;
-  box-sizing: border-box;
-  background: none;
-  gap: 32px;
-}
-
-/* Visually striking form container */
-.add-student-layout .form-container {
-  background: linear-gradient(135deg, #fffbe6 0%, #ffe9c2 80%, #fff5e6 100%);
-  border-radius: 28px;
-  box-shadow: 0 8px 40px 0 rgba(48, 118, 55, 0.22), 0 1.5px 0 #f5b802 inset;
-  padding: 48px 40px;
-  width: 100%;
-  max-width: 800px;
-  margin: 0;
-  box-sizing: border-box;
-  border: 3px solid #f5b802;
-  position: relative;
-  transition: box-shadow 0.2s, border-color 0.2s;
-  flex-shrink: 0;
-}
-
-.add-student-layout .form-container:hover {
-  box-shadow: 0 12px 56px 0 rgba(48, 118, 55, 0.28), 0 2px 0 #f5b802 inset;
-  border-color: #ff8c42;
-}
-
-/* Add a faint inner highlight */
-.add-student-layout .form-container::after {
-  content: '';
-  position: absolute;
-  top: 10px; left: 10px; right: 10px; bottom: 10px;
-  border-radius: 22px;
-  pointer-events: none;
-  box-shadow: 0 0 32px 8px #fffbe6 inset;
-  opacity: 0.5;
-}
-
-.add-student-layout .form-title {
-  color: #ff8c42;
-  font-size: 2.7rem;
-  font-weight: 900;
-  text-align: center;
-  margin-bottom: 40px;
-  letter-spacing: 1.5px;
-  text-shadow: 0 4px 12px rgba(48, 118, 55, 0.13), 0 1px 0 #fffbe6;
-  text-transform: uppercase;
-}
-
-.add-student-layout .registration-form {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-  width: 100%;
-}
-
-.add-student-layout .form-group {
-  margin-bottom: 0;
-}
-
-.add-student-layout .form-group.full-width {
-  grid-column: 1 / -1;
-}
-
-.add-student-layout .form-label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 600;
-  font-size: 1rem;
-  color: #ff8c42;
-  letter-spacing: 0.5px;
-}
-
-.add-student-layout .required {
-  color: #ff4444;
-  font-weight: 700;
-}
-
-.add-student-layout .form-input,
-.add-student-layout .form-select,
-.add-student-layout .form-textarea {
-  width: 100%;
-  padding: 12px 16px;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: border-color 0.2s ease;
-  background: #fff;
-  box-sizing: border-box;
-}
-
-.add-student-layout .form-input:focus,
-.add-student-layout .form-select:focus,
-.add-student-layout .form-textarea:focus {
-  outline: none;
-  border-color: #307637;
-  box-shadow: 0 0 0 3px rgba(48, 118, 55, 0.1);
-}
-
-.add-student-layout .form-textarea {
-  resize: vertical;
-  min-height: 80px;
-  font-family: inherit;
-}
-
-.add-student-layout .form-actions {
-  grid-column: 1 / -1;
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-  margin-top: 24px;
-}
-
-.add-student-layout .submit-btn,
-.add-student-layout .reset-btn {
-  padding: 14px 32px;
-  border: none;
-  border-radius: 12px;
-  font-size: 1.1rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  letter-spacing: 0.5px;
-}
-
-.add-student-layout .submit-btn {
-  background: #307637;
-  color: #fff;
-  box-shadow: 0 4px 12px rgba(48, 118, 55, 0.3);
-}
-
-.add-student-layout .submit-btn:hover {
-  background: #245929;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(48, 118, 55, 0.4);
-}
-
-.add-student-layout .submit-btn:disabled {
-  background: #9ca3af;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-.add-student-layout .reset-btn {
-  background: #f3f4f6;
-  color: #374151;
-  border: 2px solid #d1d5db;
-}
-
-.add-student-layout .reset-btn:hover {
-  background: #e5e7eb;
-  transform: translateY(-2px);
-}
-
-.add-student-layout .reset-btn:disabled {
-  background: #9ca3af;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.add-student-layout .error-message {
+/* Messages */
+.error-message {
   background: #fef2f2;
   border: 2px solid #fecaca;
   color: #dc2626;
@@ -453,7 +207,7 @@
   text-align: center;
 }
 
-.add-student-layout .success-message {
+.success-message {
   background: #f0fdf4;
   border: 2px solid #bbf7d0;
   color: #16a34a;
@@ -464,7 +218,7 @@
   text-align: center;
 }
 
-.add-student-layout .student-code-display {
+.student-code-display {
   background: #eff6ff;
   border: 2px solid #3b82f6;
   color: #1e40af;
@@ -477,7 +231,16 @@
   grid-column: 1 / -1;
 }
 
-/* Success message box styling for the green info box */
+/* Success info section */
+.success-info-section {
+  flex-shrink: 0;
+  width: 320px;
+  align-self: flex-start;
+  position: sticky;
+  top: 20px;
+}
+
+/* Success message box styling */
 .success-info-box {
   background: #f0fdf4;
   border: 4px solid #16a34a;
@@ -486,11 +249,7 @@
   margin: 0;
   text-align: center;
   box-shadow: 0 4px 16px rgba(22, 163, 74, 0.15);
-  width: 320px;
-  flex-shrink: 0;
-  align-self: flex-start;
-  position: sticky;
-  top: 20px;
+  width: 100%;
 }
 
 .success-info-box h3 {
@@ -521,16 +280,19 @@
   border-bottom: none;
 }
 
-/* Responsive design for registration form */
+/* Responsive design */
 @media (max-width: 1200px) {
-  .add-student-layout {
+  .add-student-content {
     flex-direction: column;
     align-items: center;
     gap: 24px;
-    max-width: 800px;
   }
   
-  .success-info-box {
+  .registration-form-section {
+    max-width: 100%;
+  }
+  
+  .success-info-section {
     width: 100%;
     max-width: 400px;
     position: static;
@@ -538,54 +300,61 @@
 }
 
 @media (max-width: 900px) {
-  .add-student-layout {
-    padding: 0 8px;
-    max-width: 100vw;
+  .add-student-content {
+    padding: 10px 0;
   }
-  .add-student-layout .form-container {
-    padding: 32px 8px;
-    max-width: 98vw;
+  
+  .form-container {
+    padding: 32px 20px;
+    border-radius: 20px;
   }
-  .add-student-layout .form-title {
+  
+  .form-title {
     font-size: 2rem;
+    margin-bottom: 30px;
   }
-  .add-student-layout .registration-form {
+  
+  .registration-form {
     grid-template-columns: 1fr;
     gap: 18px;
   }
 }
+
 @media (max-width: 600px) {
-  .add-student-layout {
-    padding: 0 2px;
+  .add-student-content {
+    padding: 5px 0;
   }
-  .add-student-layout .form-container {
-    padding: 16px 2px;
+  
+  .form-container {
+    padding: 20px 15px;
     border-radius: 16px;
-    max-width: 100vw;
   }
-  .add-student-layout .form-title {
-    font-size: 1.3rem;
-    margin-bottom: 18px;
+  
+  .form-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
   }
-  .add-student-layout .registration-form {
+  
+  .registration-form {
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 15px;
   }
-  .add-student-layout .form-actions {
+  
+  .form-actions {
     flex-direction: column;
-    gap: 8px;
-    margin-top: 12px;
+    gap: 10px;
+    margin-top: 20px;
   }
-  .add-student-layout .submit-btn,
-  .add-student-layout .reset-btn {
+  
+  .submit-btn,
+  .reset-btn {
     width: 100%;
     font-size: 1rem;
-    padding: 10px 0;
+    padding: 12px 0;
   }
   
   .success-info-box {
     padding: 16px;
-    margin: 0 2px;
   }
   
   .success-info-box h3 {

@@ -1,6 +1,6 @@
 // AddStudentPanel.tsx
 // Professional panel to add new students, with Hybrid Auth (Firebase + MongoDB) integration
-// [NOTE] Updated for hybrid authentication system
+// [NOTE] Updated for hybrid authentication system and proper layout
 import React, { useState } from 'react';
 import { userRegistrationService } from './frontend/services/userRegistrationService';
 import './AddStudentPanel.css';
@@ -74,229 +74,228 @@ const AddStudentPanel = () => {
   };
 
   return (
-    <div className="add-student-layout">
-      <div className="form-container">
-        <h2 className="form-title">REGISTRATION FORM</h2>
-        
-        {error && (
-          <div className="error-message">
-            {error}
-          </div>
-        )}
-        
-        {success && (
-          <div className="success-message">
-            {success}
-          </div>
-        )}
+    <div className="add-student-container">
+      <div className="add-student-content">
+        <div className="registration-form-section">
+          <div className="form-container">
+            <h2 className="form-title">REGISTRATION FORM</h2>
+            
+            {error && (
+              <div className="error-message">
+                {error}
+              </div>
+            )}
+            
+            {success && (
+              <div className="success-message">
+                {success}
+              </div>
+            )}
 
-        {generatedStudentCode && (
-          <div className="student-code-display">
-            <strong>Generated Student Code: {generatedStudentCode}</strong>
-          </div>
-        )}
+            {generatedStudentCode && (
+              <div className="student-code-display">
+                <strong>Generated Student Code: {generatedStudentCode}</strong>
+              </div>
+            )}
 
-        <form onSubmit={handleSubmit} className="registration-form">
-          {/* Full Name */}
-          <div className="form-group">
-            <label className="form-label">
-              Full Name <span className="required">*</span>
-            </label>
-            <input
-              type="text"
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              className="form-input"
-              required
-            />
-          </div>
+            <form onSubmit={handleSubmit} className="registration-form">
+              {/* Email */}
+              <div className="form-group">
+                <label className="form-label">Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  className="form-input"
+                />
+              </div>
 
-          {/* Role */}
-          <div className="form-group">
-            <label className="form-label">
-              Role <span className="required">*</span>
-            </label>
-            <select
-              name="role"
-              value={form.role}
-              onChange={handleChange}
-              className="form-select"
-              required
-            >
-              <option value="student">Student</option>
-              <option value="teacher">Teacher</option>
-              <option value="staff">Staff</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
+              {/* Status */}
+              <div className="form-group">
+                <label className="form-label">
+                  Status <span className="required">*</span>
+                </label>
+                <select
+                  name="status"
+                  value={form.status}
+                  onChange={handleChange}
+                  className="form-select"
+                  required
+                >
+                  <option value="potential">Potential</option>
+                  <option value="contacted">Contacted</option>
+                  <option value="studying">Studying</option>
+                  <option value="postponed">Postponed</option>
+                  <option value="off">Off</option>
+                  <option value="alumni">Alumni</option>
+                </select>
+              </div>
 
-          {/* Gender */}
-          <div className="form-group">
-            <label className="form-label">
-              Gender <span className="required">*</span>
-            </label>
-            <select
-              name="gender"
-              value={form.gender}
-              onChange={handleChange}
-              className="form-select"
-              required
-            >
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
+              {/* Parent's Name */}
+              <div className="form-group">
+                <label className="form-label">Parent's Name</label>
+                <input
+                  type="text"
+                  name="parentName"
+                  value={form.parentName}
+                  onChange={handleChange}
+                  className="form-input"
+                />
+              </div>
 
-          {/* English Name */}
-          <div className="form-group">
-            <label className="form-label">English Name</label>
-            <input
-              type="text"
-              name="englishName"
-              value={form.englishName}
-              onChange={handleChange}
-              className="form-input"
-            />
-          </div>
+              {/* Parent's Phone */}
+              <div className="form-group">
+                <label className="form-label">Parent's Phone</label>
+                <input
+                  type="tel"
+                  name="parentPhone"
+                  value={form.parentPhone}
+                  onChange={handleChange}
+                  className="form-input"
+                />
+              </div>
 
-          {/* Date of Birth */}
-          <div className="form-group">
-            <label className="form-label">Date of Birth</label>
-            <input
-              type="date"
-              name="dob"
-              value={form.dob}
-              onChange={handleChange}
-              className="form-input"
-            />
-          </div>
+              {/* Notes - Full Width */}
+              <div className="form-group full-width">
+                <label className="form-label">Notes</label>
+                <textarea
+                  name="notes"
+                  value={form.notes}
+                  onChange={handleChange}
+                  className="form-textarea"
+                  rows={3}
+                  placeholder="Any additional notes or information..."
+                />
+              </div>
 
-          {/* Phone */}
-          <div className="form-group">
-            <label className="form-label">Phone Number</label>
-            <input
-              type="tel"
-              name="phone"
-              value={form.phone}
-              onChange={handleChange}
-              className="form-input"
-            />
-          </div>
+              {/* Additional fields for complete registration */}
+              <div className="form-group">
+                <label className="form-label">
+                  Full Name <span className="required">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={form.name}
+                  onChange={handleChange}
+                  className="form-input"
+                  required
+                />
+              </div>
 
-          {/* Email */}
-          <div className="form-group">
-            <label className="form-label">Email</label>
-            <input
-              type="email"
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              className="form-input"
-            />
-          </div>
+              <div className="form-group">
+                <label className="form-label">
+                  Role <span className="required">*</span>
+                </label>
+                <select
+                  name="role"
+                  value={form.role}
+                  onChange={handleChange}
+                  className="form-select"
+                  required
+                >
+                  <option value="student">Student</option>
+                  <option value="teacher">Teacher</option>
+                  <option value="staff">Staff</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
 
-          {/* Parent's Name */}
-          <div className="form-group">
-            <label className="form-label">Parent's Name</label>
-            <input
-              type="text"
-              name="parentName"
-              value={form.parentName}
-              onChange={handleChange}
-              className="form-input"
-            />
-          </div>
+              <div className="form-group">
+                <label className="form-label">
+                  Gender <span className="required">*</span>
+                </label>
+                <select
+                  name="gender"
+                  value={form.gender}
+                  onChange={handleChange}
+                  className="form-select"
+                  required
+                >
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
 
-          {/* Parent's Phone */}
-          <div className="form-group">
-            <label className="form-label">Parent's Phone</label>
-            <input
-              type="tel"
-              name="parentPhone"
-              value={form.parentPhone}
-              onChange={handleChange}
-              className="form-input"
-            />
-          </div>
+              <div className="form-group">
+                <label className="form-label">English Name</label>
+                <input
+                  type="text"
+                  name="englishName"
+                  value={form.englishName}
+                  onChange={handleChange}
+                  className="form-input"
+                />
+              </div>
 
-          {/* Notes - Full Width */}
-          <div className="form-group full-width">
-            <label className="form-label">Notes</label>
-            <textarea
-              name="notes"
-              value={form.notes}
-              onChange={handleChange}
-              className="form-textarea"
-              rows={3}
-              placeholder="Any additional notes or information..."
-            />
-          </div>
+              <div className="form-group">
+                <label className="form-label">Date of Birth</label>
+                <input
+                  type="date"
+                  name="dob"
+                  value={form.dob}
+                  onChange={handleChange}
+                  className="form-input"
+                />
+              </div>
 
-          {/* Status (only for students) - Full Width */}
-          {form.role === 'student' && (
-            <div className="form-group full-width">
-              <label className="form-label">
-                Status <span className="required">*</span>
-              </label>
-              <select
-                name="status"
-                value={form.status}
-                onChange={handleChange}
-                className="form-select"
-                required
-              >
-                <option value="potential">Potential</option>
-                <option value="contacted">Contacted</option>
-                <option value="studying">Studying</option>
-                <option value="postponed">Postponed</option>
-                <option value="off">Off</option>
-                <option value="alumni">Alumni</option>
-              </select>
-            </div>
-          )}
+              <div className="form-group">
+                <label className="form-label">Phone Number</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={form.phone}
+                  onChange={handleChange}
+                  className="form-input"
+                />
+              </div>
 
-          <div className="form-actions">
-            <button
-              type="submit"
-              className="submit-btn"
-              disabled={loading}
-            >
-              {loading ? 'Registering...' : 'Register User'}
-            </button>
-            <button
-              type="button"
-              className="reset-btn"
-              onClick={handleReset}
-              disabled={loading}
-            >
-              Reset Form
-            </button>
-          </div>
-        </form>
-      </div>
-
-      {/* Success Info Box - appears when account is created successfully */}
-      {createdUser && (
-        <div className="success-info-box">
-          <h3>THE ACCOUNT HAS BEEN CREATED SUCCESSFULLY !</h3>
-          <div className="account-details">
-            <div className="account-detail">
-              MEMBER ID: {createdUser.studentCode || createdUser.id || 'N/A'}
-            </div>
-            <div className="account-detail">
-              ROLE: {createdUser.role?.toUpperCase() || 'N/A'}
-            </div>
-            <div className="account-detail">
-              USERNAME: {createdUser.email || 'N/A'}
-            </div>
-            <div className="account-detail">
-              PASSWORD: SKILLUP123
-            </div>
+              <div className="form-actions">
+                <button
+                  type="submit"
+                  className="submit-btn"
+                  disabled={loading}
+                >
+                  {loading ? 'Registering...' : 'Register User'}
+                </button>
+                <button
+                  type="button"
+                  className="reset-btn"
+                  onClick={handleReset}
+                  disabled={loading}
+                >
+                  Reset Form
+                </button>
+              </div>
+            </form>
           </div>
         </div>
-      )}
+
+        {/* Success Info Box - appears when account is created successfully */}
+        {createdUser && (
+          <div className="success-info-section">
+            <div className="success-info-box">
+              <h3>THE ACCOUNT HAS BEEN CREATED SUCCESSFULLY !</h3>
+              <div className="account-details">
+                <div className="account-detail">
+                  MEMBER ID: {createdUser.studentCode || createdUser.id || 'N/A'}
+                </div>
+                <div className="account-detail">
+                  ROLE: {createdUser.role?.toUpperCase() || 'N/A'}
+                </div>
+                <div className="account-detail">
+                  USERNAME: {createdUser.email || 'N/A'}
+                </div>
+                <div className="account-detail">
+                  PASSWORD: SKILLUP123
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
