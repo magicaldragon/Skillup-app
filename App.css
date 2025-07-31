@@ -68,17 +68,7 @@ input:focus {
 }
 
 /* Content Centering for Forms, Tables, Charts */
-.content-center {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 0 24px;
-  box-sizing: border-box;
-}
+/* Note: .content-center styles are now handled by individual components */
 
 /* Remove conflicting form-container styles - let individual components handle their own styling */
 
@@ -353,7 +343,7 @@ input:focus {
   .main-content {
     padding: 8px 2px;
   }
-  .content-center, .table-container, .chart-container, .dashboard-card {
+  .table-container, .chart-container, .dashboard-card {
     max-width: 100vw;
     padding-left: 0;
     padding-right: 0;

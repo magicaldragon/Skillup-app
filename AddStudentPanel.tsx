@@ -23,12 +23,14 @@ const AddStudentPanel = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [generatedStudentCode, setGeneratedStudentCode] = useState<string | null>(null);
+  const [createdUser, setCreatedUser] = useState<any>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
     setError(null);
     setSuccess(null);
+    setCreatedUser(null);
   };
 
   const handleReset = () => {
@@ -48,6 +50,7 @@ const AddStudentPanel = () => {
     setError(null);
     setSuccess(null);
     setGeneratedStudentCode(null);
+    setCreatedUser(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -55,11 +58,13 @@ const AddStudentPanel = () => {
     setLoading(true);
     setError(null);
     setSuccess(null);
+    setCreatedUser(null);
 
     try {
       const result = await userRegistrationService.registerNewUser(form);
       setSuccess(`User registered successfully! ${result.user.studentCode ? `Student Code: ${result.user.studentCode}` : ''}`);
       setGeneratedStudentCode(result.user.studentCode || null);
+      setCreatedUser(result.user);
       handleReset();
     } catch (err: any) {
       setError(err.message || 'Registration failed');
@@ -69,9 +74,9 @@ const AddStudentPanel = () => {
   };
 
   return (
-    <div className="content-center">
+    <div className="add-student-layout">
       <div className="form-container">
-        <h2 className="form-title">Registration Form</h2>
+        <h2 className="form-title">REGISTRATION FORM</h2>
         
         {error && (
           <div className="error-message">
@@ -271,6 +276,27 @@ const AddStudentPanel = () => {
           </div>
         </form>
       </div>
+
+      {/* Success Info Box - appears when account is created successfully */}
+      {createdUser && (
+        <div className="success-info-box">
+          <h3>THE ACCOUNT HAS BEEN CREATED SUCCESSFULLY !</h3>
+          <div className="account-details">
+            <div className="account-detail">
+              MEMBER ID: {createdUser.studentCode || createdUser.id || 'N/A'}
+            </div>
+            <div className="account-detail">
+              ROLE: {createdUser.role?.toUpperCase() || 'N/A'}
+            </div>
+            <div className="account-detail">
+              USERNAME: {createdUser.email || 'N/A'}
+            </div>
+            <div className="account-detail">
+              PASSWORD: SKILLUP123
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

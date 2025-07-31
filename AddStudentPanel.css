@@ -271,44 +271,45 @@
   transform: none;
 }
 
-/* Registration Form Specific Styles - High specificity */
-/* Vertically center the form */
-.content-center {
+/* Registration Form Specific Styles - Fixed for sidebar layout */
+/* Remove full-height centering - make it fit in main content area */
+.add-student-layout {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  flex-direction: row;
+  align-items: flex-start;
   justify-content: center;
-  min-height: 100vh;
   width: 100%;
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 20px 24px;
   box-sizing: border-box;
   background: none;
+  gap: 32px;
 }
 
 /* Visually striking form container */
-.content-center .form-container {
+.add-student-layout .form-container {
   background: linear-gradient(135deg, #fffbe6 0%, #ffe9c2 80%, #fff5e6 100%);
   border-radius: 28px;
   box-shadow: 0 8px 40px 0 rgba(48, 118, 55, 0.22), 0 1.5px 0 #f5b802 inset;
   padding: 48px 40px;
   width: 100%;
   max-width: 800px;
-  margin: 0 auto;
+  margin: 0;
   box-sizing: border-box;
   border: 3px solid #f5b802;
   position: relative;
   transition: box-shadow 0.2s, border-color 0.2s;
+  flex-shrink: 0;
 }
 
-.content-center .form-container:hover {
+.add-student-layout .form-container:hover {
   box-shadow: 0 12px 56px 0 rgba(48, 118, 55, 0.28), 0 2px 0 #f5b802 inset;
   border-color: #ff8c42;
 }
 
 /* Add a faint inner highlight */
-.content-center .form-container::after {
+.add-student-layout .form-container::after {
   content: '';
   position: absolute;
   top: 10px; left: 10px; right: 10px; bottom: 10px;
@@ -318,7 +319,7 @@
   opacity: 0.5;
 }
 
-.content-center .form-title {
+.add-student-layout .form-title {
   color: #ff8c42;
   font-size: 2.7rem;
   font-weight: 900;
@@ -329,22 +330,22 @@
   text-transform: uppercase;
 }
 
-.content-center .registration-form {
+.add-student-layout .registration-form {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 24px;
   width: 100%;
 }
 
-.content-center .form-group {
+.add-student-layout .form-group {
   margin-bottom: 0;
 }
 
-.content-center .form-group.full-width {
+.add-student-layout .form-group.full-width {
   grid-column: 1 / -1;
 }
 
-.content-center .form-label {
+.add-student-layout .form-label {
   display: block;
   margin-bottom: 8px;
   font-weight: 600;
@@ -353,14 +354,14 @@
   letter-spacing: 0.5px;
 }
 
-.content-center .required {
+.add-student-layout .required {
   color: #ff4444;
   font-weight: 700;
 }
 
-.content-center .form-input,
-.content-center .form-select,
-.content-center .form-textarea {
+.add-student-layout .form-input,
+.add-student-layout .form-select,
+.add-student-layout .form-textarea {
   width: 100%;
   padding: 12px 16px;
   border: 2px solid #e5e7eb;
@@ -371,21 +372,21 @@
   box-sizing: border-box;
 }
 
-.content-center .form-input:focus,
-.content-center .form-select:focus,
-.content-center .form-textarea:focus {
+.add-student-layout .form-input:focus,
+.add-student-layout .form-select:focus,
+.add-student-layout .form-textarea:focus {
   outline: none;
   border-color: #307637;
   box-shadow: 0 0 0 3px rgba(48, 118, 55, 0.1);
 }
 
-.content-center .form-textarea {
+.add-student-layout .form-textarea {
   resize: vertical;
   min-height: 80px;
   font-family: inherit;
 }
 
-.content-center .form-actions {
+.add-student-layout .form-actions {
   grid-column: 1 / -1;
   display: flex;
   gap: 16px;
@@ -393,8 +394,8 @@
   margin-top: 24px;
 }
 
-.content-center .submit-btn,
-.content-center .reset-btn {
+.add-student-layout .submit-btn,
+.add-student-layout .reset-btn {
   padding: 14px 32px;
   border: none;
   border-radius: 12px;
@@ -405,43 +406,43 @@
   letter-spacing: 0.5px;
 }
 
-.content-center .submit-btn {
+.add-student-layout .submit-btn {
   background: #307637;
   color: #fff;
   box-shadow: 0 4px 12px rgba(48, 118, 55, 0.3);
 }
 
-.content-center .submit-btn:hover {
+.add-student-layout .submit-btn:hover {
   background: #245929;
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(48, 118, 55, 0.4);
 }
 
-.content-center .submit-btn:disabled {
+.add-student-layout .submit-btn:disabled {
   background: #9ca3af;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
 }
 
-.content-center .reset-btn {
+.add-student-layout .reset-btn {
   background: #f3f4f6;
   color: #374151;
   border: 2px solid #d1d5db;
 }
 
-.content-center .reset-btn:hover {
+.add-student-layout .reset-btn:hover {
   background: #e5e7eb;
   transform: translateY(-2px);
 }
 
-.content-center .reset-btn:disabled {
+.add-student-layout .reset-btn:disabled {
   background: #9ca3af;
   cursor: not-allowed;
   transform: none;
 }
 
-.content-center .error-message {
+.add-student-layout .error-message {
   background: #fef2f2;
   border: 2px solid #fecaca;
   color: #dc2626;
@@ -452,7 +453,7 @@
   text-align: center;
 }
 
-.content-center .success-message {
+.add-student-layout .success-message {
   background: #f0fdf4;
   border: 2px solid #bbf7d0;
   color: #16a34a;
@@ -463,7 +464,7 @@
   text-align: center;
 }
 
-.content-center .student-code-display {
+.add-student-layout .student-code-display {
   background: #eff6ff;
   border: 2px solid #3b82f6;
   color: #1e40af;
@@ -476,51 +477,122 @@
   grid-column: 1 / -1;
 }
 
+/* Success message box styling for the green info box */
+.success-info-box {
+  background: #f0fdf4;
+  border: 4px solid #16a34a;
+  border-radius: 12px;
+  padding: 24px;
+  margin: 0;
+  text-align: center;
+  box-shadow: 0 4px 16px rgba(22, 163, 74, 0.15);
+  width: 320px;
+  flex-shrink: 0;
+  align-self: flex-start;
+  position: sticky;
+  top: 20px;
+}
+
+.success-info-box h3 {
+  color: #16a34a;
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.success-info-box .account-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.success-info-box .account-detail {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #dc2626;
+  padding: 8px 0;
+  border-bottom: 1px solid #bbf7d0;
+}
+
+.success-info-box .account-detail:last-child {
+  border-bottom: none;
+}
+
 /* Responsive design for registration form */
+@media (max-width: 1200px) {
+  .add-student-layout {
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    max-width: 800px;
+  }
+  
+  .success-info-box {
+    width: 100%;
+    max-width: 400px;
+    position: static;
+  }
+}
+
 @media (max-width: 900px) {
-  .content-center {
+  .add-student-layout {
     padding: 0 8px;
     max-width: 100vw;
   }
-  .content-center .form-container {
+  .add-student-layout .form-container {
     padding: 32px 8px;
     max-width: 98vw;
   }
-  .content-center .form-title {
+  .add-student-layout .form-title {
     font-size: 2rem;
   }
-  .content-center .registration-form {
+  .add-student-layout .registration-form {
     grid-template-columns: 1fr;
     gap: 18px;
   }
 }
 @media (max-width: 600px) {
-  .content-center {
+  .add-student-layout {
     padding: 0 2px;
-    min-height: unset;
   }
-  .content-center .form-container {
+  .add-student-layout .form-container {
     padding: 16px 2px;
     border-radius: 16px;
     max-width: 100vw;
   }
-  .content-center .form-title {
+  .add-student-layout .form-title {
     font-size: 1.3rem;
     margin-bottom: 18px;
   }
-  .content-center .registration-form {
+  .add-student-layout .registration-form {
     grid-template-columns: 1fr;
     gap: 10px;
   }
-  .content-center .form-actions {
+  .add-student-layout .form-actions {
     flex-direction: column;
     gap: 8px;
     margin-top: 12px;
   }
-  .content-center .submit-btn,
-  .content-center .reset-btn {
+  .add-student-layout .submit-btn,
+  .add-student-layout .reset-btn {
     width: 100%;
     font-size: 1rem;
     padding: 10px 0;
+  }
+  
+  .success-info-box {
+    padding: 16px;
+    margin: 0 2px;
+  }
+  
+  .success-info-box h3 {
+    font-size: 1.2rem;
+  }
+  
+  .success-info-box .account-detail {
+    font-size: 1rem;
   }
 }
