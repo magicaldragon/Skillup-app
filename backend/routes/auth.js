@@ -90,10 +90,32 @@ const verifyToken = (req, res, next) => {
   }
 };
 
+// Test endpoint to verify authentication
+router.get('/test', verifyToken, (req, res) => {
+  res.json({
+    success: true,
+    message: 'Authentication working',
+    user: {
+      id: req.user.userId || req.user.id,
+      email: req.user.email,
+      role: req.user.role
+    }
+  });
+});
+
 // Get current user profile
 router.get('/profile', verifyToken, async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId).select('-password');
+    // Handle both userId and id fields from token
+    const userId = req.user.userId || req.user.id;
+    if (!userId) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid token: missing user ID' 
+      });
+    }
+
+    const user = await User.findById(userId).select('-password');
     if (!user) {
       return res.status(404).json({ 
         success: false, 

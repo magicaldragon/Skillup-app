@@ -17,7 +17,8 @@ router.get('/', verifyToken, async (req, res) => {
       query = {};
     } else if (role === 'student') {
       // Students see only themselves (for security)
-      query = { _id: req.user.id };
+      const userId = req.user.userId || req.user.id;
+      query = { _id: userId };
     }
 
     const users = await User.find(query).sort({ createdAt: -1 });

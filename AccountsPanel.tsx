@@ -31,7 +31,8 @@ const AccountsPanel = () => {
   const fetchAccounts = async () => {
     try {
       const token = localStorage.getItem('authToken');
-      console.log('Auth token:', token ? 'Found' : 'Not found');
+      console.log('🔍 DEBUG: Auth token found:', token ? 'YES' : 'NO');
+      console.log('🔍 DEBUG: Token preview:', token ? token.substring(0, 20) + '...' : 'NONE');
       
       if (!token) {
         setError('No authentication token found');
@@ -40,8 +41,25 @@ const AccountsPanel = () => {
       }
 
       const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
-      console.log('Fetching from:', `${apiUrl}/users`);
+      console.log('🔍 DEBUG: API URL:', apiUrl);
       
+      // First, test authentication
+      console.log('🔍 DEBUG: Testing authentication...');
+      const authTest = await fetch(`${apiUrl}/auth/test`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      console.log('🔍 DEBUG: Auth test status:', authTest.status);
+      if (authTest.ok) {
+        const authData = await authTest.json();
+        console.log('🔍 DEBUG: Auth test response:', authData);
+      } else {
+        const authError = await authTest.text();
+        console.log('🔍 DEBUG: Auth test error:', authError);
+      }
+      
+      console.log('🔍 DEBUG: Fetching users...');
       const res = await fetch(`${apiUrl}/users`, {
         headers: {
           'Content-Type': 'application/json',
@@ -49,28 +67,33 @@ const AccountsPanel = () => {
         }
       });
 
-      console.log('Response status:', res.status);
-      console.log('Response ok:', res.ok);
+      console.log('🔍 DEBUG: Users response status:', res.status);
+      console.log('🔍 DEBUG: Users response headers:', Object.fromEntries(res.headers.entries()));
 
       if (!res.ok) {
         const errorText = await res.text();
-        console.log('Error response:', errorText);
+        console.log('🔍 DEBUG: Error response:', errorText);
         throw new Error(`Failed to fetch accounts: ${res.status} ${errorText}`);
       }
 
       const data = await res.json();
-      console.log('Response data:', data);
+      console.log('🔍 DEBUG: Users response data:', data);
+      console.log('🔍 DEBUG: Data type:', typeof data);
+      console.log('🔍 DEBUG: Is array:', Array.isArray(data));
       
       // Accept both array and { users: [...] }
       if (Array.isArray(data)) {
+        console.log('🔍 DEBUG: Setting accounts from array, count:', data.length);
         setAccounts(data);
       } else if (data && Array.isArray(data.users)) {
+        console.log('🔍 DEBUG: Setting accounts from users object, count:', data.users.length);
         setAccounts(data.users);
       } else {
+        console.log('🔍 DEBUG: No valid data found, setting empty array');
         setAccounts([]);
       }
     } catch (err: any) {
-      console.error('Error fetching accounts:', err);
+      console.error('🔍 DEBUG: Error fetching accounts:', err);
       setError(err.message || 'Failed to fetch accounts');
       setAccounts([]);
     } finally {
