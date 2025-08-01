@@ -11,7 +11,7 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
   position: relative;
@@ -24,7 +24,7 @@
     position: fixed;
     left: 0;
     top: 0;
-    height: 100vh;
+    height: 100%;
     z-index: 200;
     border-right: none;
     border-bottom: 2px solid #eee;
@@ -52,7 +52,7 @@
     position: relative;
     border-bottom: none;
     border-right: 4px solid #295b37;
-    height: 100vh;
+    height: 100%;
     transform: none;
     overflow-y: auto;
     overflow-x: hidden;
@@ -75,7 +75,7 @@
   border-radius: 18px;
   box-shadow: 0 2px 16px rgba(48, 118, 55, 0.10);
   padding: 24px 18px 16px 18px;
-  margin: 24px 16px 28px 16px;
+  margin: 16px 16px 16px 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
