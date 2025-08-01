@@ -73,7 +73,7 @@ body {
   flex: 1;
   min-width: 0;
   width: calc(100vw - 320px);
-  padding: 24px 32px;
+  padding: 8px 32px;
   background: #f8fafc;
   overflow-y: auto;
   overflow-x: hidden;

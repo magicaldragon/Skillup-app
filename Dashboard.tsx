@@ -38,14 +38,14 @@ const Dashboard: React.FC<DashboardProps> = ({ assignments, submissions, student
   // Handle settings panel
   if (activeKey === 'settings' && user && onLogout) {
     return (
-      <div className="w-full p-4">
+      <div className="w-full p-1">
         <SettingsPanel user={user} classes={classes} />
       </div>
     );
   }
 
   return (
-    <div className="w-full p-4">
+    <div className="w-full p-1">
       <AnalyticsDashboard assignments={assignments} submissions={submissions} students={students} />
       <AssignmentListPanel
         assignments={assignments}

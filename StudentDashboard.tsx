@@ -23,7 +23,7 @@ const StudentDashboard = ({ user, assignments, submissions, classes, onNavigate,
   const submissionMap = Object.fromEntries(mySubmissions.map(s => [s.assignmentId, s]));
 
   return (
-    <main className="flex-1 p-8 min-h-screen bg-slate-50" style={{ height: '100vh', maxHeight: '100vh', overflowY: 'auto', overflowX: 'hidden' }}>
+    <main className="flex-1 p-2 min-h-screen bg-slate-50" style={{ height: '100vh', maxHeight: '100vh', overflowY: 'auto', overflowX: 'hidden' }}>
       {activeKey === 'settings' ? (
         <SettingsPanel user={user} isAdmin={false} onLogout={onLogout} classes={classes} />
       ) : (
