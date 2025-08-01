@@ -5,6 +5,11 @@ import AddNewMembers from './AddNewMembers';
 import LevelsPanel from './LevelsPanel';
 import WaitingListPanel from './WaitingListPanel';
 import PotentialStudentsPanel from './PotentialStudentsPanel';
+import SettingsPanel from './SettingsPanel';
+import AnalyticsDashboard from './AnalyticsDashboard';
+import AssignmentListPanel from './AssignmentListPanel';
+import SubmissionListPanel from './SubmissionListPanel';
+import SubmissionGradingPanel from './SubmissionGradingPanel';
 import './AddNewMembers.css';
 
 interface DashboardProps {
@@ -33,14 +38,14 @@ const Dashboard: React.FC<DashboardProps> = ({ assignments, submissions, student
   // Handle settings panel
   if (activeKey === 'settings' && user && onLogout) {
     return (
-      <div className="max-w-7xl mx-auto p-4">
-        <SettingsPanel user={user} isAdmin={user.role === 'admin'} onLogout={onLogout} classes={classes} />
+      <div className="w-full p-4">
+        <SettingsPanel user={user} classes={classes} />
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-4">
+    <div className="w-full p-4">
       <AnalyticsDashboard assignments={assignments} submissions={submissions} students={students} />
       <AssignmentListPanel
         assignments={assignments}
