@@ -1,26 +1,34 @@
-/* Reset and base styles - BULLETPROOF LAYOUT */
+/* ULTIMATE BULLETPROOF LAYOUT FIX */
 * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html, body, #root {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
-}
-
-/* Remove any conflicting body styles */
-body {
-  background: none !important;
+  box-sizing: border-box !important;
   margin: 0 !important;
   padding: 0 !important;
 }
 
-/* Main app container - BULLETPROOF flex layout */
+html, body, #root {
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 100% !important;
+  width: 100% !important;
+  overflow: hidden !important;
+}
+
+body {
+  background: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  flex-direction: row !important;
+}
+
+#root {
+  display: flex !important;
+  flex-direction: row !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* FORCE LAYOUT TO WORK */
 .app-container {
   display: flex !important;
   flex-direction: row !important;
@@ -30,9 +38,13 @@ body {
   position: relative !important;
   margin: 0 !important;
   padding: 0 !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  /* RED BORDER TO CONFIRM */
+  border: 5px solid #ff0000 !important;
 }
 
-/* Sidebar - BULLETPROOF fixed width */
+/* FORCE SIDEBAR TO LEFT */
 .sidebar {
   flex: 0 0 320px !important;
   width: 320px !important;
@@ -51,9 +63,12 @@ body {
   padding: 0 !important;
   min-width: 320px !important;
   max-width: 320px !important;
+  float: left !important;
+  /* GREEN BORDER TO CONFIRM */
+  border: 5px solid #00ff00 !important;
 }
 
-/* Main content area - BULLETPROOF remaining space */
+/* FORCE MAIN CONTENT TO RIGHT */
 .main-content {
   flex: 1 !important;
   height: 100vh !important;
@@ -66,9 +81,28 @@ body {
   margin: 0 !important;
   min-width: 0 !important;
   width: calc(100vw - 320px) !important;
+  float: right !important;
+  /* BLUE BORDER TO CONFIRM */
+  border: 5px solid #0000ff !important;
 }
 
-/* Responsive design - BULLETPROOF */
+/* OVERRIDE ANY OTHER STYLES */
+div.app-container {
+  display: flex !important;
+  flex-direction: row !important;
+}
+
+div.sidebar {
+  flex: 0 0 320px !important;
+  width: 320px !important;
+}
+
+div.main-content {
+  flex: 1 !important;
+  width: calc(100vw - 320px) !important;
+}
+
+/* RESPONSIVE - FORCE MOBILE LAYOUT */
 @media (max-width: 900px) {
   .sidebar {
     position: fixed !important;
