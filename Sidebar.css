@@ -13,6 +13,9 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
+  max-height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 @media (max-width: 900px) {
@@ -24,11 +27,14 @@
     left: 0;
     top: 0;
     height: 100vh;
+    max-height: 100vh;
     z-index: 200;
     border-right: none;
     border-bottom: 2px solid #eee;
     box-shadow: 2px 0 16px rgba(0,0,0,0.10);
     transform: translateX(-100%);
+    overflow-y: auto;
+    overflow-x: hidden;
   }
   .sidebar.open {
     transform: translateX(0);
@@ -49,6 +55,10 @@
     position: static;
     border-bottom: none;
     border-right: 4px solid #295b37;
+    height: 100vh;
+    max-height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
   .sidebar-overlay {
     display: none;
@@ -154,6 +164,9 @@
   gap: 14px;
   padding: 0 16px;
   box-sizing: border-box;
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: calc(100vh - 200px); /* Account for profile section and footer */
 }
 .sidebar-btn {
   background: #295b37; /* Remove gradient, use solid dark green */
