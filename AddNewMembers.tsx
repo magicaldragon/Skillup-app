@@ -24,6 +24,7 @@ const AddNewMembers = () => {
   const [success, setSuccess] = useState<string | null>(null);
   const [generatedStudentCode, setGeneratedStudentCode] = useState<string | null>(null);
   const [createdUser, setCreatedUser] = useState<any>(null);
+  const [showTestAnnouncement, setShowTestAnnouncement] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -73,12 +74,58 @@ const AddNewMembers = () => {
     }
   };
 
+  const showTestSuccess = () => {
+    setCreatedUser({
+      studentCode: 'STU2024001',
+      role: 'student',
+      email: 'test@example.com',
+      id: 'test123'
+    });
+    setShowTestAnnouncement(true);
+  };
+
+  const hideTestSuccess = () => {
+    setCreatedUser(null);
+    setShowTestAnnouncement(false);
+  };
+
   return (
     <div className="add-student-container">
       <div className="add-student-content">
         <div className="registration-form-section">
           <div className="form-container">
             <h2 className="form-title">REGISTRATION FORM</h2>
+            
+            {/* Test buttons for demonstration */}
+            <div style={{ marginBottom: '20px', textAlign: 'center' }}>
+              <button 
+                onClick={showTestSuccess}
+                style={{
+                  background: '#307637',
+                  color: 'white',
+                  padding: '10px 20px',
+                  border: 'none',
+                  borderRadius: '8px',
+                  marginRight: '10px',
+                  cursor: 'pointer'
+                }}
+              >
+                Show Success Announcement
+              </button>
+              <button 
+                onClick={hideTestSuccess}
+                style={{
+                  background: '#dc2626',
+                  color: 'white',
+                  padding: '10px 20px',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer'
+                }}
+              >
+                Hide Announcement
+              </button>
+            </div>
             
             {error && (
               <div className="error-message">
