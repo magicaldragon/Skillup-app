@@ -351,7 +351,8 @@ const AddNewMembers = () => {
                   USERNAME: {createdUser.email || 'N/A'}
                 </div>
                 <div className="account-detail">
-                  PASSWORD: SKILLUP123
+                  {/* Default password is Skillup123 (capital S) */}
+                  PASSWORD: Skillup123
                 </div>
               </div>
             </div>
