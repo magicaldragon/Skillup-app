@@ -4,28 +4,16 @@
   flex: 1;
   padding: 0 2rem;
   background: #f8fafc;
-  height: 100%;
-  max-height: 100vh;
+  width: 100%;
   overflow-y: auto;
   overflow-x: hidden;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
 }
 
 .teacher-dashboard-main {
   width: 100%;
   margin: 0;
-  height: 100%;
-  max-height: 100vh;
   overflow-y: auto;
   overflow-x: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
 }
 
 .teacher-dashboard-header {
