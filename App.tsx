@@ -96,8 +96,11 @@ const App: React.FC = () => {
       if (studentsResponse.ok) {
         const studentsData = await studentsResponse.json();
         console.log('Students data:', studentsData);
-        if (studentsData.success) {
-          setStudents(studentsData.users || []);
+        // Handle both array format and { users: [...] } format
+        if (Array.isArray(studentsData)) {
+          setStudents(studentsData);
+        } else if (studentsData && Array.isArray(studentsData.users)) {
+          setStudents(studentsData.users);
         } else {
           setStudents([]);
         }
