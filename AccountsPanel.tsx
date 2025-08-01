@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { authService } from './services/authService';
 import './AccountsPanel.css';
 
 interface User {
@@ -31,7 +30,9 @@ const AccountsPanel = () => {
 
   const fetchAccounts = async () => {
     try {
-      const token = authService.getToken();
+      const token = localStorage.getItem('authToken');
+      console.log('Auth token:', token ? 'Found' : 'Not found');
+      
       if (!token) {
         setError('No authentication token found');
         setAccounts([]);
@@ -39,6 +40,8 @@ const AccountsPanel = () => {
       }
 
       const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+      console.log('Fetching from:', `${apiUrl}/users`);
+      
       const res = await fetch(`${apiUrl}/users`, {
         headers: {
           'Content-Type': 'application/json',
@@ -46,11 +49,18 @@ const AccountsPanel = () => {
         }
       });
 
+      console.log('Response status:', res.status);
+      console.log('Response ok:', res.ok);
+
       if (!res.ok) {
-        throw new Error('Failed to fetch accounts');
+        const errorText = await res.text();
+        console.log('Error response:', errorText);
+        throw new Error(`Failed to fetch accounts: ${res.status} ${errorText}`);
       }
 
       const data = await res.json();
+      console.log('Response data:', data);
+      
       // Accept both array and { users: [...] }
       if (Array.isArray(data)) {
         setAccounts(data);
@@ -94,7 +104,7 @@ const AccountsPanel = () => {
     if (!editingId) return;
 
     try {
-      const token = authService.getToken();
+      const token = localStorage.getItem('authToken');
       if (!token) {
         setError('No authentication token found');
         return;
@@ -129,7 +139,7 @@ const AccountsPanel = () => {
     if (!confirm('Are you sure you want to delete this user?')) return;
 
     try {
-      const token = authService.getToken();
+      const token = localStorage.getItem('authToken');
       if (!token) {
         setError('No authentication token found');
         return;
