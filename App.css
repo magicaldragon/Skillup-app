@@ -1,402 +1,95 @@
-html, body, #root {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box;
-  overflow-x: hidden;
-}
-
-/* Hide blinking caret in all input fields */
-input:focus {
-  caret-color: transparent;
-}
-
-/* GLOBAL BOX-SIZING RESET */
+/* Reset and base styles */
 * {
   box-sizing: border-box;
 }
 
-/* Global viewport constraints to prevent overflow */
-html {
-  overflow-x: hidden;
-  overflow-y: auto;
-}
-
-body {
-  overflow-x: hidden;
-  overflow-y: auto;
-  min-height: 100vh;
+html, body, #root {
   margin: 0;
   padding: 0;
+  height: 100%;
+  width: 100%;
 }
 
-#root {
-  overflow-x: hidden;
-  overflow-y: auto;
-  min-height: 100vh;
-  margin: 0;
-  padding: 0;
-}
-
-/* Main App Layout - Center Content */
+/* Main app container - clean flex layout */
 .app-container {
   display: flex;
   flex-direction: row;
-  width: 100%;
   height: 100vh;
-  background: #fff;
-  margin: 0;
-  padding: 0;
+  width: 100vw;
   overflow: hidden;
-  align-items: stretch;
 }
 
+/* Sidebar - fixed width, full height */
 .sidebar {
   flex: 0 0 320px;
   width: 320px;
+  height: 100vh;
   background: #295b37;
   color: #fff;
   box-shadow: 2px 0 16px rgba(0,0,0,0.05);
   z-index: 100;
   border-right: 4px solid #295b37;
-  margin: 0;
-  padding: 0;
-  height: 100%;
+  display: flex;
+  flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
   position: relative;
 }
 
-.sidebar-collapsed {
-  transform: translateX(-100%);
-  box-shadow: none;
-}
-
+/* Main content area - takes remaining space */
 .main-content {
   flex: 1;
+  height: 100vh;
   background: #f8fafc;
   overflow-y: auto;
   overflow-x: hidden;
-  margin: 0;
-  padding: 0 32px;
-  box-sizing: border-box;
-  height: 100vh;
-}
-
-.settings-panel-wrapper {
-  width: 100%;
-  max-width: 520px;
-  margin-top: 0;
-  margin-left: 0;
-  margin-right: auto;
-  background: none;
-}
-
-/* Content Centering for Forms, Tables, Charts */
-/* Note: .content-center styles are now handled by individual components */
-
-/* Remove conflicting form-container styles - let individual components handle their own styling */
-
-.table-container {
-  background: #fff;
-  border-radius: 18px;
-  box-shadow: 0 4px 24px rgba(48, 118, 55, 0.15);
-  padding: 24px;
-  width: 100%;
-  max-width: 1000px;
-  margin: 0 auto;
-  overflow-x: auto;
-  box-sizing: border-box;
-}
-
-.chart-container {
-  background: #fff;
-  border-radius: 18px;
-  box-shadow: 0 4px 24px rgba(48, 118, 55, 0.15);
-  padding: 32px;
-  width: 100%;
-  max-width: 900px;
-  margin: 0 auto;
-  box-sizing: border-box;
-}
-
-/* Vivid Dashboard Styles */
-.dashboard-card {
-  background: #fff;
-  border-radius: 18px;
-  box-shadow: 0 2px 16px rgba(48, 118, 55, 0.10);
-  padding: 32px 28px;
-  margin-bottom: 32px;
-  width: 100%;
-  max-width: 1000px;
-  margin-left: auto;
-  margin-right: auto;
-  box-sizing: border-box;
-}
-
-.dashboard-title {
-  color: #307637;
-  font-size: 2rem;
-  font-weight: 800;
-  margin-bottom: 24px;
-  letter-spacing: 1px;
-  text-align: center;
-}
-
-.dashboard-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 24px;
-  margin-bottom: 24px;
-  justify-content: center;
-}
-
-.dashboard-section {
-  background: #ffe9c2;
-  border-radius: 14px;
-  box-shadow: 0 1px 8px rgba(245, 184, 2, 0.08);
-  padding: 20px 18px;
-  flex: 1 1 220px;
-  min-width: 220px;
-  max-width: 300px;
-}
-
-.dashboard-section-title {
-  color: #295b37;
-  font-size: 1.15rem;
-  font-weight: 700;
-  margin-bottom: 10px;
-}
-
-.dashboard-list {
-  margin: 0 0 0 18px;
-  padding: 0;
-  color: #295b37;
-  font-size: 1rem;
-}
-
-.dashboard-text {
-  color: #295b37;
-  font-size: 1rem;
-  margin-bottom: 6px;
-}
-
-.dashboard-muted {
-  color: #b0b0b0;
-}
-
-/* Settings Panel ID Card Improvements */
-.settings-id-card {
-  background: linear-gradient(135deg, #fffbe6 0%, #ffe9c2 80%, #fff5e6 100%);
-  border: 3px solid #307637;
-  border-radius: 28px;
-  box-shadow: 0 12px 48px rgba(48, 118, 55, 0.18), 0 2px 0 #f5b802 inset;
-  padding: 48px 40px;
-  width: 100%;
-  max-width: 520px;
-  margin: 0 auto;
-  text-align: center;
-  position: relative;
-  box-sizing: border-box;
+  padding: 24px 32px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  transition: box-shadow 0.2s, border-color 0.2s;
 }
 
-.settings-id-card h2 {
-  color: #ff8c42;
-  font-size: 2.2rem;
-  font-weight: 900;
-  margin-bottom: 32px;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  text-shadow: 0 4px 12px rgba(48, 118, 55, 0.13), 0 1px 0 #fffbe6;
-}
-
-.settings-id-card .avatar-section {
-  margin-bottom: 24px;
-}
-
-.settings-id-card .avatar-img, .settings-id-card .avatar-svg {
-  width: 140px;
-  height: 140px;
-  border-radius: 50%;
-  border: 5px solid #f5b802;
-  background: #fff;
-  object-fit: cover;
-  box-shadow: 0 4px 24px #ffe9c2;
-  margin-bottom: 8px;
-}
-
-.settings-id-card .role-badge {
-  display: inline-block;
-  margin-top: 8px;
-  padding: 6px 24px;
-  border-radius: 16px;
-  background: #307637;
-  color: #fffbe6;
-  font-size: 1.1rem;
-  font-weight: 700;
-  letter-spacing: 2px;
-  box-shadow: 0 2px 8px #ffe9c2;
-  border: 2px solid #fffbe6;
-  text-transform: uppercase;
-}
-
-.settings-id-card .user-name {
-  font-size: 2.1rem;
-  font-weight: 900;
-  color: #307637;
-  margin-bottom: 4px;
-  letter-spacing: 1px;
-}
-
-.settings-id-card .user-english {
-  font-size: 1.2rem;
-  color: #ff8c42;
-  font-weight: 700;
-  margin-bottom: 12px;
-}
-
-.settings-id-card .student-code {
-  font-size: 1.1rem;
-  color: #1e40af;
-  font-weight: 700;
-  margin-bottom: 16px;
-}
-
-.settings-id-card .info-list {
-  width: 100%;
-  margin: 0 auto 16px auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-
-.settings-id-card .info-row {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 8px 0;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.settings-id-card .info-label {
-  font-weight: 700;
-  color: #374151;
-  font-size: 1rem;
-  margin-bottom: 2px;
-}
-
-.settings-id-card .info-value {
-  font-weight: 500;
-  color: #1f2937;
-  font-size: 1rem;
-}
-
-.settings-id-card .settings-btn {
-  margin-top: 24px;
-  padding: 14px 32px;
-  border: none;
-  border-radius: 12px;
-  font-size: 1.1rem;
-  font-weight: 700;
-  background: #307637;
-  color: #fff;
-  box-shadow: 0 4px 12px rgba(48, 118, 55, 0.3);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.settings-id-card .settings-btn:hover {
-  background: #245929;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(48, 118, 55, 0.4);
-} 
-
-/* Responsive layout for sidebar and main content */
+/* Responsive design */
 @media (max-width: 900px) {
-  .app-container {
-    flex-direction: row;
-    overflow: hidden;
-  }
   .sidebar {
-    flex: 0 0 100vw;
-    width: 100vw;
     position: fixed;
-    top: 0;
     left: 0;
-    height: 100vh;
+    top: 0;
+    width: 100vw;
     transform: translateX(-100%);
     transition: transform 0.3s;
-    overflow-y: auto;
-    overflow-x: hidden;
     z-index: 200;
   }
+  
   .sidebar.open {
     transform: translateX(0);
-    box-shadow: 2px 0 16px rgba(0,0,0,0.10);
   }
-  .main-content {
-    flex: 1;
-    width: 100vw;
-    height: 100vh;
-    overflow-y: auto;
-    overflow-x: hidden;
-    margin-left: 0;
-  }
+  
   .sidebar-overlay {
     display: block;
     position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     background: rgba(0,0,0,0.3);
     z-index: 199;
   }
-}
-@media (min-width: 901px) {
-  .app-container {
-    flex-direction: row;
-  }
-  .sidebar {
-    flex: 0 0 320px;
-    width: 320px;
-    position: relative;
-    transform: none;
-  }
+  
   .main-content {
-    flex: 1;
-    width: auto;
-    margin-left: 0;
+    padding: 16px;
   }
+}
+
+@media (min-width: 901px) {
   .sidebar-overlay {
     display: none;
   }
 }
-@media (max-width: 600px) {
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
   .sidebar {
-    flex: 0 0 100vw;
-    width: 100vw;
-    position: fixed;
-    z-index: 200;
-    height: 100vh;
-    overflow-y: auto;
-    overflow-x: hidden;
-  }
-  .main-content {
-    flex: 1;
-    width: 100vw;
-    height: 100vh;
-    overflow-y: auto;
-    overflow-x: hidden;
-  }
-  .table-container, .chart-container, .dashboard-card {
-    max-width: 100vw;
-    padding-left: 0;
-    padding-right: 0;
+    background: #295b37;
+    border-right: 4px solid #ffe9c2;
   }
 } 
