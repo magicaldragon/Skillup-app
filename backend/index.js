@@ -34,10 +34,12 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:4173', // Vite preview server
   'https://skillup-frontend-uvt6.onrender.com', // <-- Deployed frontend URL (Render)
+  'https://skillup-frontend.onrender.com', // Alternative frontend URL
   // Add any additional origins from environment variables
   ...(process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [])
 ];
 
+// More permissive CORS configuration for development
 app.use(cors({
   origin: function (origin, callback) {
     // allow requests with no origin (like mobile apps, curl, etc.)
@@ -49,15 +51,18 @@ app.use(cors({
     console.log('CORS: Checking origin:', origin);
     console.log('CORS: Allowed origins:', allowedOrigins);
     
-    if (allowedOrigins.indexOf(origin) !== -1) {
+    // Allow all origins in development, or check against allowedOrigins in production
+    if (process.env.NODE_ENV === 'development' || allowedOrigins.indexOf(origin) !== -1) {
       console.log('CORS: Origin allowed');
       return callback(null, true);
     } else {
-      console.log('CORS: Origin not allowed');
+      console.log('CORS: Origin not allowed:', origin);
       return callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 app.use(express.json());
 

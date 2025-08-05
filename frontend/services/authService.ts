@@ -49,7 +49,7 @@ class AuthService {
 
   async login(credentials: LoginCredentials): Promise<{ success: boolean; message: string; user?: any }> {
     try {
-      // Validate input
+      // Validate input with safe handling
       if (!credentials || !credentials.email || !credentials.password) {
         console.error('Invalid credentials provided:', credentials);
         return {
@@ -58,9 +58,9 @@ class AuthService {
         };
       }
 
-      // Ensure email is trimmed and valid
-      const email = safeTrim(credentials.email);
-      const password = credentials.password;
+      // Ensure email is trimmed and valid with safe handling
+      const email = safeTrim(credentials.email || '');
+      const password = credentials.password || '';
 
       if (!email || !password) {
         return {
