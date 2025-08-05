@@ -51,7 +51,7 @@ const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onL
   };
 
   return (
-    <>
+    <div className="teacher-dashboard">
       {/* Show avatar at the top of the dashboard */}
       {activeKey === undefined || activeKey === '' ? (
         <div className="teacher-dashboard-header">
@@ -153,7 +153,7 @@ const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onL
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 };
 
