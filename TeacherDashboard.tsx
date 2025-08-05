@@ -2,7 +2,6 @@
 // Professional dashboard layout for teachers/admins with sidebar, summary cards, and IELTS focus
 // [NOTE] Created as part of 2024-05-XX dashboard refactor
 import React, { useState } from 'react';
-import { Student, Assignment, StudentClass } from './types';
 import AddNewMembers from './AddNewMembers';
 import PotentialStudentsPanel from './PotentialStudentsPanel';
 import WaitingListPanel from './WaitingListPanel';
@@ -16,14 +15,12 @@ import SettingsPanel from './SettingsPanel';
 import ChangeLogPanel from './ChangeLogPanel';
 import './TeacherDashboard.css';
 
-const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onLogout, onStudentAdded, onDataRefresh }: {
-  user: Student,
-  students: Student[],
-  assignments: Assignment[],
-  classes: StudentClass[],
+const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onDataRefresh }: {
+  user: any,
+  students: any[],
+  assignments: any[],
+  classes: any[],
   activeKey: string,
-  onLogout: () => void,
-  onStudentAdded?: () => void,
   onDataRefresh?: () => void
 }) => {
   const totalStudents = students.length;
