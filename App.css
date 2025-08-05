@@ -41,8 +41,8 @@ body {
   padding: 0 !important;
   align-items: stretch !important;
   justify-content: flex-start !important;
-  /* REMOVE DEBUG BORDERS */
-  /* border: 5px solid #ff0000 !important; */
+  /* DEBUG BORDERS TO CHECK LAYOUT */
+  border: 3px solid #ff0000 !important;
   box-sizing: border-box !important;
 }
 
@@ -65,8 +65,8 @@ body {
   padding: 0 !important;
   min-width: 20rem !important;
   max-width: 20rem !important;
-  /* REMOVE DEBUG BORDERS */
-  /* border: 5px solid #00ff00 !important; */
+  /* DEBUG BORDERS TO CHECK LAYOUT */
+  border: 3px solid #00ff00 !important;
 }
 
 /* RESPONSIVE MAIN CONTENT - FILLS REMAINING SPACE */
@@ -83,8 +83,8 @@ body {
   min-width: 0 !important;
   width: calc(100vw - 20rem) !important;
   max-width: calc(100vw - 20rem) !important;
-  /* REMOVE DEBUG BORDERS */
-  /* border: 5px solid #0000ff !important; */
+  /* DEBUG BORDERS TO CHECK LAYOUT */
+  border: 3px solid #0000ff !important;
   flex-grow: 1 !important;
   flex-shrink: 1 !important;
   flex-basis: auto !important;

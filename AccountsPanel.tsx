@@ -199,7 +199,11 @@ const AccountsPanel = () => {
       (account.studentCode && account.studentCode.toLowerCase().includes(searchTerm.toLowerCase()));
     
     const matchesRole = filterRole === 'all' || account.role === filterRole;
-    const matchesStatus = filterStatus === 'all' || account.status === filterStatus;
+    
+    // Only apply status filtering when "Students" role is selected
+    const matchesStatus = filterRole === 'student' 
+      ? (filterStatus === 'all' || account.status === filterStatus)
+      : true; // Don't filter by status for non-student roles
     
     return matchesSearch && matchesRole && matchesStatus;
   });
@@ -264,19 +268,22 @@ const AccountsPanel = () => {
           <option value="student">Student</option>
                 </select>
                 
-                <select
-                  value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                  className="filter-select"
-                >
-                  <option value="all">All Statuses</option>
-                  <option value="potential">Potential</option>
-                  <option value="contacted">Contacted</option>
-                  <option value="studying">Studying</option>
-                  <option value="postponed">Postponed</option>
-                  <option value="off">Off</option>
-                  <option value="alumni">Alumni</option>
-        </select>
+                {/* Only show status filter when "Students" role is selected */}
+                {filterRole === 'student' && (
+                  <select
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                    className="filter-select"
+                  >
+                    <option value="all">All Statuses</option>
+                    <option value="potential">Potential</option>
+                    <option value="contacted">Contacted</option>
+                    <option value="studying">Studying</option>
+                    <option value="postponed">Postponed</option>
+                    <option value="off">Off</option>
+                    <option value="alumni">Alumni</option>
+                  </select>
+                )}
       </div>
             </div>
 
