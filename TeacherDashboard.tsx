@@ -1,7 +1,6 @@
 // TeacherDashboard.tsx
 // Professional dashboard layout for teachers/admins with sidebar, summary cards, and IELTS focus
 // [NOTE] Created as part of 2024-05-XX dashboard refactor
-import React, { useState } from 'react';
 import AddNewMembers from './AddNewMembers';
 import PotentialStudentsPanel from './PotentialStudentsPanel';
 import WaitingListPanel from './WaitingListPanel';
