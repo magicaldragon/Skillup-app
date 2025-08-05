@@ -133,7 +133,7 @@ router.post('/', async (req, res) => {
           dob,
           parentName,
           parentPhone,
-          source: 'registration_form',
+          source: 'other', // Use valid enum value
           status: 'pending', // PotentialStudent uses different status values
           notes: notes || `Created from registration form. Student Code: ${studentCode}`,
           assignedTo: null // Will be assigned by admin later
@@ -319,7 +319,7 @@ router.post('/sync-potential-students', verifyToken, async (req, res) => {
           dob: student.dob,
           parentName: student.parentName,
           parentPhone: student.parentPhone,
-          source: 'existing_user_sync',
+          source: 'other', // Use valid enum value
           status: 'pending', // PotentialStudent uses different status values
           notes: `Synced from existing user. Student Code: ${student.studentCode || 'N/A'}`,
           assignedTo: null // Will be assigned by admin later
