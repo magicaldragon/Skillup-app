@@ -5,6 +5,12 @@
 import { useState } from 'react';
 import './Sidebar.css';
 import DiceBearAvatar from './DiceBearAvatar';
+import {
+  FaHome, FaFolderOpen, FaUserPlus, FaGem, FaHourglassHalf, FaUsers, FaChartBar, FaClipboard, FaListAlt,
+  FaClipboardList, FaArchive, FaUserCog, FaBookOpen, FaMicrophone, FaPen, FaUser, FaChalkboardTeacher,
+  FaUserTie, FaUserShield, FaUserFriends, FaCheckCircle, FaTimesCircle, FaUserCheck, FaTasks, FaClipboardCheck,
+  FaSignOutAlt
+} from 'react-icons/fa';
 
 const menuConfig = (role: string) => [
   {

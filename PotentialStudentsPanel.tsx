@@ -36,7 +36,7 @@ interface PotentialStudentsPanelProps {
   onDataRefresh?: () => void;
 }
 
-const PotentialStudentsPanel = ({ classes, currentUser, onDataRefresh }: PotentialStudentsPanelProps) => {
+const PotentialStudentsPanel = ({ classes: _classes, currentUser, onDataRefresh }: PotentialStudentsPanelProps) => {
   const [potentialStudents, setPotentialStudents] = useState<PotentialStudent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

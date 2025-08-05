@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { Student, Submission, Assignment } from './types';
 
 const SKILLS = ['Listening', 'Reading', 'Writing', 'Speaking'];

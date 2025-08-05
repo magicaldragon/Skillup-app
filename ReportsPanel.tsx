@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-const ReportsPanel = (props: { isAdmin: boolean, onDataRefresh?: () => void }) => {
+const ReportsPanel = ({ isAdmin: _isAdmin, onDataRefresh: _onDataRefresh }: { isAdmin: boolean, onDataRefresh?: () => void }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reports, setReports] = useState<any>(null);

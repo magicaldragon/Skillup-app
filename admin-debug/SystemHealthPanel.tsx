@@ -23,7 +23,7 @@ const SystemHealthPanel = () => {
       setStatus(healthStatus);
       setLoading(false);
     })
-    .catch(err => {
+    .catch(() => {
       setError('Failed to check system health');
       setLoading(false);
     });

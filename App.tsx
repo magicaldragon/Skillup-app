@@ -343,7 +343,6 @@ const App: React.FC = () => {
               user={user}
               classes={classes}
               activeKey={navKey}
-              onLogout={handleLogout}
             />
           ) : user.role === "teacher" || user.role === "admin" || user.role === "staff" ? (
             <TeacherDashboard 
