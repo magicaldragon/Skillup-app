@@ -303,7 +303,15 @@ const App: React.FC = () => {
 
   return (
     <Suspense fallback={<div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div style={{ margin: '0 auto 1rem', width: 48, height: 48, borderRadius: '50%', borderBottom: '4px solid #307637', animation: 'spin 1s linear infinite' }} /><p style={{ fontSize: '1.1rem', color: '#475569' }}>Loading...</p></div>}>
-      <div className="app-container">
+      <div style={{
+        display: 'flex',
+        flexDirection: 'row',
+        height: '100vh',
+        width: '100vw',
+        overflow: 'hidden',
+        margin: 0,
+        padding: 0
+      }}>
         <Sidebar
           role={user.role}
           activeKey={navKey}
@@ -311,7 +319,18 @@ const App: React.FC = () => {
           onLogout={handleLogout}
           user={user}
         />
-        <div className="main-content">
+        <div style={{
+          flexGrow: 1,
+          height: '100vh',
+          background: '#f8fafc',
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          padding: '24px 32px',
+          display: 'flex',
+          flexDirection: 'column',
+          minWidth: 0,
+          boxSizing: 'border-box'
+        }}>
           {dataLoading && (
             <div style={{ position: 'fixed', top: 16, right: 16, background: '#307637', color: '#fff', padding: '8px 20px', borderRadius: 8, boxShadow: '0 2px 8px #30763722', zIndex: 50 }}>
               <div style={{ display: 'flex', alignItems: 'center' }}>
