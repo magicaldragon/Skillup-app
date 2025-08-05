@@ -33,6 +33,7 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
   const fetchLevels = async () => {
     try {
       const token = localStorage.getItem('authToken');
+      console.log('Fetching levels from:', `${API_BASE_URL}/levels`);
       const res = await fetch(`${API_BASE_URL}/levels`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -42,6 +43,7 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       const data = await res.json();
+      console.log('Levels response:', data);
       setLevels(data.levels || []);
     } catch (error) {
       console.error('Error fetching levels:', error);

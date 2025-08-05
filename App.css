@@ -224,26 +224,26 @@ body {
 }
 
 .search-bar-input {
-  width: 100%;
-  padding: 12px 50px 12px 20px;
-  border: 2px solid #166534;
-  border-radius: 25px;
-  background: white;
-  font-size: 1rem;
-  color: #374151;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(22, 101, 52, 0.1);
+  width: 100% !important;
+  padding: 12px 50px 12px 20px !important;
+  border: 2px solid #166534 !important;
+  border-radius: 25px !important;
+  background: white !important;
+  font-size: 1rem !important;
+  color: #374151 !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 2px 8px rgba(22, 101, 52, 0.1) !important;
 }
 
 .search-bar-input:focus {
-  outline: none;
-  border-color: #166534;
-  box-shadow: 0 4px 12px rgba(22, 101, 52, 0.2);
-  transform: translateY(-1px);
+  outline: none !important;
+  border-color: #166534 !important;
+  box-shadow: 0 4px 12px rgba(22, 101, 52, 0.2) !important;
+  transform: translateY(-1px) !important;
 }
 
 .search-bar-input::placeholder {
-  color: #9ca3af;
+  color: #9ca3af !important;
 }
 
 .search-bar-button {
@@ -286,17 +286,17 @@ body {
 
 /* Status filter select styling */
 .status-filter-select {
-  padding: 12px 20px;
-  border: 2px solid #166534;
-  border-radius: 25px;
-  background: white;
-  color: #374151;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  min-width: 150px;
-  box-shadow: 0 2px 8px rgba(22, 101, 52, 0.1);
+  padding: 12px 20px !important;
+  border: 2px solid #166534 !important;
+  border-radius: 25px !important;
+  background: white !important;
+  color: #374151 !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  min-width: 150px !important;
+  box-shadow: 0 2px 8px rgba(22, 101, 52, 0.1) !important;
 }
 
 .status-filter-select:focus {
