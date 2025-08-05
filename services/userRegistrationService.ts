@@ -299,9 +299,13 @@ class UserRegistrationService {
       const email = userData.email || this.generateEmail(username, userData.role);
       const password = this.generatePassword(userData.role);
 
-      // Step 2: Create MongoDB user with Firebase user creation handled by backend
+      // Step 2: Create Firebase Auth user using frontend SDK
+      const firebaseUid = await this.createFirebaseUser(email, password);
+
+      // Step 3: Create MongoDB user
       try {
         const mongoUser = await this.createMongoDBUser({
+          firebaseUid,
           name: userData.fullname,
           email,
           role: userData.role,
@@ -314,14 +318,13 @@ class UserRegistrationService {
           parentName: userData.parentName,
           parentPhone: userData.parentPhone,
           status: userData.status,
-          password, // Pass password to backend for Firebase user creation
         });
 
-        // Step 3: For students only, also create potential student entry
+        // Step 4: For students only, also create potential student entry
         if (userData.role === 'student') {
           try {
             await this.createPotentialStudent({
-              firebaseUid: mongoUser.firebaseUid,
+              firebaseUid,
               name: userData.fullname,
               email,
               username,
@@ -354,21 +357,13 @@ class UserRegistrationService {
           },
         };
       } catch (mongoError: any) {
-        // If MongoDB creation fails due to backend issues, provide a fallback
-        if (mongoError.message.includes('Backend needs to be updated')) {
-          console.warn('🔍 [DEBUG] Backend not updated, using fallback registration');
-          return {
-            success: true,
-            message: 'User registered successfully (Firebase only - backend needs update)',
-            user: {
-              id: 'temp-id',
-              name: userData.fullname,
-              email,
-              role: userData.role,
-              username,
-              password,
-            },
-          };
+        // If MongoDB creation fails, delete the Firebase user to maintain consistency
+        try {
+          // Note: We can't delete Firebase users from frontend without admin privileges
+          // This is a limitation of the frontend SDK
+          console.warn('⚠️ MongoDB creation failed, but Firebase user was created');
+        } catch (deleteError) {
+          console.error('❌ Failed to clean up Firebase user:', deleteError);
         }
         throw mongoError;
       }

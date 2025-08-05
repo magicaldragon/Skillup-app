@@ -4,9 +4,6 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 const path = require('path');
 
-// Initialize Firebase Admin SDK
-const admin = require('firebase-admin');
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -19,73 +16,7 @@ if (missingEnvVars.length > 0) {
   process.exit(1);
 }
 
-// Initialize Firebase Admin SDK with fallback
-let firebaseAdminInitialized = false;
-try {
-  // Try to initialize with service account file
-  const serviceAccountPath = path.join(__dirname, 'firebase-service-account.json');
-  const deploymentServiceAccountPath = '/etc/secrets/firebase-service-account.json';
-  const fs = require('fs');
-  
-  console.log('🔍 [DEBUG] Checking Firebase service account files...');
-  console.log('🔍 [DEBUG] Local path:', serviceAccountPath);
-  console.log('🔍 [DEBUG] Deployment path:', deploymentServiceAccountPath);
-  console.log('🔍 [DEBUG] Local file exists:', fs.existsSync(serviceAccountPath));
-  console.log('🔍 [DEBUG] Deployment file exists:', fs.existsSync(deploymentServiceAccountPath));
-  
-  let serviceAccount = null;
-  
-  // Check local development path first
-  if (fs.existsSync(serviceAccountPath)) {
-    serviceAccount = require('./firebase-service-account.json');
-    console.log('✅ Found Firebase service account in local directory');
-  }
-  // Check deployment path (Render, etc.)
-  else if (fs.existsSync(deploymentServiceAccountPath)) {
-    serviceAccount = require(deploymentServiceAccountPath);
-    console.log('✅ Found Firebase service account in deployment secrets');
-  }
-  
-  if (serviceAccount) {
-    console.log('🔍 [DEBUG] Service account keys:', Object.keys(serviceAccount));
-    admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount)
-    });
-    firebaseAdminInitialized = true;
-    console.log('✅ Firebase Admin SDK initialized successfully with service account');
-  } else {
-    console.log('🔍 [DEBUG] No service account file found, checking environment variables...');
-    console.log('🔍 [DEBUG] FIREBASE_PROJECT_ID:', process.env.FIREBASE_PROJECT_ID ? 'SET' : 'NOT SET');
-    console.log('🔍 [DEBUG] FIREBASE_PRIVATE_KEY:', process.env.FIREBASE_PRIVATE_KEY ? 'SET' : 'NOT SET');
-    console.log('🔍 [DEBUG] FIREBASE_CLIENT_EMAIL:', process.env.FIREBASE_CLIENT_EMAIL ? 'SET' : 'NOT SET');
-    
-    // Try to initialize with environment variables
-    if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_PRIVATE_KEY && process.env.FIREBASE_CLIENT_EMAIL) {
-      admin.initializeApp({
-        credential: admin.credential.cert({
-          projectId: process.env.FIREBASE_PROJECT_ID,
-          privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-        })
-      });
-      firebaseAdminInitialized = true;
-      console.log('✅ Firebase Admin SDK initialized successfully with environment variables');
-    } else {
-      console.warn('⚠️ Firebase Admin SDK not initialized - user registration will use frontend Firebase SDK');
-      console.warn('📁 To enable backend Firebase user creation, add firebase-service-account.json or set FIREBASE_* environment variables');
-    }
-  }
-} catch (error) {
-  console.error('❌ Firebase Admin SDK initialization failed:', error.message);
-  console.error('❌ Full error:', error);
-  console.warn('⚠️ User registration will use frontend Firebase SDK as fallback');
-}
-
-console.log('🔍 [DEBUG] Firebase Admin initialized:', firebaseAdminInitialized);
-console.log('🔍 [DEBUG] Global firebaseAdmin available:', !!global.firebaseAdmin);
-
-// Make Firebase Admin available globally
-global.firebaseAdmin = firebaseAdminInitialized ? admin : null;
+console.log('✅ Backend initialized - using frontend Firebase SDK for authentication');
 
 // API usage monitoring
 let apiUsage = {
