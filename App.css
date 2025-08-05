@@ -214,3 +214,99 @@ body {
   animation: spin 1s linear infinite;
   will-change: transform;
 } 
+
+/* Global Search Bar Styling */
+.search-bar-container {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  max-width: 400px;
+}
+
+.search-bar-input {
+  width: 100%;
+  padding: 12px 50px 12px 20px;
+  border: 2px solid #166534;
+  border-radius: 25px;
+  background: white;
+  font-size: 1rem;
+  color: #374151;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(22, 101, 52, 0.1);
+}
+
+.search-bar-input:focus {
+  outline: none;
+  border-color: #166534;
+  box-shadow: 0 4px 12px rgba(22, 101, 52, 0.2);
+  transform: translateY(-1px);
+}
+
+.search-bar-input::placeholder {
+  color: #9ca3af;
+}
+
+.search-bar-button {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: #166534;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.search-bar-button:hover {
+  background: #14532d;
+  transform: translateY(-50%) scale(1.05);
+}
+
+.search-bar-button svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Search controls wrapper for multiple elements */
+.search-controls {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+/* Status filter select styling */
+.status-filter-select {
+  padding: 12px 20px;
+  border: 2px solid #166534;
+  border-radius: 25px;
+  background: white;
+  color: #374151;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 150px;
+  box-shadow: 0 2px 8px rgba(22, 101, 52, 0.1);
+}
+
+.status-filter-select:focus {
+  outline: none;
+  border-color: #166534;
+  box-shadow: 0 4px 12px rgba(22, 101, 52, 0.2);
+  transform: translateY(-1px);
+}
+
+.status-filter-select option {
+  background: white;
+  color: #374151;
+} 

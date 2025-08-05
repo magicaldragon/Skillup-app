@@ -5,11 +5,7 @@ import type { Student, StudentClass } from './types';
 import type { Level } from './types';
 import './ClassesPanel.css';
 
-// const getNextClassCode = (classes: StudentClass[]) => {
-//   const codes = classes.map(c => parseInt(c.name.replace('SU-', ''), 10)).filter(n => !isNaN(n));
-//   const next = codes.length ? Math.max(...codes) + 1 : 1;
-//   return `SU-${next.toString().padStart(3, '0')}`;
-// };
+const API_BASE_URL = 'https://skillup-backend-v6vm.onrender.com/api';
 
 const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: { 
   students: Student[], 
@@ -18,7 +14,6 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
   onDataRefresh?: () => void
 }) => {
   const [adding, setAdding] = useState(false);
-  // const nextCode = getNextClassCode(classes); // Unused, removed
   const [classLevels, setClassLevels] = useState<{ [id: string]: string | null }>({});
   const [editId, setEditId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
@@ -26,6 +21,7 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
   const [levels, setLevels] = useState<Level[]>([]);
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
   const [classSearch, setClassSearch] = useState('');
+  const [levelFilter, setLevelFilter] = useState<string>('');
   const [reportingStudentId, setReportingStudentId] = useState<string | null>(null);
   const [reportNote, setReportNote] = useState('');
   const [reportSending, setReportSending] = useState(false);
@@ -36,12 +32,17 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
   // Fetch levels from backend
   const fetchLevels = async () => {
     try {
-      const res = await fetch('/api/levels', { credentials: 'include' });
+      const token = localStorage.getItem('authToken');
+      const res = await fetch(`${API_BASE_URL}/levels`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       const data = await res.json();
-      setLevels(data.levels || []);
+      setLevels(data || []);
     } catch (error) {
       console.error('Error fetching levels:', error);
       setLevels([]);
@@ -65,21 +66,29 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
         setAdding(false);
         return;
       }
-      const newClass = { name: '', levelId: newClassLevelId };
-      const res = await fetch('/api/classes', {
+
+      const token = localStorage.getItem('authToken');
+      const res = await fetch(`${API_BASE_URL}/classes`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(newClass),
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ levelId: newClassLevelId }),
       });
+      
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
+
+      const result = await res.json();
+      alert(`Class created successfully! Class ID: ${result.class.name}`);
       onAddClass && onAddClass('');
       onDataRefresh?.();
       setNewClassLevelId('');
     } catch (error) {
       console.error('Error adding class:', error);
+      alert('Failed to create class. Please try again.');
     } finally {
       setAdding(false);
     }
@@ -88,10 +97,13 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
   // Edit class name/level in backend
   const handleEditClass = async (classId: string, newName: string, newLevelId: string | null) => {
     try {
-      const res = await fetch(`/api/classes/${classId}`, {
+      const token = localStorage.getItem('authToken');
+      const res = await fetch(`${API_BASE_URL}/classes/${classId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({ name: newName, levelId: newLevelId }),
       });
       if (!res.ok) {
@@ -107,9 +119,12 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
   const handleDeleteClass = async (classId: string) => {
     if (!window.confirm('Are you sure you want to delete this class?')) return;
     try {
-      const res = await fetch(`/api/classes/${classId}`, {
+      const token = localStorage.getItem('authToken');
+      const res = await fetch(`${API_BASE_URL}/classes/${classId}`, {
         method: 'DELETE',
-        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
       });
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
@@ -123,10 +138,13 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
   // Assign student to class
   const handleAssignStudent = async (studentId: string, classId: string) => {
     try {
-      const res = await fetch(`/api/classes/${classId}/students`, {
+      const token = localStorage.getItem('authToken');
+      const res = await fetch(`${API_BASE_URL}/classes/${classId}/students`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({ studentId }),
       });
       if (!res.ok) {
@@ -142,9 +160,12 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
   const handleRemoveStudent = async (studentId: string) => {
     if (!window.confirm('Are you sure you want to remove this student from the class?')) return;
     try {
-      const res = await fetch(`/api/classes/${selectedClassId}/students/${studentId}`, {
+      const token = localStorage.getItem('authToken');
+      const res = await fetch(`${API_BASE_URL}/classes/${selectedClassId}/students/${studentId}`, {
         method: 'DELETE',
-        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
       });
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
@@ -165,10 +186,13 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
   const handleSendReport = async (studentId: string) => {
     setReportSending(true);
     try {
-      const res = await fetch('/api/studentRecords', {
+      const token = localStorage.getItem('authToken');
+      const res = await fetch(`${API_BASE_URL}/studentRecords`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({
           studentId,
           action: 'report',
@@ -189,30 +213,46 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
     }
   };
 
-  // Filter classes based on search
+  // Filter classes based on search and level filter
   const filteredClasses = classes.filter(c => {
     const levelName = levels.find(l => l.id === c.levelId)?.name || '';
-    return c.name.toLowerCase().includes(classSearch.toLowerCase()) ||
+    const matchesSearch = c.name.toLowerCase().includes(classSearch.toLowerCase()) ||
       levelName.toLowerCase().includes(classSearch.toLowerCase());
+    const matchesLevel = !levelFilter || c.levelId === levelFilter;
+    
+    return matchesSearch && matchesLevel;
   });
 
   const selectedClass = selectedClassId ? classes.find(c => c.id === selectedClassId) : null;
   const classStudents = selectedClass ? students.filter(s => (s.classIds || []).includes(selectedClass.id)) : [];
 
   return (
-    <div className="content-center">
-      <div className="table-container">
-        <h2 className="text-2xl font-bold mb-4">Classes Management</h2>
-        <p className="text-gray-600 mb-4">Manage all classes and student assignments</p>
-        
-        <div className="flex gap-2 mb-4 flex-wrap">
-          <input
-            className="p-2 border rounded flex-1 min-w-200"
-            placeholder="Search classes..."
-            value={classSearch}
-            onChange={e => setClassSearch(e.target.value)}
-          />
-          <select className="p-2 border rounded" value={classLevels[selectedClassId || ''] || ''} onChange={e => setClassLevels(prev => ({ ...prev, [selectedClassId!]: e.target.value }))}
+    <div className="classes-panel">
+      <div className="classes-header">
+        <h2 className="classes-title">Classes Management</h2>
+        <p className="classes-subtitle">Manage all classes and student assignments</p>
+      </div>
+      
+      <div className="classes-search">
+        <div className="search-controls">
+          <div className="search-bar-container">
+            <input
+              type="text"
+              className="search-bar-input"
+              placeholder="Search classes..."
+              value={classSearch}
+              onChange={e => setClassSearch(e.target.value)}
+            />
+            <button className="search-bar-button">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </button>
+          </div>
+          <select 
+            className="status-filter-select"
+            value={levelFilter} 
+            onChange={e => setLevelFilter(e.target.value)}
           >
             <option value="">All Levels</option>
             {levels.map(level => (
@@ -220,52 +260,76 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
             ))}
           </select>
         </div>
-        
-        <div className="mb-4 text-sm text-gray-600">
-          Showing {filteredClasses.length} of {classes.length} classes
-          {classSearch && ` matching "${classSearch}"`}
-        </div>
-        
-        <table className="custom-table">
-          <thead className="bg-slate-50 border-b border-slate-200">
+      </div>
+      
+      <div className="classes-info">
+        Showing {filteredClasses.length} of {classes.length} classes
+        {(classSearch || levelFilter) && (
+          <span className="filter-info">
+            {classSearch && ` matching "${classSearch}"`}
+            {levelFilter && ` in ${levels.find(l => l.id === levelFilter)?.name}`}
+          </span>
+        )}
+      </div>
+      
+      <div className="classes-table-container">
+        <table className="classes-table">
+          <thead>
             <tr>
-              <th className="p-2">Class Name</th>
-              <th className="p-2">Level</th>
-              <th className="p-2">Students</th>
-              <th className="p-2">Actions</th>
+              <th>Class Name</th>
+              <th>Level</th>
+              <th>Students</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {classes.length === 0 && (
-              <tr><td colSpan={6} className="empty-table">No classes available.</td></tr>
+            {filteredClasses.length === 0 && (
+              <tr>
+                <td colSpan={4} className="empty-table">
+                  <div className="empty-state">
+                    <div className="empty-icon">📚</div>
+                    <p>No classes found.</p>
+                    <p className="empty-subtitle">
+                      {classes.length === 0 
+                        ? "Create your first class by selecting a level below."
+                        : "No classes match your current search criteria."
+                      }
+                    </p>
+                  </div>
+                </td>
+              </tr>
             )}
             {filteredClasses.map(cls => (
-              <tr key={cls.id} className="border-b border-slate-100 hover:bg-slate-50">
-                <td className="p-2 font-semibold">{cls.name}</td>
-                <td className="p-2">{levels.find(l => l.id === cls.levelId)?.name || 'N/A'}</td>
-                <td className="p-2">
+              <tr key={cls.id} onClick={() => setSelectedClassId(cls.id)} className="clickable-row">
+                <td className="class-name-cell">
+                  <div className="class-name">{cls.name}</div>
+                </td>
+                <td className="level-cell">
+                  <span className="level-badge">
+                    {levels.find(l => l.id === cls.levelId)?.name || 'N/A'}
+                  </span>
+                </td>
+                <td className="students-cell">
                   {cls.studentIds?.length || 0} students
                   {cls.studentIds?.length > 0 && (
                     <button 
-                      className="ml-2 text-blue-600 hover:text-blue-800 text-sm"
-                      onClick={() => setSelectedClassId(cls.id)}
+                      className="view-details-btn"
+                      onClick={(e) => { e.stopPropagation(); setSelectedClassId(cls.id); }}
                     >
                       View Details
                     </button>
                   )}
                 </td>
-                <td className="p-2 flex gap-2 items-center">
+                <td className="actions-cell">
                   <button 
-                    className="form-btn bg-blue-500 text-white rounded text-xs hover:bg-blue-600 transition-colors" 
-                    onClick={() => setEditId(cls.id)} 
-                    aria-label={`Edit class ${cls.name}`}
+                    className="action-btn edit-btn"
+                    onClick={(e) => { e.stopPropagation(); setEditId(cls.id); }}
                   >
                     Edit
                   </button>
                   <button 
-                    className="form-btn bg-red-600 text-white rounded text-xs hover:bg-red-700 transition-colors" 
-                    onClick={() => handleDeleteClass(cls.id)} 
-                    aria-label={`Delete class ${cls.name}`}
+                    className="action-btn delete-btn"
+                    onClick={(e) => { e.stopPropagation(); handleDeleteClass(cls.id); }}
                   >
                     Remove
                   </button>
@@ -277,46 +341,54 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
       </div>
 
       {/* Add Class Form */}
-      <div className="add-class-form">
-        <select value={newClassLevelId} onChange={e => setNewClassLevelId(e.target.value)}>
-          <option value="">Select Level</option>
-          {levels.map(level => (
-            <option key={level.id} value={level.id}>{level.name}</option>
-          ))}
-        </select>
-        <button onClick={handleAddClass} disabled={adding || !newClassLevelId} className="add-class-btn">Add Class</button>
+      <div className="add-class-section">
+        <div className="add-class-form">
+          <select 
+            value={newClassLevelId} 
+            onChange={e => setNewClassLevelId(e.target.value)}
+            className="level-select"
+          >
+            <option value="">Select Level</option>
+            {levels.map(level => (
+              <option key={level.id} value={level.id}>{level.name}</option>
+            ))}
+          </select>
+          <button 
+            onClick={handleAddClass} 
+            disabled={adding || !newClassLevelId} 
+            className="add-class-btn"
+          >
+            {adding ? 'Creating...' : 'Add Class'}
+          </button>
+        </div>
       </div>
 
       {/* Class Details Modal */}
       {selectedClassId && selectedClass && (
-        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-4xl max-h-[80vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold">{selectedClass.name} - Student Details</h3>
-              <button onClick={() => setSelectedClassId(null)} className="text-gray-500 hover:text-gray-700">
-                ✕
-              </button>
-            </div>
+        <div className="class-details-modal">
+          <div className="modal-content">
+            <button className="close-btn" onClick={() => setSelectedClassId(null)}>×</button>
+            <h3>{selectedClass.name} - Student Details</h3>
             
-            <div className="mb-4">
-              <h4 className="font-semibold mb-2">Students in this class:</h4>
+            <div className="students-section">
+              <h4>Students in this class:</h4>
               {classStudents.length === 0 ? (
-                <p className="text-gray-500">No students assigned to this class.</p>
+                <p className="no-students">No students assigned to this class.</p>
               ) : (
-                <div className="space-y-2">
+                <div className="students-list">
                   {classStudents.map(student => (
-                    <div key={student.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                      <span>{student.displayName || student.name}</span>
-                      <div className="flex gap-2">
+                    <div key={student.id} className="student-item">
+                      <span className="student-name">{student.displayName || student.name}</span>
+                      <div className="student-actions">
                         <button 
                           onClick={() => handleRemoveStudent(student.id)}
-                          className="form-btn bg-red-600 text-white text-xs"
+                          className="action-btn remove-btn"
                         >
                           Remove
                         </button>
                         <button 
                           onClick={() => handleReportStudent(student.id)}
-                          className="form-btn bg-yellow-600 text-white text-xs"
+                          className="action-btn report-btn"
                         >
                           Report
                         </button>
@@ -327,10 +399,10 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
               )}
             </div>
 
-            <div className="mt-4">
-              <h4 className="font-semibold mb-2">Assign new student:</h4>
+            <div className="assign-section">
+              <h4>Assign new student:</h4>
               <select 
-                className="form-select"
+                className="student-select"
                 onChange={e => {
                   if (e.target.value) {
                     handleAssignStudent(e.target.value, selectedClassId);
@@ -354,18 +426,21 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
 
       {/* Edit Class Modal */}
       {editId && (
-        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
-            <h3 className="text-xl font-bold mb-4">Edit Class</h3>
-            <div className="space-y-3">
-              <label className="block text-sm font-medium">Class Name
+        <div className="edit-class-modal">
+          <div className="modal-content">
+            <button className="close-btn" onClick={() => { setEditId(null); setEditName(''); }}>×</button>
+            <h3>Edit Class</h3>
+            <div className="edit-form">
+              <div className="form-group">
+                <label>Class Name</label>
                 <input 
                   className="form-input" 
                   value={editName} 
                   onChange={e => setEditName(e.target.value)} 
                 />
-              </label>
-              <label className="block text-sm font-medium">Level
+              </div>
+              <div className="form-group">
+                <label>Level</label>
                 <select 
                   className="form-select"
                   value={classLevels[editId] || ''} 
@@ -376,11 +451,11 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
                     <option key={level.id} value={level.id}>{level.name}</option>
                   ))}
                 </select>
-              </label>
+              </div>
             </div>
-            <div className="flex gap-2 mt-4">
+            <div className="modal-actions">
               <button 
-                className="form-btn primary" 
+                className="action-btn save-btn" 
                 onClick={() => {
                   handleEditClass(editId, editName, classLevels[editId] || null);
                   setEditId(null);
@@ -390,7 +465,7 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
                 Save
               </button>
               <button 
-                className="form-btn secondary" 
+                className="action-btn cancel-btn" 
                 onClick={() => {
                   setEditId(null);
                   setEditName('');
@@ -405,9 +480,10 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
 
       {/* Report Student Modal */}
       {reportingStudentId && (
-        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
-            <h3 className="text-xl font-bold mb-4">Report Student</h3>
+        <div className="report-modal">
+          <div className="modal-content">
+            <button className="close-btn" onClick={() => setReportingStudentId(null)}>×</button>
+            <h3>Report Student</h3>
             <textarea 
               className="form-textarea"
               placeholder="Enter report details..."
@@ -415,16 +491,16 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
               onChange={e => setReportNote(e.target.value)}
               rows={4}
             />
-            <div className="flex gap-2 mt-4">
+            <div className="modal-actions">
               <button 
-                className="form-btn primary" 
+                className="action-btn save-btn" 
                 onClick={() => handleSendReport(reportingStudentId)}
                 disabled={reportSending}
               >
                 {reportSending ? 'Sending...' : 'Send Report'}
               </button>
               <button 
-                className="form-btn secondary" 
+                className="action-btn cancel-btn" 
                 onClick={() => setReportingStudentId(null)}
               >
                 Cancel
