@@ -42,7 +42,7 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       const data = await res.json();
-      setLevels(data || []);
+      setLevels(data.levels || []);
     } catch (error) {
       console.error('Error fetching levels:', error);
       setLevels([]);
@@ -53,7 +53,9 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
     fetchLevels();
     // Sync classLevels state with classes prop
     const levelsMap: { [id: string]: string | null } = {};
-    classes.forEach((c: any) => { levelsMap[c.id] = c.levelId || ''; });
+    if (classes && Array.isArray(classes)) {
+      classes.forEach((c: any) => { levelsMap[c.id] = c.levelId || ''; });
+    }
     setClassLevels(levelsMap);
   }, [classes]);
 
@@ -214,7 +216,7 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
   };
 
   // Filter classes based on search and level filter
-  const filteredClasses = classes.filter(c => {
+  const filteredClasses = (classes && Array.isArray(classes) ? classes : []).filter(c => {
     const levelName = levels.find(l => l.id === c.levelId)?.name || '';
     const matchesSearch = c.name.toLowerCase().includes(classSearch.toLowerCase()) ||
       levelName.toLowerCase().includes(classSearch.toLowerCase());
@@ -223,8 +225,8 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
     return matchesSearch && matchesLevel;
   });
 
-  const selectedClass = selectedClassId ? classes.find(c => c.id === selectedClassId) : null;
-  const classStudents = selectedClass ? students.filter(s => (s.classIds || []).includes(selectedClass.id)) : [];
+  const selectedClass = selectedClassId && classes && Array.isArray(classes) ? classes.find(c => c.id === selectedClassId) : null;
+  const classStudents = selectedClass ? (students && Array.isArray(students) ? students.filter(s => (s.classIds || []).includes(selectedClass.id)) : []) : [];
 
   return (
     <div className="classes-panel">
@@ -255,7 +257,7 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
             onChange={e => setLevelFilter(e.target.value)}
           >
             <option value="">All Levels</option>
-            {levels.map(level => (
+            {levels && Array.isArray(levels) && levels.map(level => (
               <option key={level.id} value={level.id}>{level.name}</option>
             ))}
           </select>
@@ -263,7 +265,7 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
       </div>
       
       <div className="classes-info">
-        Showing {filteredClasses.length} of {classes.length} classes
+        Showing {filteredClasses.length} of {(classes && Array.isArray(classes) ? classes.length : 0)} classes
         {(classSearch || levelFilter) && (
           <span className="filter-info">
             {classSearch && ` matching "${classSearch}"`}
@@ -289,12 +291,12 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
                   <div className="empty-state">
                     <div className="empty-icon">📚</div>
                     <p>No classes found.</p>
-                    <p className="empty-subtitle">
-                      {classes.length === 0 
-                        ? "Create your first class by selecting a level below."
-                        : "No classes match your current search criteria."
-                      }
-                    </p>
+                                         <p className="empty-subtitle">
+                       {(!classes || !Array.isArray(classes) || classes.length === 0)
+                         ? "Create your first class by selecting a level below."
+                         : "No classes match your current search criteria."
+                       }
+                     </p>
                   </div>
                 </td>
               </tr>
@@ -349,7 +351,7 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
             className="level-select"
           >
             <option value="">Select Level</option>
-            {levels.map(level => (
+            {levels && Array.isArray(levels) && levels.map(level => (
               <option key={level.id} value={level.id}>{level.name}</option>
             ))}
           </select>
@@ -411,7 +413,7 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
                 }}
               >
                 <option value="">Select a student...</option>
-                {students
+                {students && Array.isArray(students) && students
                   .filter(s => !classStudents.find(cs => cs.id === s.id))
                   .map(student => (
                     <option key={student.id} value={student.id}>
@@ -447,7 +449,7 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
                   onChange={e => setClassLevels(prev => ({ ...prev, [editId]: e.target.value }))}
                 >
                   <option value="">No Level</option>
-                  {levels.map(level => (
+                  {levels && Array.isArray(levels) && levels.map(level => (
                     <option key={level.id} value={level.id}>{level.name}</option>
                   ))}
                 </select>
