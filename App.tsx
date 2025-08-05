@@ -12,14 +12,13 @@ const App: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [students, setStudents] = useState<Student[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
-  const [students, setStudents] = useState<Student[]>([]);
   const [classes, setClasses] = useState<StudentClass[]>([]);
   const [dataLoading, setDataLoading] = useState(false);
   const [dataError, setDataError] = useState<string | null>(null);
   const [navKey, setNavKey] = useState('dashboard');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const initializeAuth = async () => {

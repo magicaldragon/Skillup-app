@@ -1,4 +1,3 @@
-import type React from 'react';
 import { Student, Assignment, Submission, Level, StudentClass } from './types';
 import { getVngFileUrl } from './services/vngConfig';
 
@@ -65,10 +64,10 @@ export const LEVELS: Level[] = [
 ];
 
 export const INITIAL_CLASSES: StudentClass[] = [
-    { id: 'c1', name: 'SU-001', levelId: 'l1' },
-    { id: 'c2', name: 'SU-002', levelId: 'l2' },
-    { id: 'c3', name: 'SU-003', levelId: 'l2' },
-    { id: 'c4', name: 'SU-004', levelId: null },
+    { id: 'c1', name: 'SU-001', levelId: 'l1', studentIds: [] },
+    { id: 'c2', name: 'SU-002', levelId: 'l2', studentIds: [] },
+    { id: 'c3', name: 'SU-003', levelId: 'l2', studentIds: [] },
+    { id: 'c4', name: 'SU-004', levelId: null, studentIds: [] },
 ];
 
 export const INITIAL_USERS: Student[] = [
@@ -81,59 +80,88 @@ export const INITIAL_USERS: Student[] = [
 export const INITIAL_ASSIGNMENTS: Assignment[] = [
   { 
     id: 'a1', 
-    code: 'W-01',
     title: 'The Modern Hero: A Character Analysis', 
     description: 'Write a 500-word essay analyzing a character from a modern novel or film who you consider to be a hero. Discuss their traits, challenges, and what makes them heroic in today\'s context.',
-    dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    category: 'Writing',
+    level: 'IELTS',
+    skill: 'Writing',
+    questions: [],
+    answerKey: {},
+    publishDate: new Date().toISOString(),
+    dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    classIds: [],
+    createdBy: 'admin',
+    createdAt: new Date().toISOString(),
   },
   { 
     id: 'a2', 
-    code: 'W-02',
     title: 'Poetry of Nature', 
     description: 'Compose a three-stanza poem about an aspect of nature you find beautiful or powerful. Focus on using vivid imagery and sensory details.',
-    dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    category: 'Writing',
+    level: 'IELTS',
+    skill: 'Writing',
+    questions: [],
+    answerKey: {},
+    publishDate: new Date().toISOString(),
+    dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+    classIds: [],
+    createdBy: 'admin',
+    createdAt: new Date().toISOString(),
   },
    { 
     id: 'a3', 
-    code: 'R-01',
-    title: 'Reading Comprehension: The Digital Age', 
-    description: 'Read the provided article on the impact of the digital age on communication and answer the five comprehension questions that follow.',
-    dueDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    category: 'Reading',
-    fileUrl: getVngFileUrl('reading-digital-age.pdf'), // Use VNG Storage
-    questionType: 'Multiple Choice',
+    title: 'Reading Comprehension: Environmental Science', 
+    description: 'Read the provided text about climate change and answer the comprehension questions. Focus on understanding main ideas and supporting details.',
+    level: 'IELTS',
+    skill: 'Reading',
+    questions: [],
+    answerKey: {},
+    publishDate: new Date().toISOString(),
+    dueDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
+    classIds: [],
+    createdBy: 'admin',
+    createdAt: new Date().toISOString(),
   },
   { 
     id: 'a4', 
-    code: 'L-01',
-    title: 'Listening Task: News Broadcast', 
-    description: 'Listen to the 3-minute news broadcast audio clip and summarize the main points. Identify the key speakers and their arguments.',
-    dueDate: new Date(Date.now() + 9 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    category: 'Listening',
-    mediaUrl: getVngFileUrl('listening-news-broadcast.mp3'), // Use VNG Storage
-    questionType: 'Fill in the Blanks',
+    title: 'Listening Practice: Academic Lecture', 
+    description: 'Listen to the academic lecture about renewable energy and answer questions based on the content. Pay attention to key concepts and details.',
+    level: 'IELTS',
+    skill: 'Listening',
+    questions: [],
+    answerKey: {},
+    publishDate: new Date().toISOString(),
+    dueDate: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000).toISOString(),
+    classIds: [],
+    createdBy: 'admin',
+    createdAt: new Date().toISOString(),
   },
   { 
     id: 'a5', 
-    code: 'S-01',
-    title: 'Speaking Prompt: A Memorable Trip', 
-    description: 'Prepare a 2-minute speech about a memorable trip you have taken. Describe where you went, what you did, and why it was memorable.',
-    dueDate: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    category: 'Speaking',
+    title: 'Speaking Practice: Personal Experience', 
+    description: 'Prepare a 2-minute speech about a memorable experience in your life. Focus on clear pronunciation and natural flow.',
+    level: 'IELTS',
+    skill: 'Speaking',
+    questions: [],
+    answerKey: {},
+    publishDate: new Date().toISOString(),
+    dueDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+    classIds: [],
+    createdBy: 'admin',
+    createdAt: new Date().toISOString(),
   },
-    {
-    id: 'a6',
-    code: 'FT-01',
-    title: 'Full IELTS Practice Test 1',
-    description: 'Complete a full-length IELTS practice test covering Reading, Writing, Listening, and Speaking sections under timed conditions.',
-    dueDate: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    category: 'Full Practice Tests',
-    fileUrl: getVngFileUrl('ielts-practice-test-1.pdf'), // Use VNG Storage
-    mediaUrl: getVngFileUrl('ielts-practice-listening-1.mp4'), // Use VNG Storage
-    questionType: 'Mixed',
-  }
+  { 
+    id: 'a6', 
+    title: 'Full Practice Test: IELTS Academic', 
+    description: 'Complete a full IELTS Academic practice test covering all four skills: Listening, Reading, Writing, and Speaking.',
+    level: 'IELTS',
+    skill: 'Reading',
+    questions: [],
+    answerKey: {},
+    publishDate: new Date().toISOString(),
+    dueDate: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toISOString(),
+    classIds: [],
+    createdBy: 'admin',
+    createdAt: new Date().toISOString(),
+  },
 ];
 
 export const INITIAL_SUBMISSIONS: Submission[] = [];

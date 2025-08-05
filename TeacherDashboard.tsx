@@ -1,25 +1,19 @@
 // TeacherDashboard.tsx
 // Professional dashboard layout for teachers/admins with sidebar, summary cards, and IELTS focus
 // [NOTE] Created as part of 2024-05-XX dashboard refactor
-import { useState } from 'react';
-import type { Assignment, Student, StudentClass } from './types';
-import ClassesPanel from './ClassesPanel';
+import React, { useState } from 'react';
+import { Student, Assignment, StudentClass } from './types';
 import AddNewMembers from './AddNewMembers';
-import LevelsPanel from './LevelsPanel';
-import WaitingListPanel from './WaitingListPanel';
 import PotentialStudentsPanel from './PotentialStudentsPanel';
-import SettingsPanel from './SettingsPanel';
-import DiceBearAvatar from './DiceBearAvatar';
-import AdminDebugPanel from './AdminDebugPanel';
-import ReportsPanel from './ReportsPanel';
-import AccountsPanel from './AccountsPanel';
+import WaitingListPanel from './WaitingListPanel';
+import ClassesPanel from './ClassesPanel';
 import TeacherScoresFeedbackPanel from './TeacherScoresFeedbackPanel';
-import AssignmentListPanel from './AssignmentListPanel';
-import SubmissionListPanel from './SubmissionListPanel';
-import AssignmentCreationForm from './AssignmentCreationForm';
-import SubmissionGradingPanel from './SubmissionGradingPanel';
-import ChangeLogPanel from './ChangeLogPanel';
+import ReportsPanel from './ReportsPanel';
+import LevelsPanel from './LevelsPanel';
 import RecordsPanel from './RecordsPanel';
+import AccountsPanel from './AccountsPanel';
+import SettingsPanel from './SettingsPanel';
+import ChangeLogPanel from './ChangeLogPanel';
 import './TeacherDashboard.css';
 
 const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onLogout, onStudentAdded, onDataRefresh }: {
@@ -32,30 +26,21 @@ const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onL
   onStudentAdded?: () => void,
   onDataRefresh?: () => void
 }) => {
-  // Example summary metrics (IELTS focus)
   const totalStudents = students.length;
   const activeAssignments = assignments.filter(a => a.level === 'IELTS').length;
   
-  const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
-  const [selectedSubmission, setSelectedSubmission] = useState<any>(null);
-  const [selectedStudent, setSelectedStudent] = useState<any>(null);
-
-  const handleSelectAssignment = (assignment: Assignment) => {
-    setSelectedAssignment(assignment);
-    // Optionally, set navKey to 'assignment-detail' or similar
-  };
-  const handleSelectSubmission = (submission: any, student: any) => {
-    setSelectedSubmission(submission);
-    setSelectedStudent(student);
-    // Optionally, set navKey to 'submission-grading'
-  };
-
   return (
     <div className="teacher-dashboard">
       {/* Show avatar at the top of the dashboard */}
       {activeKey === undefined || activeKey === '' ? (
         <div className="teacher-dashboard-header">
-          <DiceBearAvatar seed={user.name || user.email || user.id} size={96} style="avataaars" />
+          <div className="teacher-dashboard-user-info">
+            <div className="teacher-dashboard-avatar">
+              <div className="w-24 h-24 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 text-2xl font-bold">
+                {user.name?.charAt(0) || user.email?.charAt(0) || 'U'}
+              </div>
+            </div>
+          </div>
         </div>
       ) : null}
       
@@ -79,34 +64,42 @@ const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onL
       ) : activeKey === 'accounts' ? (
         <AccountsPanel />
       ) : activeKey === 'assignments' ? (
-        <AssignmentListPanel assignments={assignments} classes={classes} onSelectAssignment={handleSelectAssignment} onDataRefresh={onDataRefresh} />
+        <div className="teacher-dashboard-content">
+          <div className="teacher-dashboard-welcome">
+            <h1 className="teacher-dashboard-title">Assignments</h1>
+            <p className="teacher-dashboard-subtitle">This section will be rebuilt later</p>
+          </div>
+        </div>
       ) : activeKey === 'assignment-create' ? (
-        <AssignmentCreationForm classes={classes} currentUser={user} onDataRefresh={onDataRefresh} />
+        <div className="teacher-dashboard-content">
+          <div className="teacher-dashboard-welcome">
+            <h1 className="teacher-dashboard-title">Create Assignment</h1>
+            <p className="teacher-dashboard-subtitle">This section will be rebuilt later</p>
+          </div>
+        </div>
       ) : activeKey === 'submission-grading' ? (
-        (selectedAssignment !== null && selectedSubmission !== null && selectedStudent !== null ? (
-          <SubmissionGradingPanel assignment={selectedAssignment} submission={selectedSubmission} student={selectedStudent} onDataRefresh={onDataRefresh} />
-        ) : (
-          <div className="teacher-dashboard-content">
-            <p>No submission selected for grading.</p>
+        <div className="teacher-dashboard-content">
+          <div className="teacher-dashboard-welcome">
+            <h1 className="teacher-dashboard-title">Submission Grading</h1>
+            <p className="teacher-dashboard-subtitle">This section will be rebuilt later</p>
           </div>
-        ))
+        </div>
       ) : activeKey === 'submissions' ? (
-        selectedAssignment ? (
-          <SubmissionListPanel 
-            assignment={selectedAssignment} 
-            submissions={[]} 
-            students={students} 
-            onSelectSubmission={handleSelectSubmission} 
-          />
-        ) : (
-          <div className="teacher-dashboard-content">
-            <p>Please select an assignment first.</p>
+        <div className="teacher-dashboard-content">
+          <div className="teacher-dashboard-welcome">
+            <h1 className="teacher-dashboard-title">Submissions</h1>
+            <p className="teacher-dashboard-subtitle">This section will be rebuilt later</p>
           </div>
-        )
+        </div>
       ) : activeKey === 'settings' ? (
         <SettingsPanel user={user} classes={classes} onDataRefresh={onDataRefresh} />
       ) : activeKey === 'admin-debug' ? (
-        <AdminDebugPanel activeKey={activeKey} />
+        <div className="teacher-dashboard-content">
+          <div className="teacher-dashboard-welcome">
+            <h1 className="teacher-dashboard-title">Admin Debug</h1>
+            <p className="teacher-dashboard-subtitle">This section will be rebuilt later</p>
+          </div>
+        </div>
       ) : activeKey === 'changelog' ? (
         <ChangeLogPanel />
       ) : (

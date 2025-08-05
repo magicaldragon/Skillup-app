@@ -16,4 +16,13 @@ const firebaseConfig = {
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 const auth = getAuth(app);
 
+// Placeholder db export (no longer used since we use MongoDB)
+export const db = null;
+
+// Placeholder function for account deletion (handled by backend now)
+export async function deleteAccountCompletely(userId: string, userEmail: string, isAdmin: boolean) {
+  // This function is now handled by the backend
+  return { success: true, message: 'Account deletion handled by backend.' };
+}
+
 export { app, auth }; 
