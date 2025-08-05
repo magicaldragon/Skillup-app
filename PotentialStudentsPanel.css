@@ -1,53 +1,311 @@
-/* PotentialStudentsPanel.css - Professional custom styling */
+/* PotentialStudentsPanel.css - Updated to match app vibe */
 
 .potential-students-panel {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  padding: 1.5rem;
-  max-width: 1200px;
-  margin: 2rem auto;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 0;
+  margin: 0;
+  background: none;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+/* Header Section */
+.potential-students-header {
+  width: 100%;
+  margin-bottom: 24px;
+  text-align: center;
 }
 
 .potential-students-title {
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  color: #1e293b;
-  text-align: center;
+  color: #ff8c42;
+  font-size: 2.5rem;
+  font-weight: 900;
+  margin-bottom: 8px;
+  letter-spacing: 1.5px;
+  text-shadow: 0 4px 12px rgba(48, 118, 55, 0.13), 0 1px 0 #fffbe6;
+  text-transform: uppercase;
 }
 
 .potential-students-subtitle {
-  color: #64748b;
-  text-align: center;
-  font-size: 1rem;
-  margin-bottom: 2rem;
-}
-
-.potential-students-empty {
-  color: #64748b;
-  text-align: center;
+  color: #475569;
   font-size: 1.1rem;
-  padding: 2rem;
+  font-weight: 500;
+  margin: 0;
+  opacity: 0.8;
 }
 
+/* Search Section */
+.potential-students-search {
+  width: 100%;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.search-input {
+  width: 100%;
+  max-width: 500px;
+  padding: 16px 20px;
+  border: 3px solid #f5b802;
+  border-radius: 16px;
+  font-size: 1.1rem;
+  background: linear-gradient(135deg, #ffe9c2 0%, #ffd700 50%, #ffb347 100%);
+  box-shadow: 0 4px 20px rgba(255, 165, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #ff8c42;
+  box-shadow: 0 6px 30px rgba(255, 165, 0, 0.25);
+  transform: translateY(-2px);
+}
+
+.search-input::placeholder {
+  color: #ff8c42;
+  opacity: 0.7;
+}
+
+/* Table Container */
+.potential-students-table-container {
+  width: 100%;
+  background: linear-gradient(135deg, #ffe9c2 0%, #ffd700 50%, #ffb347 100%);
+  border-radius: 20px;
+  box-shadow: 0 8px 40px rgba(255, 165, 0, 0.2);
+  border: 3px solid #f5b802;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+/* Table Styling */
+.potential-students-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.potential-students-table th {
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
+  color: white;
+  font-weight: 700;
+  padding: 16px 12px;
+  text-align: left;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #f5b802;
+}
+
+.potential-students-table td {
+  padding: 16px 12px;
+  border-bottom: 1px solid #f5b802;
+  vertical-align: middle;
+}
+
+.potential-students-table tbody tr {
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.potential-students-table tbody tr:hover {
+  background: rgba(255, 193, 7, 0.1);
+  transform: translateX(4px);
+}
+
+/* Checkbox Styling */
+.checkbox-header {
+  width: 50px;
+  text-align: center;
+}
+
+.checkbox-cell {
+  width: 50px;
+  text-align: center;
+}
+
+.select-all-checkbox,
+.row-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: #ff8c42;
+  cursor: pointer;
+}
+
+/* Cell Styling */
+.name-cell {
+  min-width: 200px;
+}
+
+.student-name {
+  font-weight: 700;
+  color: #374151;
+  font-size: 1.1rem;
+}
+
+.english-name {
+  font-size: 0.9rem;
+  color: #6b7280;
+  font-style: italic;
+  margin-top: 2px;
+}
+
+.email-cell {
+  min-width: 250px;
+  font-family: 'Courier New', monospace;
+  color: #374151;
+}
+
+.phone-cell {
+  min-width: 150px;
+  color: #374151;
+}
+
+.status-cell {
+  min-width: 120px;
+  text-align: center;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-pending {
+  background: #fef3c7;
+  color: #d97706;
+  border: 2px solid #f59e0b;
+}
+
+.status-contacted {
+  background: #dbeafe;
+  color: #2563eb;
+  border: 2px solid #3b82f6;
+}
+
+.status-interviewed {
+  background: #e0e7ff;
+  color: #7c3aed;
+  border: 2px solid #8b5cf6;
+}
+
+.status-approved {
+  background: #dcfce7;
+  color: #16a34a;
+  border: 2px solid #22c55e;
+}
+
+.status-rejected {
+  background: #fee2e2;
+  color: #dc2626;
+  border: 2px solid #ef4444;
+}
+
+.status-enrolled {
+  background: #f0fdf4;
+  color: #166534;
+  border: 2px solid #22c55e;
+}
+
+.actions-cell {
+  min-width: 300px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.status-select {
+  padding: 8px 12px;
+  border: 2px solid #f5b802;
+  border-radius: 8px;
+  background: white;
+  font-size: 0.9rem;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.status-select:focus {
+  outline: none;
+  border-color: #ff8c42;
+  box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.1);
+}
+
+.move-btn {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #307637 0%, #245929 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.move-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(48, 118, 55, 0.3);
+}
+
+/* Empty State */
+.empty-table {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  opacity: 0.5;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.empty-subtitle {
+  font-size: 1rem !important;
+  color: #9ca3af !important;
+  font-weight: 400 !important;
+}
+
+/* Loading State */
 .potential-students-loading {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3rem;
-  color: #64748b;
+  height: 300px;
+  gap: 16px;
 }
 
 .potential-students-spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #e2e8f0;
-  border-top: 4px solid #307637;
+  width: 48px;
+  height: 48px;
+  border: 4px solid #f5b802;
+  border-top: 4px solid #ff8c42;
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin-bottom: 1rem;
 }
 
 @keyframes spin {
@@ -55,391 +313,170 @@
   100% { transform: rotate(360deg); }
 }
 
+/* Error State */
 .potential-students-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  gap: 16px;
   text-align: center;
-  padding: 3rem;
-  color: #dc2626;
 }
 
 .potential-students-error h3 {
-  margin-bottom: 1rem;
   color: #dc2626;
+  font-size: 1.5rem;
+  margin: 0;
 }
 
 .potential-students-error p {
-  margin-bottom: 1.5rem;
-  color: #64748b;
+  color: #6b7280;
+  margin: 0;
 }
 
 .potential-students-retry-btn {
-  padding: 0.75rem 2rem;
-  background: #dc2626;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
   color: white;
   border: none;
-  border-radius: 8px;
-  font-weight: 600;
+  border-radius: 12px;
   font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .potential-students-retry-btn:hover {
-  background: #b91c1c;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 140, 66, 0.3);
 }
 
+/* Actions Section */
 .potential-students-actions {
   display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  gap: 12px;
   flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 24px;
 }
 
 .potential-students-btn {
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-weight: 600;
+  padding: 12px 24px;
   border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.potential-students-btn-primary {
+  background: linear-gradient(135deg, #307637 0%, #245929 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(48, 118, 55, 0.3);
+}
+
+.potential-students-btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(48, 118, 55, 0.4);
+}
+
+.potential-students-btn-secondary {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.potential-students-btn-secondary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+}
+
+.potential-students-btn-neutral {
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+  color: #374151;
+  border: 2px solid #d1d5db;
+}
+
+.potential-students-btn-neutral:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
 }
 
 .potential-students-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  transform: none;
+  transform: none !important;
 }
 
-.potential-students-btn-primary {
-  background: linear-gradient(135deg, #307637 0%, #4ade80 100%);
-  color: white;
-}
-
-.potential-students-btn-primary:hover:not(:disabled) {
+.potential-students-btn.active {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(48, 118, 55, 0.3);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }
 
-.potential-students-btn-primary.active {
-  background: linear-gradient(135deg, #166534 0%, #22c55e 100%);
-  box-shadow: 0 2px 8px rgba(48, 118, 55, 0.4);
-}
-
-.potential-students-btn-secondary {
-  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
-  color: white;
-}
-
-.potential-students-btn-secondary:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-}
-
-.potential-students-btn-secondary.active {
-  background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%);
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
-}
-
-.potential-students-btn-neutral {
-  background: #f1f5f9;
-  color: #475569;
-  border: 1px solid #e2e8f0;
-}
-
-.potential-students-btn-neutral:hover:not(:disabled) {
-  background: #e2e8f0;
-  transform: translateY(-1px);
-}
-
+/* Bulk Section */
 .potential-students-bulk-section {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 1rem;
   display: flex;
+  gap: 12px;
   align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 24px;
+  padding: 20px;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-radius: 16px;
+  border: 2px solid #f59e0b;
 }
 
 .potential-students-select {
-  padding: 0.5rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
+  padding: 12px 16px;
+  border: 2px solid #f5b802;
+  border-radius: 8px;
   background: white;
-  font-size: 0.9rem;
-  min-width: 150px;
-  transition: border-color 0.2s ease;
-}
-
-.potential-students-select:hover {
-  border-color: #9ca3af;
-}
-
-.potential-students-select:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  font-size: 1rem;
+  color: #374151;
+  cursor: pointer;
+  min-width: 200px;
 }
 
 .potential-students-confirm-buttons {
   display: flex;
-  gap: 0.5rem;
+  gap: 8px;
 }
 
 .potential-students-confirm-btn {
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-weight: 600;
+  padding: 10px 20px;
   border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-size: 0.9rem;
 }
 
 .potential-students-confirm-btn-success {
-  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
   color: white;
 }
 
 .potential-students-confirm-btn-success:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
 }
 
 .potential-students-confirm-btn-cancel {
-  background: #6b7280;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   color: white;
 }
 
 .potential-students-confirm-btn-cancel:hover {
-  background: #4b5563;
-  transform: translateY(-1px);
-}
-
-.potential-students-students {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.potential-students-student-item {
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 1.5rem;
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  transition: all 0.2s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-.potential-students-student-item:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
-.potential-students-student-item.selected {
-  border-color: #3b82f6;
-  background: #f0f9ff;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
-}
-
-.potential-students-checkbox {
-  margin-top: 0.5rem;
-  width: 18px;
-  height: 18px;
-  accent-color: #3b82f6;
-}
-
-.potential-students-student-info {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  flex: 1;
-}
-
-.potential-students-avatar {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid #e2e8f0;
-  background: #f1f5f9;
-  flex-shrink: 0;
-}
-
-.potential-students-student-details {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.potential-students-student-main-info {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.potential-students-student-name {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #1e293b;
-  margin: 0;
-}
-
-.potential-students-student-phone {
-  font-size: 0.9rem;
-  color: #64748b;
-  background: #f1f5f9;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-weight: 500;
-}
-
-.potential-students-student-secondary-info {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.potential-students-student-email {
-  font-size: 0.9rem;
-  color: #64748b;
-  background: #f1f5f9;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-weight: 500;
-}
-
-.potential-students-student-date {
-  font-size: 0.85rem;
-  color: #94a3b8;
-  background: #f8fafc;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-weight: 500;
-}
-
-.potential-students-student-notes {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-}
-
-.potential-students-student-notes-label {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #64748b;
-  flex-shrink: 0;
-}
-
-.potential-students-student-notes-text {
-  font-size: 0.85rem;
-  color: #475569;
-  background: #f8fafc;
-  padding: 0.5rem;
-  border-radius: 6px;
-  border-left: 3px solid #e2e8f0;
-  flex: 1;
-  line-height: 1.4;
-  font-style: italic;
-}
-
-.potential-students-student-status {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #64748b;
-  background: #f1f5f9;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  align-self: flex-start;
-}
-
-.potential-students-student-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  align-items: flex-end;
-  min-width: 200px;
-}
-
-.potential-students-assign-select {
-  padding: 0.5rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  background: white;
-  font-size: 0.85rem;
-  min-width: 120px;
-  transition: border-color 0.2s ease;
-}
-
-.potential-students-assign-select:hover {
-  border-color: #9ca3af;
-}
-
-.potential-students-assign-select:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.potential-students-confirm-assign-btn {
-  padding: 0.5rem 0.75rem;
-  border-radius: 6px;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 0.8rem;
-  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
-  color: white;
-  white-space: nowrap;
-}
-
-.potential-students-confirm-assign-btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
-}
-
-.potential-students-confirm-assign-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.potential-students-delete-btn {
-  padding: 0.5rem 0.75rem;
-  border-radius: 6px;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 0.8rem;
-  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
-  color: white;
-  white-space: nowrap;
-}
-
-.potential-students-delete-btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
-}
-
-.potential-students-delete-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
+/* Modal Styling */
 .potential-students-modal {
   position: fixed;
   top: 0;
@@ -454,92 +491,177 @@
 }
 
 .potential-students-modal-content {
-  background: white;
-  border-radius: 12px;
-  padding: 2rem;
+  background: linear-gradient(135deg, #ffe9c2 0%, #ffd700 50%, #ffb347 100%);
+  border-radius: 20px;
+  padding: 32px;
   max-width: 500px;
   width: 90%;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  box-shadow: 0 8px 40px rgba(255, 165, 0, 0.3);
+  border: 3px solid #f5b802;
 }
 
 .potential-students-modal-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #1e293b;
-  margin-bottom: 1rem;
-  text-align: center;
+  color: #ff8c42;
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .potential-students-modal-message {
-  color: #64748b;
-  margin-bottom: 1.5rem;
-  text-align: center;
+  color: #374151;
+  font-size: 1.1rem;
+  margin-bottom: 24px;
   line-height: 1.5;
-}
-
-.potential-students-modal-error {
-  color: #dc2626;
-  margin-bottom: 1.5rem;
-  text-align: center;
-  font-weight: 600;
 }
 
 .potential-students-modal-buttons {
   display: flex;
-  gap: 1rem;
+  gap: 12px;
   justify-content: center;
 }
 
 .potential-students-modal-btn {
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 600;
+  padding: 12px 24px;
   border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .potential-students-modal-btn-cancel {
-  background: #6b7280;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   color: white;
 }
 
 .potential-students-modal-btn-cancel:hover {
-  background: #4b5563;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
 }
 
 .potential-students-modal-btn-confirm {
-  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
   color: white;
 }
 
 .potential-students-modal-btn-confirm:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
 }
 
-.potential-students-modal-btn-danger {
-  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+/* Student Details Modal */
+.student-details-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: linear-gradient(135deg, #ffe9c2 0%, #ffd700 50%, #ffb347 100%);
+  border-radius: 20px;
+  padding: 32px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 40px rgba(255, 165, 0, 0.3);
+  border: 3px solid #f5b802;
+  position: relative;
+}
+
+.close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: #ef4444;
   color: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
 }
 
-.potential-students-modal-btn-danger:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+.close-btn:hover {
+  background: #dc2626;
+  transform: scale(1.1);
 }
 
-.potential-students-modal-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
+.modal-content h3 {
+  color: #ff8c42;
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 24px;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
-@media (max-width: 768px) {
-  .potential-students-panel {
-    padding: 1rem;
-    margin: 1rem;
+.student-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detail-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.detail-item label {
+  font-weight: 700;
+  color: #ff8c42;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-item span {
+  color: #374151;
+  font-size: 1rem;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  border: 1px solid #f5b802;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .potential-students-table-container {
+    overflow-x: auto;
+  }
+  
+  .potential-students-table {
+    min-width: 800px;
+  }
+}
+
+@media (max-width: 900px) {
+  .potential-students-title {
+    font-size: 2rem;
   }
   
   .potential-students-actions {
@@ -547,31 +669,42 @@
     align-items: center;
   }
   
-  .potential-students-student-item {
-    flex-direction: column;
-    align-items: stretch;
+  .potential-students-btn {
+    width: 100%;
+    max-width: 300px;
   }
   
-  .potential-students-student-info {
+  .potential-students-bulk-section {
     flex-direction: column;
     align-items: center;
-    text-align: center;
   }
   
-  .potential-students-student-main-info,
-  .potential-students-student-secondary-info {
-    justify-content: center;
+  .student-details-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .potential-students-title {
+    font-size: 1.5rem;
   }
   
-  .potential-students-student-actions {
-    align-items: stretch;
-    min-width: auto;
+  .potential-students-subtitle {
+    font-size: 1rem;
   }
   
-  .potential-students-assign-select,
-  .potential-students-confirm-assign-btn,
-  .potential-students-delete-btn {
-    width: 100%;
-    text-align: center;
+  .search-input {
+    padding: 12px 16px;
+    font-size: 1rem;
+  }
+  
+  .modal-content {
+    padding: 20px;
+    margin: 20px;
+  }
+  
+  .potential-students-modal-content {
+    padding: 20px;
+    margin: 20px;
   }
 }

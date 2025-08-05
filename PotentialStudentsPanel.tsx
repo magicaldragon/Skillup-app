@@ -91,41 +91,6 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
     }
   };
 
-  // Helper for avatar by gender
-  // const _getAvatar = (student: PotentialStudent) => {
-  //   if (student.gender === 'male') return '/avatar-male.png';
-  //   if (student.gender === 'female') return '/avatar-female.png';
-  //   return '/anon-avatar.png';
-  // };
-
-  // Helper for display name
-  // const _getDisplayName = (student: PotentialStudent) => {
-  //   const fullName = student.englishName || student.name;
-  //   return fullName || 'Unknown Name';
-  // };
-
-  // Helper for phone number
-  // const _getPhoneNumber = (student: PotentialStudent) => {
-  //   return student.phone || student.parentPhone || 'No phone';
-  // };
-
-  // Helper for date/time
-  // const _getDateTime = (student: PotentialStudent) => {
-  //   if (!student.createdAt) return 'Unknown date';
-  //   return new Date(student.createdAt).toLocaleDateString('en-US', {
-  //     year: 'numeric',
-  //     month: 'short',
-  //     day: 'numeric',
-  //     hour: '2-digit',
-  //     minute: '2-digit'
-  //   });
-  // };
-
-  // Helper for notes
-  // const _getNotes = (student: PotentialStudent) => {
-  //   return student.notes || 'No notes';
-  // };
-
   // Bulk convert to regular user
   const handleBulkConvert = async () => {
     setConfirmingBulk(false);
@@ -231,169 +196,6 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
     }
   };
 
-  // const _handleConfirmStatusUpdate = async (studentId: string) => {
-  //   const status = pendingStatusUpdates[studentId];
-  //   if (!status) return;
-    
-  //   setLoadingStates(prev => ({ ...prev, [studentId]: true }));
-  //   const token = localStorage.getItem('authToken');
-    
-  //   try {
-  //     const response = await fetch(`${API_BASE_URL}/potential-students/${studentId}/status`, {
-  //       method: 'PATCH',
-  //       headers: { 
-  //         'Content-Type': 'application/json',
-  //         'Authorization': `Bearer ${token}`
-  //       },
-  //       body: JSON.stringify({ status }),
-  //     });
-      
-  //     if (!response.ok) {
-  //       throw new Error('Failed to update potential student status');
-  //     }
-      
-  //     setLoadingStates(prev => ({ ...prev, [studentId]: false }));
-  //     setPendingStatusUpdates(prev => { const copy = { ...prev }; delete copy[studentId]; return copy; });
-  //     fetchPotentialStudents();
-  //   } catch (error) {
-  //     console.error('Update status error:', error);
-  //     setLoadingStates(prev => ({ ...prev, [studentId]: false }));
-  //     alert('Failed to update potential student status. Please try again.');
-  //   }
-  // };
-
-  // const _handleConvertToUser = async (studentId: string) => {
-  //   const token = localStorage.getItem('authToken');
-  //   if (!token) {
-  //     alert('No authentication token found');
-  //     return;
-  //   }
-
-  //   try {
-  //     const response = await fetch(`${API_BASE_URL}/potential-students/${studentId}/convert`, {
-  //       method: 'POST',
-  //       headers: { 
-  //         'Content-Type': 'application/json',
-  //         'Authorization': `Bearer ${token}`
-  //       },
-  //     });
-      
-  //     if (!response.ok) {
-  //       throw new Error('Failed to convert potential student to user');
-  //     }
-      
-  //     alert('Potential student converted to regular user successfully!');
-  //     fetchPotentialStudents();
-  //     onDataRefresh?.();
-  //   } catch (error) {
-  //     console.error('Convert to user error:', error);
-  //     alert('Failed to convert potential student to user. Please try again.');
-  //   }
-  // };
-
-  // const _handleDelete = async (studentId: string) => {
-  //   if (!window.confirm('Are you sure you want to delete this potential student? This action cannot be undone.')) {
-  //     return;
-  //   }
-
-  //   const token = localStorage.getItem('authToken');
-  //   if (!token) {
-  //     alert('No authentication token found');
-  //     return;
-  //   }
-
-  //   try {
-  //     const response = await fetch(`${API_BASE_URL}/potential-students/${studentId}`, {
-  //       method: 'DELETE',
-  //       headers: { 
-  //         'Authorization': `Bearer ${token}`
-  //       },
-  //     });
-      
-  //     if (!response.ok) {
-  //       throw new Error('Failed to delete potential student');
-  //     }
-      
-  //     alert('Potential student deleted successfully!');
-  //     fetchPotentialStudents();
-  //   } catch (error) {
-  //     console.error('Delete error:', error);
-  //     alert('Failed to delete potential student. Please try again.');
-  //   }
-  // };
-
-  // Move to Records (when student doesn't confirm interest)
-  // const _handleMoveToRecords = async (studentId: string) => {
-  //   const token = localStorage.getItem('authToken');
-  //   if (!token) {
-  //     alert('No authentication token found');
-  //     return;
-  //   }
-
-  //   if (!window.confirm('Move this student to Records? This will archive their information for future reference.')) {
-  //     return;
-  //   }
-
-  //   try {
-  //     // First, create a record entry
-  //     const student = potentialStudents.find(s => s._id === studentId);
-  //     if (!student) {
-  //       throw new Error('Student not found');
-  //       return;
-  //     }
-
-  //     const recordData = {
-  //       studentId: null, // Potential students don't have User records yet
-  //       studentName: student.name,
-  //       action: 'moved_to_records',
-  //       category: 'administrative',
-  //       details: {
-  //         reason: 'Student did not confirm interest in courses',
-  //         originalStatus: student.status,
-  //         movedBy: currentUser.name,
-  //         movedAt: new Date().toISOString(),
-  //         potentialStudentId: studentId, // Store the potential student ID for reference
-  //         email: student.email,
-  //         phone: student.phone
-  //       },
-  //       performedBy: currentUser.id,
-  //       performedByName: currentUser.name
-  //     };
-
-  //     const recordResponse = await fetch(`${API_BASE_URL}/student-records`, {
-  //       method: 'POST',
-  //       headers: { 
-  //         'Content-Type': 'application/json',
-  //         'Authorization': `Bearer ${token}`
-  //       },
-  //       body: JSON.stringify(recordData),
-  //     });
-
-  //     if (!recordResponse.ok) {
-  //       throw new Error('Failed to create record entry');
-  //     }
-
-  //     // Then delete from potential students
-  //     const deleteResponse = await fetch(`${API_BASE_URL}/potential-students/${studentId}`, {
-  //       method: 'DELETE',
-  //       headers: { 
-  //         'Authorization': `Bearer ${token}`
-  //       },
-  //     });
-      
-  //     if (!deleteResponse.ok) {
-  //       throw new Error('Failed to remove from potential students');
-  //     }
-
-  //     alert('Student moved to Records successfully');
-  //     fetchPotentialStudents();
-  //     if (onDataRefresh) onDataRefresh();
-  //   } catch (error) {
-  //     console.error('Move to records error:', error);
-  //     alert('Failed to move student to Records. Please try again.');
-  //   }
-  // };
-
   // Move to Waiting List (when student confirms interest)
   const handleMoveToWaitingList = async (studentId: string) => {
     const token = localStorage.getItem('authToken');
@@ -462,8 +264,11 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
 
   return (
     <div className="potential-students-panel">
-      <h2 className="potential-students-title">Potential Students</h2>
-      <p className="potential-students-subtitle">Students who need evaluation - move to Waiting List or Records</p>
+      <div className="potential-students-header">
+        <h2 className="potential-students-title">Potential Students</h2>
+        <p className="potential-students-subtitle">Students who need evaluation - move to Waiting List or Records</p>
+      </div>
+      
       <div className="potential-students-search">
         <input
           type="text"
@@ -473,104 +278,169 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
           className="search-input"
         />
       </div>
-      <table className="potential-students-table">
-        <thead>
-          <tr>
-            <th>
-              <input
-                type="checkbox"
-                checked={selectedIds.length === potentialStudents.length && potentialStudents.length > 0}
-                onChange={selectedIds.length === potentialStudents.length ? clearAll : selectAll}
-              />
-            </th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Phone</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredStudents.length === 0 && (
-            <tr><td colSpan={6} className="empty-table">No potential students found.</td></tr>
-          )}
-          {filteredStudents.map(student => (
-            <tr key={student._id} onClick={() => setSelectedStudent(student)} className="clickable-row">
-              <td onClick={e => e.stopPropagation()}>
+      
+      <div className="potential-students-table-container">
+        <table className="potential-students-table">
+          <thead>
+            <tr>
+              <th className="checkbox-header">
                 <input
                   type="checkbox"
-                  checked={selectedIds.includes(student._id)}
-                  onChange={() => toggleSelect(student._id)}
+                  checked={selectedIds.length === potentialStudents.length && potentialStudents.length > 0}
+                  onChange={selectedIds.length === potentialStudents.length ? clearAll : selectAll}
+                  className="select-all-checkbox"
                 />
-              </td>
-              <td>{student.name}</td>
-              <td>{student.email}</td>
-              <td>{student.phone}</td>
-              <td>{student.status}</td>
-              <td>
-                <select
-                  value={student.status}
-                  onChange={e => handleStatusChange(student._id, e.target.value)}
-                  onClick={e => e.stopPropagation()}
-                >
-                  <option value="pending">Pending</option>
-                  <option value="contacted">Contacted</option>
-                  <option value="interviewed">Interviewed</option>
-                  <option value="approved">Approved</option>
-                  <option value="rejected">Rejected</option>
-                  <option value="enrolled">Enrolled</option>
-                </select>
-                <button
-                  onClick={e => { e.stopPropagation(); handleMoveToWaitingList(student._id); }}
-                  className="move-btn"
-                >Move to Waiting List</button>
-              </td>
+              </th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Status</th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {filteredStudents.length === 0 && (
+              <tr>
+                <td colSpan={6} className="empty-table">
+                  <div className="empty-state">
+                    <div className="empty-icon">📋</div>
+                    <p>No potential students found.</p>
+                    <p className="empty-subtitle">Students created with "potential" status will appear here.</p>
+                  </div>
+                </td>
+              </tr>
+            )}
+            {filteredStudents.map(student => (
+              <tr key={student._id} onClick={() => setSelectedStudent(student)} className="clickable-row">
+                <td onClick={e => e.stopPropagation()} className="checkbox-cell">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.includes(student._id)}
+                    onChange={() => toggleSelect(student._id)}
+                    className="row-checkbox"
+                  />
+                </td>
+                <td className="name-cell">
+                  <div className="student-name">{student.name}</div>
+                  {student.englishName && (
+                    <div className="english-name">({student.englishName})</div>
+                  )}
+                </td>
+                <td className="email-cell">{student.email}</td>
+                <td className="phone-cell">{student.phone || 'N/A'}</td>
+                <td className="status-cell">
+                  <span className={`status-badge status-${student.status}`}>
+                    {student.status}
+                  </span>
+                </td>
+                <td className="actions-cell">
+                  <select
+                    value={student.status}
+                    onChange={e => handleStatusChange(student._id, e.target.value)}
+                    onClick={e => e.stopPropagation()}
+                    className="status-select"
+                  >
+                    <option value="pending">Pending</option>
+                    <option value="contacted">Contacted</option>
+                    <option value="interviewed">Interviewed</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                    <option value="enrolled">Enrolled</option>
+                  </select>
+                  <button
+                    onClick={e => { e.stopPropagation(); handleMoveToWaitingList(student._id); }}
+                    className="move-btn"
+                  >
+                    Move to Waiting List
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {/* Details Modal/Panel */}
       {selectedStudent && (
         <div className="student-details-modal">
           <div className="modal-content">
-            <button className="close-btn" onClick={() => setSelectedStudent(null)}>Close</button>
+            <button className="close-btn" onClick={() => setSelectedStudent(null)}>×</button>
             <h3>Student Details</h3>
-            <div><b>Name:</b> {selectedStudent.name}</div>
-            <div><b>English Name:</b> {selectedStudent.englishName}</div>
-            <div><b>Email:</b> {selectedStudent.email}</div>
-            <div><b>Phone:</b> {selectedStudent.phone}</div>
-            <div><b>Gender:</b> {selectedStudent.gender}</div>
-            <div><b>Status:</b> {selectedStudent.status}</div>
-            <div><b>Parent Name:</b> {selectedStudent.parentName}</div>
-            <div><b>Parent Phone:</b> {selectedStudent.parentPhone}</div>
-            <div><b>Notes:</b> {selectedStudent.notes}</div>
-            {/* Add more fields as needed */}
+            <div className="student-details-grid">
+              <div className="detail-item">
+                <label>Name:</label>
+                <span>{selectedStudent.name}</span>
+              </div>
+              <div className="detail-item">
+                <label>English Name:</label>
+                <span>{selectedStudent.englishName || 'N/A'}</span>
+              </div>
+              <div className="detail-item">
+                <label>Email:</label>
+                <span>{selectedStudent.email}</span>
+              </div>
+              <div className="detail-item">
+                <label>Phone:</label>
+                <span>{selectedStudent.phone || 'N/A'}</span>
+              </div>
+              <div className="detail-item">
+                <label>Gender:</label>
+                <span>{selectedStudent.gender || 'N/A'}</span>
+              </div>
+              <div className="detail-item">
+                <label>Status:</label>
+                <span className={`status-badge status-${selectedStudent.status}`}>
+                  {selectedStudent.status}
+                </span>
+              </div>
+              <div className="detail-item">
+                <label>Parent Name:</label>
+                <span>{selectedStudent.parentName || 'N/A'}</span>
+              </div>
+              <div className="detail-item">
+                <label>Parent Phone:</label>
+                <span>{selectedStudent.parentPhone || 'N/A'}</span>
+              </div>
+              <div className="detail-item full-width">
+                <label>Notes:</label>
+                <span>{selectedStudent.notes || 'No notes'}</span>
+              </div>
+            </div>
           </div>
         </div>
       )}
+      
       <div className="potential-students-actions">
         <button
           className={`potential-students-btn potential-students-btn-primary ${bulkAction === 'convert' ? 'active' : ''}`}
           onClick={() => { setBulkAction('convert'); setConfirmingBulk(false); }}
           disabled={selectedIds.length === 0}
-        >Convert to User</button>
+        >
+          Convert to User
+        </button>
         <button
           className={`potential-students-btn potential-students-btn-secondary ${bulkAction === 'update_status' ? 'active' : ''}`}
           onClick={() => { setBulkAction('update_status'); setConfirmingBulk(false); }}
           disabled={selectedIds.length === 0}
-        >Update Status</button>
+        >
+          Update Status
+        </button>
         <button
           className="potential-students-btn potential-students-btn-neutral"
           onClick={selectAll}
           disabled={selectedIds.length === potentialStudents.length}
-        >Select All</button>
+        >
+          Select All
+        </button>
         <button
           className="potential-students-btn potential-students-btn-neutral"
           onClick={clearAll}
           disabled={selectedIds.length === 0}
-        >Clear</button>
+        >
+          Clear
+        </button>
       </div>
+      
       {bulkAction && (
         <div className="potential-students-bulk-section">
           {bulkAction === 'update_status' && (
@@ -593,28 +463,39 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
               className="potential-students-confirm-btn potential-students-confirm-btn-success"
               onClick={() => { setConfirmingBulk(true); }}
               disabled={bulkAction === 'update_status' && !bulkStatus}
-            >Confirm</button>
+            >
+              Confirm
+            </button>
             <button
               className="potential-students-confirm-btn potential-students-confirm-btn-cancel"
               onClick={() => { setBulkAction(null); setBulkStatus(''); setConfirmingBulk(false); }}
-            >Cancel</button>
+            >
+              Cancel
+            </button>
           </div>
         </div>
       )}
+      
       {confirmingBulk && (
         <div className="potential-students-modal">
           <div className="potential-students-modal-content">
             <div className="potential-students-modal-title">Confirm Bulk Action</div>
-            <div className="potential-students-modal-message">Are you sure to {bulkAction === 'convert' ? 'convert selected potential students to regular users' : 'update status of selected potential students'}?</div>
+            <div className="potential-students-modal-message">
+              Are you sure to {bulkAction === 'convert' ? 'convert selected potential students to regular users' : 'update status of selected potential students'}?
+            </div>
             <div className="potential-students-modal-buttons">
               <button
                 className="potential-students-modal-btn potential-students-modal-btn-cancel"
                 onClick={() => setConfirmingBulk(false)}
-              >Cancel</button>
+              >
+                Cancel
+              </button>
               <button
                 className="potential-students-modal-btn potential-students-modal-btn-confirm"
                 onClick={bulkAction === 'convert' ? handleBulkConvert : handleBulkUpdateStatus}
-              >Confirm</button>
+              >
+                Confirm
+              </button>
             </div>
           </div>
         </div>
