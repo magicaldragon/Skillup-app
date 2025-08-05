@@ -4,6 +4,9 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 const path = require('path');
 
+// Initialize Firebase Admin SDK
+const admin = require('firebase-admin');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -14,6 +17,28 @@ const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
 if (missingEnvVars.length > 0) {
   console.error('Missing required environment variables:', missingEnvVars);
   process.exit(1);
+}
+
+// Initialize Firebase Admin SDK
+try {
+  // Check if service account file exists
+  const serviceAccountPath = path.join(__dirname, 'firebase-service-account.json');
+  const fs = require('fs');
+  
+  if (fs.existsSync(serviceAccountPath)) {
+    const serviceAccount = require('./firebase-service-account.json');
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount)
+    });
+    console.log('✅ Firebase Admin SDK initialized successfully');
+  } else {
+    console.warn('⚠️ Firebase service account file not found. User registration will fail.');
+    console.warn('📁 Please add firebase-service-account.json to the backend directory');
+    console.warn('🔗 Get it from: Firebase Console > Project Settings > Service Accounts > Generate New Private Key');
+  }
+} catch (error) {
+  console.error('❌ Firebase Admin SDK initialization failed:', error.message);
+  console.warn('⚠️ User registration will fail without Firebase Admin SDK');
 }
 
 // API usage monitoring

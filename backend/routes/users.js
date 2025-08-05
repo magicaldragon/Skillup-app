@@ -112,6 +112,11 @@ router.post('/', async (req, res) => {
     // Create Firebase Auth user
     let firebaseUser;
     try {
+      // Check if Firebase Admin is initialized
+      if (!admin.apps.length) {
+        throw new Error('Firebase Admin SDK not initialized. Please add firebase-service-account.json to the backend directory.');
+      }
+
       firebaseUser = await admin.auth().createUser({
         email,
         displayName: name,
@@ -126,6 +131,7 @@ router.post('/', async (req, res) => {
       await admin.auth().setCustomUserClaims(firebaseUser.uid, { role });
 
       res.status(201).json({
+        success: true,
         message: 'User created successfully',
         user: {
           id: user._id,
@@ -141,11 +147,26 @@ router.post('/', async (req, res) => {
       // If Firebase creation fails, delete the MongoDB user
       await User.findByIdAndDelete(user._id);
       console.error('Firebase user creation failed:', firebaseError);
-      return res.status(500).json({ message: 'Failed to create user in authentication system' });
+      
+      // Provide specific error message
+      if (firebaseError.message.includes('Firebase Admin SDK not initialized')) {
+        return res.status(500).json({ 
+          success: false,
+          message: 'Firebase Admin SDK not configured. Please contact administrator to add firebase-service-account.json file.' 
+        });
+      }
+      
+      return res.status(500).json({ 
+        success: false,
+        message: 'Failed to create user in authentication system: ' + firebaseError.message 
+      });
     }
   } catch (error) {
     console.error('Error creating user:', error);
-    res.status(500).json({ message: 'Failed to create user' });
+    res.status(500).json({ 
+      success: false,
+      message: 'Failed to create user: ' + error.message 
+    });
   }
 });
 
