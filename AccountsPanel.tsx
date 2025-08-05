@@ -296,11 +296,15 @@ const AccountsPanel = () => {
                     <th>Email</th>
                     <th>Role</th>
                     <th>Gender</th>
-                    <th>Status</th>
-                    <th>Student Code</th>
+                    {/* Only show status column when filtering by students */}
+                    {filterRole === 'student' && <th>Status</th>}
+                    {/* Only show student code column when filtering by students */}
+                    {filterRole === 'student' && <th>Student Code</th>}
                     <th>Phone</th>
-                    <th>Parent's Name</th>
-                    <th>Parent's Phone</th>
+                    {/* Only show parent's name column when filtering by students */}
+                    {filterRole === 'student' && <th>Parent's Name</th>}
+                    {/* Only show parent's phone column when filtering by students */}
+                    {filterRole === 'student' && <th>Parent's Phone</th>}
                     <th>Actions</th>
           </tr>
         </thead>
@@ -374,37 +378,53 @@ const AccountsPanel = () => {
                           account.gender || '—'
                         )}
                       </td>
-                      <td>
-                        {editingId === account._id ? (
-                          <select
-                            value={editForm.status || ''}
-                            onChange={(e) => setEditForm(prev => ({ ...prev, status: e.target.value }))}
-                            className="edit-select"
-                          >
-                            <option value="potential">Potential</option>
-                            <option value="contacted">Contacted</option>
-                            <option value="studying">Studying</option>
-                            <option value="postponed">Postponed</option>
-                            <option value="off">Off</option>
-                            <option value="alumni">Alumni</option>
-                          </select>
-                        ) : (
-                          account.status || '—'
-                        )}
-                      </td>
-                      <td>
-                        {editingId === account._id ? (
-                          <input
-                            type="text"
-                            value={editForm.studentCode || ''}
-                            onChange={(e) => setEditForm(prev => ({ ...prev, studentCode: e.target.value }))}
-                            className="edit-input"
-                            placeholder="SU-001"
-                          />
-                        ) : (
-                          account.studentCode || '—'
-                        )}
-                      </td>
+                      {/* Only show status cell when filtering by students */}
+                      {filterRole === 'student' && (
+                        <td>
+                          {/* Only show status field for students */}
+                          {account.role === 'student' ? (
+                            editingId === account._id ? (
+                              <select
+                                value={editForm.status || ''}
+                                onChange={(e) => setEditForm(prev => ({ ...prev, status: e.target.value }))}
+                                className="edit-select"
+                              >
+                                <option value="potential">Potential</option>
+                                <option value="contacted">Contacted</option>
+                                <option value="studying">Studying</option>
+                                <option value="postponed">Postponed</option>
+                                <option value="off">Off</option>
+                                <option value="alumni">Alumni</option>
+                              </select>
+                            ) : (
+                              account.status || '—'
+                            )
+                          ) : (
+                            '—'
+                          )}
+                        </td>
+                      )}
+                      {/* Only show student code cell when filtering by students */}
+                      {filterRole === 'student' && (
+                        <td>
+                          {/* Only show student code field for students */}
+                          {account.role === 'student' ? (
+                            editingId === account._id ? (
+                              <input
+                                type="text"
+                                value={editForm.studentCode || ''}
+                                onChange={(e) => setEditForm(prev => ({ ...prev, studentCode: e.target.value }))}
+                                className="edit-input"
+                                placeholder="SU-001"
+                              />
+                            ) : (
+                              account.studentCode || '—'
+                            )
+                          ) : (
+                            '—'
+                          )}
+                        </td>
+                      )}
                       <td>
                         {editingId === account._id ? (
                           <input
@@ -417,30 +437,46 @@ const AccountsPanel = () => {
                           account.phone || '—'
                         )}
                       </td>
-                      <td>
-                        {editingId === account._id ? (
-                          <input
-                            type="text"
-                            value={editForm.parentName || ''}
-                            onChange={(e) => setEditForm(prev => ({ ...prev, parentName: e.target.value }))}
-                            className="edit-input"
-                          />
-                        ) : (
-                          account.parentName || '—'
-                        )}
-                      </td>
-                      <td>
-                        {editingId === account._id ? (
-                          <input
-                            type="tel"
-                            value={editForm.parentPhone || ''}
-                            onChange={(e) => setEditForm(prev => ({ ...prev, parentPhone: e.target.value }))}
-                            className="edit-input"
-                          />
-                        ) : (
-                          account.parentPhone || '—'
-                        )}
-                      </td>
+                      {/* Only show parent's name cell when filtering by students */}
+                      {filterRole === 'student' && (
+                        <td>
+                          {/* Only show parent's name field for students */}
+                          {account.role === 'student' ? (
+                            editingId === account._id ? (
+                              <input
+                                type="text"
+                                value={editForm.parentName || ''}
+                                onChange={(e) => setEditForm(prev => ({ ...prev, parentName: e.target.value }))}
+                                className="edit-input"
+                              />
+                            ) : (
+                              account.parentName || '—'
+                            )
+                          ) : (
+                            '—'
+                          )}
+                        </td>
+                      )}
+                      {/* Only show parent's phone cell when filtering by students */}
+                      {filterRole === 'student' && (
+                        <td>
+                          {/* Only show parent's phone field for students */}
+                          {account.role === 'student' ? (
+                            editingId === account._id ? (
+                              <input
+                                type="tel"
+                                value={editForm.parentPhone || ''}
+                                onChange={(e) => setEditForm(prev => ({ ...prev, parentPhone: e.target.value }))}
+                                className="edit-input"
+                              />
+                            ) : (
+                              account.parentPhone || '—'
+                            )
+                          ) : (
+                            '—'
+                          )}
+                        </td>
+                      )}
                       <td>
                         {editingId === account._id ? (
                           <div className="action-buttons">
