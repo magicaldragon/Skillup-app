@@ -9,6 +9,7 @@ const { generateStudentCode, reassignAllStudentCodes, findStudentCodeGaps } = re
 router.get('/', verifyToken, async (req, res) => {
   try {
     const { role } = req.user;
+    const { status } = req.query;
     let query = {};
 
     // Role-based filtering - allow admin, teacher, and staff to see all users
@@ -21,8 +22,14 @@ router.get('/', verifyToken, async (req, res) => {
       query = { _id: userId };
     }
 
+    // Add status filtering if provided
+    if (status) {
+      const statusArray = status.split(',');
+      query.status = { $in: statusArray };
+    }
+
     const users = await User.find(query).sort({ createdAt: -1 });
-    console.log(`Fetched ${users.length} users for role: ${role}`);
+    console.log(`Fetched ${users.length} users for role: ${role}${status ? ` with status: ${status}` : ''}`);
     res.json(users);
   } catch (error) {
     console.error('Error fetching users:', error);

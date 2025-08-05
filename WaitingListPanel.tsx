@@ -4,7 +4,7 @@ import './WaitingListPanel.css';
 
 const API_BASE_URL = 'https://skillup-backend-v6vm.onrender.com/api';
 
-interface WaitingStudent {
+interface User {
   _id: string;
   name: string;
   englishName?: string;
@@ -12,25 +12,26 @@ interface WaitingStudent {
   phone?: string;
   gender?: string;
   status: string;
-  interestedPrograms?: string[];
-  preferredLevel?: string;
+  parentName?: string;
+  parentPhone?: string;
   notes?: string;
-  assignedTo?: {
-    _id: string;
-    name: string;
-    email: string;
-  };
+  studentCode?: string;
+  classIds?: string[];
   createdAt: string;
   updatedAt: string;
 }
 
 const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[], onDataRefresh?: () => void }) => {
-  const [waitingStudents, setWaitingStudents] = useState<WaitingStudent[]>([]);
+  const [waitingStudents, setWaitingStudents] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
-  const [selectedStudent, setSelectedStudent] = useState<WaitingStudent | null>(null);
-  const [statusFilter, setStatusFilter] = useState('');
+  const [selectedStudent, setSelectedStudent] = useState<User | null>(null);
+  
+  // Bulk selection state
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [bulkClassId, setBulkClassId] = useState<string>('');
+  const [showBulkAssign, setShowBulkAssign] = useState(false);
 
   useEffect(() => {
     fetchWaitingStudents();
@@ -48,8 +49,8 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
     }
 
     try {
-      // Fetch students with status 'waiting_for_class'
-      const response = await fetch(`${API_BASE_URL}/potential-students?status=waiting_for_class`, {
+      // Fetch users with status 'studying'
+      const response = await fetch(`${API_BASE_URL}/users?status=studying`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -60,11 +61,7 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
       }
 
       const data = await response.json();
-      if (data.success) {
-        setWaitingStudents(data.potentialStudents || []);
-      } else {
-        throw new Error(data.message || 'Failed to fetch waiting students');
-      }
+      setWaitingStudents(data || []);
     } catch (error) {
       console.error('Fetch waiting students error:', error);
       setError('Failed to load waiting students. Please try again.');
@@ -73,53 +70,54 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
     }
   };
 
-  // Helper for avatar by gender
-  // const _getAvatar = (student: WaitingStudent) => {
-  //   if (student.gender === 'male') return '/avatar-male.png';
-  //   if (student.gender === 'female') return '/avatar-female.png';
-  //   return '/anon-avatar.png';
-  // };
+  // Individual select
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  };
 
-  // Helper for display name
-  // const _getDisplayName = (student: WaitingStudent) => {
-  //   const fullName = student.englishName || student.name;
-  //   return fullName || 'Unknown Name';
-  // };
+  // Select all
+  const selectAll = () => setSelectedIds(waitingStudents.map(s => s._id));
+  const clearAll = () => setSelectedIds([]);
 
-  // Helper for phone number
-  // const _getPhoneNumber = (student: WaitingStudent) => {
-  //   return student.phone || 'No phone';
-  // };
+  // Bulk assign to class
+  const handleBulkAssignToClass = async () => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      alert('No authentication token found');
+      return;
+    }
 
-  // Helper for date/time
-  // const _getDateTime = (student: WaitingStudent) => {
-  //   if (!student.createdAt) return 'Unknown date';
-  //   return new Date(student.createdAt).toLocaleDateString('en-US', {
-  //     year: 'numeric',
-  //     month: 'short',
-  //     day: 'numeric',
-  //     hour: '2-digit',
-  //     minute: '2-digit'
-  //   });
-  // };
+    try {
+      for (const id of selectedIds) {
+        const response = await fetch(`${API_BASE_URL}/users/${id}`, {
+          method: 'PUT',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ 
+            classIds: [bulkClassId],
+            status: 'active' // Change status to active when assigned to class
+          }),
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to assign user ${id} to class`);
+        }
+      }
+      setSelectedIds([]);
+      setBulkClassId('');
+      setShowBulkAssign(false);
+      fetchWaitingStudents();
+      onDataRefresh?.();
+      alert('Students assigned to class successfully!');
+    } catch (error) {
+      console.error('Bulk assign error:', error);
+      alert('Failed to assign students to class. Please try again.');
+    }
+  };
 
-  // Helper for notes
-  // const _getNotes = (student: WaitingStudent) => {
-  //   return student.notes || 'No notes';
-  // };
-
-  // Helper for interested programs
-  // const _getInterestedPrograms = (student: WaitingStudent) => {
-  //   return student.interestedPrograms?.join(', ') || 'No programs specified';
-  // };
-
-  // Filter students based on search and status
-  const filteredStudents = waitingStudents.filter(s =>
-    s.name.toLowerCase().includes(search.toLowerCase()) ||
-    (s.email && s.email.toLowerCase().includes(search.toLowerCase())) ||
-    (s.phone && s.phone.includes(search))
-  );
-
+  // Individual assign to class
   const handleAssignToClass = async (studentId: string, classId: string) => {
     const token = localStorage.getItem('authToken');
     if (!token) {
@@ -128,13 +126,16 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/potential-students/${studentId}/assign-class`, {
-        method: 'PATCH',
+      const response = await fetch(`${API_BASE_URL}/users/${studentId}`, {
+        method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ classId }),
+        body: JSON.stringify({ 
+          classIds: [classId],
+          status: 'active' // Change status to active when assigned to class
+        }),
       });
       
       if (!response.ok) {
@@ -143,13 +144,14 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
 
       alert('Student assigned to class successfully!');
       fetchWaitingStudents();
-      if (onDataRefresh) onDataRefresh();
+      onDataRefresh?.();
     } catch (error) {
       console.error('Assign to class error:', error);
       alert('Failed to assign student to class. Please try again.');
     }
   };
 
+  // Update status (for moving to Records)
   const handleStatusChange = async (studentId: string, newStatus: string) => {
     const token = localStorage.getItem('authToken');
     if (!token) {
@@ -158,8 +160,8 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/potential-students/${studentId}/status`, {
-        method: 'PATCH',
+      const response = await fetch(`${API_BASE_URL}/users/${studentId}`, {
+        method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -172,77 +174,19 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
       }
 
       fetchWaitingStudents();
-      if (onDataRefresh) onDataRefresh();
+      onDataRefresh?.();
     } catch (error) {
       console.error('Status change error:', error);
       alert('Failed to update student status. Please try again.');
     }
   };
 
-  // const _handleMoveBackToPotential = async (studentId: string) => {
-  //   const token = localStorage.getItem('authToken');
-  //   if (!token) {
-  //     alert('No authentication token found');
-  //     return;
-  //   }
-
-  //   if (!window.confirm('Move this student back to Potential Students?')) {
-  //     return;
-  //   }
-
-  //   try {
-  //     const response = await fetch(`${API_BASE_URL}/potential-students/${studentId}/status`, {
-  //       method: 'PATCH',
-  //       headers: { 
-  //         'Content-Type': 'application/json',
-  //         'Authorization': `Bearer ${token}`
-  //       },
-  //       body: JSON.stringify({ status: 'pending' }),
-  //     });
-      
-  //     if (!response.ok) {
-  //       throw new Error('Failed to move student back to potential students');
-  //     }
-
-  //     alert('Student moved back to Potential Students successfully');
-  //     fetchWaitingStudents();
-  //     if (onDataRefresh) onDataRefresh();
-  //   } catch (error) {
-  //     console.error('Move back error:', error);
-  //     alert('Failed to move student back to Potential Students. Please try again.');
-  //   }
-  // };
-
-  // const _handleDelete = async (studentId: string) => {
-  //   if (!window.confirm('Are you sure you want to delete this waiting student? This action cannot be undone.')) {
-  //     return;
-  //   }
-
-  //   const token = localStorage.getItem('authToken');
-  //   if (!token) {
-  //     alert('No authentication token found');
-  //     return;
-  //   }
-
-  //   try {
-  //     const response = await fetch(`${API_BASE_URL}/potential-students/${studentId}`, {
-  //       method: 'DELETE',
-  //       headers: { 
-  //         'Authorization': `Bearer ${token}`
-  //       },
-  //     });
-      
-  //     if (!response.ok) {
-  //       throw new Error('Failed to delete waiting student');
-  //     }
-      
-  //     alert('Waiting student deleted successfully!');
-  //     fetchWaitingStudents();
-  //   } catch (error) {
-  //     console.error('Delete error:', error);
-  //     alert('Failed to delete waiting student. Please try again.');
-  //   }
-  // };
+  // Filtered students
+  const filteredStudents = waitingStudents.filter(s =>
+    s.name.toLowerCase().includes(search.toLowerCase()) ||
+    (s.email && s.email.toLowerCase().includes(search.toLowerCase())) ||
+    (s.phone && s.phone.includes(search))
+  );
 
   if (loading) {
     return (
@@ -262,7 +206,7 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
           <h3>Error Loading Waiting Students</h3>
           <p>{error}</p>
           <button 
-            className="form-btn waiting-list-retry-btn"
+            className="waiting-list-retry-btn"
             onClick={fetchWaitingStudents}
           >
             Try Again
@@ -274,11 +218,12 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
 
   return (
     <div className="waiting-list-panel">
-      <h2 className="waiting-list-title">Waiting List</h2>
-      <p className="waiting-list-subtitle">Students interested in courses, waiting for class assignment</p>
+      <div className="waiting-list-header">
+        <h2 className="waiting-list-title">Waiting List</h2>
+        <p className="waiting-list-subtitle">Students ready for class assignment</p>
+      </div>
       
-      {/* Search and Filter Controls */}
-      <div className="waiting-list-controls">
+      <div className="waiting-list-search">
         <input
           type="text"
           placeholder="Search by name, email, or phone..."
@@ -286,81 +231,193 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
           onChange={e => setSearch(e.target.value)}
           className="search-input"
         />
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="form-select waiting-list-status-filter"
-        >
-          <option value="">All Status</option>
-          <option value="waiting_for_class">Waiting for Class</option>
-          <option value="approved">Approved</option>
-          <option value="contacted">Contacted</option>
-        </select>
       </div>
-
-      <table className="waiting-list-table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Phone</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredStudents.length === 0 && (
-            <tr><td colSpan={5} className="empty-table">No students in waiting list.</td></tr>
-          )}
-          {filteredStudents.map(student => (
-            <tr key={student._id} onClick={() => setSelectedStudent(student)} className="clickable-row">
-              <td>{student.name}</td>
-              <td>{student.email}</td>
-              <td>{student.phone}</td>
-              <td>{student.status}</td>
-              <td>
-                <select
-                  value={student.status}
-                  onChange={e => handleStatusChange(student._id, e.target.value)}
-                  onClick={e => e.stopPropagation()}
-                >
-                  <option value="waiting_for_class">Waiting</option>
-                  <option value="studying">Studying</option>
-                  <option value="postponed">Postponed</option>
-                  <option value="off">Off</option>
-                  <option value="alumni">Alumni</option>
-                </select>
-                {student.status === 'studying' && (
+      
+      <div className="waiting-list-table-container">
+        <table className="waiting-list-table">
+          <thead>
+            <tr>
+              <th className="checkbox-header">
+                <input
+                  type="checkbox"
+                  checked={selectedIds.length === waitingStudents.length && waitingStudents.length > 0}
+                  onChange={selectedIds.length === waitingStudents.length ? clearAll : selectAll}
+                  className="select-all-checkbox"
+                />
+              </th>
+              <th>Name</th>
+              <th>Gender</th>
+              <th>Status</th>
+              <th>Assign</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredStudents.length === 0 && (
+              <tr>
+                <td colSpan={5} className="empty-table">
+                  <div className="empty-state">
+                    <div className="empty-icon">⏳</div>
+                    <p>No students in waiting list.</p>
+                    <p className="empty-subtitle">
+                      Students with "studying" status will appear here for class assignment.
+                    </p>
+                  </div>
+                </td>
+              </tr>
+            )}
+            {filteredStudents.map(student => (
+              <tr key={student._id} onClick={() => setSelectedStudent(student)} className="clickable-row">
+                <td onClick={e => e.stopPropagation()} className="checkbox-cell">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.includes(student._id)}
+                    onChange={() => toggleSelect(student._id)}
+                    className="row-checkbox"
+                  />
+                </td>
+                <td className="name-cell">
+                  <div className="student-name">{student.name}</div>
+                  {student.englishName && (
+                    <div className="english-name">({student.englishName})</div>
+                  )}
+                </td>
+                <td className="gender-cell">{student.gender || 'N/A'}</td>
+                <td className="status-cell">
+                  <select
+                    value={student.status}
+                    onChange={e => handleStatusChange(student._id, e.target.value)}
+                    onClick={e => e.stopPropagation()}
+                    className="status-select"
+                  >
+                    <option value="studying">Studying</option>
+                    <option value="postponed">Postponed</option>
+                    <option value="off">Off</option>
+                    <option value="alumni">Alumni</option>
+                  </select>
+                </td>
+                <td className="assign-cell">
                   <select
                     onChange={e => handleAssignToClass(student._id, e.target.value)}
-                    className="assign-class-select"
+                    onClick={e => e.stopPropagation()}
+                    className="assign-select"
                   >
-                    <option value="">Assign to Class</option>
+                    <option value="">Select Class</option>
                     {classes.map(cls => (
                       <option key={cls.id} value={cls.id}>{cls.name}</option>
                     ))}
                   </select>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {/* Details Modal/Panel */}
       {selectedStudent && (
         <div className="student-details-modal">
           <div className="modal-content">
-            <button className="close-btn" onClick={() => setSelectedStudent(null)}>Close</button>
+            <button className="close-btn" onClick={() => setSelectedStudent(null)}>×</button>
             <h3>Student Details</h3>
-            <div><b>Name:</b> {selectedStudent.name}</div>
-            <div><b>English Name:</b> {selectedStudent.englishName}</div>
-            <div><b>Email:</b> {selectedStudent.email}</div>
-            <div><b>Phone:</b> {selectedStudent.phone}</div>
-            <div><b>Gender:</b> {selectedStudent.gender}</div>
-            <div><b>Status:</b> {selectedStudent.status}</div>
-            <div><b>Notes:</b> {selectedStudent.notes}</div>
-            {/* Add more fields as needed */}
+            <div className="student-details-grid">
+              <div className="detail-item">
+                <label>Name:</label>
+                <span>{selectedStudent.name}</span>
+              </div>
+              <div className="detail-item">
+                <label>English Name:</label>
+                <span>{selectedStudent.englishName || 'N/A'}</span>
+              </div>
+              <div className="detail-item">
+                <label>Email:</label>
+                <span>{selectedStudent.email}</span>
+              </div>
+              <div className="detail-item">
+                <label>Phone:</label>
+                <span>{selectedStudent.phone || 'N/A'}</span>
+              </div>
+              <div className="detail-item">
+                <label>Gender:</label>
+                <span>{selectedStudent.gender || 'N/A'}</span>
+              </div>
+              <div className="detail-item">
+                <label>Status:</label>
+                <span className={`status-badge status-${selectedStudent.status}`}>
+                  {selectedStudent.status}
+                </span>
+              </div>
+              <div className="detail-item">
+                <label>Parent Name:</label>
+                <span>{selectedStudent.parentName || 'N/A'}</span>
+              </div>
+              <div className="detail-item">
+                <label>Parent Phone:</label>
+                <span>{selectedStudent.parentPhone || 'N/A'}</span>
+              </div>
+              <div className="detail-item">
+                <label>Student Code:</label>
+                <span>{selectedStudent.studentCode || 'N/A'}</span>
+              </div>
+              <div className="detail-item full-width">
+                <label>Notes:</label>
+                <span>{selectedStudent.notes || 'No notes'}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      <div className="waiting-list-actions">
+        {selectedIds.length > 0 && (
+          <button
+            className="waiting-list-btn waiting-list-btn-secondary"
+            onClick={() => setShowBulkAssign(true)}
+          >
+            Bulk Assign to Class
+          </button>
+        )}
+        <button
+          className="waiting-list-btn waiting-list-btn-neutral"
+          onClick={selectAll}
+          disabled={selectedIds.length === waitingStudents.length}
+        >
+          Select All
+        </button>
+        <button
+          className="waiting-list-btn waiting-list-btn-neutral"
+          onClick={clearAll}
+          disabled={selectedIds.length === 0}
+        >
+          Clear
+        </button>
+      </div>
+      
+      {showBulkAssign && (
+        <div className="waiting-list-bulk-section">
+          <select
+            className="waiting-list-select"
+            value={bulkClassId}
+            onChange={e => setBulkClassId(e.target.value)}
+          >
+            <option value="">Select class...</option>
+            {classes.map(cls => (
+              <option key={cls.id} value={cls.id}>{cls.name}</option>
+            ))}
+          </select>
+          <div className="waiting-list-confirm-buttons">
+            <button
+              className="waiting-list-confirm-btn waiting-list-confirm-btn-success"
+              onClick={handleBulkAssignToClass}
+              disabled={!bulkClassId}
+            >
+              Confirm Assignment
+            </button>
+            <button
+              className="waiting-list-confirm-btn waiting-list-confirm-btn-cancel"
+              onClick={() => { setShowBulkAssign(false); setBulkClassId(''); }}
+            >
+              Cancel
+            </button>
           </div>
         </div>
       )}

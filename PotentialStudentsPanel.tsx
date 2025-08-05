@@ -4,7 +4,7 @@ import './PotentialStudentsPanel.css';
 
 const API_BASE_URL = 'https://skillup-backend-v6vm.onrender.com/api';
 
-interface PotentialStudent {
+interface User {
   _id: string;
   name: string;
   englishName?: string;
@@ -12,20 +12,10 @@ interface PotentialStudent {
   phone?: string;
   gender?: string;
   status: string;
-  source: string;
-  currentSchool?: string;
-  currentGrade?: string;
-  englishLevel: string;
   parentName?: string;
   parentPhone?: string;
-  parentEmail?: string;
-  interestedPrograms?: string[];
   notes?: string;
-  assignedTo?: {
-    _id: string;
-    name: string;
-    email: string;
-  };
+  studentCode?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -37,19 +27,18 @@ interface PotentialStudentsPanelProps {
 }
 
 const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, onDataRefresh }: PotentialStudentsPanelProps) => {
-  const [potentialStudents, setPotentialStudents] = useState<PotentialStudent[]>([]);
+  const [potentialStudents, setPotentialStudents] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Bulk selection state
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [bulkAction, setBulkAction] = useState<'convert' | 'update_status' | null>(null);
   const [bulkStatus, setBulkStatus] = useState<string>('');
-  const [confirmingBulk, setConfirmingBulk] = useState(false);
+  const [showBulkUpdate, setShowBulkUpdate] = useState(false);
 
   // Add search state
   const [search, setSearch] = useState('');
-  const [selectedStudent, setSelectedStudent] = useState<PotentialStudent | null>(null);
+  const [selectedStudent, setSelectedStudent] = useState<User | null>(null);
 
   useEffect(() => {
     fetchPotentialStudents();
@@ -67,7 +56,8 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/potential-students`, {
+      // Fetch users with status 'potential' or 'contacted'
+      const response = await fetch(`${API_BASE_URL}/users?status=potential,contacted`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -78,11 +68,7 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
       }
 
       const data = await response.json();
-      if (data.success) {
-        setPotentialStudents(data.potentialStudents || []);
-      } else {
-        throw new Error(data.message || 'Failed to fetch potential students');
-      }
+      setPotentialStudents(data || []);
     } catch (error) {
       console.error('Fetch potential students error:', error);
       setError('Failed to load potential students. Please try again.');
@@ -91,52 +77,18 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
     }
   };
 
-  // Bulk convert to regular user
-  const handleBulkConvert = async () => {
-    setConfirmingBulk(false);
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      console.error('No auth token found');
-      return;
-    }
-
-    try {
-      for (const id of selectedIds) {
-        const response = await fetch(`${API_BASE_URL}/potential-students/${id}/convert`, {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Failed to convert potential student ${id}`);
-        }
-      }
-      setSelectedIds([]);
-      setBulkAction(null);
-      fetchPotentialStudents();
-      onDataRefresh?.();
-    } catch (error) {
-      console.error('Bulk convert error:', error);
-      alert('Failed to convert potential students. Please try again.');
-    }
-  };
-
   // Bulk update status
   const handleBulkUpdateStatus = async () => {
-    setConfirmingBulk(false);
     const token = localStorage.getItem('authToken');
     if (!token) {
-      console.error('No auth token found');
+      alert('No authentication token found');
       return;
     }
 
     try {
       for (const id of selectedIds) {
-        const response = await fetch(`${API_BASE_URL}/potential-students/${id}/status`, {
-          method: 'PATCH',
+        const response = await fetch(`${API_BASE_URL}/users/${id}`, {
+          method: 'PUT',
           headers: { 
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
@@ -145,13 +97,14 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
         });
         
         if (!response.ok) {
-          throw new Error(`Failed to update potential student ${id} status`);
+          throw new Error(`Failed to update user ${id} status`);
         }
       }
       setSelectedIds([]);
       setBulkStatus('');
-      setBulkAction(null);
+      setShowBulkUpdate(false);
       fetchPotentialStudents();
+      onDataRefresh?.();
     } catch (error) {
       console.error('Bulk status update error:', error);
       alert('Failed to update potential students status. Please try again.');
@@ -167,36 +120,7 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
   const selectAll = () => setSelectedIds(potentialStudents.map(s => s._id));
   const clearAll = () => setSelectedIds([]);
 
-  const handleStatusChange = async (studentId: string, status: string) => {
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      alert('No authentication token found');
-      return;
-    }
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/potential-students/${studentId}/status`, {
-        method: 'PATCH',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ status }),
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to update potential student status');
-      }
-      
-      // Refresh the list after status update
-      fetchPotentialStudents();
-    } catch (error) {
-      console.error('Update status error:', error);
-      alert('Failed to update potential student status. Please try again.');
-    }
-  };
-
-  // Move to Waiting List (when student confirms interest)
+  // Move to Waiting List (changes status to 'studying')
   const handleMoveToWaitingList = async (studentId: string) => {
     const token = localStorage.getItem('authToken');
     if (!token) {
@@ -205,13 +129,13 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/potential-students/${studentId}/status`, {
-        method: 'PATCH',
+      const response = await fetch(`${API_BASE_URL}/users/${studentId}`, {
+        method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ status: 'waiting_for_class' }),
+        body: JSON.stringify({ status: 'studying' }),
       });
       
       if (!response.ok) {
@@ -220,7 +144,7 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
 
       alert('Student moved to Waiting List successfully');
       fetchPotentialStudents();
-      if (onDataRefresh) onDataRefresh();
+      onDataRefresh?.();
     } catch (error) {
       console.error('Move to waiting list error:', error);
       alert('Failed to move student to Waiting List. Please try again.');
@@ -324,10 +248,10 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
                 />
               </th>
               <th>Name</th>
-              <th>Email</th>
-              <th>Phone</th>
+              <th>Gender</th>
               <th>Status</th>
-              <th>Actions</th>
+              <th>Parent's Name</th>
+              <th>Parent's Phone</th>
             </tr>
           </thead>
           <tbody>
@@ -338,7 +262,7 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
                     <div className="empty-icon">📋</div>
                     <p>No potential students found.</p>
                     <p className="empty-subtitle">
-                      Students created with "potential" status will appear here.
+                      Students with "potential" or "contacted" status will appear here.
                       {potentialStudents.length === 0 && (
                         <span> If you have existing students with "potential" status, click "Sync Existing Students" below.</span>
                       )}
@@ -363,34 +287,14 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
                     <div className="english-name">({student.englishName})</div>
                   )}
                 </td>
-                <td className="email-cell">{student.email}</td>
-                <td className="phone-cell">{student.phone || 'N/A'}</td>
+                <td className="gender-cell">{student.gender || 'N/A'}</td>
                 <td className="status-cell">
                   <span className={`status-badge status-${student.status}`}>
                     {student.status}
                   </span>
                 </td>
-                <td className="actions-cell">
-                  <select
-                    value={student.status}
-                    onChange={e => handleStatusChange(student._id, e.target.value)}
-                    onClick={e => e.stopPropagation()}
-                    className="status-select"
-                  >
-                    <option value="pending">Pending</option>
-                    <option value="contacted">Contacted</option>
-                    <option value="interviewed">Interviewed</option>
-                    <option value="approved">Approved</option>
-                    <option value="rejected">Rejected</option>
-                    <option value="enrolled">Enrolled</option>
-                  </select>
-                  <button
-                    onClick={e => { e.stopPropagation(); handleMoveToWaitingList(student._id); }}
-                    className="move-btn"
-                  >
-                    Move to Waiting List
-                  </button>
-                </td>
+                <td className="parent-name-cell">{student.parentName || 'N/A'}</td>
+                <td className="parent-phone-cell">{student.parentPhone || 'N/A'}</td>
               </tr>
             ))}
           </tbody>
@@ -438,6 +342,10 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
                 <label>Parent Phone:</label>
                 <span>{selectedStudent.parentPhone || 'N/A'}</span>
               </div>
+              <div className="detail-item">
+                <label>Student Code:</label>
+                <span>{selectedStudent.studentCode || 'N/A'}</span>
+              </div>
               <div className="detail-item full-width">
                 <label>Notes:</label>
                 <span>{selectedStudent.notes || 'No notes'}</span>
@@ -448,19 +356,28 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
       )}
       
       <div className="potential-students-actions">
+        {selectedIds.length > 0 && (
+          <button
+            className="potential-students-btn potential-students-btn-secondary"
+            onClick={() => setShowBulkUpdate(true)}
+          >
+            Update Status
+          </button>
+        )}
         <button
-          className={`potential-students-btn potential-students-btn-primary ${bulkAction === 'convert' ? 'active' : ''}`}
-          onClick={() => { setBulkAction('convert'); setConfirmingBulk(false); }}
-          disabled={selectedIds.length === 0}
+          className="potential-students-btn potential-students-btn-primary"
+          onClick={() => {
+            if (selectedIds.length === 1) {
+              handleMoveToWaitingList(selectedIds[0]);
+            } else if (selectedIds.length > 1) {
+              alert('Please select only one student to move to waiting list');
+            } else {
+              alert('Please select a student to move to waiting list');
+            }
+          }}
+          disabled={selectedIds.length !== 1}
         >
-          Convert to User
-        </button>
-        <button
-          className={`potential-students-btn potential-students-btn-secondary ${bulkAction === 'update_status' ? 'active' : ''}`}
-          onClick={() => { setBulkAction('update_status'); setConfirmingBulk(false); }}
-          disabled={selectedIds.length === 0}
-        >
-          Update Status
+          Move to Waiting List
         </button>
         <button
           className="potential-students-btn potential-students-btn-neutral"
@@ -484,62 +401,35 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
         </button>
       </div>
       
-      {bulkAction && (
+      {showBulkUpdate && (
         <div className="potential-students-bulk-section">
-          {bulkAction === 'update_status' && (
-            <select
-              className="potential-students-select"
-              value={bulkStatus}
-              onChange={e => setBulkStatus(e.target.value)}
-            >
-              <option value="">Select status...</option>
-              <option value="pending">Pending</option>
-              <option value="contacted">Contacted</option>
-              <option value="interviewed">Interviewed</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
-              <option value="enrolled">Enrolled</option>
-            </select>
-          )}
+          <select
+            className="potential-students-select"
+            value={bulkStatus}
+            onChange={e => setBulkStatus(e.target.value)}
+          >
+            <option value="">Select status...</option>
+            <option value="potential">Potential</option>
+            <option value="contacted">Contacted</option>
+            <option value="studying">Studying (Move to Waiting List)</option>
+            <option value="postponed">Postponed (Move to Records)</option>
+            <option value="off">Off (Move to Records)</option>
+            <option value="alumni">Alumni (Move to Records)</option>
+          </select>
           <div className="potential-students-confirm-buttons">
             <button
               className="potential-students-confirm-btn potential-students-confirm-btn-success"
-              onClick={() => { setConfirmingBulk(true); }}
-              disabled={bulkAction === 'update_status' && !bulkStatus}
+              onClick={handleBulkUpdateStatus}
+              disabled={!bulkStatus}
             >
               Confirm
             </button>
             <button
               className="potential-students-confirm-btn potential-students-confirm-btn-cancel"
-              onClick={() => { setBulkAction(null); setBulkStatus(''); setConfirmingBulk(false); }}
+              onClick={() => { setShowBulkUpdate(false); setBulkStatus(''); }}
             >
               Cancel
             </button>
-          </div>
-        </div>
-      )}
-      
-      {confirmingBulk && (
-        <div className="potential-students-modal">
-          <div className="potential-students-modal-content">
-            <div className="potential-students-modal-title">Confirm Bulk Action</div>
-            <div className="potential-students-modal-message">
-              Are you sure to {bulkAction === 'convert' ? 'convert selected potential students to regular users' : 'update status of selected potential students'}?
-            </div>
-            <div className="potential-students-modal-buttons">
-              <button
-                className="potential-students-modal-btn potential-students-modal-btn-cancel"
-                onClick={() => setConfirmingBulk(false)}
-              >
-                Cancel
-              </button>
-              <button
-                className="potential-students-modal-btn potential-students-modal-btn-confirm"
-                onClick={bulkAction === 'convert' ? handleBulkConvert : handleBulkUpdateStatus}
-              >
-                Confirm
-              </button>
-            </div>
           </div>
         </div>
       )}
