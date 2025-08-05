@@ -15,6 +15,9 @@ export interface NewUserData {
   gender?: 'male' | 'female' | 'other';
   note?: string;
   username?: string; // <-- add username
+  parentName?: string; // Add parent name
+  parentPhone?: string; // Add parent phone
+  status?: string; // Add status
 }
 
 export interface RegistrationResponse {
@@ -83,6 +86,9 @@ class UserRegistrationService {
     dob?: string;
     gender?: string;
     note?: string;
+    parentName?: string;
+    parentPhone?: string;
+    status?: string;
   }) {
     try {
       const token = await this.getAuthToken();
@@ -95,7 +101,20 @@ class UserRegistrationService {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify(userData),
+        body: JSON.stringify({
+          name: userData.name,
+          email: userData.email,
+          role: userData.role,
+          gender: userData.gender,
+          englishName: userData.englishName,
+          dob: userData.dob,
+          phone: userData.phone,
+          parentName: userData.parentName || '',
+          parentPhone: userData.parentPhone || '',
+          notes: userData.note,
+          status: userData.status || 'active',
+          firebaseUid: userData.firebaseUid // Pass the firebaseUid to backend
+        }),
       });
 
       let data;
@@ -272,6 +291,9 @@ class UserRegistrationService {
           dob: userData.dob,
           gender: userData.gender,
           note: userData.note,
+          parentName: userData.parentName,
+          parentPhone: userData.parentPhone,
+          status: userData.status,
         });
 
         // Step 4: For students only, also create potential student entry

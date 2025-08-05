@@ -73,7 +73,8 @@ router.post('/', async (req, res) => {
       phone, 
       parentName, 
       parentPhone, 
-      notes 
+      notes,
+      firebaseUid // Accept firebaseUid from frontend
     } = req.body;
 
     // Check if user already exists
@@ -104,63 +105,26 @@ router.post('/', async (req, res) => {
       parentPhone,
       notes,
       studentCode,
-      status
+      status,
+      firebaseUid // Use the firebaseUid provided by frontend
     });
 
     await user.save();
 
-    // Create Firebase Auth user
-    let firebaseUser;
-    try {
-      // Check if Firebase Admin is initialized
-      if (!admin.apps.length) {
-        throw new Error('Firebase Admin SDK not initialized. Please add firebase-service-account.json to the backend directory.');
+    res.status(201).json({
+      success: true,
+      message: 'User created successfully',
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        status: user.status,
+        studentCode: user.studentCode,
+        firebaseUid: user.firebaseUid
       }
+    });
 
-      firebaseUser = await admin.auth().createUser({
-        email,
-        displayName: name,
-        password: Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8), // Generate random password
-      });
-
-      // Update MongoDB user with Firebase UID
-      user.firebaseUid = firebaseUser.uid;
-      await user.save();
-
-      // Set custom claims based on role
-      await admin.auth().setCustomUserClaims(firebaseUser.uid, { role });
-
-      res.status(201).json({
-        success: true,
-        message: 'User created successfully',
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          status: user.status,
-          studentCode: user.studentCode,
-          firebaseUid: user.firebaseUid
-        }
-      });
-    } catch (firebaseError) {
-      // If Firebase creation fails, delete the MongoDB user
-      await User.findByIdAndDelete(user._id);
-      console.error('Firebase user creation failed:', firebaseError);
-      
-      // Provide specific error message
-      if (firebaseError.message.includes('Firebase Admin SDK not initialized')) {
-        return res.status(500).json({ 
-          success: false,
-          message: 'Firebase Admin SDK not configured. Please contact administrator to add firebase-service-account.json file.' 
-        });
-      }
-      
-      return res.status(500).json({ 
-        success: false,
-        message: 'Failed to create user in authentication system: ' + firebaseError.message 
-      });
-    }
   } catch (error) {
     console.error('Error creating user:', error);
     res.status(500).json({ 
