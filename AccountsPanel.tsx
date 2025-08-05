@@ -30,12 +30,15 @@ const AccountsPanel = () => {
 
   const fetchAccounts = async () => {
     try {
+      setLoading(true);
+      setError(null);
+      
       const token = localStorage.getItem('authToken');
       console.log('🔍 DEBUG: Auth token found:', token ? 'YES' : 'NO');
       console.log('🔍 DEBUG: Token preview:', token ? token.substring(0, 20) + '...' : 'NONE');
       
       if (!token) {
-        setError('No authentication token found');
+        setError('No authentication token found. Please log in again.');
         setAccounts([]);
         return;
       }
@@ -57,6 +60,8 @@ const AccountsPanel = () => {
       } else {
         const authError = await authTest.text();
         console.log('🔍 DEBUG: Auth test error:', authError);
+        setError('Authentication failed. Please log in again.');
+        return;
       }
       
       console.log('🔍 DEBUG: Fetching users...');
@@ -202,10 +207,26 @@ const AccountsPanel = () => {
   return (
     <div className="accounts-panel-container">
       <h2 className="accounts-title">Accounts</h2>
+      
+      {/* Debug Information */}
+      <div style={{ background: '#f0f0f0', padding: '10px', margin: '10px 0', borderRadius: '5px', fontSize: '12px' }}>
+        <strong>Debug Info:</strong><br/>
+        Loading: {loading.toString()}<br/>
+        Error: {error || 'None'}<br/>
+        Accounts Count: {accounts.length}<br/>
+        Filtered Count: {filteredAccounts.length}
+      </div>
+      
       {loading ? (
         <div className="accounts-loading">Loading accounts...</div>
       ) : error ? (
-        <div className="accounts-error">{error}</div>
+        <div className="accounts-error">
+          <strong>Error:</strong> {error}
+          <br/>
+          <button onClick={fetchAccounts} style={{ marginTop: '10px', padding: '5px 10px' }}>
+            Retry
+          </button>
+        </div>
       ) : accounts.length === 0 ? (
         <div className="accounts-empty">No users found.</div>
       ) : (
