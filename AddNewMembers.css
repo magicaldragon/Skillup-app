@@ -240,7 +240,7 @@
 /* Success info section */
 .success-info-section {
   flex-shrink: 0;
-  width: 320px;
+  width: 380px;
   align-self: flex-start;
   position: sticky;
   top: 20px;
@@ -249,44 +249,102 @@
 /* Success message box styling */
 .success-info-box {
   background: #f0fdf4;
-  border: 4px solid #16a34a;
-  border-radius: 12px;
-  padding: 24px;
+  border: 4px solid #166534;
+  border-radius: 16px;
+  padding: 32px;
   margin: 0;
   text-align: center;
-  box-shadow: 0 4px 16px rgba(22, 163, 74, 0.15);
+  box-shadow: 0 8px 32px rgba(22, 101, 52, 0.2);
   width: 100%;
+  position: relative;
+  overflow: hidden;
 }
 
-.success-info-box h3 {
-  color: #16a34a;
-  font-size: 1.5rem;
-  font-weight: 800;
-  margin-bottom: 16px;
+/* Add a subtle gradient overlay */
+.success-info-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.05) 0%, rgba(22, 101, 52, 0.05) 100%);
+  pointer-events: none;
+}
+
+.success-title {
+  color: #166534;
+  font-size: 1.6rem;
+  font-weight: 900;
+  margin-bottom: 24px;
   text-transform: uppercase;
   letter-spacing: 1px;
+  text-shadow: 0 2px 4px rgba(22, 101, 52, 0.1);
+  position: relative;
+  z-index: 1;
 }
 
 .success-info-box .account-details {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-top: 16px;
+  gap: 12px;
+  margin-top: 20px;
+  position: relative;
+  z-index: 1;
 }
 
 .success-info-box .account-detail {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   font-size: 1.1rem;
   font-weight: 700;
+  color: #166534;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 8px;
+  border: 2px solid #bbf7d0;
+  box-shadow: 0 2px 8px rgba(22, 101, 52, 0.1);
+}
+
+.success-info-box .detail-label {
+  font-weight: 800;
+  color: #166534;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: 100px;
+}
+
+.success-info-box .detail-value {
+  font-weight: 700;
   color: #dc2626;
-  padding: 8px 0;
-  border-bottom: 1px solid #bbf7d0;
+  background: #fef2f2;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid #fecaca;
+  font-family: 'Courier New', monospace;
+  font-size: 0.95rem;
 }
 
-.success-info-box .account-detail:last-child {
-  border-bottom: none;
+.success-instructions {
+  margin-top: 24px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  border: 2px solid #bbf7d0;
+  position: relative;
+  z-index: 1;
 }
 
-/* Responsive design */
+.success-instructions p {
+  margin: 8px 0;
+  font-size: 0.95rem;
+  color: #166534;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* Responsive design updates */
 @media (max-width: 1200px) {
   .add-student-content {
     flex-direction: column;
@@ -300,7 +358,7 @@
   
   .success-info-section {
     width: 100%;
-    max-width: 400px;
+    max-width: 500px;
     position: static;
   }
 }
@@ -323,6 +381,14 @@
   .add-student-content .registration-form {
     grid-template-columns: 1fr;
     gap: 18px;
+  }
+  
+  .success-info-box {
+    padding: 24px;
+  }
+  
+  .success-title {
+    font-size: 1.4rem;
   }
 }
 
@@ -360,14 +426,24 @@
   }
   
   .success-info-box {
-    padding: 16px;
+    padding: 20px;
   }
   
-  .success-info-box h3 {
+  .success-title {
     font-size: 1.2rem;
   }
   
   .success-info-box .account-detail {
     font-size: 1rem;
+    padding: 10px 12px;
+  }
+  
+  .success-info-box .detail-label {
+    min-width: 80px;
+    font-size: 0.9rem;
+  }
+  
+  .success-info-box .detail-value {
+    font-size: 0.85rem;
   }
 }

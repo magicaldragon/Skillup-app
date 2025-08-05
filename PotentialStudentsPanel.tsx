@@ -194,20 +194,41 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
   };
 
   // Individual select
-  // const _toggleSelect = (id: string) => {
-  //   setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
-  // };
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  };
 
   // Select all
   const selectAll = () => setSelectedIds(potentialStudents.map(s => s._id));
   const clearAll = () => setSelectedIds([]);
 
-  // const [pendingStatusUpdates, setPendingStatusUpdates] = useState<{ [studentId: string]: string }>({});
-  // const [_loadingStates, setLoadingStates] = useState<{ [studentId: string]: boolean }>({});
+  const handleStatusChange = async (studentId: string, status: string) => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      alert('No authentication token found');
+      return;
+    }
 
-  const handleStatusChange = (studentId: string, status: string) => {
-    // Status change functionality is under construction
-    console.log(`Status change for student ${studentId} to ${status}`);
+    try {
+      const response = await fetch(`${API_BASE_URL}/potential-students/${studentId}/status`, {
+        method: 'PATCH',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ status }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update potential student status');
+      }
+      
+      // Refresh the list after status update
+      fetchPotentialStudents();
+    } catch (error) {
+      console.error('Update status error:', error);
+      alert('Failed to update potential student status. Please try again.');
+    }
   };
 
   // const _handleConfirmStatusUpdate = async (studentId: string) => {
@@ -455,6 +476,13 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
       <table className="potential-students-table">
         <thead>
           <tr>
+            <th>
+              <input
+                type="checkbox"
+                checked={selectedIds.length === potentialStudents.length && potentialStudents.length > 0}
+                onChange={selectedIds.length === potentialStudents.length ? clearAll : selectAll}
+              />
+            </th>
             <th>Name</th>
             <th>Email</th>
             <th>Phone</th>
@@ -464,10 +492,17 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
         </thead>
         <tbody>
           {filteredStudents.length === 0 && (
-            <tr><td colSpan={5} className="empty-table">No potential students found.</td></tr>
+            <tr><td colSpan={6} className="empty-table">No potential students found.</td></tr>
           )}
           {filteredStudents.map(student => (
             <tr key={student._id} onClick={() => setSelectedStudent(student)} className="clickable-row">
+              <td onClick={e => e.stopPropagation()}>
+                <input
+                  type="checkbox"
+                  checked={selectedIds.includes(student._id)}
+                  onChange={() => toggleSelect(student._id)}
+                />
+              </td>
               <td>{student.name}</td>
               <td>{student.email}</td>
               <td>{student.phone}</td>
@@ -478,8 +513,12 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
                   onChange={e => handleStatusChange(student._id, e.target.value)}
                   onClick={e => e.stopPropagation()}
                 >
-                  <option value="potential">Potential</option>
+                  <option value="pending">Pending</option>
                   <option value="contacted">Contacted</option>
+                  <option value="interviewed">Interviewed</option>
+                  <option value="approved">Approved</option>
+                  <option value="rejected">Rejected</option>
+                  <option value="enrolled">Enrolled</option>
                 </select>
                 <button
                   onClick={e => { e.stopPropagation(); handleMoveToWaitingList(student._id); }}

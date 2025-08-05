@@ -98,6 +98,14 @@ const AddNewMembers = () => {
     return 'N/A';
   };
 
+  // Helper function to get password based on role
+  const getPassword = (user: any) => {
+    if (user.role === 'student') {
+      return 'Skillup123';
+    }
+    return 'Skillup@123';
+  };
+
   return (
     <div className="add-student-container">
       <div className="add-student-content">
@@ -321,23 +329,32 @@ const AddNewMembers = () => {
         {createdUser && (
           <div className="success-info-section">
             <div className="success-info-box">
-              <h3>THE ACCOUNT HAS BEEN CREATED SUCCESSFULLY !</h3>
+              <h3 className="success-title">✅ THE ACCOUNT HAS BEEN CREATED SUCCESSFULLY!</h3>
               <div className="account-details">
                 <div className="account-detail">
-                  {createdUser.role === 'student' ? 'STUDENT ID' : 'MEMBER ID'}: {getStudentId(createdUser)}
+                  <span className="detail-label">{createdUser.role === 'student' ? 'STUDENT ID' : 'MEMBER ID'}:</span>
+                  <span className="detail-value">{getStudentId(createdUser)}</span>
                 </div>
                 <div className="account-detail">
-                  NAME: {getDisplayName(createdUser)}
+                  <span className="detail-label">NAME:</span>
+                  <span className="detail-value">{getDisplayName(createdUser)}</span>
                 </div>
                 <div className="account-detail">
-                  ROLE: {createdUser.role?.toUpperCase() || 'N/A'}
+                  <span className="detail-label">ROLE:</span>
+                  <span className="detail-value">{createdUser.role?.toUpperCase() || 'N/A'}</span>
                 </div>
                 <div className="account-detail">
-                  USERNAME: {createdUser.email || 'N/A'}
+                  <span className="detail-label">USERNAME:</span>
+                  <span className="detail-value">{createdUser.email || 'N/A'}</span>
                 </div>
                 <div className="account-detail">
-                  PASSWORD: Skillup123
+                  <span className="detail-label">PASSWORD:</span>
+                  <span className="detail-value">{getPassword(createdUser)}</span>
                 </div>
+              </div>
+              <div className="success-instructions">
+                <p>📋 Please copy or take a screenshot of this information and send it to the new member.</p>
+                <p>🔐 They can use these credentials to log in to their account.</p>
               </div>
             </div>
           </div>

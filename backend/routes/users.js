@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
+const PotentialStudent = require('../models/PotentialStudent');
 const { verifyToken } = require('./auth');
 const { generateStudentCode, reassignAllStudentCodes, findStudentCodeGaps } = require('../utils/studentCodeGenerator');
 
@@ -73,6 +74,7 @@ router.post('/', async (req, res) => {
       parentName, 
       parentPhone, 
       notes,
+      status = 'potential',
       firebaseUid // Accept firebaseUid from frontend
     } = req.body;
 
@@ -94,12 +96,10 @@ router.post('/', async (req, res) => {
     }
 
     let studentCode = null;
-    let status = 'potential';
 
     // Generate student code for students
     if (role === 'student') {
       studentCode = await generateStudentCode();
-      status = 'potential'; // Default status for new students
     }
 
     // Create user in MongoDB
@@ -120,6 +120,32 @@ router.post('/', async (req, res) => {
     });
 
     await user.save();
+
+    // If this is a student with status 'potential', also create a PotentialStudent record
+    if (role === 'student' && status === 'potential') {
+      try {
+        const potentialStudent = new PotentialStudent({
+          name,
+          englishName,
+          email,
+          phone,
+          gender,
+          dob,
+          parentName,
+          parentPhone,
+          source: 'registration_form',
+          status: 'pending', // PotentialStudent uses different status values
+          notes: notes || `Created from registration form. Student Code: ${studentCode}`,
+          assignedTo: null // Will be assigned by admin later
+        });
+        
+        await potentialStudent.save();
+        console.log(`Created PotentialStudent record for user: ${user._id}`);
+      } catch (potentialStudentError) {
+        console.error('Error creating PotentialStudent record:', potentialStudentError);
+        // Don't fail the user creation if PotentialStudent creation fails
+      }
+    }
 
     res.status(201).json({
       success: true,

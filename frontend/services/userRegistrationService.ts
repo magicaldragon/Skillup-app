@@ -29,6 +29,7 @@ export interface RegistrationData {
   parentName?: string;
   parentPhone?: string;
   notes?: string;
+  status?: string;
   password?: string; // Add password field for registration
 }
 
@@ -64,7 +65,13 @@ export const userRegistrationService = {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ ...data, email, username, firebaseUid }),
+        body: JSON.stringify({ 
+          ...data, 
+          email, 
+          username, 
+          firebaseUid,
+          status: data.status || 'potential' // Pass status from form
+        }),
       });
 
       if (!response.ok) {
