@@ -20,7 +20,7 @@ const auth = getAuth(app);
 export const db = null;
 
 // Placeholder function for account deletion (handled by backend now)
-export async function deleteAccountCompletely(userId: string, userEmail: string, isAdmin: boolean) {
+export async function deleteAccountCompletely() {
   // This function is now handled by the backend
   return { success: true, message: 'Account deletion handled by backend.' };
 }

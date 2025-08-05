@@ -341,10 +341,7 @@ const App: React.FC = () => {
           {user.role === "student" ? (
             <StudentDashboard 
               user={user}
-              assignments={assignments}
-              submissions={submissions}
               classes={classes}
-              onNavigate={setNavKey}
               activeKey={navKey}
               onLogout={handleLogout}
             />
@@ -355,8 +352,6 @@ const App: React.FC = () => {
               assignments={assignments}
               classes={classes}
               activeKey={navKey}
-              onLogout={handleLogout}
-              onStudentAdded={fetchStudents}
               onDataRefresh={refreshData}
             />
           ) : (
@@ -367,8 +362,6 @@ const App: React.FC = () => {
               assignments={assignments}
               classes={classes}
               activeKey={navKey}
-              onLogout={handleLogout}
-              onStudentAdded={fetchStudents}
               onDataRefresh={refreshData}
             />
           )}

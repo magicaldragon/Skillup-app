@@ -1,24 +1,19 @@
 // StudentDashboard.tsx
 // Professional dashboard layout for students with sidebar, summary cards, and IELTS focus
 // [NOTE] Created as part of 2024-05-XX dashboard refactor
-import React from 'react';
-import Sidebar from './Sidebar';
-import type { Assignment, Submission, Student, StudentClass } from './types';
+import type { Student, StudentClass } from './types';
 import SettingsPanel from './SettingsPanel';
 
-const StudentDashboard = ({ user, assignments, submissions, classes, onNavigate, activeKey, onLogout }: {
+const StudentDashboard = ({ user, classes, activeKey, onLogout }: {
   user: Student,
-  assignments: Assignment[],
-  submissions: Submission[],
   classes: StudentClass[],
-  onNavigate: (key: string) => void,
   activeKey: string,
   onLogout: () => void
 }) => {
   return (
     <div className="teacher-dashboard">
       {activeKey === 'settings' ? (
-        <SettingsPanel user={user} isAdmin={false} onLogout={onLogout} classes={classes} />
+        <SettingsPanel user={user} classes={classes} onDataRefresh={() => {}} />
       ) : (
         <>
           <h1 className="text-3xl font-bold mb-2">Student Dashboard</h1>

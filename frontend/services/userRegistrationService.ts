@@ -1,4 +1,5 @@
-import { authService } from './authService';
+// userRegistrationService.ts
+// Handles user registration with Firebase Authentication and MongoDB synchronization
 
 const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
 

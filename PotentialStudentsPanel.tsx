@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import type { Student, StudentClass } from './types';
 import { deleteAccountCompletely } from './services/firebase';
 import './PotentialStudentsPanel.css';

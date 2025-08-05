@@ -23,7 +23,6 @@ const SettingsPanel = ({ user, classes, onDataRefresh }: { user: Student, classe
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [edited, setEdited] = useState(false);
   const [avatarStyle, setAvatarStyle] = useState(user.diceBearStyle || 'avataaars');
   const [avatarSeed, setAvatarSeed] = useState(user.diceBearSeed || user.name || user.email || user.id || 'User');
   const [avatarUrl, setAvatarUrl] = useState(user.avatarUrl || '');
@@ -41,12 +40,10 @@ const SettingsPanel = ({ user, classes, onDataRefresh }: { user: Student, classe
 
   const handleRandomize = () => {
     setAvatarSeed(Math.random().toString(36).substring(2, 10));
-    setEdited(true);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm(f => ({ ...f, [e.target.name]: e.target.value }));
-    setEdited(true);
   };
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -126,7 +123,6 @@ const SettingsPanel = ({ user, classes, onDataRefresh }: { user: Student, classe
       });
       if (!res.ok) throw new Error('Failed to update user');
       setSuccess('Profile updated successfully!');
-      setEdited(false);
       setEditMode(false);
       onDataRefresh?.();
     } catch (err: any) {
@@ -244,7 +240,7 @@ const SettingsPanel = ({ user, classes, onDataRefresh }: { user: Student, classe
           <div className="flex gap-2 mt-2">
             <select
               value={avatarStyle}
-              onChange={e => { setAvatarStyle(e.target.value); setEdited(true); }}
+              onChange={e => { setAvatarStyle(e.target.value); }}
               className="border rounded px-2 py-1 text-sm"
               disabled={!!avatarUrl}
             >
@@ -254,7 +250,7 @@ const SettingsPanel = ({ user, classes, onDataRefresh }: { user: Student, classe
             </select>
             <button
               type="button"
-              onClick={() => { handleRandomize(); setEdited(true); }}
+              onClick={() => { handleRandomize(); }}
               className="px-2 py-1 bg-green-200 rounded text-xs font-semibold hover:bg-green-300"
               disabled={!!avatarUrl}
             >
@@ -334,7 +330,7 @@ const SettingsPanel = ({ user, classes, onDataRefresh }: { user: Student, classe
             <button
               type="button"
               className="px-6 py-2 bg-gray-200 text-gray-800 rounded-xl shadow hover:bg-gray-300 text-lg font-bold tracking-wide"
-              onClick={() => { setEditMode(false); setEdited(false); setError(null); setSuccess(null); }}
+              onClick={() => { setEditMode(false); setError(null); setSuccess(null); }}
               disabled={loading}
             >
               Cancel

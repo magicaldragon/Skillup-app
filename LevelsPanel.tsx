@@ -1,8 +1,8 @@
 // LevelsPanel.tsx
 // Professional panel to show and manage levels (starters, movers, flyers, ket, pet, ielts, ...)
 // [NOTE] Created as part of 2024-05-XX dashboard refactor
-import React, { useState, useEffect } from 'react';
-import type { StudentClass, Level } from './types';
+import React, { useState } from 'react';
+import type { Level, StudentClass } from './types';
 import { ICONS, LEVELS } from './constants';
 import { safeTrim } from './utils/stringUtils';
 import './LevelsPanel.css';

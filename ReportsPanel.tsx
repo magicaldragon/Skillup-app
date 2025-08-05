@@ -1,100 +1,63 @@
-import React, { useEffect, useState } from 'react';
-import type { Student, StudentClass } from './types';
+import { useEffect, useState } from 'react';
+import type { Student } from './types';
 
 const ReportsPanel = ({ isAdmin, onDataRefresh }: { isAdmin: boolean, onDataRefresh?: () => void }) => {
-  const [reports, setReports] = useState<any[]>([]);
-  const [students, setStudents] = useState<Student[]>([]);
-  const [classes, setClasses] = useState<StudentClass[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [reports, setReports] = useState<any>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchReports = async () => {
       try {
-        const res = await fetch('/api/reports', { credentials: 'include' });
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-        const data = await res.json();
-        setReports(data.reports || []);
+        setLoading(true);
+        const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+        const response = await fetch(`${apiUrl}/reports`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+          },
+        });
         
-        const studentSnap = await fetch('/api/users', { credentials: 'include' }).then(r => r.json());
-        const classSnap = await fetch('/api/classes', { credentials: 'include' }).then(r => r.json());
-        setStudents(studentSnap.users || []);
-        setClasses(classSnap.classes || []);
-      } catch (error) {
-        console.error('Error fetching reports data:', error);
-        setReports([]);
-        setStudents([]);
-        setClasses([]);
+        if (!response.ok) {
+          throw new Error('Failed to fetch reports');
+        }
+        
+        const data = await response.json();
+        setReports(data);
+      } catch (err: any) {
+        setError(err.message || 'Failed to load reports');
       } finally {
         setLoading(false);
       }
     };
-    fetchData();
+
+    fetchReports();
   }, []);
 
-  // Group reports by class, then by student
-  const grouped = reports.reduce((acc, r) => {
-    acc[r.classId] = acc[r.classId] || {};
-    acc[r.classId][r.studentId] = acc[r.classId][r.studentId] || [];
-    acc[r.classId][r.studentId].push(r);
-    return acc;
-  }, {} as Record<string, Record<string, any[]>>);
-
-  const handleDeleteReport = async (reportId: string) => {
-    try {
-      await fetch(`/api/reports/${reportId}`, { 
-        method: 'DELETE',
-        credentials: 'include'
-      });
-      // Refresh reports
-      const res = await fetch('/api/reports', { credentials: 'include' });
-      const data = await res.json();
-      setReports(data.reports || []);
-      onDataRefresh?.();
-    } catch (error) {
-      console.error('Error deleting report:', error);
-    }
-  };
-
   if (loading) return <div className="p-8 text-center text-lg">Loading reports...</div>;
+  if (error) return <div className="p-8 text-center text-red-600">Error: {error}</div>;
+  if (!reports) return <div className="p-8 text-center text-gray-600">No reports available</div>;
 
   return (
-    <div className="bg-white rounded-xl shadow p-6 max-w-4xl mx-auto mt-8">
-      <h2 className="text-2xl font-bold mb-4">Reports</h2>
-      {Object.keys(grouped).length === 0 && <div className="text-slate-400 text-center">No reports found.</div>}
-      {Object.entries(grouped).map(([classId, studentsMap]) => {
-        const classObj = classes.find(c => c.id === classId);
-        return (
-          <div key={classId} className="mb-8">
-            <h3 className="text-lg font-bold mb-2">Class: {classObj?.name || classId}</h3>
-            {Object.entries(studentsMap).map(([studentId, reportsArr]) => {
-              const student = students.find(s => s.id === studentId);
-              return (
-                <div key={studentId} className="mb-4 p-4 bg-slate-50 rounded-lg shadow-sm">
-                  <div className="flex items-center gap-2 mb-2">
-                    <img src={student?.avatarUrl || '/anon-avatar.png'} alt="avatar" className="w-8 h-8 rounded-full bg-slate-200" />
-                    <span className="font-semibold text-base">{student?.displayName || student?.name || studentId}</span>
+    <div className="reports-panel">
+      <h2 className="text-2xl font-bold mb-6">Reports Dashboard</h2>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {Object.entries(reports as Record<string, any[]>).map(([studentId, reportsArr]) => {
+          return (
+            <div key={studentId} className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-semibold mb-4">Student {studentId}</h3>
+              <div className="space-y-2">
+                {(reportsArr as any[]).map((r: any) => (
+                  <div key={r.id} className="border-l-4 border-blue-500 pl-4">
+                    <p className="font-medium">{r.title}</p>
+                    <p className="text-sm text-gray-600">{r.description}</p>
                   </div>
-                  <ul className="space-y-2">
-                    {reportsArr.map((r: any) => (
-                      <li key={r.id} className="flex flex-col md:flex-row md:items-center md:gap-4 bg-white rounded p-3 border border-slate-200">
-                        <div className="flex-1">
-                          <div className="text-slate-700 mb-1">{r.note}</div>
-                          <div className="text-xs text-slate-500">By: {r.teacherId} &bull; {r.timestamp?.toDate ? r.timestamp.toDate().toLocaleString() : ''}</div>
-                        </div>
-                        {isAdmin && (
-                          <button className="px-3 py-1 bg-red-600 text-white rounded mt-2 md:mt-0" onClick={() => handleDeleteReport(r.id)}>Delete</button>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              );
-            })}
-          </div>
-        );
-      })}
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };
