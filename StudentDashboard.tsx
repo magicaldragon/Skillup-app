@@ -23,7 +23,7 @@ const StudentDashboard = ({ user, assignments, submissions, classes, onNavigate,
   const submissionMap = Object.fromEntries(mySubmissions.map(s => [s.assignmentId, s]));
 
   return (
-    <div className="w-full h-full overflow-y-auto overflow-x-hidden">
+    <div className="teacher-dashboard">
       {activeKey === 'settings' ? (
         <SettingsPanel user={user} isAdmin={false} onLogout={onLogout} classes={classes} />
       ) : (

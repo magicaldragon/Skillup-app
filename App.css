@@ -17,8 +17,6 @@ body {
   background: none !important;
   margin: 0 !important;
   padding: 0 !important;
-  display: flex !important;
-  flex-direction: row !important;
 }
 
 #root {
@@ -26,6 +24,7 @@ body {
   flex-direction: row !important;
   width: 100vw !important;
   height: 100vh !important;
+  overflow: hidden !important;
 }
 
 /* RESPONSIVE LAYOUT CONTAINER */
@@ -43,9 +42,9 @@ body {
   box-sizing: border-box !important;
 }
 
-/* RESPONSIVE SIDEBAR - 1/6 RATIO ON DESKTOP */
+/* RESPONSIVE SIDEBAR - FIXED WIDTH */
 .sidebar {
-  flex: 0 0 20rem !important; /* 320px equivalent but responsive */
+  flex: 0 0 20rem !important;
   width: 20rem !important;
   height: 100vh !important;
   background: #295b37 !important;
@@ -63,7 +62,7 @@ body {
   max-width: 20rem !important;
 }
 
-/* RESPONSIVE MAIN CONTENT - FILLS REMAINING SPACE */
+/* RESPONSIVE MAIN CONTENT - FLEXIBLE WIDTH */
 .main-content {
   flex: 1 !important;
   height: 100vh !important;
@@ -75,11 +74,6 @@ body {
   flex-direction: column !important;
   margin: 0 !important;
   min-width: 0 !important;
-  width: calc(100vw - 20rem) !important;
-  max-width: calc(100vw - 20rem) !important;
-  flex-grow: 1 !important;
-  flex-shrink: 1 !important;
-  flex-basis: auto !important;
   box-sizing: border-box !important;
   align-items: stretch !important;
   justify-content: flex-start !important;
@@ -129,11 +123,6 @@ body {
     min-width: 18rem !important;
     max-width: 18rem !important;
   }
-  
-  .main-content {
-    width: calc(100vw - 18rem) !important;
-    max-width: calc(100vw - 18rem) !important;
-  }
 }
 
 /* DESKTOP RESPONSIVE - OPTIMAL RATIO */
@@ -144,11 +133,6 @@ body {
     min-width: 20rem !important;
     max-width: 20rem !important;
   }
-  
-  .main-content {
-    width: calc(100vw - 20rem) !important;
-    max-width: calc(100vw - 20rem) !important;
-  }
 }
 
 /* LARGE DESKTOP - WIDER SIDEBAR */
@@ -158,11 +142,6 @@ body {
     width: 22rem !important;
     min-width: 22rem !important;
     max-width: 22rem !important;
-  }
-  
-  .main-content {
-    width: calc(100vw - 22rem) !important;
-    max-width: calc(100vw - 22rem) !important;
   }
 }
 
