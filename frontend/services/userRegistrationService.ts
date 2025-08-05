@@ -1,6 +1,9 @@
 // userRegistrationService.ts
 // Handles user registration with Firebase Authentication and MongoDB synchronization
 
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "./firebase";
+
 const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
 
 export interface RegistrationData {
@@ -14,6 +17,7 @@ export interface RegistrationData {
   parentName?: string;
   parentPhone?: string;
   notes?: string;
+  password?: string; // Add password field for registration
 }
 
 export interface RegistrationResponse {
@@ -32,12 +36,18 @@ export interface RegistrationResponse {
 export const userRegistrationService = {
   async registerNewUser(data: RegistrationData): Promise<RegistrationResponse> {
     try {
+      // 1. Create user in Firebase Auth
+      const password = data.password || (data.role === 'student' ? 'Skillup123' : 'Skillup@123');
+      const userCredential = await createUserWithEmailAndPassword(auth, data.email, password);
+      const firebaseUid = userCredential.user.uid;
+
+      // 2. Send registration data to backend, including firebaseUid
       const response = await fetch(`${apiUrl}/users`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, firebaseUid }),
       });
 
       if (!response.ok) {
