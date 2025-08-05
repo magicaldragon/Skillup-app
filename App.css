@@ -65,6 +65,9 @@ body {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  width: calc(100vw - 320px);
+  max-width: calc(100vw - 320px);
+  box-sizing: border-box;
 }
 
 /* Mobile responsive - sidebar becomes overlay */
@@ -109,6 +112,11 @@ body {
     min-width: 288px;
     max-width: 288px;
   }
+  
+  .main-content {
+    width: calc(100vw - 288px);
+    max-width: calc(100vw - 288px);
+  }
 }
 
 /* Desktop responsive */
@@ -118,6 +126,11 @@ body {
     min-width: 320px;
     max-width: 320px;
   }
+  
+  .main-content {
+    width: calc(100vw - 320px);
+    max-width: calc(100vw - 320px);
+  }
 }
 
 /* Large desktop */
@@ -126,5 +139,10 @@ body {
     width: 352px;
     min-width: 352px;
     max-width: 352px;
+  }
+  
+  .main-content {
+    width: calc(100vw - 352px);
+    max-width: calc(100vw - 352px);
   }
 } 
