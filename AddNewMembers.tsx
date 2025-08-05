@@ -24,7 +24,6 @@ const AddNewMembers = () => {
   const [success, setSuccess] = useState<string | null>(null);
   const [generatedStudentCode, setGeneratedStudentCode] = useState<string | null>(null);
   const [createdUser, setCreatedUser] = useState<any>(null);
-  const [showTestAnnouncement, setShowTestAnnouncement] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -74,19 +73,17 @@ const AddNewMembers = () => {
     }
   };
 
-  const showTestSuccess = () => {
-    setCreatedUser({
-      studentCode: 'STU2024001',
-      role: 'student',
-      email: 'test@example.com',
-      id: 'test123'
-    });
-    setShowTestAnnouncement(true);
+  // Helper function to get display name
+  const getDisplayName = (user: any) => {
+    return user.englishName || user.name || 'N/A';
   };
 
-  const hideTestSuccess = () => {
-    setCreatedUser(null);
-    setShowTestAnnouncement(false);
+  // Helper function to get student ID format
+  const getStudentId = (user: any) => {
+    if (user.role === 'student' && user.studentCode) {
+      return user.studentCode;
+    }
+    return 'N/A';
   };
 
   return (
@@ -95,37 +92,6 @@ const AddNewMembers = () => {
         <div className="registration-form-section">
           <div className="form-container">
             <h2 className="form-title">REGISTRATION FORM</h2>
-            
-            {/* Test buttons for demonstration */}
-            <div style={{ marginBottom: '20px', textAlign: 'center' }}>
-              <button 
-                onClick={showTestSuccess}
-                style={{
-                  background: '#307637',
-                  color: 'white',
-                  padding: '10px 20px',
-                  border: 'none',
-                  borderRadius: '8px',
-                  marginRight: '10px',
-                  cursor: 'pointer'
-                }}
-              >
-                Show Success Announcement
-              </button>
-              <button 
-                onClick={hideTestSuccess}
-                style={{
-                  background: '#dc2626',
-                  color: 'white',
-                  padding: '10px 20px',
-                  border: 'none',
-                  borderRadius: '8px',
-                  cursor: 'pointer'
-                }}
-              >
-                Hide Announcement
-              </button>
-            </div>
             
             {error && (
               <div className="error-message">
@@ -254,52 +220,56 @@ const AddNewMembers = () => {
               </div>
 
               {/* Right Column */}
-              {/* Status */}
-              <div className="form-group">
-                <label className="form-label">
-                  Status <span className="required">*</span>
-                </label>
-                <select
-                  name="status"
-                  value={form.status}
-                  onChange={handleChange}
-                  className="form-select"
-                  required
-                >
-                  <option value="potential">Potential</option>
-                  <option value="contacted">Contacted</option>
-                  <option value="studying">Studying</option>
-                  <option value="postponed">Postponed</option>
-                  <option value="off">Off</option>
-                  <option value="alumni">Alumni</option>
-                </select>
-              </div>
+              {/* Status - Only for students */}
+              {form.role === 'student' && (
+                <div className="form-group">
+                  <label className="form-label">
+                    Status <span className="required">*</span>
+                  </label>
+                  <select
+                    name="status"
+                    value={form.status}
+                    onChange={handleChange}
+                    className="form-select"
+                    required
+                  >
+                    <option value="potential">Potential</option>
+                    <option value="contacted">Contacted</option>
+                    <option value="studying">Studying</option>
+                    <option value="postponed">Postponed</option>
+                    <option value="off">Off</option>
+                    <option value="alumni">Alumni</option>
+                  </select>
+                </div>
+              )}
 
-              {/* Left Column */}
-              {/* Parent's Name */}
-              <div className="form-group">
-                <label className="form-label">Parent's Name</label>
-                <input
-                  type="text"
-                  name="parentName"
-                  value={form.parentName}
-                  onChange={handleChange}
-                  className="form-input"
-                />
-              </div>
+              {/* Parent's Name - Only for students */}
+              {form.role === 'student' && (
+                <div className="form-group">
+                  <label className="form-label">Parent's Name</label>
+                  <input
+                    type="text"
+                    name="parentName"
+                    value={form.parentName}
+                    onChange={handleChange}
+                    className="form-input"
+                  />
+                </div>
+              )}
 
-              {/* Right Column */}
-              {/* Parent's Phone */}
-              <div className="form-group">
-                <label className="form-label">Parent's Phone</label>
-                <input
-                  type="tel"
-                  name="parentPhone"
-                  value={form.parentPhone}
-                  onChange={handleChange}
-                  className="form-input"
-                />
-              </div>
+              {/* Parent's Phone - Only for students */}
+              {form.role === 'student' && (
+                <div className="form-group">
+                  <label className="form-label">Parent's Phone</label>
+                  <input
+                    type="tel"
+                    name="parentPhone"
+                    value={form.parentPhone}
+                    onChange={handleChange}
+                    className="form-input"
+                  />
+                </div>
+              )}
 
               {/* Notes - Full Width at the end */}
               <div className="form-group full-width">
@@ -342,7 +312,10 @@ const AddNewMembers = () => {
               <h3>THE ACCOUNT HAS BEEN CREATED SUCCESSFULLY !</h3>
               <div className="account-details">
                 <div className="account-detail">
-                  MEMBER ID: {createdUser.studentCode || createdUser.id || 'N/A'}
+                  {createdUser.role === 'student' ? 'STUDENT ID' : 'MEMBER ID'}: {getStudentId(createdUser)}
+                </div>
+                <div className="account-detail">
+                  NAME: {getDisplayName(createdUser)}
                 </div>
                 <div className="account-detail">
                   ROLE: {createdUser.role?.toUpperCase() || 'N/A'}
@@ -351,7 +324,6 @@ const AddNewMembers = () => {
                   USERNAME: {createdUser.email || 'N/A'}
                 </div>
                 <div className="account-detail">
-                  {/* Default password is Skillup123 (capital S) */}
                   PASSWORD: Skillup123
                 </div>
               </div>
