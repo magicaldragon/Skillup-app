@@ -38,6 +38,7 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
 
   // Add search state
   const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'potential' | 'contacted'>('all');
   const [selectedStudent, setSelectedStudent] = useState<User | null>(null);
 
   useEffect(() => {
@@ -184,11 +185,15 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
   };
 
   // Filtered students
-  const filteredStudents = potentialStudents.filter(s =>
-    s.name.toLowerCase().includes(search.toLowerCase()) ||
-    (s.email && s.email.toLowerCase().includes(search.toLowerCase())) ||
-    (s.phone && s.phone.includes(search))
-  );
+  const filteredStudents = potentialStudents.filter(s => {
+    const matchesSearch = s.name.toLowerCase().includes(search.toLowerCase()) ||
+      (s.email && s.email.toLowerCase().includes(search.toLowerCase())) ||
+      (s.phone && s.phone.includes(search));
+    
+    const matchesStatus = statusFilter === 'all' || s.status === statusFilter;
+    
+    return matchesSearch && matchesStatus;
+  });
 
   if (loading) {
     return (
@@ -226,13 +231,24 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
       </div>
       
       <div className="potential-students-search">
-        <input
-          type="text"
-          placeholder="Search by name, email, or phone..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="search-input"
-        />
+        <div className="search-controls">
+          <input
+            type="text"
+            placeholder="Search by name, email, or phone..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="search-input"
+          />
+          <select
+            value={statusFilter}
+            onChange={e => setStatusFilter(e.target.value as 'all' | 'potential' | 'contacted')}
+            className="status-filter-select"
+          >
+            <option value="all">All Status</option>
+            <option value="potential">Potential</option>
+            <option value="contacted">Contacted</option>
+          </select>
+        </div>
       </div>
       
       <div className="potential-students-table-container">

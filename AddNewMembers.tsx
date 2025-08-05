@@ -63,8 +63,12 @@ const AddNewMembers = () => {
     setCreatedUser(null);
 
     try {
+      // Set appropriate status based on role
+      const userStatus = form.role === 'student' ? 'potential' : 'active';
+      
       const result = await userRegistrationService.registerNewUser({
         ...form,
+        status: userStatus,
         password: form.password || (form.role === 'student' ? 'Skillup123' : 'Skillup@123')
       });
       setSuccess(`User registered successfully! ${result.user.studentCode ? `Student Code: ${result.user.studentCode}` : ''}`);
