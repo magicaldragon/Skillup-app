@@ -27,6 +27,12 @@ try {
   const deploymentServiceAccountPath = '/etc/secrets/firebase-service-account.json';
   const fs = require('fs');
   
+  console.log('🔍 [DEBUG] Checking Firebase service account files...');
+  console.log('🔍 [DEBUG] Local path:', serviceAccountPath);
+  console.log('🔍 [DEBUG] Deployment path:', deploymentServiceAccountPath);
+  console.log('🔍 [DEBUG] Local file exists:', fs.existsSync(serviceAccountPath));
+  console.log('🔍 [DEBUG] Deployment file exists:', fs.existsSync(deploymentServiceAccountPath));
+  
   let serviceAccount = null;
   
   // Check local development path first
@@ -41,12 +47,18 @@ try {
   }
   
   if (serviceAccount) {
+    console.log('🔍 [DEBUG] Service account keys:', Object.keys(serviceAccount));
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount)
     });
     firebaseAdminInitialized = true;
     console.log('✅ Firebase Admin SDK initialized successfully with service account');
   } else {
+    console.log('🔍 [DEBUG] No service account file found, checking environment variables...');
+    console.log('🔍 [DEBUG] FIREBASE_PROJECT_ID:', process.env.FIREBASE_PROJECT_ID ? 'SET' : 'NOT SET');
+    console.log('🔍 [DEBUG] FIREBASE_PRIVATE_KEY:', process.env.FIREBASE_PRIVATE_KEY ? 'SET' : 'NOT SET');
+    console.log('🔍 [DEBUG] FIREBASE_CLIENT_EMAIL:', process.env.FIREBASE_CLIENT_EMAIL ? 'SET' : 'NOT SET');
+    
     // Try to initialize with environment variables
     if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_PRIVATE_KEY && process.env.FIREBASE_CLIENT_EMAIL) {
       admin.initializeApp({
@@ -65,8 +77,12 @@ try {
   }
 } catch (error) {
   console.error('❌ Firebase Admin SDK initialization failed:', error.message);
+  console.error('❌ Full error:', error);
   console.warn('⚠️ User registration will use frontend Firebase SDK as fallback');
 }
+
+console.log('🔍 [DEBUG] Firebase Admin initialized:', firebaseAdminInitialized);
+console.log('🔍 [DEBUG] Global firebaseAdmin available:', !!global.firebaseAdmin);
 
 // Make Firebase Admin available globally
 global.firebaseAdmin = firebaseAdminInitialized ? admin : null;

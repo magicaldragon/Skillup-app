@@ -36,7 +36,7 @@ export interface RegistrationResponse {
 
 class UserRegistrationService {
   // Generate username from full name
-  private generateUsername(fullname: string): string {
+  private async generateUsername(fullname: string): Promise<string> {
     // Remove special characters and convert to lowercase
     const cleanName = safeTrim(fullname)
       .toLowerCase()
@@ -45,17 +45,38 @@ class UserRegistrationService {
     
     // Generate base username (no role prefix, just clean name)
     let username = cleanName;
+    let counter = 0;
     
-    // Ensure uniqueness by adding timestamp if needed
-    const timestamp = Date.now().toString().slice(-4);
-    username = `${username}${timestamp}`;
+    // Check if username exists and add number if needed
+    while (await this.checkUsernameExists(username)) {
+      counter++;
+      username = `${cleanName}${counter}`;
+    }
     
     return username;
   }
 
   // Generate email based on username and role
   private generateEmail(username: string, role: string): string {
-    const domain = role === 'student' ? 'student.skillup' : 'teacher.skillup';
+    let domain = 'teacher.skillup'; // default
+    
+    switch (role) {
+      case 'student':
+        domain = 'student.skillup';
+        break;
+      case 'teacher':
+        domain = 'teacher.skillup';
+        break;
+      case 'staff':
+        domain = 'staff.skillup';
+        break;
+      case 'admin':
+        domain = 'admin.skillup';
+        break;
+      default:
+        domain = 'teacher.skillup';
+    }
+    
     return `${username}@${domain}`;
   }
 
@@ -274,7 +295,7 @@ class UserRegistrationService {
     try {
       
       // Step 1: Use provided username or generate one
-      const username = userData.username || this.generateUsername(userData.fullname);
+      const username = userData.username || await this.generateUsername(userData.fullname);
       const email = userData.email || this.generateEmail(username, userData.role);
       const password = this.generatePassword(userData.role);
 
