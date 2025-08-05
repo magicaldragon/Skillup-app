@@ -68,6 +68,17 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Add caching middleware for static responses
+const cacheControl = (req, res, next) => {
+  // Cache test endpoint for 30 seconds
+  if (req.path === '/api/test') {
+    res.set('Cache-Control', 'public, max-age=30');
+  }
+  next();
+};
+
+app.use(cacheControl);
+
 // Connect to MongoDB Atlas
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
@@ -106,9 +117,15 @@ app.get('/', (req, res) => {
   res.send('SKILLUP Backend is running!');
 });
 
-// --- Test route for frontend-backend connection ---
+// --- Optimized test route for frontend-backend connection ---
 app.get('/api/test', (req, res) => {
-  res.json({ success: true, message: 'Backend API is working and connected to MongoDB!' });
+  // Return immediately without database queries for faster response
+  res.json({ 
+    success: true, 
+    message: 'Backend API is working and connected to MongoDB!',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
 });
 
 // --- CORS test route ---

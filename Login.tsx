@@ -15,7 +15,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   const [backendStatus, setBackendStatus] = useState<'checking' | 'connected' | 'disconnected'>('checking');
   const MAX_ATTEMPTS = 3;
 
-  // Test backend connectivity on component mount
+  // Test backend connectivity on component mount (with caching)
   useEffect(() => {
     const testConnection = async () => {
       try {
@@ -27,7 +27,9 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
       }
     };
     
-    testConnection();
+    // Use a shorter timeout for initial connection check
+    const timeoutId = setTimeout(testConnection, 100);
+    return () => clearTimeout(timeoutId);
   }, []);
 
   const handleAuthAction = async (e: React.FormEvent) => {
@@ -36,8 +38,8 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
     setError(null);
     
     try {
-      // Test backend connection first
-      if (backendStatus !== 'connected') {
+      // Only test backend if we don't have a cached connection status
+      if (backendStatus === 'disconnected') {
         const isConnected = await authService.testBackendConnection();
         if (!isConnected) {
           setError('Cannot connect to server. Please check your internet connection and try again.');
@@ -72,7 +74,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
           <img src="/logo-skillup.png" alt="Skillup Center Logo" className="login-logo" />
         </div>
         
-        {/* Backend status indicator */}
+        {/* Backend status indicator - only show if disconnected */}
         {backendStatus === 'checking' && (
           <div className="login-status checking">
             Checking server connection...

@@ -24,18 +24,6 @@ const App: React.FC = () => {
     const initializeAuth = async () => {
       setLoading(true);
       try {
-        // Test backend connectivity first
-        console.log('Testing backend connectivity...');
-        const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
-        const testResponse = await fetch(`${apiUrl}/test`);
-        console.log('Backend test response status:', testResponse.status);
-        if (testResponse.ok) {
-          const testData = await testResponse.json();
-          console.log('Backend test data:', testData);
-        } else {
-          console.error('Backend test failed:', testResponse.status);
-        }
-
         console.log('Initializing authentication...');
         const profile = await authService.getProfile();
         console.log('Auth profile received:', profile);
@@ -85,11 +73,17 @@ const App: React.FC = () => {
     try {
       console.log('Fetching students...');
       const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
       const studentsResponse = await fetch(`${apiUrl}/users`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
         },
+        signal: controller.signal,
       });
+      
+      clearTimeout(timeoutId);
       console.log('Students response status:', studentsResponse.status);
       if (studentsResponse.ok) {
         const studentsData = await studentsResponse.json();
@@ -117,11 +111,17 @@ const App: React.FC = () => {
     try {
       console.log('Fetching assignments...');
       const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
       const response = await fetch(`${apiUrl}/assignments`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
         },
+        signal: controller.signal,
       });
+      
+      clearTimeout(timeoutId);
       console.log('Assignments response status:', response.status);
       if (response.ok) {
         const data = await response.json();
@@ -142,11 +142,17 @@ const App: React.FC = () => {
     try {
       console.log('Fetching submissions...');
       const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
       const response = await fetch(`${apiUrl}/submissions`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
         },
+        signal: controller.signal,
       });
+      
+      clearTimeout(timeoutId);
       console.log('Submissions response status:', response.status);
       if (response.ok) {
         const data = await response.json();
@@ -167,11 +173,17 @@ const App: React.FC = () => {
     try {
       console.log('Fetching classes...');
       const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
       const response = await fetch(`${apiUrl}/classes`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
         },
+        signal: controller.signal,
       });
+      
+      clearTimeout(timeoutId);
       console.log('Classes response status:', response.status);
       if (response.ok) {
         const data = await response.json();
@@ -195,16 +207,30 @@ const App: React.FC = () => {
     const fetchData = async () => {
       try {
         console.log('Fetching dashboard data for user:', user);
+        
+        // Prepare all fetch promises
+        const fetchPromises: Promise<void>[] = [];
+        
         if (user.role === 'admin' || user.role === 'teacher') {
-          await fetchStudents();
+          fetchPromises.push(fetchStudents());
         } else {
           setStudents([]);
         }
-        await Promise.all([
-          fetchAssignments(),
-          fetchSubmissions(),
-          fetchClasses()
+        
+        fetchPromises.push(fetchAssignments());
+        fetchPromises.push(fetchSubmissions());
+        fetchPromises.push(fetchClasses());
+        
+        // Execute all fetches in parallel with timeout
+        const timeoutPromise = new Promise<void>((_, reject) => 
+          setTimeout(() => reject(new Error('Data fetch timeout')), 15000)
+        );
+        
+        await Promise.race([
+          Promise.all(fetchPromises),
+          timeoutPromise
         ]);
+        
         console.log('Data fetching completed');
       } catch (error: any) {
         console.error('Error fetching data:', error);
@@ -225,15 +251,27 @@ const App: React.FC = () => {
     setDataLoading(true);
     setDataError(null);
     try {
+      // Prepare all fetch promises
+      const fetchPromises: Promise<void>[] = [];
+      
       if (user.role === 'admin' || user.role === 'teacher') {
-        await fetchStudents();
+        fetchPromises.push(fetchStudents());
       } else {
         setStudents([]);
       }
-      await Promise.all([
-        fetchAssignments(),
-        fetchSubmissions(),
-        fetchClasses()
+      
+      fetchPromises.push(fetchAssignments());
+      fetchPromises.push(fetchSubmissions());
+      fetchPromises.push(fetchClasses());
+      
+      // Execute all fetches in parallel with timeout
+      const timeoutPromise = new Promise<void>((_, reject) => 
+        setTimeout(() => reject(new Error('Data fetch timeout')), 15000)
+      );
+      
+      await Promise.race([
+        Promise.all(fetchPromises),
+        timeoutPromise
       ]);
     } catch (error) {
       console.error('Error refreshing data:', error);
@@ -258,10 +296,10 @@ const App: React.FC = () => {
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc' }}>
+      <div className="loading-container">
         <div style={{ textAlign: 'center' }}>
-          <div style={{ margin: '0 auto 1rem', width: 48, height: 48, borderRadius: '50%', borderBottom: '4px solid #307637', animation: 'spin 1s linear infinite' }} />
-          <p style={{ fontSize: '1.1rem', color: '#475569' }}>Initializing...</p>
+          <div className="loading-spinner" />
+          <p className="loading-text">Initializing...</p>
         </div>
       </div>
     );
@@ -331,9 +369,9 @@ const App: React.FC = () => {
           boxSizing: 'border-box'
         }}>
           {dataLoading && (
-            <div style={{ position: 'fixed', top: 16, right: 16, background: '#307637', color: '#fff', padding: '8px 20px', borderRadius: 8, boxShadow: '0 2px 8px #30763722', zIndex: 50 }}>
+            <div className="data-loading-indicator">
               <div style={{ display: 'flex', alignItems: 'center' }}>
-                <div style={{ marginRight: 8, width: 16, height: 16, borderRadius: '50%', borderBottom: '2px solid #fff', animation: 'spin 1s linear infinite' }} />
+                <div className="data-loading-spinner" />
                 Loading data...
               </div>
             </div>

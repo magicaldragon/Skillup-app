@@ -146,3 +146,71 @@ body {
     max-width: calc(100vw - 352px);
   }
 } 
+
+/* Add loading spinner animation */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Add fade-in animation for smoother transitions */
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* Add pulse animation for loading states */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Optimize loading spinner performance */
+.loading-spinner {
+  margin: 0 auto 1rem;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border-bottom: 4px solid #307637;
+  animation: spin 1s linear infinite;
+  will-change: transform;
+}
+
+.loading-text {
+  font-size: 1.1rem;
+  color: #475569;
+  animation: fadeIn 0.3s ease-in;
+}
+
+.loading-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  animation: fadeIn 0.2s ease-in;
+}
+
+/* Optimize data loading indicator */
+.data-loading-indicator {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  background: #307637;
+  color: #fff;
+  padding: 8px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px #30763722;
+  z-index: 50;
+  animation: fadeIn 0.3s ease-in;
+}
+
+.data-loading-spinner {
+  margin-right: 8px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border-bottom: 2px solid #fff;
+  animation: spin 1s linear infinite;
+  will-change: transform;
+} 

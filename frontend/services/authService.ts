@@ -1,6 +1,7 @@
 import { auth } from './firebase';
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { safeTrim } from '../../utils/stringUtils';
+import { performanceMonitor } from '../../utils/performanceMonitor';
 
 const API_BASE_URL = 'https://skillup-backend-v6vm.onrender.com/api';
 
@@ -18,36 +19,61 @@ export interface UserProfile {
 }
 
 class AuthService {
+  private connectionCache: { status: boolean; timestamp: number } | null = null;
+  private readonly CACHE_DURATION = 30000; // 30 seconds
+
   constructor() {
     console.log('AuthService instantiated at:', new Date().toISOString());
   }
 
+  private isConnectionCacheValid(): boolean {
+    return this.connectionCache !== null && 
+           (Date.now() - this.connectionCache.timestamp) < this.CACHE_DURATION;
+  }
+
   async testBackendConnection(): Promise<boolean> {
+    // Return cached result if still valid
+    if (this.isConnectionCacheValid()) {
+      console.log('Using cached backend connection status:', this.connectionCache!.status);
+      return this.connectionCache!.status;
+    }
+
     try {
       console.log('Testing backend connectivity...');
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+      
       const response = await fetch(`${API_BASE_URL}/test`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
+        signal: controller.signal,
       });
       
+      clearTimeout(timeoutId);
       console.log('Backend test response status:', response.status);
-      if (response.ok) {
+      
+      const isConnected = response.ok;
+      this.connectionCache = { status: isConnected, timestamp: Date.now() };
+      
+      if (isConnected) {
         const data = await response.json();
         console.log('Backend test response:', data);
-        return true;
       } else {
         console.error('Backend test failed with status:', response.status);
-        return false;
       }
+      
+      return isConnected;
     } catch (error) {
       console.error('Backend connectivity test failed:', error);
+      this.connectionCache = { status: false, timestamp: Date.now() };
       return false;
     }
   }
 
   async login(credentials: LoginCredentials): Promise<{ success: boolean; message: string; user?: any }> {
+    performanceMonitor.startTimer('login');
     try {
       // Validate input with safe handling
       if (!credentials || !credentials.email || !credentials.password) {
@@ -71,17 +97,27 @@ class AuthService {
 
       console.log('Attempting login with email:', email);
       
-      // Step 1: Login with Firebase
+      // Step 1: Login with Firebase (with timeout)
       console.log('Step 1: Authenticating with Firebase...');
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const firebasePromise = signInWithEmailAndPassword(auth, email, password);
+      const firebaseTimeout = new Promise<never>((_, reject) => 
+        setTimeout(() => reject(new Error('Firebase authentication timeout')), 10000)
+      );
+      
+      const userCredential = await Promise.race([firebasePromise, firebaseTimeout]) as any;
       console.log('Firebase authentication successful');
 
-      // Step 2: Get Firebase ID token
+      // Step 2: Get Firebase ID token (with timeout)
       console.log('Step 2: Getting Firebase ID token...');
-      const idToken = await userCredential.user.getIdToken();
+      const tokenPromise = userCredential.user.getIdToken();
+      const tokenTimeout = new Promise<never>((_, reject) => 
+        setTimeout(() => reject(new Error('Token retrieval timeout')), 5000)
+      );
+      
+      const idToken = await Promise.race([tokenPromise, tokenTimeout]) as string;
       console.log('Firebase ID token obtained');
 
-      // Step 3: Exchange Firebase token for JWT
+      // Step 3: Exchange Firebase token for JWT (with timeout)
       console.log('Step 3: Exchanging Firebase token for JWT...');
       console.log('Making request to:', `${API_BASE_URL}/auth/firebase-login`);
       
@@ -91,13 +127,19 @@ class AuthService {
       };
       console.log('Request body:', { ...requestBody, firebaseToken: '***' });
 
-      const response = await fetch(`${API_BASE_URL}/auth/firebase-login`, {
+      const backendPromise = fetch(`${API_BASE_URL}/auth/firebase-login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(requestBody),
       });
+      
+      const backendTimeout = new Promise<never>((_, reject) => 
+        setTimeout(() => reject(new Error('Backend request timeout')), 8000)
+      );
+      
+      const response = await Promise.race([backendPromise, backendTimeout]) as Response;
 
       console.log('Backend response status:', response.status);
       console.log('Backend response headers:', Object.fromEntries(response.headers.entries()));
@@ -106,6 +148,9 @@ class AuthService {
         const data = await response.json();
         console.log('Backend response data:', data);
         localStorage.setItem('authToken', data.token);
+        
+        // Update connection cache on successful login
+        this.connectionCache = { status: true, timestamp: Date.now() };
         
         return {
           success: true,
@@ -136,7 +181,7 @@ class AuthService {
           success: false,
           message: 'Too many failed attempts. Please try again later.',
         };
-      } else if (error.message.includes('Failed to fetch')) {
+      } else if (error.message.includes('Failed to fetch') || error.message.includes('timeout')) {
         return {
           success: false,
           message: 'Network error. Please check your internet connection and try again.',
@@ -152,6 +197,8 @@ class AuthService {
         success: false,
         message: error.message || 'Login failed. Please try again.',
       };
+    } finally {
+      performanceMonitor.endTimer('login');
     }
   }
 
@@ -159,6 +206,8 @@ class AuthService {
     try {
       await signOut(auth);
       localStorage.removeItem('authToken');
+      // Clear connection cache on logout
+      this.connectionCache = null;
     } catch (error) {
       console.error('Logout error:', error);
     }
@@ -173,13 +222,20 @@ class AuthService {
       }
 
       console.log('Fetching profile with token:', token.substring(0, 20) + '...');
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+      
       const response = await fetch(`${API_BASE_URL}/auth/profile`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
+        signal: controller.signal,
       });
-
+      
+      clearTimeout(timeoutId);
       console.log('Profile response status:', response.status);
+      
       if (response.ok) {
         const data = await response.json();
         console.log('Profile response data:', data);
@@ -205,6 +261,11 @@ class AuthService {
 
   getCurrentUser() {
     return auth.currentUser;
+  }
+
+  // Clear connection cache (useful for testing or manual refresh)
+  clearConnectionCache(): void {
+    this.connectionCache = null;
   }
 }
 
