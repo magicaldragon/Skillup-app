@@ -1,4 +1,4 @@
-/* COMPLETE LAYOUT REWRITE - SIDEBAR AND MAIN CONTENT SIDE BY SIDE */
+/* COMPLETE LAYOUT REWRITE USING CSS GRID */
 
 /* Reset all elements */
 * {
@@ -23,15 +23,15 @@ body {
 #root {
   height: 100vh;
   width: 100vw;
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: 320px 1fr;
   overflow: hidden;
 }
 
-/* Main app container - HORIZONTAL FLEX LAYOUT */
+/* Main app container - GRID LAYOUT */
 .app-container {
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: 320px 1fr;
   height: 100vh;
   width: 100vw;
   overflow: hidden;
@@ -40,8 +40,6 @@ body {
 /* Sidebar - FIXED WIDTH ON LEFT */
 .sidebar {
   width: 320px;
-  min-width: 320px;
-  max-width: 320px;
   height: 100vh;
   background: #295b37;
   color: #fff;
@@ -51,12 +49,11 @@ body {
   flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
-  flex-shrink: 0;
+  grid-column: 1;
 }
 
 /* Main content - FLEXIBLE WIDTH ON RIGHT */
 .main-content {
-  flex: 1;
   height: 100vh;
   background: #f8fafc;
   overflow-y: auto;
@@ -64,11 +61,19 @@ body {
   padding: 24px 32px;
   display: flex;
   flex-direction: column;
-  min-width: 0;
+  grid-column: 2;
 }
 
 /* Mobile responsive - sidebar becomes overlay */
 @media (max-width: 900px) {
+  #root {
+    grid-template-columns: 1fr;
+  }
+  
+  .app-container {
+    grid-template-columns: 1fr;
+  }
+  
   .sidebar {
     position: fixed;
     left: 0;
@@ -77,6 +82,7 @@ body {
     transform: translateX(-100%);
     transition: transform 0.3s ease;
     z-index: 200;
+    grid-column: 1;
   }
   
   .sidebar.open {
@@ -97,32 +103,51 @@ body {
   .main-content {
     width: 100vw;
     padding: 16px;
+    grid-column: 1;
   }
 }
 
 /* Tablet responsive */
 @media (min-width: 901px) and (max-width: 1200px) {
+  #root {
+    grid-template-columns: 288px 1fr;
+  }
+  
+  .app-container {
+    grid-template-columns: 288px 1fr;
+  }
+  
   .sidebar {
     width: 288px;
-    min-width: 288px;
-    max-width: 288px;
   }
 }
 
 /* Desktop responsive */
 @media (min-width: 1201px) {
+  #root {
+    grid-template-columns: 320px 1fr;
+  }
+  
+  .app-container {
+    grid-template-columns: 320px 1fr;
+  }
+  
   .sidebar {
     width: 320px;
-    min-width: 320px;
-    max-width: 320px;
   }
 }
 
 /* Large desktop */
 @media (min-width: 1920px) {
+  #root {
+    grid-template-columns: 352px 1fr;
+  }
+  
+  .app-container {
+    grid-template-columns: 352px 1fr;
+  }
+  
   .sidebar {
     width: 352px;
-    min-width: 352px;
-    max-width: 352px;
   }
 } 
