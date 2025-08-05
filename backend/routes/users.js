@@ -3,7 +3,6 @@ const router = express.Router();
 const User = require('../models/User');
 const { verifyToken } = require('./auth');
 const { generateStudentCode, reassignAllStudentCodes, findStudentCodeGaps } = require('../utils/studentCodeGenerator');
-const admin = require('firebase-admin');
 
 // Get all users (with role-based filtering)
 router.get('/', verifyToken, async (req, res) => {
@@ -190,21 +189,6 @@ router.put('/:id', verifyToken, async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Update Firebase Auth user if needed
-    if (user.firebaseUid) {
-      try {
-        await admin.auth().updateUser(user.firebaseUid, {
-          displayName: user.name,
-          email: user.email
-        });
-
-        // Update custom claims
-        await admin.auth().setCustomUserClaims(user.firebaseUid, { role });
-      } catch (firebaseError) {
-        console.error('Firebase user update failed:', firebaseError);
-      }
-    }
-
     res.json({ message: 'User updated successfully', user });
   } catch (error) {
     console.error('Error updating user:', error);
@@ -220,15 +204,6 @@ router.delete('/:id', verifyToken, async (req, res) => {
     
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
-    }
-
-    // Delete from Firebase Auth if UID exists
-    if (user.firebaseUid) {
-      try {
-        await admin.auth().deleteUser(user.firebaseUid);
-      } catch (firebaseError) {
-        console.error('Firebase user deletion failed:', firebaseError);
-      }
     }
 
     await User.findByIdAndDelete(id);
