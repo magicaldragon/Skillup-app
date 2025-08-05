@@ -61,13 +61,23 @@ const AddNewMembers = () => {
     setCreatedUser(null);
 
     try {
-      const result = await userRegistrationService.registerNewUser(form);
+      const result = await userRegistrationService.registerNewUser({
+        ...form,
+        password: form.password || (form.role === 'student' ? 'Skillup123' : 'Skillup@123')
+      });
       setSuccess(`User registered successfully! ${result.user.studentCode ? `Student Code: ${result.user.studentCode}` : ''}`);
       setGeneratedStudentCode(result.user.studentCode || null);
       setCreatedUser(result.user);
       handleReset();
     } catch (err: any) {
-      setError(err.message || 'Registration failed');
+      // Improved error handling for Firebase errors
+      if (err.code === 'auth/email-already-in-use') {
+        setError('This email is already registered in Firebase Authentication.');
+      } else if (err.code === 'auth/weak-password') {
+        setError('Password is too weak. Please use a stronger password.');
+      } else {
+        setError(err.message || 'Registration failed');
+      }
     } finally {
       setLoading(false);
     }
