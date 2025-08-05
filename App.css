@@ -1,4 +1,4 @@
-/* COMPLETE LAYOUT REWRITE USING CSS GRID */
+/* COMPLETE LAYOUT REWRITE USING FLEXBOX */
 
 /* Reset all elements */
 * {
@@ -23,90 +23,62 @@ body {
 #root {
   height: 100vh;
   width: 100vw;
-  display: -ms-grid;
-  display: grid;
-  -ms-grid-columns: 320px 1fr;
-  grid-template-columns: 320px 1fr;
+  display: flex;
+  flex-direction: row;
   overflow: hidden;
 }
 
-/* Main app container - GRID LAYOUT */
+/* Main app container - FLEXBOX LAYOUT */
 .app-container {
-  display: -ms-grid;
-  display: grid;
-  -ms-grid-columns: 320px 1fr;
-  grid-template-columns: 320px 1fr;
+  display: flex;
+  flex-direction: row;
   height: 100vh;
   width: 100vw;
   overflow: hidden;
-  gap: 0;
 }
 
 /* Sidebar - FIXED WIDTH ON LEFT */
 .sidebar {
   width: 320px;
+  min-width: 320px;
+  max-width: 320px;
   height: 100vh;
   background: #295b37;
   color: #fff;
   box-shadow: 2px 0 16px rgba(0,0,0,0.05);
   border-right: 4px solid #295b37;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-  -ms-flex-direction: column;
   flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
-  -ms-grid-column: 1;
-  grid-column: 1;
-  -ms-grid-row: 1;
-  grid-row: 1;
+  flex-shrink: 0;
 }
 
 /* Main content - FLEXIBLE WIDTH ON RIGHT */
 .main-content {
+  flex: 1;
   height: 100vh;
   background: #f8fafc;
   overflow-y: auto;
   overflow-x: hidden;
   padding: 24px 32px;
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-  -ms-flex-direction: column;
   flex-direction: column;
-  -ms-grid-column: 2;
-  grid-column: 2;
-  -ms-grid-row: 1;
-  grid-row: 1;
+  min-width: 0;
 }
 
 /* Mobile responsive - sidebar becomes overlay */
 @media (max-width: 900px) {
-  #root {
-    -ms-grid-columns: 1fr;
-    grid-template-columns: 1fr;
-  }
-  
-  .app-container {
-    -ms-grid-columns: 1fr;
-    grid-template-columns: 1fr;
-  }
-  
   .sidebar {
     position: fixed;
     left: 0;
     top: 0;
     width: 100vw;
+    min-width: 100vw;
+    max-width: 100vw;
     transform: translateX(-100%);
     transition: transform 0.3s ease;
     z-index: 200;
-    -ms-grid-column: 1;
-    grid-column: 1;
   }
   
   .sidebar.open {
@@ -127,58 +99,32 @@ body {
   .main-content {
     width: 100vw;
     padding: 16px;
-    -ms-grid-column: 1;
-    grid-column: 1;
   }
 }
 
 /* Tablet responsive */
 @media (min-width: 901px) and (max-width: 1200px) {
-  #root {
-    -ms-grid-columns: 288px 1fr;
-    grid-template-columns: 288px 1fr;
-  }
-  
-  .app-container {
-    -ms-grid-columns: 288px 1fr;
-    grid-template-columns: 288px 1fr;
-  }
-  
   .sidebar {
     width: 288px;
+    min-width: 288px;
+    max-width: 288px;
   }
 }
 
 /* Desktop responsive */
 @media (min-width: 1201px) {
-  #root {
-    -ms-grid-columns: 320px 1fr;
-    grid-template-columns: 320px 1fr;
-  }
-  
-  .app-container {
-    -ms-grid-columns: 320px 1fr;
-    grid-template-columns: 320px 1fr;
-  }
-  
   .sidebar {
     width: 320px;
+    min-width: 320px;
+    max-width: 320px;
   }
 }
 
 /* Large desktop */
 @media (min-width: 1920px) {
-  #root {
-    -ms-grid-columns: 352px 1fr;
-    grid-template-columns: 352px 1fr;
-  }
-  
-  .app-container {
-    -ms-grid-columns: 352px 1fr;
-    grid-template-columns: 352px 1fr;
-  }
-  
   .sidebar {
     width: 352px;
+    min-width: 352px;
+    max-width: 352px;
   }
 } 
