@@ -34,29 +34,7 @@
   margin-bottom: 24px;
 }
 
-.search-input {
-  width: 100%;
-  max-width: 500px;
-  padding: 16px 24px;
-  border: none;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #ff8c42 0%, #f5b802 100%);
-  color: white;
-  font-size: 1rem;
-  font-weight: 600;
-  box-shadow: 0 8px 32px rgba(255, 140, 66, 0.3);
-  transition: all 0.3s ease;
-}
 
-.search-input::placeholder {
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.search-input:focus {
-  outline: none;
-  transform: translateY(-2px);
-  box-shadow: 0 12px 40px rgba(255, 140, 66, 0.4);
-}
 
 .waiting-list-table-container {
   background: white;
