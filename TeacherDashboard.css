@@ -11,6 +11,8 @@
   flex-direction: column !important;
   min-width: 0 !important;
   max-width: 100% !important;
+  position: relative !important;
+  box-sizing: border-box !important;
 }
 
 .teacher-dashboard-main {
@@ -23,6 +25,7 @@
   flex-direction: column !important;
   min-width: 0 !important;
   max-width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 .teacher-dashboard-header {
