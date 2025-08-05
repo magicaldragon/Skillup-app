@@ -5,11 +5,11 @@ import type { Student, StudentClass } from './types';
 import type { Level } from './types';
 import './ClassesPanel.css';
 
-const getNextClassCode = (classes: StudentClass[]) => {
-  const codes = classes.map(c => parseInt(c.name.replace('SU-', ''), 10)).filter(n => !isNaN(n));
-  const next = codes.length ? Math.max(...codes) + 1 : 1;
-  return `SU-${next.toString().padStart(3, '0')}`;
-};
+// const getNextClassCode = (classes: StudentClass[]) => {
+//   const codes = classes.map(c => parseInt(c.name.replace('SU-', ''), 10)).filter(n => !isNaN(n));
+//   const next = codes.length ? Math.max(...codes) + 1 : 1;
+//   return `SU-${next.toString().padStart(3, '0')}`;
+// };
 
 const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: { 
   students: Student[], 
@@ -18,7 +18,7 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
   onDataRefresh?: () => void
 }) => {
   const [adding, setAdding] = useState(false);
-  const nextCode = getNextClassCode(classes);
+  // const nextCode = getNextClassCode(classes); // Unused, removed
   const [classLevels, setClassLevels] = useState<{ [id: string]: string | null }>({});
   const [editId, setEditId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
@@ -75,7 +75,7 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
-      onAddClass?('');
+      onAddClass && onAddClass('');
       onDataRefresh?.();
       setNewClassLevelId('');
     } catch (error) {

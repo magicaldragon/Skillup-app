@@ -17,7 +17,8 @@ const AddNewMembers = () => {
     parentName: '',
     parentPhone: '',
     notes: '',
-    status: 'potential'
+    status: 'potential',
+    password: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -45,7 +46,8 @@ const AddNewMembers = () => {
       parentName: '',
       parentPhone: '',
       notes: '',
-      status: 'potential'
+      status: 'potential',
+      password: ''
     });
     setError(null);
     setSuccess(null);

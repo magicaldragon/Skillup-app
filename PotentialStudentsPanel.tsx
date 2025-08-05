@@ -36,7 +36,7 @@ interface PotentialStudentsPanelProps {
   onDataRefresh?: () => void;
 }
 
-const PotentialStudentsPanel = ({ classes: _classes, currentUser, onDataRefresh }: PotentialStudentsPanelProps) => {
+const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, onDataRefresh }: PotentialStudentsPanelProps) => {
   const [potentialStudents, setPotentialStudents] = useState<PotentialStudent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -92,39 +92,39 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser, onDataRefresh 
   };
 
   // Helper for avatar by gender
-  const getAvatar = (student: PotentialStudent) => {
-    if (student.gender === 'male') return '/avatar-male.png';
-    if (student.gender === 'female') return '/avatar-female.png';
-    return '/anon-avatar.png';
-  };
+  // const _getAvatar = (student: PotentialStudent) => {
+  //   if (student.gender === 'male') return '/avatar-male.png';
+  //   if (student.gender === 'female') return '/avatar-female.png';
+  //   return '/anon-avatar.png';
+  // };
 
   // Helper for display name
-  const getDisplayName = (student: PotentialStudent) => {
-    const fullName = student.englishName || student.name;
-    return fullName || 'Unknown Name';
-  };
+  // const _getDisplayName = (student: PotentialStudent) => {
+  //   const fullName = student.englishName || student.name;
+  //   return fullName || 'Unknown Name';
+  // };
 
   // Helper for phone number
-  const getPhoneNumber = (student: PotentialStudent) => {
-    return student.phone || student.parentPhone || 'No phone';
-  };
+  // const _getPhoneNumber = (student: PotentialStudent) => {
+  //   return student.phone || student.parentPhone || 'No phone';
+  // };
 
   // Helper for date/time
-  const getDateTime = (student: PotentialStudent) => {
-    if (!student.createdAt) return 'Unknown date';
-    return new Date(student.createdAt).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
+  // const _getDateTime = (student: PotentialStudent) => {
+  //   if (!student.createdAt) return 'Unknown date';
+  //   return new Date(student.createdAt).toLocaleDateString('en-US', {
+  //     year: 'numeric',
+  //     month: 'short',
+  //     day: 'numeric',
+  //     hour: '2-digit',
+  //     minute: '2-digit'
+  //   });
+  // };
 
   // Helper for notes
-  const getNotes = (student: PotentialStudent) => {
-    return student.notes || 'No notes';
-  };
+  // const _getNotes = (student: PotentialStudent) => {
+  //   return student.notes || 'No notes';
+  // };
 
   // Bulk convert to regular user
   const handleBulkConvert = async () => {
@@ -194,182 +194,184 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser, onDataRefresh 
   };
 
   // Individual select
-  const toggleSelect = (id: string) => {
-    setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
-  };
+  // const _toggleSelect = (id: string) => {
+  //   setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  // };
 
   // Select all
   const selectAll = () => setSelectedIds(potentialStudents.map(s => s._id));
   const clearAll = () => setSelectedIds([]);
 
-  const [pendingStatusUpdates, setPendingStatusUpdates] = useState<{ [studentId: string]: string }>({});
-  const [loadingStates, setLoadingStates] = useState<{ [studentId: string]: boolean }>({});
+  // const [pendingStatusUpdates, setPendingStatusUpdates] = useState<{ [studentId: string]: string }>({});
+  // const [_loadingStates, setLoadingStates] = useState<{ [studentId: string]: boolean }>({});
 
   const handleStatusChange = (studentId: string, status: string) => {
-    setPendingStatusUpdates(prev => ({ ...prev, [studentId]: status }));
+    // Status change functionality is under construction
+    console.log(`Status change for student ${studentId} to ${status}`);
   };
 
-  const handleConfirmStatusUpdate = async (studentId: string) => {
-    const status = pendingStatusUpdates[studentId];
-    if (!status) return;
+  // const _handleConfirmStatusUpdate = async (studentId: string) => {
+  //   const status = pendingStatusUpdates[studentId];
+  //   if (!status) return;
     
-    setLoadingStates(prev => ({ ...prev, [studentId]: true }));
-    const token = localStorage.getItem('authToken');
+  //   setLoadingStates(prev => ({ ...prev, [studentId]: true }));
+  //   const token = localStorage.getItem('authToken');
     
-    try {
-      const response = await fetch(`${API_BASE_URL}/potential-students/${studentId}/status`, {
-        method: 'PATCH',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ status }),
-      });
+  //   try {
+  //     const response = await fetch(`${API_BASE_URL}/potential-students/${studentId}/status`, {
+  //       method: 'PATCH',
+  //       headers: { 
+  //         'Content-Type': 'application/json',
+  //         'Authorization': `Bearer ${token}`
+  //       },
+  //       body: JSON.stringify({ status }),
+  //     });
       
-      if (!response.ok) {
-        throw new Error('Failed to update potential student status');
-      }
+  //     if (!response.ok) {
+  //       throw new Error('Failed to update potential student status');
+  //     }
       
-      setLoadingStates(prev => ({ ...prev, [studentId]: false }));
-      setPendingStatusUpdates(prev => { const copy = { ...prev }; delete copy[studentId]; return copy; });
-      fetchPotentialStudents();
-    } catch (error) {
-      console.error('Update status error:', error);
-      setLoadingStates(prev => ({ ...prev, [studentId]: false }));
-      alert('Failed to update potential student status. Please try again.');
-    }
-  };
+  //     setLoadingStates(prev => ({ ...prev, [studentId]: false }));
+  //     setPendingStatusUpdates(prev => { const copy = { ...prev }; delete copy[studentId]; return copy; });
+  //     fetchPotentialStudents();
+  //   } catch (error) {
+  //     console.error('Update status error:', error);
+  //     setLoadingStates(prev => ({ ...prev, [studentId]: false }));
+  //     alert('Failed to update potential student status. Please try again.');
+  //   }
+  // };
 
-  const handleConvertToUser = async (studentId: string) => {
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      alert('No authentication token found');
-      return;
-    }
+  // const _handleConvertToUser = async (studentId: string) => {
+  //   const token = localStorage.getItem('authToken');
+  //   if (!token) {
+  //     alert('No authentication token found');
+  //     return;
+  //   }
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/potential-students/${studentId}/convert`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-      });
+  //   try {
+  //     const response = await fetch(`${API_BASE_URL}/potential-students/${studentId}/convert`, {
+  //       method: 'POST',
+  //       headers: { 
+  //         'Content-Type': 'application/json',
+  //         'Authorization': `Bearer ${token}`
+  //       },
+  //     });
       
-      if (!response.ok) {
-        throw new Error('Failed to convert potential student to user');
-      }
+  //     if (!response.ok) {
+  //       throw new Error('Failed to convert potential student to user');
+  //     }
       
-      alert('Potential student converted to regular user successfully!');
-      fetchPotentialStudents();
-      onDataRefresh?.();
-    } catch (error) {
-      console.error('Convert to user error:', error);
-      alert('Failed to convert potential student to user. Please try again.');
-    }
-  };
+  //     alert('Potential student converted to regular user successfully!');
+  //     fetchPotentialStudents();
+  //     onDataRefresh?.();
+  //   } catch (error) {
+  //     console.error('Convert to user error:', error);
+  //     alert('Failed to convert potential student to user. Please try again.');
+  //   }
+  // };
 
-  const handleDelete = async (studentId: string) => {
-    if (!window.confirm('Are you sure you want to delete this potential student? This action cannot be undone.')) {
-      return;
-    }
+  // const _handleDelete = async (studentId: string) => {
+  //   if (!window.confirm('Are you sure you want to delete this potential student? This action cannot be undone.')) {
+  //     return;
+  //   }
 
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      alert('No authentication token found');
-      return;
-    }
+  //   const token = localStorage.getItem('authToken');
+  //   if (!token) {
+  //     alert('No authentication token found');
+  //     return;
+  //   }
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/potential-students/${studentId}`, {
-        method: 'DELETE',
-        headers: { 
-          'Authorization': `Bearer ${token}`
-        },
-      });
+  //   try {
+  //     const response = await fetch(`${API_BASE_URL}/potential-students/${studentId}`, {
+  //       method: 'DELETE',
+  //       headers: { 
+  //         'Authorization': `Bearer ${token}`
+  //       },
+  //     });
       
-      if (!response.ok) {
-        throw new Error('Failed to delete potential student');
-      }
+  //     if (!response.ok) {
+  //       throw new Error('Failed to delete potential student');
+  //     }
       
-      alert('Potential student deleted successfully!');
-      fetchPotentialStudents();
-    } catch (error) {
-      console.error('Delete error:', error);
-      alert('Failed to delete potential student. Please try again.');
-    }
-  };
+  //     alert('Potential student deleted successfully!');
+  //     fetchPotentialStudents();
+  //   } catch (error) {
+  //     console.error('Delete error:', error);
+  //     alert('Failed to delete potential student. Please try again.');
+  //   }
+  // };
 
   // Move to Records (when student doesn't confirm interest)
-  const handleMoveToRecords = async (studentId: string) => {
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      alert('No authentication token found');
-      return;
-    }
+  // const _handleMoveToRecords = async (studentId: string) => {
+  //   const token = localStorage.getItem('authToken');
+  //   if (!token) {
+  //     alert('No authentication token found');
+  //     return;
+  //   }
 
-    if (!window.confirm('Move this student to Records? This will archive their information for future reference.')) {
-      return;
-    }
+  //   if (!window.confirm('Move this student to Records? This will archive their information for future reference.')) {
+  //     return;
+  //   }
 
-    try {
-      // First, create a record entry
-      const student = potentialStudents.find(s => s._id === studentId);
-      if (!student) {
-        throw new Error('Student not found');
-      }
+  //   try {
+  //     // First, create a record entry
+  //     const student = potentialStudents.find(s => s._id === studentId);
+  //     if (!student) {
+  //       throw new Error('Student not found');
+  //       return;
+  //     }
 
-      const recordData = {
-        studentId: null, // Potential students don't have User records yet
-        studentName: student.name,
-        action: 'moved_to_records',
-        category: 'administrative',
-        details: {
-          reason: 'Student did not confirm interest in courses',
-          originalStatus: student.status,
-          movedBy: currentUser.name,
-          movedAt: new Date().toISOString(),
-          potentialStudentId: studentId, // Store the potential student ID for reference
-          email: student.email,
-          phone: student.phone
-        },
-        performedBy: currentUser.id,
-        performedByName: currentUser.name
-      };
+  //     const recordData = {
+  //       studentId: null, // Potential students don't have User records yet
+  //       studentName: student.name,
+  //       action: 'moved_to_records',
+  //       category: 'administrative',
+  //       details: {
+  //         reason: 'Student did not confirm interest in courses',
+  //         originalStatus: student.status,
+  //         movedBy: currentUser.name,
+  //         movedAt: new Date().toISOString(),
+  //         potentialStudentId: studentId, // Store the potential student ID for reference
+  //         email: student.email,
+  //         phone: student.phone
+  //       },
+  //       performedBy: currentUser.id,
+  //       performedByName: currentUser.name
+  //     };
 
-      const recordResponse = await fetch(`${API_BASE_URL}/student-records`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(recordData),
-      });
+  //     const recordResponse = await fetch(`${API_BASE_URL}/student-records`, {
+  //       method: 'POST',
+  //       headers: { 
+  //         'Content-Type': 'application/json',
+  //         'Authorization': `Bearer ${token}`
+  //       },
+  //       body: JSON.stringify(recordData),
+  //     });
 
-      if (!recordResponse.ok) {
-        throw new Error('Failed to create record entry');
-      }
+  //     if (!recordResponse.ok) {
+  //       throw new Error('Failed to create record entry');
+  //     }
 
-      // Then delete from potential students
-      const deleteResponse = await fetch(`${API_BASE_URL}/potential-students/${studentId}`, {
-        method: 'DELETE',
-        headers: { 
-          'Authorization': `Bearer ${token}`
-        },
-      });
+  //     // Then delete from potential students
+  //     const deleteResponse = await fetch(`${API_BASE_URL}/potential-students/${studentId}`, {
+  //       method: 'DELETE',
+  //       headers: { 
+  //         'Authorization': `Bearer ${token}`
+  //       },
+  //     });
       
-      if (!deleteResponse.ok) {
-        throw new Error('Failed to remove from potential students');
-      }
+  //     if (!deleteResponse.ok) {
+  //       throw new Error('Failed to remove from potential students');
+  //     }
 
-      alert('Student moved to Records successfully');
-      fetchPotentialStudents();
-      if (onDataRefresh) onDataRefresh();
-    } catch (error) {
-      console.error('Move to records error:', error);
-      alert('Failed to move student to Records. Please try again.');
-    }
-  };
+  //     alert('Student moved to Records successfully');
+  //     fetchPotentialStudents();
+  //     if (onDataRefresh) onDataRefresh();
+  //   } catch (error) {
+  //     console.error('Move to records error:', error);
+  //     alert('Failed to move student to Records. Please try again.');
+  //   }
+  // };
 
   // Move to Waiting List (when student confirms interest)
   const handleMoveToWaitingList = async (studentId: string) => {

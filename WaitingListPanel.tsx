@@ -74,44 +74,44 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
   };
 
   // Helper for avatar by gender
-  const getAvatar = (student: WaitingStudent) => {
-    if (student.gender === 'male') return '/avatar-male.png';
-    if (student.gender === 'female') return '/avatar-female.png';
-    return '/anon-avatar.png';
-  };
+  // const _getAvatar = (student: WaitingStudent) => {
+  //   if (student.gender === 'male') return '/avatar-male.png';
+  //   if (student.gender === 'female') return '/avatar-female.png';
+  //   return '/anon-avatar.png';
+  // };
 
   // Helper for display name
-  const getDisplayName = (student: WaitingStudent) => {
-    const fullName = student.englishName || student.name;
-    return fullName || 'Unknown Name';
-  };
+  // const _getDisplayName = (student: WaitingStudent) => {
+  //   const fullName = student.englishName || student.name;
+  //   return fullName || 'Unknown Name';
+  // };
 
   // Helper for phone number
-  const getPhoneNumber = (student: WaitingStudent) => {
-    return student.phone || 'No phone';
-  };
+  // const _getPhoneNumber = (student: WaitingStudent) => {
+  //   return student.phone || 'No phone';
+  // };
 
   // Helper for date/time
-  const getDateTime = (student: WaitingStudent) => {
-    if (!student.createdAt) return 'Unknown date';
-    return new Date(student.createdAt).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
+  // const _getDateTime = (student: WaitingStudent) => {
+  //   if (!student.createdAt) return 'Unknown date';
+  //   return new Date(student.createdAt).toLocaleDateString('en-US', {
+  //     year: 'numeric',
+  //     month: 'short',
+  //     day: 'numeric',
+  //     hour: '2-digit',
+  //     minute: '2-digit'
+  //   });
+  // };
 
   // Helper for notes
-  const getNotes = (student: WaitingStudent) => {
-    return student.notes || 'No notes';
-  };
+  // const _getNotes = (student: WaitingStudent) => {
+  //   return student.notes || 'No notes';
+  // };
 
   // Helper for interested programs
-  const getInterestedPrograms = (student: WaitingStudent) => {
-    return student.interestedPrograms?.join(', ') || 'No programs specified';
-  };
+  // const _getInterestedPrograms = (student: WaitingStudent) => {
+  //   return student.interestedPrograms?.join(', ') || 'No programs specified';
+  // };
 
   // Filter students based on search and status
   const filteredStudents = waitingStudents.filter(s =>
@@ -150,14 +150,10 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
     }
   };
 
-  const handleMoveBackToPotential = async (studentId: string) => {
+  const handleStatusChange = async (studentId: string, newStatus: string) => {
     const token = localStorage.getItem('authToken');
     if (!token) {
       alert('No authentication token found');
-      return;
-    }
-
-    if (!window.confirm('Move this student back to Potential Students?')) {
       return;
     }
 
@@ -168,52 +164,85 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ status: 'pending' }),
+        body: JSON.stringify({ status: newStatus }),
       });
       
       if (!response.ok) {
-        throw new Error('Failed to move student back to potential students');
+        throw new Error('Failed to update student status');
       }
 
-      alert('Student moved back to Potential Students successfully');
       fetchWaitingStudents();
       if (onDataRefresh) onDataRefresh();
     } catch (error) {
-      console.error('Move back error:', error);
-      alert('Failed to move student back to Potential Students. Please try again.');
+      console.error('Status change error:', error);
+      alert('Failed to update student status. Please try again.');
     }
   };
 
-  const handleDelete = async (studentId: string) => {
-    if (!window.confirm('Are you sure you want to delete this waiting student? This action cannot be undone.')) {
-      return;
-    }
+  // const _handleMoveBackToPotential = async (studentId: string) => {
+  //   const token = localStorage.getItem('authToken');
+  //   if (!token) {
+  //     alert('No authentication token found');
+  //     return;
+  //   }
 
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      alert('No authentication token found');
-      return;
-    }
+  //   if (!window.confirm('Move this student back to Potential Students?')) {
+  //     return;
+  //   }
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/potential-students/${studentId}`, {
-        method: 'DELETE',
-        headers: { 
-          'Authorization': `Bearer ${token}`
-        },
-      });
+  //   try {
+  //     const response = await fetch(`${API_BASE_URL}/potential-students/${studentId}/status`, {
+  //       method: 'PATCH',
+  //       headers: { 
+  //         'Content-Type': 'application/json',
+  //         'Authorization': `Bearer ${token}`
+  //       },
+  //       body: JSON.stringify({ status: 'pending' }),
+  //     });
       
-      if (!response.ok) {
-        throw new Error('Failed to delete waiting student');
-      }
+  //     if (!response.ok) {
+  //       throw new Error('Failed to move student back to potential students');
+  //     }
+
+  //     alert('Student moved back to Potential Students successfully');
+  //     fetchWaitingStudents();
+  //     if (onDataRefresh) onDataRefresh();
+  //   } catch (error) {
+  //     console.error('Move back error:', error);
+  //     alert('Failed to move student back to Potential Students. Please try again.');
+  //   }
+  // };
+
+  // const _handleDelete = async (studentId: string) => {
+  //   if (!window.confirm('Are you sure you want to delete this waiting student? This action cannot be undone.')) {
+  //     return;
+  //   }
+
+  //   const token = localStorage.getItem('authToken');
+  //   if (!token) {
+  //     alert('No authentication token found');
+  //     return;
+  //   }
+
+  //   try {
+  //     const response = await fetch(`${API_BASE_URL}/potential-students/${studentId}`, {
+  //       method: 'DELETE',
+  //       headers: { 
+  //         'Authorization': `Bearer ${token}`
+  //       },
+  //     });
       
-      alert('Waiting student deleted successfully!');
-      fetchWaitingStudents();
-    } catch (error) {
-      console.error('Delete error:', error);
-      alert('Failed to delete waiting student. Please try again.');
-    }
-  };
+  //     if (!response.ok) {
+  //       throw new Error('Failed to delete waiting student');
+  //     }
+      
+  //     alert('Waiting student deleted successfully!');
+  //     fetchWaitingStudents();
+  //   } catch (error) {
+  //     console.error('Delete error:', error);
+  //     alert('Failed to delete waiting student. Please try again.');
+  //   }
+  // };
 
   if (loading) {
     return (
