@@ -1,3 +1,6 @@
+// vstorage.ts - All vstorage functions are under construction.
+// See vstorage.config.ts for credentials/settings.
+
 // VStorage (VNG Cloud S3) integration for SKILLUP
 // Uses AWS SDK v3 for S3 compatibility
 // import { S3Client, PutObjectCommand, GetObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
@@ -28,48 +31,48 @@ if (!vstorageConfig.accessKeyId || !vstorageConfig.secretAccessKey) {
 // });
 
 // --- Helper: Upload File ---
-export async function uploadFile(key: string, file: Blob | Buffer | Uint8Array, contentType = 'application/octet-stream') {
-  if (!vstorageConfig.accessKeyId || !vstorageConfig.secretAccessKey) {
-    throw new Error('VStorage credentials not configured');
-  }
+// export async function uploadFile(key: string, file: Blob | Buffer | Uint8Array, contentType = 'application/octet-stream') {
+//   if (!vstorageConfig.accessKeyId || !vstorageConfig.secretAccessKey) {
+//     throw new Error('VStorage credentials not configured');
+//   }
   
-  // const command = new PutObjectCommand({
-  //   Bucket: vstorageConfig.bucket,
-  //   Key: key,
-  //   Body: file,
-  //   ContentType: contentType,
-  // });
-  // return s3.send(command);
-  console.warn('VStorage upload functionality is currently disabled.');
-  return Promise.resolve({}); // Return a dummy object to avoid breaking the flow
-}
+//   // const command = new PutObjectCommand({
+//   //   Bucket: vstorageConfig.bucket,
+//   //   Key: key,
+//   //   Body: file,
+//   //   ContentType: contentType,
+//   // });
+//   // return s3.send(command);
+//   console.warn('VStorage upload functionality is currently disabled.');
+//   return Promise.resolve({}); // Return a dummy object to avoid breaking the flow
+// }
 
 // --- Helper: Get File (returns a presigned URL or stream) ---
-export async function getFile(key: string) {
-  if (!vstorageConfig.accessKeyId || !vstorageConfig.secretAccessKey) {
-    throw new Error('VStorage credentials not configured');
-  }
+// export async function getFile(key: string) {
+//   if (!vstorageConfig.accessKeyId || !vstorageConfig.secretAccessKey) {
+//     throw new Error('VStorage credentials not configured');
+//   }
   
-  // const command = new GetObjectCommand({
-  //   Bucket: vstorageConfig.bucket,
-  //   Key: key,
-  // });
-  // return s3.send(command);
-  console.warn('VStorage get functionality is currently disabled.');
-  return Promise.resolve({}); // Return a dummy object to avoid breaking the flow
-}
+//   // const command = new GetObjectCommand({
+//   //   Bucket: vstorageConfig.bucket,
+//   //   Key: key,
+//   // });
+//   // return s3.send(command);
+//   console.warn('VStorage get functionality is currently disabled.');
+//   return Promise.resolve({}); // Return a dummy object to avoid breaking the flow
+// }
 
 // --- Helper: List Files ---
-export async function listFiles(prefix = '') {
-  if (!vstorageConfig.accessKeyId || !vstorageConfig.secretAccessKey) {
-    throw new Error('VStorage credentials not configured');
-  }
+// export async function listFiles(prefix = '') {
+//   if (!vstorageConfig.accessKeyId || !vstorageConfig.secretAccessKey) {
+//     throw new Error('VStorage credentials not configured');
+//   }
   
-  // const command = new ListObjectsV2Command({
-  //   Bucket: vstorageConfig.bucket,
-  //   Prefix: prefix,
-  // });
-  // return s3.send(command);
-  console.warn('VStorage list functionality is currently disabled.');
-  return Promise.resolve({}); // Return a dummy object to avoid breaking the flow
-}
+//   // const command = new ListObjectsV2Command({
+//   //   Bucket: vstorageConfig.bucket,
+//   //   Prefix: prefix,
+//   // });
+//   // return s3.send(command);
+//   console.warn('VStorage list functionality is currently disabled.');
+//   return Promise.resolve({}); // Return a dummy object to avoid breaking the flow
+// }
