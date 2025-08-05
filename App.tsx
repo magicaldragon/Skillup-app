@@ -1,7 +1,6 @@
 import React, { useEffect, useState, Suspense, lazy } from "react";
 import { authService } from './frontend/services/authService';
 const Login = lazy(() => import('./Login'));
-const Dashboard = lazy(() => import('./Dashboard'));
 const TeacherDashboard = lazy(() => import('./TeacherDashboard'));
 const StudentDashboard = lazy(() => import('./StudentDashboard'));
 import Sidebar from './Sidebar';
@@ -331,7 +330,7 @@ const App: React.FC = () => {
               activeKey={navKey}
               onLogout={handleLogout}
             />
-          ) : user.role === "teacher" || user.role === "admin" ? (
+          ) : user.role === "teacher" || user.role === "admin" || user.role === "staff" ? (
             <TeacherDashboard 
               user={user}
               students={students}
@@ -343,16 +342,16 @@ const App: React.FC = () => {
               onDataRefresh={refreshData}
             />
           ) : (
-            <Dashboard 
-              assignments={assignments}
-              submissions={submissions}
-              students={students}
-              classes={classes}
-              loading={dataLoading}
-              error={dataError}
+            // Fallback for any unexpected roles - show TeacherDashboard as default
+            <TeacherDashboard 
               user={user}
+              students={students}
+              assignments={assignments}
+              classes={classes}
               activeKey={navKey}
               onLogout={handleLogout}
+              onStudentAdded={fetchStudents}
+              onDataRefresh={refreshData}
             />
           )}
         </div>
