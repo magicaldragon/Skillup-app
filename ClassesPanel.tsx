@@ -30,6 +30,9 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
   const [reportNote, setReportNote] = useState('');
   const [reportSending, setReportSending] = useState(false);
 
+  // Add new class with level selection
+  const [newClassLevelId, setNewClassLevelId] = useState<string>('');
+
   // Fetch levels from backend
   const fetchLevels = async () => {
     try {
@@ -53,11 +56,16 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
     setClassLevels(levelsMap);
   }, [classes]);
 
-  // Instantly create a new class in backend
+  // Add new class with level selection
   const handleAddClass = async () => {
     setAdding(true);
     try {
-      const newClass = { name: nextCode, levelId: null };
+      if (!newClassLevelId) {
+        alert('Please select a level for the new class.');
+        setAdding(false);
+        return;
+      }
+      const newClass = { name: '', levelId: newClassLevelId };
       const res = await fetch('/api/classes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -67,8 +75,9 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
-      onAddClass?.(nextCode);
+      onAddClass?('');
       onDataRefresh?.();
+      setNewClassLevelId('');
     } catch (error) {
       console.error('Error adding class:', error);
     } finally {
@@ -227,12 +236,8 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
             </tr>
           </thead>
           <tbody>
-            {filteredClasses.length === 0 && (
-              <tr>
-                <td colSpan={4} className="text-center text-slate-400 py-4">
-                  {classes.length === 0 ? 'No classes found.' : 'No classes match your search criteria.'}
-                </td>
-              </tr>
+            {classes.length === 0 && (
+              <tr><td colSpan={6} className="empty-table">No classes available.</td></tr>
             )}
             {filteredClasses.map(cls => (
               <tr key={cls.id} className="border-b border-slate-100 hover:bg-slate-50">
@@ -271,15 +276,15 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
         </table>
       </div>
 
-      {/* Add Class Button */}
-      <div className="mt-6 text-center">
-        <button 
-          onClick={handleAddClass} 
-          disabled={adding}
-          className="form-btn primary"
-        >
-          {adding ? 'Adding...' : `Add New Class (${nextCode})`}
-        </button>
+      {/* Add Class Form */}
+      <div className="add-class-form">
+        <select value={newClassLevelId} onChange={e => setNewClassLevelId(e.target.value)}>
+          <option value="">Select Level</option>
+          {levels.map(level => (
+            <option key={level.id} value={level.id}>{level.name}</option>
+          ))}
+        </select>
+        <button onClick={handleAddClass} disabled={adding || !newClassLevelId} className="add-class-btn">Add Class</button>
       </div>
 
       {/* Class Details Modal */}

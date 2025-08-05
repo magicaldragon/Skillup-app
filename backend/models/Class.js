@@ -6,6 +6,11 @@ const classSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+  classCode: {
+    type: String,
+    required: true,
+    unique: true
+  },
   levelId: {
     type: String,
     default: null

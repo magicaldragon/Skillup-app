@@ -47,6 +47,10 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser, onDataRefresh 
   const [bulkStatus, setBulkStatus] = useState<string>('');
   const [confirmingBulk, setConfirmingBulk] = useState(false);
 
+  // Add search state
+  const [search, setSearch] = useState('');
+  const [selectedStudent, setSelectedStudent] = useState<PotentialStudent | null>(null);
+
   useEffect(() => {
     fetchPotentialStudents();
   }, []);
@@ -398,6 +402,13 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser, onDataRefresh 
     }
   };
 
+  // Filtered students
+  const filteredStudents = potentialStudents.filter(s =>
+    s.name.toLowerCase().includes(search.toLowerCase()) ||
+    (s.email && s.email.toLowerCase().includes(search.toLowerCase())) ||
+    (s.phone && s.phone.includes(search))
+  );
+
   if (loading) {
     return (
       <div className="potential-students-panel">
@@ -430,165 +441,142 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser, onDataRefresh 
     <div className="potential-students-panel">
       <h2 className="potential-students-title">Potential Students</h2>
       <p className="potential-students-subtitle">Students who need evaluation - move to Waiting List or Records</p>
-      {potentialStudents.length === 0 ? (
-        <div className="potential-students-empty">No potential students found.</div>
-      ) : (
-        <>
-          <div className="potential-students-actions">
-            <button
-              className={`potential-students-btn potential-students-btn-primary ${bulkAction === 'convert' ? 'active' : ''}`}
-              onClick={() => { setBulkAction('convert'); setConfirmingBulk(false); }}
-              disabled={selectedIds.length === 0}
-            >Convert to User</button>
-            <button
-              className={`potential-students-btn potential-students-btn-secondary ${bulkAction === 'update_status' ? 'active' : ''}`}
-              onClick={() => { setBulkAction('update_status'); setConfirmingBulk(false); }}
-              disabled={selectedIds.length === 0}
-            >Update Status</button>
-            <button
-              className="potential-students-btn potential-students-btn-neutral"
-              onClick={selectAll}
-              disabled={selectedIds.length === potentialStudents.length}
-            >Select All</button>
-            <button
-              className="potential-students-btn potential-students-btn-neutral"
-              onClick={clearAll}
-              disabled={selectedIds.length === 0}
-            >Clear</button>
-          </div>
-          {bulkAction && (
-            <div className="potential-students-bulk-section">
-              {bulkAction === 'update_status' && (
+      <div className="potential-students-search">
+        <input
+          type="text"
+          placeholder="Search by name, email, or phone..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="search-input"
+        />
+      </div>
+      <table className="potential-students-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filteredStudents.length === 0 && (
+            <tr><td colSpan={5} className="empty-table">No potential students found.</td></tr>
+          )}
+          {filteredStudents.map(student => (
+            <tr key={student._id} onClick={() => setSelectedStudent(student)} className="clickable-row">
+              <td>{student.name}</td>
+              <td>{student.email}</td>
+              <td>{student.phone}</td>
+              <td>{student.status}</td>
+              <td>
                 <select
-                  className="potential-students-select"
-                  value={bulkStatus}
-                  onChange={e => setBulkStatus(e.target.value)}
+                  value={student.status}
+                  onChange={e => handleStatusChange(student._id, e.target.value)}
+                  onClick={e => e.stopPropagation()}
                 >
-                  <option value="">Select status...</option>
-                  <option value="pending">Pending</option>
+                  <option value="potential">Potential</option>
                   <option value="contacted">Contacted</option>
-                  <option value="interviewed">Interviewed</option>
-                  <option value="approved">Approved</option>
-                  <option value="rejected">Rejected</option>
-                  <option value="enrolled">Enrolled</option>
                 </select>
-              )}
-              <div className="potential-students-confirm-buttons">
                 <button
-                  className="potential-students-confirm-btn potential-students-confirm-btn-success"
-                  onClick={() => { setConfirmingBulk(true); }}
-                  disabled={bulkAction === 'update_status' && !bulkStatus}
-                >Confirm</button>
-                <button
-                  className="potential-students-confirm-btn potential-students-confirm-btn-cancel"
-                  onClick={() => { setBulkAction(null); setBulkStatus(''); setConfirmingBulk(false); }}
-                >Cancel</button>
-              </div>
-            </div>
-          )}
-          {confirmingBulk && (
-            <div className="potential-students-modal">
-              <div className="potential-students-modal-content">
-                <div className="potential-students-modal-title">Confirm Bulk Action</div>
-                <div className="potential-students-modal-message">Are you sure to {bulkAction === 'convert' ? 'convert selected potential students to regular users' : 'update status of selected potential students'}?</div>
-                <div className="potential-students-modal-buttons">
-                  <button
-                    className="potential-students-modal-btn potential-students-modal-btn-cancel"
-                    onClick={() => setConfirmingBulk(false)}
-                  >Cancel</button>
-                  <button
-                    className="potential-students-modal-btn potential-students-modal-btn-confirm"
-                    onClick={bulkAction === 'convert' ? handleBulkConvert : handleBulkUpdateStatus}
-                  >Confirm</button>
-                </div>
-              </div>
-            </div>
-          )}
-          <div className="potential-students-students">
-            {potentialStudents.map(student => (
-              <div
-                key={student._id}
-                className={`potential-students-student-item ${selectedIds.includes(student._id) ? 'selected' : ''}`}
-              >
-                <input 
-                  type="checkbox" 
-                  checked={selectedIds.includes(student._id)} 
-                  onChange={() => toggleSelect(student._id)} 
-                  className="potential-students-checkbox" 
-                />
-                <div className="potential-students-student-info">
-                  <img
-                    src={getAvatar(student)}
-                    alt="avatar"
-                    className="potential-students-avatar"
-                  />
-                  <div className="potential-students-student-details">
-                    <div className="potential-students-student-main-info">
-                      <span className="potential-students-student-name">{getDisplayName(student)}</span>
-                      <span className="potential-students-student-phone">📞 {getPhoneNumber(student)}</span>
-                    </div>
-                    <div className="potential-students-student-secondary-info">
-                      <span className="potential-students-student-email">📧 {student.email}</span>
-                      <span className="potential-students-student-date">📅 Added: {getDateTime(student)}</span>
-                    </div>
-                    <div className="potential-students-student-notes">
-                      <span className="potential-students-student-notes-label">📝 Notes:</span>
-                      <span className="potential-students-student-notes-text">{getNotes(student)}</span>
-                    </div>
-                    <span className="potential-students-student-status">Status: {student.status}</span>
-                  </div>
-                </div>
-                <div className="potential-students-student-actions">
-                  <select
-                    className="potential-students-assign-select"
-                    value={pendingStatusUpdates[student._id] || student.status}
-                    onChange={e => handleStatusChange(student._id, e.target.value)}
-                  >
-                    <option value="pending">Pending</option>
-                    <option value="contacted">Contacted</option>
-                    <option value="interviewed">Interviewed</option>
-                    <option value="approved">Approved</option>
-                    <option value="rejected">Rejected</option>
-                    <option value="enrolled">Enrolled</option>
-                  </select>
-                  {pendingStatusUpdates[student._id] && pendingStatusUpdates[student._id] !== student.status && (
-                    <button
-                      className="potential-students-confirm-assign-btn"
-                      onClick={() => handleConfirmStatusUpdate(student._id)}
-                      disabled={loadingStates[student._id]}
-                    >
-                      {loadingStates[student._id] ? 'Updating...' : 'Update'}
-                    </button>
-                  )}
-                  <button
-                    className="potential-students-confirm-assign-btn"
-                    onClick={() => handleConvertToUser(student._id)}
-                  >
-                    Convert to User
-                  </button>
-                  <button
-                    className="potential-students-confirm-assign-btn"
-                    onClick={() => handleMoveToWaitingList(student._id)}
-                  >
-                    Move to Waiting List
-                  </button>
-                  <button
-                    className="potential-students-confirm-assign-btn"
-                    onClick={() => handleMoveToRecords(student._id)}
-                  >
-                    Move to Records
-                  </button>
-                  <button
-                    className="potential-students-delete-btn"
-                    onClick={() => handleDelete(student._id)}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))}
+                  onClick={e => { e.stopPropagation(); handleMoveToWaitingList(student._id); }}
+                  className="move-btn"
+                >Move to Waiting List</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {/* Details Modal/Panel */}
+      {selectedStudent && (
+        <div className="student-details-modal">
+          <div className="modal-content">
+            <button className="close-btn" onClick={() => setSelectedStudent(null)}>Close</button>
+            <h3>Student Details</h3>
+            <div><b>Name:</b> {selectedStudent.name}</div>
+            <div><b>English Name:</b> {selectedStudent.englishName}</div>
+            <div><b>Email:</b> {selectedStudent.email}</div>
+            <div><b>Phone:</b> {selectedStudent.phone}</div>
+            <div><b>Gender:</b> {selectedStudent.gender}</div>
+            <div><b>Status:</b> {selectedStudent.status}</div>
+            <div><b>Parent Name:</b> {selectedStudent.parentName}</div>
+            <div><b>Parent Phone:</b> {selectedStudent.parentPhone}</div>
+            <div><b>Notes:</b> {selectedStudent.notes}</div>
+            {/* Add more fields as needed */}
           </div>
-        </>
+        </div>
+      )}
+      <div className="potential-students-actions">
+        <button
+          className={`potential-students-btn potential-students-btn-primary ${bulkAction === 'convert' ? 'active' : ''}`}
+          onClick={() => { setBulkAction('convert'); setConfirmingBulk(false); }}
+          disabled={selectedIds.length === 0}
+        >Convert to User</button>
+        <button
+          className={`potential-students-btn potential-students-btn-secondary ${bulkAction === 'update_status' ? 'active' : ''}`}
+          onClick={() => { setBulkAction('update_status'); setConfirmingBulk(false); }}
+          disabled={selectedIds.length === 0}
+        >Update Status</button>
+        <button
+          className="potential-students-btn potential-students-btn-neutral"
+          onClick={selectAll}
+          disabled={selectedIds.length === potentialStudents.length}
+        >Select All</button>
+        <button
+          className="potential-students-btn potential-students-btn-neutral"
+          onClick={clearAll}
+          disabled={selectedIds.length === 0}
+        >Clear</button>
+      </div>
+      {bulkAction && (
+        <div className="potential-students-bulk-section">
+          {bulkAction === 'update_status' && (
+            <select
+              className="potential-students-select"
+              value={bulkStatus}
+              onChange={e => setBulkStatus(e.target.value)}
+            >
+              <option value="">Select status...</option>
+              <option value="pending">Pending</option>
+              <option value="contacted">Contacted</option>
+              <option value="interviewed">Interviewed</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+              <option value="enrolled">Enrolled</option>
+            </select>
+          )}
+          <div className="potential-students-confirm-buttons">
+            <button
+              className="potential-students-confirm-btn potential-students-confirm-btn-success"
+              onClick={() => { setConfirmingBulk(true); }}
+              disabled={bulkAction === 'update_status' && !bulkStatus}
+            >Confirm</button>
+            <button
+              className="potential-students-confirm-btn potential-students-confirm-btn-cancel"
+              onClick={() => { setBulkAction(null); setBulkStatus(''); setConfirmingBulk(false); }}
+            >Cancel</button>
+          </div>
+        </div>
+      )}
+      {confirmingBulk && (
+        <div className="potential-students-modal">
+          <div className="potential-students-modal-content">
+            <div className="potential-students-modal-title">Confirm Bulk Action</div>
+            <div className="potential-students-modal-message">Are you sure to {bulkAction === 'convert' ? 'convert selected potential students to regular users' : 'update status of selected potential students'}?</div>
+            <div className="potential-students-modal-buttons">
+              <button
+                className="potential-students-modal-btn potential-students-modal-btn-cancel"
+                onClick={() => setConfirmingBulk(false)}
+              >Cancel</button>
+              <button
+                className="potential-students-modal-btn potential-students-modal-btn-confirm"
+                onClick={bulkAction === 'convert' ? handleBulkConvert : handleBulkUpdateStatus}
+              >Confirm</button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

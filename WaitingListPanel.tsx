@@ -28,7 +28,8 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
   const [waitingStudents, setWaitingStudents] = useState<WaitingStudent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [search, setSearch] = useState('');
+  const [selectedStudent, setSelectedStudent] = useState<WaitingStudent | null>(null);
   const [statusFilter, setStatusFilter] = useState('');
 
   useEffect(() => {
@@ -113,16 +114,11 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
   };
 
   // Filter students based on search and status
-  const filteredStudents = waitingStudents.filter(student => {
-    const matchesSearch = searchTerm === '' || 
-      getDisplayName(student).toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      getPhoneNumber(student).toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStatus = statusFilter === '' || student.status === statusFilter;
-    
-    return matchesSearch && matchesStatus;
-  });
+  const filteredStudents = waitingStudents.filter(s =>
+    s.name.toLowerCase().includes(search.toLowerCase()) ||
+    (s.email && s.email.toLowerCase().includes(search.toLowerCase())) ||
+    (s.phone && s.phone.includes(search))
+  );
 
   const handleAssignToClass = async (studentId: string, classId: string) => {
     const token = localStorage.getItem('authToken');
@@ -256,10 +252,10 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
       <div className="waiting-list-controls">
         <input
           type="text"
-          placeholder="Search by name, email, phone..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="form-input waiting-list-search"
+          placeholder="Search by name, email, or phone..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="search-input"
         />
         <select
           value={statusFilter}
@@ -273,80 +269,70 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
         </select>
       </div>
 
-      {filteredStudents.length === 0 ? (
-        <div className="waiting-list-empty">
-          {waitingStudents.length === 0 ? 'No waiting students found.' : 'No students match your search criteria.'}
-        </div>
-      ) : (
-        <div className="waiting-list-students">
-          {filteredStudents.map(student => (
-            <div
-              key={student._id}
-              className="waiting-list-student-item"
-            >
-              <div className="waiting-list-student-info">
-                <img
-                  src={getAvatar(student)}
-                  alt="avatar"
-                  className="waiting-list-avatar"
-                />
-                <div className="waiting-list-student-details">
-                  <div className="waiting-list-student-main-info">
-                    <span className="waiting-list-student-name">{getDisplayName(student)}</span>
-                    <span className="waiting-list-student-phone">📞 {getPhoneNumber(student)}</span>
-              </div>
-                  <div className="waiting-list-student-secondary-info">
-                    <span className="waiting-list-student-email">📧 {student.email}</span>
-                    <span className="waiting-list-student-date">📅 Added: {getDateTime(student)}</span>
-            </div>
-                  <div className="waiting-list-student-programs">
-                    <span className="waiting-list-student-programs-label">🎯 Interested Programs:</span>
-                    <span className="waiting-list-student-programs-text">{getInterestedPrograms(student)}</span>
-                </div>
-                  {student.preferredLevel && (
-                    <div className="waiting-list-student-level">
-                      <span className="waiting-list-student-level-label">📚 Preferred Level:</span>
-                      <span className="waiting-list-student-level-text">{student.preferredLevel}</span>
-            </div>
+      <table className="waiting-list-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filteredStudents.length === 0 && (
+            <tr><td colSpan={5} className="empty-table">No students in waiting list.</td></tr>
           )}
-                  <div className="waiting-list-student-notes">
-                    <span className="waiting-list-student-notes-label">📝 Notes:</span>
-                    <span className="waiting-list-student-notes-text">{getNotes(student)}</span>
-                  </div>
-                  <span className="waiting-list-student-status">Status: {student.status}</span>
-                </div>
-              </div>
-              <div className="waiting-list-student-actions">
+          {filteredStudents.map(student => (
+            <tr key={student._id} onClick={() => setSelectedStudent(student)} className="clickable-row">
+              <td>{student.name}</td>
+              <td>{student.email}</td>
+              <td>{student.phone}</td>
+              <td>{student.status}</td>
+              <td>
                 <select
-                  className="form-select waiting-list-class-select"
-                  onChange={(e) => {
-                    if (e.target.value) {
-                      handleAssignToClass(student._id, e.target.value);
-                    }
-                  }}
+                  value={student.status}
+                  onChange={e => handleStatusChange(student._id, e.target.value)}
+                  onClick={e => e.stopPropagation()}
                 >
-                  <option value="">Assign to Class...</option>
-                  {classes.map(cls => (
-                    <option key={cls.id} value={cls.id}>
-                      {cls.name}
-                    </option>
-                  ))}
+                  <option value="waiting_for_class">Waiting</option>
+                  <option value="studying">Studying</option>
+                  <option value="postponed">Postponed</option>
+                  <option value="off">Off</option>
+                  <option value="alumni">Alumni</option>
                 </select>
-                  <button
-                  className="form-btn waiting-list-action-btn waiting-list-action-btn-secondary"
-                  onClick={() => handleMoveBackToPotential(student._id)}
+                {student.status === 'studying' && (
+                  <select
+                    onChange={e => handleAssignToClass(student._id, e.target.value)}
+                    className="assign-class-select"
                   >
-                  Move to Potential
-                  </button>
-                  <button
-                  className="form-btn waiting-list-action-btn waiting-list-action-btn-danger"
-                  onClick={() => handleDelete(student._id)}
-                  >
-                    Delete
-                  </button>
-              </div>
-            </div>
+                    <option value="">Assign to Class</option>
+                    {classes.map(cls => (
+                      <option key={cls.id} value={cls.id}>{cls.name}</option>
+                    ))}
+                  </select>
+                )}
+              </td>
+            </tr>
           ))}
+        </tbody>
+      </table>
+
+      {/* Details Modal/Panel */}
+      {selectedStudent && (
+        <div className="student-details-modal">
+          <div className="modal-content">
+            <button className="close-btn" onClick={() => setSelectedStudent(null)}>Close</button>
+            <h3>Student Details</h3>
+            <div><b>Name:</b> {selectedStudent.name}</div>
+            <div><b>English Name:</b> {selectedStudent.englishName}</div>
+            <div><b>Email:</b> {selectedStudent.email}</div>
+            <div><b>Phone:</b> {selectedStudent.phone}</div>
+            <div><b>Gender:</b> {selectedStudent.gender}</div>
+            <div><b>Status:</b> {selectedStudent.status}</div>
+            <div><b>Notes:</b> {selectedStudent.notes}</div>
+            {/* Add more fields as needed */}
+          </div>
         </div>
       )}
     </div>

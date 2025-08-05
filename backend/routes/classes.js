@@ -68,8 +68,19 @@ router.post('/', verifyToken, async (req, res) => {
     if (!name || !levelId) {
       return res.status(400).json({ success: false, message: 'Name and level ID are required' });
     }
+    // Generate next classCode (SU-XXX)
+    const lastClass = await Class.findOne({}).sort({ createdAt: -1 });
+    let nextNumber = 1;
+    if (lastClass && lastClass.classCode) {
+      const match = lastClass.classCode.match(/SU-(\d{3})/);
+      if (match) {
+        nextNumber = parseInt(match[1], 10) + 1;
+      }
+    }
+    const classCode = `SU-${String(nextNumber).padStart(3, '0')}`;
     const newClass = await Class.create({
       name,
+      classCode,
       levelId,
       description: description || '',
       teacherId: req.user.userId,
