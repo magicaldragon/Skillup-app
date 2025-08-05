@@ -282,4 +282,72 @@ router.delete('/:id/avatar', verifyToken, async (req, res) => {
   }
 });
 
+// Sync existing potential students with PotentialStudent records
+router.post('/sync-potential-students', verifyToken, async (req, res) => {
+  try {
+    // Only admin can run this sync
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Admin access required'
+      });
+    }
+
+    // Find all users with status 'potential' that are students
+    const potentialStudents = await User.find({ 
+      role: 'student', 
+      status: 'potential' 
+    });
+
+    let createdCount = 0;
+    let skippedCount = 0;
+
+    for (const student of potentialStudents) {
+      // Check if PotentialStudent record already exists for this email
+      const existingPotentialStudent = await PotentialStudent.findOne({ 
+        email: student.email 
+      });
+
+      if (!existingPotentialStudent) {
+        // Create new PotentialStudent record
+        const potentialStudent = new PotentialStudent({
+          name: student.name,
+          englishName: student.englishName,
+          email: student.email,
+          phone: student.phone,
+          gender: student.gender,
+          dob: student.dob,
+          parentName: student.parentName,
+          parentPhone: student.parentPhone,
+          source: 'existing_user_sync',
+          status: 'pending', // PotentialStudent uses different status values
+          notes: `Synced from existing user. Student Code: ${student.studentCode || 'N/A'}`,
+          assignedTo: null // Will be assigned by admin later
+        });
+        
+        await potentialStudent.save();
+        createdCount++;
+        console.log(`Created PotentialStudent record for existing user: ${student.email}`);
+      } else {
+        skippedCount++;
+        console.log(`PotentialStudent record already exists for: ${student.email}`);
+      }
+    }
+
+    res.json({
+      success: true,
+      message: `Sync completed. Created: ${createdCount}, Skipped: ${skippedCount}`,
+      created: createdCount,
+      skipped: skippedCount
+    });
+
+  } catch (error) {
+    console.error('Error syncing potential students:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to sync potential students: ' + error.message
+    });
+  }
+});
+
 module.exports = router; 

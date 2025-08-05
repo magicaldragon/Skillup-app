@@ -227,6 +227,38 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
     }
   };
 
+  // Sync existing students with PotentialStudent records
+  const handleSyncExistingStudents = async () => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      alert('No authentication token found');
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/sync-potential-students`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to sync existing students');
+      }
+
+      const result = await response.json();
+      alert(`Sync completed! ${result.created} new records created, ${result.skipped} skipped.`);
+      
+      // Refresh the potential students list
+      fetchPotentialStudents();
+    } catch (error) {
+      console.error('Sync error:', error);
+      alert('Failed to sync existing students. Please try again.');
+    }
+  };
+
   // Filtered students
   const filteredStudents = potentialStudents.filter(s =>
     s.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -305,7 +337,12 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
                   <div className="empty-state">
                     <div className="empty-icon">📋</div>
                     <p>No potential students found.</p>
-                    <p className="empty-subtitle">Students created with "potential" status will appear here.</p>
+                    <p className="empty-subtitle">
+                      Students created with "potential" status will appear here.
+                      {potentialStudents.length === 0 && (
+                        <span> If you have existing students with "potential" status, click "Sync Existing Students" below.</span>
+                      )}
+                    </p>
                   </div>
                 </td>
               </tr>
@@ -438,6 +475,12 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
           disabled={selectedIds.length === 0}
         >
           Clear
+        </button>
+        <button
+          className="potential-students-btn potential-students-btn-neutral"
+          onClick={handleSyncExistingStudents}
+        >
+          Sync Existing Students
         </button>
       </div>
       
