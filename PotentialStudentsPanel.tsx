@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import type { Student, StudentClass } from './types';
-import { deleteAccountCompletely } from './services/firebase';
 import './PotentialStudentsPanel.css';
 
 const API_BASE_URL = 'https://skillup-backend-v6vm.onrender.com/api';
@@ -31,7 +30,13 @@ interface PotentialStudent {
   updatedAt: string;
 }
 
-const PotentialStudentsPanel = ({ classes, currentUser, onDataRefresh }: { classes: StudentClass[], currentUser: Student, onDataRefresh?: () => void }) => {
+interface PotentialStudentsPanelProps {
+  classes: StudentClass[];
+  currentUser: Student;
+  onDataRefresh?: () => void;
+}
+
+const PotentialStudentsPanel = ({ classes, currentUser, onDataRefresh }: PotentialStudentsPanelProps) => {
   const [potentialStudents, setPotentialStudents] = useState<PotentialStudent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

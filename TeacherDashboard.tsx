@@ -88,7 +88,7 @@ const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onD
           </div>
         </div>
       ) : activeKey === 'settings' ? (
-        <SettingsPanel user={user} classes={classes} onDataRefresh={onDataRefresh} />
+        <SettingsPanel currentUser={user} classes={classes} onDataRefresh={onDataRefresh} />
       ) : activeKey === 'admin-debug' ? (
         <div className="teacher-dashboard-content">
           <div className="teacher-dashboard-welcome">

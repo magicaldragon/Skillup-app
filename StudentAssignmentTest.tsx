@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { db } from './services/firebase';
-import type { Assignment, AssignmentQuestion, Submission, Student } from './types';
+import type { Assignment, Submission, Student } from './types';
 
 interface StudentAssignmentTestProps {
   assignment: Assignment;
@@ -40,7 +39,6 @@ const StudentAssignmentTest: React.FC<StudentAssignmentTestProps> = ({ assignmen
         total++;
         if (isCorrect) correct++;
       } else if (q.type === 'match' && q.matchPairs) {
-        const rightAnswers = assignment.answerKey[q.id] as string[];
         let matchCorrect = 0;
         q.matchPairs.forEach((pair, idx) => {
           const ans = answers[q.id + '_' + idx];

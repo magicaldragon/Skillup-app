@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const SystemHealthPanel = () => {
   const [status, setStatus] = useState<any>(null);

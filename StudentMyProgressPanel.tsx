@@ -1,9 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import type { Student, Submission, Assignment } from './types';
-import { Pie, Bar, Line } from 'react-chartjs-2';
-import { Chart, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, PointElement, LineElement } from 'chart.js';
-
-Chart.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, PointElement, LineElement);
 
 const SKILLS = ['Listening', 'Reading', 'Writing', 'Speaking'];
 
@@ -132,7 +128,9 @@ const StudentMyProgressPanel = ({ user }: { user: Student }) => {
       <div className="flex flex-col md:flex-row gap-8 items-center justify-center">
         <div className="w-full md:w-1/2 flex flex-col items-center">
           <h3 className="font-semibold mb-2">Skill Breakdown</h3>
-          <Pie data={pieData} className="w-full max-w-xs" />
+          <div className="w-full max-w-xs">
+            <canvas id="skillBreakdownChart"></canvas>
+          </div>
           <div className="mt-2 text-sm">
             <span className="font-bold text-green-700">Best:</span> {bestSkill} &nbsp;|&nbsp;
             <span className="font-bold text-red-600">Needs Work:</span> {worstSkill}
@@ -141,12 +139,16 @@ const StudentMyProgressPanel = ({ user }: { user: Student }) => {
         <div className="w-full md:w-1/2 flex flex-col items-center">
           <h3 className="font-semibold mb-2">Estimated IELTS Score</h3>
           <div className="text-4xl font-bold text-blue-600 mb-4 animate-pulse">{estimatedIELTS}</div>
-          <Bar data={barData} className="w-full max-w-xs" options={{ responsive: true, plugins: { legend: { display: false } } }} />
+          <div className="w-full max-w-xs">
+            <canvas id="estimatedIELTSChart"></canvas>
+          </div>
         </div>
       </div>
       <div className="mt-8">
         <h3 className="font-semibold mb-2">Score Trends</h3>
-        <Line data={lineData} options={{ responsive: true, plugins: { legend: { position: 'bottom' } } }} className="w-full max-w-2xl" />
+        <div className="w-full max-w-2xl">
+          <canvas id="scoreTrendsChart"></canvas>
+        </div>
       </div>
       <div className="mt-8">
         <h3 className="font-semibold mb-2">Class Comparison</h3>

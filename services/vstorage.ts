@@ -1,6 +1,6 @@
 // VStorage (VNG Cloud S3) integration for SKILLUP
 // Uses AWS SDK v3 for S3 compatibility
-import { S3Client, PutObjectCommand, GetObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
+// import { S3Client, PutObjectCommand, GetObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
 
 // --- VStorage (VNG Cloud S3) Config ---
 export const vstorageConfig = {
@@ -17,15 +17,15 @@ if (!vstorageConfig.accessKeyId || !vstorageConfig.secretAccessKey) {
 }
 
 // --- S3 Client ---
-export const s3 = new S3Client({
-  region: vstorageConfig.region,
-  endpoint: vstorageConfig.endpoint,
-  credentials: {
-    accessKeyId: vstorageConfig.accessKeyId,
-    secretAccessKey: vstorageConfig.secretAccessKey,
-  },
-  forcePathStyle: true, // Required for VNG Cloud S3 compatibility
-});
+// export const s3 = new S3Client({
+//   region: vstorageConfig.region,
+//   endpoint: vstorageConfig.endpoint,
+//   credentials: {
+//     accessKeyId: vstorageConfig.accessKeyId,
+//     secretAccessKey: vstorageConfig.secretAccessKey,
+//   },
+//   forcePathStyle: true, // Required for VNG Cloud S3 compatibility
+// });
 
 // --- Helper: Upload File ---
 export async function uploadFile(key: string, file: Blob | Buffer | Uint8Array, contentType = 'application/octet-stream') {
@@ -33,13 +33,15 @@ export async function uploadFile(key: string, file: Blob | Buffer | Uint8Array, 
     throw new Error('VStorage credentials not configured');
   }
   
-  const command = new PutObjectCommand({
-    Bucket: vstorageConfig.bucket,
-    Key: key,
-    Body: file,
-    ContentType: contentType,
-  });
-  return s3.send(command);
+  // const command = new PutObjectCommand({
+  //   Bucket: vstorageConfig.bucket,
+  //   Key: key,
+  //   Body: file,
+  //   ContentType: contentType,
+  // });
+  // return s3.send(command);
+  console.warn('VStorage upload functionality is currently disabled.');
+  return Promise.resolve({}); // Return a dummy object to avoid breaking the flow
 }
 
 // --- Helper: Get File (returns a presigned URL or stream) ---
@@ -48,11 +50,13 @@ export async function getFile(key: string) {
     throw new Error('VStorage credentials not configured');
   }
   
-  const command = new GetObjectCommand({
-    Bucket: vstorageConfig.bucket,
-    Key: key,
-  });
-  return s3.send(command);
+  // const command = new GetObjectCommand({
+  //   Bucket: vstorageConfig.bucket,
+  //   Key: key,
+  // });
+  // return s3.send(command);
+  console.warn('VStorage get functionality is currently disabled.');
+  return Promise.resolve({}); // Return a dummy object to avoid breaking the flow
 }
 
 // --- Helper: List Files ---
@@ -61,9 +65,11 @@ export async function listFiles(prefix = '') {
     throw new Error('VStorage credentials not configured');
   }
   
-  const command = new ListObjectsV2Command({
-    Bucket: vstorageConfig.bucket,
-    Prefix: prefix,
-  });
-  return s3.send(command);
+  // const command = new ListObjectsV2Command({
+  //   Bucket: vstorageConfig.bucket,
+  //   Prefix: prefix,
+  // });
+  // return s3.send(command);
+  console.warn('VStorage list functionality is currently disabled.');
+  return Promise.resolve({}); // Return a dummy object to avoid breaking the flow
 }

@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { db } from './services/firebase';
+import { useEffect, useState } from 'react';
 import type { Student, Submission, Assignment } from './types';
 
 const StudentScoresFeedbackPanel = ({ user }: { user: Student }) => {

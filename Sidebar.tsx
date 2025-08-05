@@ -3,7 +3,6 @@
 // Shows all sections for teachers/admins, limited for students
 // Modern design, clear icons, and role-based logic
 import { useState } from 'react';
-import { FaChalkboardTeacher, FaClipboardList, FaUsers, FaTasks, FaUserPlus, FaUserCheck, FaChartBar, FaHome, FaClipboardCheck, FaClipboard, FaUser, FaCheckCircle, FaTimesCircle, FaListAlt, FaMicrophone, FaPen, FaBookOpen, FaUserCog, FaFolderOpen, FaHourglassHalf, FaUserShield, FaUserTie, FaUserFriends, FaGem, FaArchive, FaSignOutAlt } from 'react-icons/fa';
 import './Sidebar.css';
 import DiceBearAvatar from './DiceBearAvatar';
 

@@ -11,32 +11,38 @@ const DICEBEAR_STYLES = [
   { label: 'Fun Emoji', value: 'fun-emoji' },
 ];
 
-const SettingsPanel = ({ user, classes, onDataRefresh }: { user: Student, classes: StudentClass[], onDataRefresh?: () => void }) => {
+type SettingsPanelProps = {
+  currentUser: Student;
+  classes: StudentClass[];
+  onDataRefresh?: () => void;
+};
+
+const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelProps) => {
   const [form, setForm] = useState({
-    dob: user.dob || '',
-    phone: user.phone || '',
-    englishName: user.englishName || '',
-    parentName: user.parentName || '',
-    parentPhone: user.parentPhone || '',
-    notes: user.notes || '',
+    dob: currentUser.dob || '',
+    phone: currentUser.phone || '',
+    englishName: currentUser.englishName || '',
+    parentName: currentUser.parentName || '',
+    parentPhone: currentUser.parentPhone || '',
+    notes: currentUser.notes || '',
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [avatarStyle, setAvatarStyle] = useState(user.diceBearStyle || 'avataaars');
-  const [avatarSeed, setAvatarSeed] = useState(user.diceBearSeed || user.name || user.email || user.id || 'User');
-  const [avatarUrl, setAvatarUrl] = useState(user.avatarUrl || '');
+  const [avatarStyle, setAvatarStyle] = useState(currentUser.diceBearStyle || 'avataaars');
+  const [avatarSeed, setAvatarSeed] = useState(currentUser.diceBearSeed || currentUser.name || currentUser.email || currentUser.id || 'User');
+  const [avatarUrl, setAvatarUrl] = useState(currentUser.avatarUrl || '');
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
 
   const currentClasses = useMemo(() => {
-    if (!user.classIds || !classes.length) return [];
-    return classes.filter(c => user.classIds?.includes(c.id)).map(c => c.name);
-  }, [user.classIds, classes]);
+    if (!currentUser.classIds || !classes.length) return [];
+    return classes.filter(c => currentUser.classIds?.includes(c.id)).map(c => c.name);
+  }, [currentUser.classIds, classes]);
 
   // Check if user can edit their information
-  const canEdit = user.role === 'admin' || user.role === 'teacher' || user.role === 'staff';
+  const canEdit = currentUser.role === 'admin' || currentUser.role === 'teacher' || currentUser.role === 'staff';
 
   const handleRandomize = () => {
     setAvatarSeed(Math.random().toString(36).substring(2, 10));
@@ -55,7 +61,7 @@ const SettingsPanel = ({ user, classes, onDataRefresh }: { user: Student, classe
     formData.append('avatar', file);
     try {
       const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
-      const res = await fetch(`${apiUrl}/users/${user.id}/avatar`, {
+      const res = await fetch(`${apiUrl}/users/${currentUser.id}/avatar`, {
         method: 'POST',
         body: formData,
         headers: {
@@ -74,29 +80,6 @@ const SettingsPanel = ({ user, classes, onDataRefresh }: { user: Student, classe
     }
   };
 
-  const handleRemoveAvatar = async () => {
-    setAvatarUploading(true);
-    setAvatarError(null);
-    try {
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
-      const res = await fetch(`${apiUrl}/users/${user.id}/avatar`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-        },
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Failed to remove avatar');
-      setAvatarUrl('');
-      setSuccess('Avatar removed!');
-      onDataRefresh?.();
-    } catch (err: any) {
-      setAvatarError(err.message || 'Failed to remove avatar');
-    } finally {
-      setAvatarUploading(false);
-    }
-  };
-
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -104,7 +87,7 @@ const SettingsPanel = ({ user, classes, onDataRefresh }: { user: Student, classe
     setError(null);
     try {
       const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
-      const res = await fetch(`${apiUrl}/users/${user.id}`, {
+      const res = await fetch(`${apiUrl}/users/${currentUser.id}`, {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',
@@ -147,20 +130,20 @@ const SettingsPanel = ({ user, classes, onDataRefresh }: { user: Student, classe
                 <DiceBearAvatar seed={avatarSeed} size={128} style={avatarStyle} />
               )}
             </div>
-            <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 px-5 py-1 rounded-full bg-green-700 text-white text-xs font-bold shadow-md border-2 border-white uppercase tracking-widest" style={{ letterSpacing: 2 }}>{user.role}</span>
+            <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 px-5 py-1 rounded-full bg-green-700 text-white text-xs font-bold shadow-md border-2 border-white uppercase tracking-widest" style={{ letterSpacing: 2 }}>{currentUser.role}</span>
           </div>
-          <div className="text-3xl font-extrabold tracking-wide text-green-900 drop-shadow mb-1">{user.name}</div>
-          {user.englishName && <div className="text-lg text-green-700 font-semibold mb-4">{user.englishName}</div>}
-          {user.studentCode && <div className="text-lg text-blue-600 font-semibold mb-4">Student Code: {user.studentCode}</div>}
+          <div className="text-3xl font-extrabold tracking-wide text-green-900 drop-shadow mb-1">{currentUser.name}</div>
+          {currentUser.englishName && <div className="text-lg text-green-700 font-semibold mb-4">{currentUser.englishName}</div>}
+          {currentUser.studentCode && <div className="text-lg text-blue-600 font-semibold mb-4">Student Code: {currentUser.studentCode}</div>}
           
           <div className="flex flex-col gap-2 w-full max-w-md mt-4">
             <div className="info-row">
               <span className="info-label">Email:</span>
-              <span className="info-value">{user.email}</span>
+              <span className="info-value">{currentUser.email}</span>
             </div>
             <div className="info-row">
               <span className="info-label">Gender:</span>
-              <span className="info-value">{user.gender || '—'}</span>
+              <span className="info-value">{currentUser.gender || '—'}</span>
             </div>
             <div className="info-row">
               <span className="info-label">Phone:</span>
@@ -170,7 +153,7 @@ const SettingsPanel = ({ user, classes, onDataRefresh }: { user: Student, classe
               <span className="info-label">Date of Birth:</span>
               <span className="info-value">{form.dob || '—'}</span>
             </div>
-            {user.role === 'student' && (
+            {currentUser.role === 'student' && (
               <>
                 <div className="info-row">
                   <span className="info-label">Parent's Name:</span>
@@ -182,7 +165,7 @@ const SettingsPanel = ({ user, classes, onDataRefresh }: { user: Student, classe
                 </div>
                 <div className="info-row">
                   <span className="info-label">Status:</span>
-                  <span className="info-value">{user.status || '—'}</span>
+                  <span className="info-value">{currentUser.status || '—'}</span>
                 </div>
               </>
             )}
@@ -235,7 +218,7 @@ const SettingsPanel = ({ user, classes, onDataRefresh }: { user: Student, classe
                 <DiceBearAvatar seed={avatarSeed} size={128} style={avatarStyle} />
               )}
             </div>
-            <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 px-5 py-1 rounded-full bg-green-700 text-white text-xs font-bold shadow-md border-2 border-white uppercase tracking-widest" style={{ letterSpacing: 2 }}>{user.role}</span>
+            <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 px-5 py-1 rounded-full bg-green-700 text-white text-xs font-bold shadow-md border-2 border-white uppercase tracking-widest" style={{ letterSpacing: 2 }}>{currentUser.role}</span>
           </div>
           <div className="flex gap-2 mt-2">
             <select
@@ -288,7 +271,7 @@ const SettingsPanel = ({ user, classes, onDataRefresh }: { user: Student, classe
               onChange={handleChange}
               className="w-full p-3 border-2 border-green-200 rounded-lg text-lg"
             />
-            {user.role === 'student' && (
+            {currentUser.role === 'student' && (
               <>
                 <label className="text-base font-medium text-slate-700">Parent's Name</label>
                 <input

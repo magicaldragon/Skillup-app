@@ -4,16 +4,15 @@
 import type { Student, StudentClass } from './types';
 import SettingsPanel from './SettingsPanel';
 
-const StudentDashboard = ({ user, classes, activeKey, onLogout }: {
+const StudentDashboard = ({ user, classes, activeKey }: {
   user: Student,
   classes: StudentClass[],
   activeKey: string,
-  onLogout: () => void
 }) => {
   return (
     <div className="teacher-dashboard">
       {activeKey === 'settings' ? (
-        <SettingsPanel user={user} classes={classes} onDataRefresh={() => {}} />
+        <SettingsPanel currentUser={user} classes={classes || []} onDataRefresh={() => {}} />
       ) : (
         <>
           <h1 className="text-3xl font-bold mb-2">Student Dashboard</h1>

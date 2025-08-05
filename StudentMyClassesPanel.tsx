@@ -1,5 +1,3 @@
-import type { Student, StudentClass } from './types';
-
 const StudentMyClassesPanel = () => {
   return (
     <div className="student-my-classes-panel">
