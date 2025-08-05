@@ -1,12 +1,12 @@
-/* Ultimate vivid sidebar design - BULLETPROOF LAYOUT */
+/* Ultimate vivid sidebar design - RESPONSIVE LAYOUT */
 .sidebar {
-  flex: 0 0 320px !important;
-  width: 320px !important;
+  flex: 0 0 20rem !important; /* Responsive width */
+  width: 20rem !important;
   background: #295b37 !important;
   color: #fff !important;
-  box-shadow: 2px 0 16px rgba(0,0,0,0.05) !important;
+  box-shadow: 0.125rem 0 1rem rgba(0,0,0,0.05) !important;
   z-index: 100 !important;
-  border-right: 4px solid #295b37 !important;
+  border-right: 0.25rem solid #295b37 !important;
   margin: 0 !important;
   padding: 0 !important;
   display: flex !important;
@@ -15,366 +15,404 @@
   overflow-y: auto !important;
   overflow-x: hidden !important;
   position: relative !important;
-  min-width: 320px !important;
-  max-width: 320px !important;
+  min-width: 20rem !important;
+  max-width: 20rem !important;
 }
 
-@media (max-width: 900px) {
+/* MOBILE RESPONSIVE */
+@media (max-width: 56.25rem) { /* 900px */
   .sidebar {
-    flex: 0 0 100vw;
-    width: 100vw;
-    position: fixed;
-    left: 0;
-    top: 0;
-    height: 100vh;
-    z-index: 200;
-    border-right: none;
-    border-bottom: 2px solid #eee;
-    box-shadow: 2px 0 16px rgba(0,0,0,0.10);
-    transform: translateX(-100%);
-    transition: transform 0.3s;
-    overflow-y: auto;
-    overflow-x: hidden;
+    flex: 0 0 100vw !important;
+    width: 100vw !important;
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    height: 100vh !important;
+    z-index: 200 !important;
+    border-right: none !important;
+    border-bottom: 0.125rem solid #eee !important;
+    box-shadow: 0.125rem 0 1rem rgba(0,0,0,0.10) !important;
+    transform: translateX(-100%) !important;
+    transition: transform 0.3s ease !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
   }
   .sidebar.open {
-    transform: translateX(0);
+    transform: translateX(0) !important;
   }
   .sidebar-overlay {
-    display: block;
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.3);
-    z-index: 199;
+    display: block !important;
+    position: fixed !important;
+    top: 0 !important; 
+    left: 0 !important; 
+    right: 0 !important; 
+    bottom: 0 !important;
+    background: rgba(0,0,0,0.3) !important;
+    z-index: 199 !important;
   }
 }
-@media (min-width: 901px) {
+
+/* TABLET RESPONSIVE */
+@media (min-width: 56.3125rem) and (max-width: 75rem) { /* 901px to 1200px */
   .sidebar {
-    flex: 0 0 320px;
-    width: 320px;
-    position: relative;
-    border-bottom: none;
-    border-right: 4px solid #295b37;
-    height: 100vh;
-    transform: none;
-    overflow-y: auto;
-    overflow-x: hidden;
+    flex: 0 0 18rem !important;
+    width: 18rem !important;
+    position: relative !important;
+    border-bottom: none !important;
+    border-right: 0.25rem solid #295b37 !important;
+    height: 100vh !important;
+    transform: none !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    min-width: 18rem !important;
+    max-width: 18rem !important;
   }
   .sidebar-overlay {
-    display: none;
+    display: none !important;
+  }
+}
+
+/* DESKTOP RESPONSIVE */
+@media (min-width: 75.0625rem) { /* 1201px and up */
+  .sidebar {
+    flex: 0 0 20rem !important;
+    width: 20rem !important;
+    position: relative !important;
+    border-bottom: none !important;
+    border-right: 0.25rem solid #295b37 !important;
+    height: 100vh !important;
+    transform: none !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    min-width: 20rem !important;
+    max-width: 20rem !important;
+  }
+  .sidebar-overlay {
+    display: none !important;
+  }
+}
+
+/* LARGE DESKTOP */
+@media (min-width: 120rem) { /* 1920px and up */
+  .sidebar {
+    flex: 0 0 22rem !important;
+    width: 22rem !important;
+    min-width: 22rem !important;
+    max-width: 22rem !important;
   }
 }
 
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .sidebar {
-    background: #295b37; /* Dark green background in dark mode */
-    border-right: 4px solid #ffe9c2; /* Light orange border in dark mode */
+    background: #295b37 !important; /* Dark green background in dark mode */
+    border-right: 0.25rem solid #ffe9c2 !important; /* Light orange border in dark mode */
   }
 }
 
 .sidebar-profile {
-  background: rgba(255,255,255,0.95);
-  border-radius: 18px;
-  box-shadow: 0 2px 16px rgba(48, 118, 55, 0.10);
-  padding: 24px 18px 16px 18px;
-  margin: 16px 16px 16px 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: calc(100% - 32px);
-  max-width: 280px;
-  box-sizing: border-box;
-  margin-left: auto;
-  margin-right: auto;
+  background: rgba(255,255,255,0.95) !important;
+  border-radius: 1.125rem !important;
+  box-shadow: 0 0.125rem 1rem rgba(48, 118, 55, 0.10) !important;
+  padding: 1.5rem 1.125rem 1rem 1.125rem !important;
+  margin: 1rem 1rem 1rem 1rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  width: calc(100% - 2rem) !important;
+  max-width: 17.5rem !important;
+  box-sizing: border-box !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
 }
 
 /* Dark mode profile */
 @media (prefers-color-scheme: dark) {
   .sidebar-profile {
-    background: rgba(41, 91, 55, 0.95); /* Dark green background */
-    box-shadow: 0 2px 16px rgba(255, 233, 194, 0.10);
+    background: rgba(41, 91, 55, 0.95) !important; /* Dark green background */
+    box-shadow: 0 0.125rem 1rem rgba(255, 233, 194, 0.10) !important;
   }
 }
 
 .sidebar-profile-avatar {
-  margin-bottom: 10px;
+  margin-bottom: 0.625rem !important;
 }
 .sidebar-profile-img {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  border: 2.5px solid #f5b802;
-  background: #fff;
-  object-fit: cover;
-  box-shadow: 0 2px 8px #ffe9c2;
+  width: 3.5rem !important;
+  height: 3.5rem !important;
+  border-radius: 50% !important;
+  border: 0.15625rem solid #f5b802 !important;
+  background: #fff !important;
+  object-fit: cover !important;
+  box-shadow: 0 0.125rem 0.5rem #ffe9c2 !important;
 }
 
 /* Dark mode avatar */
 @media (prefers-color-scheme: dark) {
   .sidebar-profile-img {
-    border: 2.5px solid #ffe9c2;
-    background: #295b37;
-    box-shadow: 0 2px 8px #295b37;
+    border: 0.15625rem solid #ffe9c2 !important;
+    background: #295b37 !important;
+    box-shadow: 0 0.125rem 0.5rem #295b37 !important;
   }
 }
 
 .sidebar-profile-name {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #307637;
-  margin-bottom: 2px;
-  letter-spacing: 0.5px;
-  text-align: center;
+  font-size: 1.1rem !important;
+  font-weight: 700 !important;
+  color: #307637 !important;
+  margin-bottom: 0.125rem !important;
+  letter-spacing: 0.03125rem !important;
+  text-align: center !important;
 }
 
 /* Dark mode profile name */
 @media (prefers-color-scheme: dark) {
   .sidebar-profile-name {
-    color: #ffe9c2; /* Light orange text in dark mode */
+    color: #ffe9c2 !important; /* Light orange text in dark mode */
   }
 }
 
 .sidebar-profile-role {
-  font-size: 0.98rem;
-  font-weight: 600;
-  color: #fff;
-  background: #295b37; /* Remove gradient, use solid color */
-  border-radius: 8px;
-  padding: 2px 16px;
-  margin-bottom: 0.2rem;
-  letter-spacing: 1.2px;
-  box-shadow: 0 1px 4px #ffe9c2;
-  text-align: center;
+  font-size: 0.98rem !important;
+  font-weight: 600 !important;
+  color: #fff !important;
+  background: #295b37 !important; /* Remove gradient, use solid color */
+  border-radius: 0.5rem !important;
+  padding: 0.125rem 1rem !important;
+  margin-bottom: 0.0125rem !important;
+  letter-spacing: 0.075rem !important;
+  box-shadow: 0 0.0625rem 0.25rem #ffe9c2 !important;
+  text-align: center !important;
 }
 
 /* Dark mode profile role */
 @media (prefers-color-scheme: dark) {
   .sidebar-profile-role {
-    color: #295b37; /* Dark green text in dark mode */
-    background: #ffe9c2; /* Light orange background in dark mode */
-    box-shadow: 0 1px 4px #295b37;
+    color: #295b37 !important; /* Dark green text in dark mode */
+    background: #ffe9c2 !important; /* Light orange background in dark mode */
+    box-shadow: 0 0.0625rem 0.25rem #295b37 !important;
   }
 }
 
 .sidebar-menu {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding: 0 16px;
-  box-sizing: border-box;
-  overflow-y: auto;
-  overflow-x: hidden;
-  max-height: calc(100vh - 200px); /* Account for profile section and footer */
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.875rem !important;
+  padding: 0 1rem !important;
+  box-sizing: border-box !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  max-height: calc(100vh - 12.5rem) !important; /* Account for profile section and footer */
 }
 .sidebar-btn {
-  background: #295b37; /* Remove gradient, use solid dark green */
-  color: #fff; /* White text for all inactive buttons */
-  font-weight: bold;
-  font-size: 1.1rem;
-  border: none;
-  border-radius: 14px;
-  padding: 18px 0 18px 40px; /* Increased height for taller buttons */
-  box-shadow: 0 2px 8px rgba(48, 118, 55, 0.10);
-  transition: all 0.3s ease; /* Smooth transitions for better UX */
-  cursor: pointer;
-  letter-spacing: 1px;
-  outline: none;
-  width: 100%; /* Full width within container */
-  max-width: 280px; /* Prevent exceeding sidebar limits */
-  text-align: left;
-  margin-bottom: 8px;
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  position: relative; /* For hover effects */
-  min-height: 60px; /* Ensure minimum height for taller buttons */
+  background: #295b37 !important; /* Remove gradient, use solid dark green */
+  color: #fff !important; /* White text for all inactive buttons */
+  font-weight: bold !important;
+  font-size: 1.1rem !important;
+  border: none !important;
+  border-radius: 0.875rem !important;
+  padding: 1.125rem 0 1.125rem 2.5rem !important; /* Increased height for taller buttons */
+  box-shadow: 0 0.125rem 0.5rem rgba(48, 118, 55, 0.10) !important;
+  transition: all 0.3s ease !important; /* Smooth transitions for better UX */
+  cursor: pointer !important;
+  letter-spacing: 0.0625rem !important;
+  outline: none !important;
+  width: 100% !important; /* Full width within container */
+  max-width: 17.5rem !important; /* Prevent exceeding sidebar limits */
+  text-align: left !important;
+  margin-bottom: 0.5rem !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: center !important;
+  position: relative !important; /* For hover effects */
+  min-height: 3.75rem !important; /* Ensure minimum height for taller buttons */
 }
 
 /* Dark mode buttons */
 @media (prefers-color-scheme: dark) {
   .sidebar-btn {
-    background: #ffe9c2; /* Light orange background in dark mode */
-    color: #295b37; /* Dark green text in dark mode */
-    box-shadow: 0 2px 8px rgba(255, 233, 194, 0.10);
+    background: #ffe9c2 !important; /* Light orange background in dark mode */
+    color: #295b37 !important; /* Dark green text in dark mode */
+    box-shadow: 0 0.125rem 0.5rem rgba(255, 233, 194, 0.10) !important;
   }
 }
 
 .sidebar-btn .sidebar-menu-icon {
-  margin-right: 20px; /* More space between icon and text */
-  display: flex;
-  align-items: center;
-  transition: transform 0.2s ease; /* Subtle icon animation */
+  margin-right: 1.25rem !important; /* More space between icon and text */
+  display: flex !important;
+  align-items: center !important;
+  transition: transform 0.2s ease !important; /* Subtle icon animation */
 }
 
 .sidebar-btn:hover {
-  background: #1a3d2a; /* Darker green on hover */
-  color: #ffe9c2; /* Light orange text on hover */
-  box-shadow: 0 4px 16px rgba(41, 91, 55, 0.3); /* Glow effect on hover */
-  transform: translateX(4px); /* Subtle slide effect */
+  background: #1a3d2a !important; /* Darker green on hover */
+  color: #ffe9c2 !important; /* Light orange text on hover */
+  box-shadow: 0 0.25rem 1rem rgba(41, 91, 55, 0.3) !important; /* Glow effect on hover */
+  transform: translateX(0.25rem) !important; /* Subtle slide effect */
 }
 
 /* Dark mode hover */
 @media (prefers-color-scheme: dark) {
   .sidebar-btn:hover {
-    background: #f5b802; /* Orange background on hover in dark mode */
-    color: #295b37; /* Dark green text on hover in dark mode */
-    box-shadow: 0 4px 16px rgba(245, 184, 2, 0.3);
+    background: #f5b802 !important; /* Orange background on hover in dark mode */
+    color: #295b37 !important; /* Dark green text on hover in dark mode */
+    box-shadow: 0 0.25rem 1rem rgba(245, 184, 2, 0.3) !important;
   }
 }
 
 .sidebar-btn:hover .sidebar-menu-icon {
-  transform: scale(1.1); /* Subtle icon scale on hover */
+  transform: scale(1.1) !important; /* Subtle icon scale on hover */
 }
 
 .sidebar-btn.active {
-  background: #1a3d2a; /* Dark green for active */
-  color: #ffe9c2; /* Light orange text for active */
-  box-shadow: 0 6px 24px rgba(41, 91, 55, 0.4), 0 0 0 2px #f5b802; /* Glow effect for active */
-  border: 2px solid #f5b802;
-  transform: translateX(4px); /* Consistent slide effect */
+  background: #1a3d2a !important; /* Dark green for active */
+  color: #ffe9c2 !important; /* Light orange text for active */
+  box-shadow: 0 0.375rem 1.5rem rgba(41, 91, 55, 0.4), 0 0 0 0.125rem #f5b802 !important; /* Glow effect for active */
+  border: 0.125rem solid #f5b802 !important;
+  transform: translateX(0.25rem) !important; /* Consistent slide effect */
 }
 
 /* Dark mode active */
 @media (prefers-color-scheme: dark) {
   .sidebar-btn.active {
-    background: #f5b802; /* Orange background for active in dark mode */
-    color: #295b37; /* Dark green text for active in dark mode */
-    box-shadow: 0 6px 24px rgba(245, 184, 2, 0.4), 0 0 0 2px #295b37;
-    border: 2px solid #295b37;
+    background: #f5b802 !important; /* Orange background for active in dark mode */
+    color: #295b37 !important; /* Dark green text for active in dark mode */
+    box-shadow: 0 0.375rem 1.5rem rgba(245, 184, 2, 0.4), 0 0 0 0.125rem #295b37 !important;
+    border: 0.125rem solid #295b37 !important;
   }
 }
 
 /* Submenu button: more indentation, no box */
 .sidebar-submenu-btn {
-  background: none;
-  color: #307637;
-  font-weight: 600;
-  font-size: 1.05rem;
-  border: none;
-  border-radius: 12px;
-  padding: 16px 0 16px 60px; /* Increased height for taller buttons */
-  margin-bottom: 8px;
-  margin-left: 8px;
-  box-shadow: none;
-  transition: all 0.3s ease; /* Smooth transitions */
-  cursor: pointer;
-  text-align: left;
-  display: flex;
-  align-items: center;
-  width: calc(100% - 16px); /* Full width minus margin */
-  max-width: 260px; /* Prevent exceeding sidebar limits */
-  position: relative;
-  min-height: 50px; /* Ensure minimum height for taller buttons */
-  gap: 12px; /* Add consistent spacing between icon and text */
+  background: none !important;
+  color: #307637 !important;
+  font-weight: 600 !important;
+  font-size: 1.05rem !important;
+  border: none !important;
+  border-radius: 0.75rem !important;
+  padding: 1rem 0 1rem 3.75rem !important; /* Increased height for taller buttons */
+  margin-bottom: 0.5rem !important;
+  margin-left: 0.5rem !important;
+  box-shadow: none !important;
+  transition: all 0.3s ease !important; /* Smooth transitions */
+  cursor: pointer !important;
+  text-align: left !important;
+  display: flex !important;
+  align-items: center !important;
+  width: calc(100% - 1rem) !important; /* Full width minus margin */
+  max-width: 16.25rem !important; /* Prevent exceeding sidebar limits */
+  position: relative !important;
+  min-height: 3.125rem !important; /* Ensure minimum height for taller buttons */
+  gap: 0.75rem !important; /* Add consistent spacing between icon and text */
 }
 
 /* Dark mode submenu buttons */
 @media (prefers-color-scheme: dark) {
   .sidebar-submenu-btn {
-    color: #ffe9c2; /* Light orange text in dark mode */
+    color: #ffe9c2 !important; /* Light orange text in dark mode */
   }
 }
 
 .sidebar-submenu-btn:hover {
-  background: #1a3d2a; /* Dark green on hover */
-  color: #ffe9c2; /* Light orange text on hover */
-  border-left: 4px solid #f5b802;
-  box-shadow: 0 4px 16px rgba(41, 91, 55, 0.3); /* Glow effect on hover */
-  transform: translateX(4px); /* Subtle slide effect */
+  background: #1a3d2a !important; /* Dark green on hover */
+  color: #ffe9c2 !important; /* Light orange text on hover */
+  border-left: 0.25rem solid #f5b802 !important;
+  box-shadow: 0 0.25rem 1rem rgba(41, 91, 55, 0.3) !important; /* Glow effect on hover */
+  transform: translateX(0.25rem) !important; /* Subtle slide effect */
 }
 
 /* Dark mode submenu hover */
 @media (prefers-color-scheme: dark) {
   .sidebar-submenu-btn:hover {
-    background: #f5b802; /* Orange background on hover in dark mode */
-    color: #295b37; /* Dark green text on hover in dark mode */
-    border-left: 4px solid #295b37;
-    box-shadow: 0 4px 16px rgba(245, 184, 2, 0.3);
+    background: #f5b802 !important; /* Orange background on hover in dark mode */
+    color: #295b37 !important; /* Dark green text on hover in dark mode */
+    border-left: 0.25rem solid #295b37 !important;
+    box-shadow: 0 0.25rem 1rem rgba(245, 184, 2, 0.3) !important;
   }
 }
 
 .sidebar-submenu-btn.active {
-  background: #1a3d2a; /* Dark green for active */
-  color: #ffe9c2; /* Light orange text */
-  border-left: 4px solid #f5b802;
-  box-shadow: 0 4px 16px rgba(41, 91, 55, 0.3); /* Glow effect for active */
-  transform: translateX(4px); /* Consistent slide effect */
+  background: #1a3d2a !important; /* Dark green for active */
+  color: #ffe9c2 !important; /* Light orange text */
+  border-left: 0.25rem solid #f5b802 !important;
+  box-shadow: 0 0.25rem 1rem rgba(41, 91, 55, 0.3) !important; /* Glow effect for active */
+  transform: translateX(0.25rem) !important; /* Consistent slide effect */
 }
 
 /* Dark mode submenu active */
 @media (prefers-color-scheme: dark) {
   .sidebar-submenu-btn.active {
-    background: #f5b802; /* Orange background for active in dark mode */
-    color: #295b37; /* Dark green text for active in dark mode */
-    border-left: 4px solid #295b37;
-    box-shadow: 0 4px 16px rgba(245, 184, 2, 0.3);
+    background: #f5b802 !important; /* Orange background for active in dark mode */
+    color: #295b37 !important; /* Dark green text for active in dark mode */
+    border-left: 0.25rem solid #295b37 !important;
+    box-shadow: 0 0.25rem 1rem rgba(245, 184, 2, 0.3) !important;
   }
 }
 
 /* Completely remove submenu box visibility and effects */
 .sidebar-submenu {
-  background: transparent;
-  border-radius: 0;
-  margin: 0;
-  padding: 0;
-  box-shadow: none;
-  border: none;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  width: 100%;
+  background: transparent !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+  width: 100% !important;
 }
 
 .sidebar-footer {
-  margin-top: auto;
-  width: 100%;
-  padding-bottom: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  box-sizing: border-box;
+  margin-top: auto !important;
+  width: 100% !important;
+  padding-bottom: 1.5rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.75rem !important;
+  box-sizing: border-box !important;
 }
 
 /* Add vivid sidebar submenu and divider styles */
 .sidebar-divider {
-  width: 80%;
-  height: 2px;
-  background: #f5b802; /* Remove gradient, use solid color */
-  border-radius: 2px;
-  margin: 18px auto 12px auto;
+  width: 80% !important;
+  height: 0.125rem !important;
+  background: #f5b802 !important; /* Remove gradient, use solid color */
+  border-radius: 0.125rem !important;
+  margin: 1.125rem auto 0.75rem auto !important;
 }
 
 /* Dark mode divider */
 @media (prefers-color-scheme: dark) {
   .sidebar-divider {
-    background: #295b37; /* Dark green in dark mode */
+    background: #295b37 !important; /* Dark green in dark mode */
   }
 }
 
 /* Professional UX improvements */
 .sidebar-submenu-arrow {
-  margin-left: auto;
-  transition: transform 0.2s ease;
-  font-size: 0.8rem;
+  margin-left: auto !important;
+  transition: transform 0.2s ease !important;
+  font-size: 0.8rem !important;
 }
 
 .sidebar-submenu-arrow.open {
-  transform: rotate(90deg);
+  transform: rotate(90deg) !important;
 }
 
 /* Focus states for accessibility */
 .sidebar-btn:focus,
 .sidebar-submenu-btn:focus {
-  outline: 2px solid #f5b802;
-  outline-offset: 2px;
+  outline: 0.125rem solid #f5b802 !important;
+  outline-offset: 0.125rem !important;
 }
 
 /* Dark mode focus states */
 @media (prefers-color-scheme: dark) {
   .sidebar-btn:focus,
   .sidebar-submenu-btn:focus {
-    outline: 2px solid #295b37;
-    outline-offset: 2px;
+    outline: 0.125rem solid #295b37 !important;
+    outline-offset: 0.125rem !important;
   }
 }

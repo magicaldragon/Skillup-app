@@ -1,4 +1,4 @@
-/* ULTIMATE BULLETPROOF LAYOUT FIX */
+/* ULTIMATE BULLETPROOF RESPONSIVE LAYOUT */
 * {
   box-sizing: border-box !important;
   margin: 0 !important;
@@ -8,8 +8,8 @@
 html, body, #root {
   margin: 0 !important;
   padding: 0 !important;
-  height: 100% !important;
-  width: 100% !important;
+  height: 100vh !important;
+  width: 100vw !important;
   overflow: hidden !important;
 }
 
@@ -24,11 +24,11 @@ body {
 #root {
   display: flex !important;
   flex-direction: row !important;
-  width: 100% !important;
-  height: 100% !important;
+  width: 100vw !important;
+  height: 100vh !important;
 }
 
-/* FORCE LAYOUT TO WORK */
+/* RESPONSIVE LAYOUT CONTAINER */
 .app-container {
   display: flex !important;
   flex-direction: row !important;
@@ -41,23 +41,21 @@ body {
   padding: 0 !important;
   align-items: stretch !important;
   justify-content: flex-start !important;
-  /* RED BORDER TO CONFIRM */
-  border: 5px solid #ff0000 !important;
-  /* FORCE FULL WIDTH */
-  min-width: 100vw !important;
+  /* REMOVE DEBUG BORDERS */
+  /* border: 5px solid #ff0000 !important; */
   box-sizing: border-box !important;
 }
 
-/* FORCE SIDEBAR TO LEFT */
+/* RESPONSIVE SIDEBAR - 1/6 RATIO ON DESKTOP */
 .sidebar {
-  flex: 0 0 320px !important;
-  width: 320px !important;
+  flex: 0 0 20rem !important; /* 320px equivalent but responsive */
+  width: 20rem !important;
   height: 100vh !important;
   background: #295b37 !important;
   color: #fff !important;
-  box-shadow: 2px 0 16px rgba(0,0,0,0.05) !important;
+  box-shadow: 0.125rem 0 1rem rgba(0,0,0,0.05) !important;
   z-index: 100 !important;
-  border-right: 4px solid #295b37 !important;
+  border-right: 0.25rem solid #295b37 !important;
   display: flex !important;
   flex-direction: column !important;
   overflow-y: auto !important;
@@ -65,61 +63,42 @@ body {
   position: relative !important;
   margin: 0 !important;
   padding: 0 !important;
-  min-width: 320px !important;
-  max-width: 320px !important;
-  float: left !important;
-  /* GREEN BORDER TO CONFIRM */
-  border: 5px solid #00ff00 !important;
+  min-width: 20rem !important;
+  max-width: 20rem !important;
+  /* REMOVE DEBUG BORDERS */
+  /* border: 5px solid #00ff00 !important; */
 }
 
-/* FORCE MAIN CONTENT TO RIGHT */
+/* RESPONSIVE MAIN CONTENT - FILLS REMAINING SPACE */
 .main-content {
   flex: 1 !important;
   height: 100vh !important;
   background: #f8fafc !important;
   overflow-y: auto !important;
   overflow-x: hidden !important;
-  padding: 24px 32px !important;
+  padding: 1.5rem 2rem !important;
   display: flex !important;
   flex-direction: column !important;
   margin: 0 !important;
   min-width: 0 !important;
-  width: calc(100vw - 320px) !important;
-  max-width: calc(100vw - 320px) !important;
-  float: right !important;
-  /* BLUE BORDER TO CONFIRM */
-  border: 5px solid #0000ff !important;
-  /* FORCE CONTENT TO FILL SPACE */
+  width: calc(100vw - 20rem) !important;
+  max-width: calc(100vw - 20rem) !important;
+  /* REMOVE DEBUG BORDERS */
+  /* border: 5px solid #0000ff !important; */
   flex-grow: 1 !important;
   flex-shrink: 1 !important;
   flex-basis: auto !important;
 }
 
-/* OVERRIDE ANY OTHER STYLES */
-div.app-container {
-  display: flex !important;
-  flex-direction: row !important;
-}
-
-div.sidebar {
-  flex: 0 0 320px !important;
-  width: 320px !important;
-}
-
-div.main-content {
-  flex: 1 !important;
-  width: calc(100vw - 320px) !important;
-}
-
-/* RESPONSIVE - FORCE MOBILE LAYOUT */
-@media (max-width: 900px) {
+/* MOBILE RESPONSIVE - SIDEBAR BECOMES OVERLAY */
+@media (max-width: 56.25rem) { /* 900px */
   .sidebar {
     position: fixed !important;
     left: 0 !important;
     top: 0 !important;
     width: 100vw !important;
     transform: translateX(-100%) !important;
-    transition: transform 0.3s !important;
+    transition: transform 0.3s ease !important;
     z-index: 200 !important;
     min-width: 100vw !important;
     max-width: 100vw !important;
@@ -141,18 +120,54 @@ div.main-content {
   }
   
   .main-content {
-    padding: 16px !important;
+    padding: 1rem !important;
     width: 100vw !important;
+    max-width: 100vw !important;
   }
 }
 
-@media (min-width: 901px) {
-  .sidebar-overlay {
-    display: none !important;
+/* TABLET RESPONSIVE - ADJUSTED RATIO */
+@media (min-width: 56.3125rem) and (max-width: 75rem) { /* 901px to 1200px */
+  .sidebar {
+    flex: 0 0 18rem !important;
+    width: 18rem !important;
+    min-width: 18rem !important;
+    max-width: 18rem !important;
   }
   
   .main-content {
-    width: calc(100vw - 320px) !important;
+    width: calc(100vw - 18rem) !important;
+    max-width: calc(100vw - 18rem) !important;
+  }
+}
+
+/* DESKTOP RESPONSIVE - OPTIMAL RATIO */
+@media (min-width: 75.0625rem) { /* 1201px and up */
+  .sidebar {
+    flex: 0 0 20rem !important;
+    width: 20rem !important;
+    min-width: 20rem !important;
+    max-width: 20rem !important;
+  }
+  
+  .main-content {
+    width: calc(100vw - 20rem) !important;
+    max-width: calc(100vw - 20rem) !important;
+  }
+}
+
+/* LARGE DESKTOP - WIDER SIDEBAR */
+@media (min-width: 120rem) { /* 1920px and up */
+  .sidebar {
+    flex: 0 0 22rem !important;
+    width: 22rem !important;
+    min-width: 22rem !important;
+    max-width: 22rem !important;
+  }
+  
+  .main-content {
+    width: calc(100vw - 22rem) !important;
+    max-width: calc(100vw - 22rem) !important;
   }
 }
 
@@ -160,6 +175,6 @@ div.main-content {
 @media (prefers-color-scheme: dark) {
   .sidebar {
     background: #295b37 !important;
-    border-right: 4px solid #ffe9c2 !important;
+    border-right: 0.25rem solid #ffe9c2 !important;
   }
 } 
