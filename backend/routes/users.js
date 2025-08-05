@@ -74,22 +74,56 @@ router.post('/', async (req, res) => {
       parentName, 
       parentPhone, 
       notes,
-      firebaseUid // Accept firebaseUid from frontend
+      firebaseUid, // Accept firebaseUid from frontend if provided
+      password // Accept password from frontend for Firebase user creation
     } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: 'User with this email already exists' });
+      return res.status(400).json({ 
+        success: false,
+        message: 'User with this email already exists' 
+      });
     }
 
     let studentCode = null;
     let status = 'potential';
+    let finalFirebaseUid = firebaseUid;
 
     // Generate student code for students
     if (role === 'student') {
       studentCode = await generateStudentCode();
       status = 'potential'; // Default status for new students
+    }
+
+    // Create Firebase Auth user if not provided and Firebase Admin is available
+    if (!finalFirebaseUid && global.firebaseAdmin && password) {
+      try {
+        const firebaseUser = await global.firebaseAdmin.auth().createUser({
+          email,
+          displayName: name,
+          password: password,
+        });
+
+        // Set custom claims based on role
+        await global.firebaseAdmin.auth().setCustomUserClaims(firebaseUser.uid, { role });
+        
+        finalFirebaseUid = firebaseUser.uid;
+        console.log('✅ Firebase user created successfully:', finalFirebaseUid);
+      } catch (firebaseError) {
+        console.error('❌ Firebase user creation failed:', firebaseError);
+        return res.status(500).json({ 
+          success: false,
+          message: 'Failed to create user in authentication system: ' + firebaseError.message 
+        });
+      }
+    } else if (!finalFirebaseUid) {
+      // If no Firebase UID provided and Firebase Admin not available, return error
+      return res.status(500).json({ 
+        success: false,
+        message: 'Firebase user creation not available. Please provide firebaseUid or configure Firebase Admin SDK.' 
+      });
     }
 
     // Create user in MongoDB
@@ -106,7 +140,7 @@ router.post('/', async (req, res) => {
       notes,
       studentCode,
       status,
-      firebaseUid // Use the firebaseUid provided by frontend
+      firebaseUid: finalFirebaseUid
     });
 
     await user.save();

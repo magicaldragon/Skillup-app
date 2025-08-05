@@ -30,6 +30,7 @@ export interface RegistrationResponse {
     role: string;
     username: string;
     password: string;
+    studentCode?: string; // Added for new flow
   };
 }
 
@@ -76,7 +77,7 @@ class UserRegistrationService {
 
   // Create user in MongoDB
   private async createMongoDBUser(userData: {
-    firebaseUid: string;
+    firebaseUid?: string; // Make optional since backend will create Firebase user
     name: string;
     email: string;
     role: string;
@@ -89,6 +90,7 @@ class UserRegistrationService {
     parentName?: string;
     parentPhone?: string;
     status?: string;
+    password?: string; // Added for new flow
   }) {
     try {
       const token = await this.getAuthToken();
@@ -113,7 +115,8 @@ class UserRegistrationService {
           parentPhone: userData.parentPhone || '',
           notes: userData.note,
           status: userData.status || 'active',
-          firebaseUid: userData.firebaseUid // Pass the firebaseUid to backend
+          firebaseUid: userData.firebaseUid, // Pass the firebaseUid to backend
+          password: userData.password, // Pass password to backend for Firebase user creation
         }),
       });
 
@@ -275,13 +278,9 @@ class UserRegistrationService {
       const email = userData.email || this.generateEmail(username, userData.role);
       const password = this.generatePassword(userData.role);
 
-      // Step 2: Create Firebase Auth user
-      const firebaseUid = await this.createFirebaseUser(email, password);
-
-      // Step 3: Create MongoDB user
+      // Step 2: Create MongoDB user with Firebase user creation handled by backend
       try {
         const mongoUser = await this.createMongoDBUser({
-          firebaseUid,
           name: userData.fullname,
           email,
           role: userData.role,
@@ -294,13 +293,14 @@ class UserRegistrationService {
           parentName: userData.parentName,
           parentPhone: userData.parentPhone,
           status: userData.status,
+          password, // Pass password to backend for Firebase user creation
         });
 
-        // Step 4: For students only, also create potential student entry
+        // Step 3: For students only, also create potential student entry
         if (userData.role === 'student') {
           try {
             await this.createPotentialStudent({
-              firebaseUid,
+              firebaseUid: mongoUser.firebaseUid,
               name: userData.fullname,
               email,
               username,
@@ -329,29 +329,28 @@ class UserRegistrationService {
             role: mongoUser.role,
             username,
             password,
+            studentCode: mongoUser.studentCode,
           },
         };
-              } catch (mongoError: any) {
-          // If MongoDB creation fails due to backend issues, provide a fallback
-          if (mongoError.message.includes('Backend needs to be updated')) {
-            console.warn('🔍 [DEBUG] Backend not updated, using fallback registration');
-            console.log('🔍 [DEBUG] Firebase UID created:', firebaseUid);
-            console.log('🔍 [DEBUG] User will NOT appear in MongoDB until backend is deployed');
-            return {
-              success: true,
-              message: 'User registered successfully (Firebase only - backend needs update)',
-              user: {
-                id: firebaseUid,
-                name: userData.fullname,
-                email,
-                role: userData.role,
-                username,
-                password,
-              },
-            };
-          }
-          throw mongoError;
+      } catch (mongoError: any) {
+        // If MongoDB creation fails due to backend issues, provide a fallback
+        if (mongoError.message.includes('Backend needs to be updated')) {
+          console.warn('🔍 [DEBUG] Backend not updated, using fallback registration');
+          return {
+            success: true,
+            message: 'User registered successfully (Firebase only - backend needs update)',
+            user: {
+              id: 'temp-id',
+              name: userData.fullname,
+              email,
+              role: userData.role,
+              username,
+              password,
+            },
+          };
         }
+        throw mongoError;
+      }
 
     } catch (error: any) {
       console.error('Registration error:', error);
