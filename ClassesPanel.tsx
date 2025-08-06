@@ -5,6 +5,20 @@ import type { Student, StudentClass } from './types';
 import type { Level } from './types';
 import './ClassesPanel.css';
 
+interface StudentReport {
+  id: string;
+  studentId: string;
+  studentName: string;
+  englishName?: string;
+  level: string;
+  className: string;
+  problem: string;
+  reportedBy: string;
+  reportedAt: string;
+  status: '!!!' | 'solved';
+  solution?: string;
+}
+
 const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: { 
   students: Student[], 
   classes: StudentClass[], 
@@ -24,24 +38,26 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
   const [reportingStudentId, setReportingStudentId] = useState<string | null>(null);
   const [reportNote, setReportNote] = useState('');
   const [reportSending, setReportSending] = useState(false);
+  const [reports, setReports] = useState<StudentReport[]>([]);
+  const [selectedReport, setSelectedReport] = useState<StudentReport | null>(null);
+  const [solutionNote, setSolutionNote] = useState('');
 
   // Add new class with level selection
   const [newClassLevelId, setNewClassLevelId] = useState<string>('');
+
+  // Calculate age from birth year
+  const calculateAge = (dob?: string) => {
+    if (!dob) return 'N/A';
+    const birthYear = new Date(dob).getFullYear();
+    const currentYear = new Date().getFullYear();
+    return currentYear - birthYear + 1;
+  };
 
   // Fetch levels from backend
   const fetchLevels = async () => {
     setLevelsLoading(true);
     try {
-      console.log('=== FETCHING LEVELS DEBUG ===');
-      console.log('Fetching levels from: /api/levels');
-      console.log('Current window location:', window.location.origin);
-      
-      // Get token from localStorage
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      console.log('Token available:', !!token);
-      console.log('Token length:', token ? token.length : 0);
-      console.log('Token preview:', token ? token.substring(0, 20) + '...' : 'none');
-      
       const headers: any = {
         'Content-Type': 'application/json'
       };
@@ -50,35 +66,20 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
         headers['Authorization'] = `Bearer ${token}`;
       }
       
-      console.log('Request headers:', headers);
-      
       const res = await fetch('/api/levels', { 
         credentials: 'include',
         headers
       });
       
-      console.log('Levels response status:', res.status);
-      console.log('Levels response ok:', res.ok);
-      console.log('Levels response headers:', Object.fromEntries(res.headers.entries()));
-      
       if (!res.ok) {
-        const errorText = await res.text();
-        console.error('Levels response error text:', errorText);
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       
       const data = await res.json();
-      console.log('Levels response data:', data);
-      console.log('Levels array:', data.levels);
-      console.log('Levels array length:', data.levels ? data.levels.length : 'undefined');
-      console.log('Success field:', data.success);
       
       if (data.success && Array.isArray(data.levels)) {
         setLevels(data.levels);
-        console.log('Successfully set levels:', data.levels.length, 'levels');
-        console.log('Levels details:', data.levels.map((l: any) => ({ id: l._id, name: l.name, code: l.code })));
       } else {
-        console.error('Invalid levels data structure:', data);
         setLevels([]);
       }
     } catch (error) {
@@ -86,33 +87,76 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
       setLevels([]);
     } finally {
       setLevelsLoading(false);
-      console.log('=== END FETCHING LEVELS DEBUG ===');
+    }
+  };
+
+  // Fetch reports
+  const fetchReports = async () => {
+    try {
+      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+      const headers: any = {
+        'Content-Type': 'application/json'
+      };
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
+      const res = await fetch('/api/studentRecords/reports', { 
+        credentials: 'include',
+        headers
+      });
+      
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      
+      const data = await res.json();
+      
+      if (data.success && Array.isArray(data.records)) {
+        setReports(data.records.map((record: any) => ({
+          id: record._id,
+          studentId: record.studentId?._id || record.studentId || 'N/A',
+          studentName: record.studentId?.name || record.studentName || 'N/A',
+          englishName: record.studentId?.englishName || 'N/A',
+          level: record.details?.level || 'N/A',
+          className: record.relatedClass?.name || record.details?.className || 'N/A',
+          problem: record.details?.problem || record.details?.note || '',
+          reportedBy: record.performedByName || 'N/A',
+          reportedAt: record.timestamp,
+          status: record.details?.status || '!!!',
+          solution: record.details?.solution || ''
+        })));
+      } else {
+        setReports([]);
+      }
+    } catch (error) {
+      console.error('Error fetching reports:', error);
+      setReports([]);
     }
   };
 
   useEffect(() => {
     fetchLevels();
+    fetchReports();
     // Sync classLevels state with classes prop
     const levelsMap: { [id: string]: string | null } = {};
     if (classes && Array.isArray(classes)) {
       classes.forEach((c: any) => { levelsMap[c.id] = c.levelId || ''; });
     }
     setClassLevels(levelsMap);
-  }, [classes, onDataRefresh]);
+  }, [classes]);
 
-  // Add new class with level selection
+  // Add new class
   const handleAddClass = async () => {
+    if (!newClassLevelId) {
+      alert('Please select a level');
+      return;
+    }
+
     setAdding(true);
     try {
-      if (!newClassLevelId) {
-        alert('Please select a level for the new class.');
-        setAdding(false);
-        return;
-      }
-
-      // Get token from localStorage
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-
       const res = await fetch('/api/classes', {
         method: 'POST',
         headers: { 
@@ -126,74 +170,49 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
-
-      const result = await res.json();
-      alert(`Class created successfully! Class ID: ${result.class.name}`);
-      onAddClass && onAddClass('');
-      onDataRefresh?.();
-      setNewClassLevelId('');
+      
+      const data = await res.json();
+      if (data.success) {
+        setNewClassLevelId('');
+        onDataRefresh?.();
+      } else {
+        alert(data.message || 'Failed to create class');
+      }
     } catch (error) {
       console.error('Error adding class:', error);
-      alert('Failed to create class. Please try again.');
+      alert('Failed to add class. Please try again.');
     } finally {
       setAdding(false);
     }
   };
 
-  // Edit class name/level in backend
-  const handleEditClass = async (classId: string, newName: string, newLevelId: string | null) => {
-    try {
-      const res = await fetch(`/api/classes/${classId}`, {
-        method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include',
-        body: JSON.stringify({ name: newName, levelId: newLevelId }),
-      });
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-      onDataRefresh?.();
-    } catch (error) {
-      console.error('Error updating class:', error);
-    }
-  };
-
-  // Delete class from backend
-  const handleDeleteClass = async (classId: string) => {
-    if (!window.confirm('Are you sure you want to delete this class?')) return;
-    try {
-      const res = await fetch(`/api/classes/${classId}`, {
-        method: 'DELETE',
-        credentials: 'include'
-      });
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-      onDataRefresh?.();
-    } catch (error) {
-      console.error('Error deleting class:', error);
-    }
+  // Handle class selection
+  const handleClassClick = (classId: string) => {
+    setSelectedClassId(selectedClassId === classId ? null : classId);
   };
 
   // Assign student to class
   const handleAssignStudent = async (studentId: string, classId: string) => {
     try {
+      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
       const res = await fetch(`/api/classes/${classId}/students`, {
         method: 'POST',
         headers: { 
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : ''
         },
         credentials: 'include',
         body: JSON.stringify({ studentId }),
       });
+      
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
+      
       onDataRefresh?.();
     } catch (error) {
       console.error('Error assigning student:', error);
+      alert('Failed to assign student. Please try again.');
     }
   };
 
@@ -201,16 +220,23 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
   const handleRemoveStudent = async (studentId: string) => {
     if (!window.confirm('Are you sure you want to remove this student from the class?')) return;
     try {
+      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
       const res = await fetch(`/api/classes/${selectedClassId}/students/${studentId}`, {
         method: 'DELETE',
+        headers: { 
+          'Authorization': token ? `Bearer ${token}` : ''
+        },
         credentials: 'include'
       });
+      
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
+      
       onDataRefresh?.();
     } catch (error) {
       console.error('Error removing student:', error);
+      alert('Failed to remove student. Please try again.');
     }
   };
 
@@ -222,37 +248,89 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
 
   // Send report
   const handleSendReport = async (studentId: string) => {
+    if (!reportNote.trim()) {
+      alert('Please enter a report description');
+      return;
+    }
+
     setReportSending(true);
     try {
+      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+      const selectedClass = classes.find(c => c.id === selectedClassId);
+      const student = students.find(s => s.id === studentId);
+      
       const res = await fetch('/api/studentRecords', {
         method: 'POST',
         headers: { 
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : ''
         },
         credentials: 'include',
         body: JSON.stringify({
           studentId,
           action: 'report',
-          note: reportNote,
-          relatedClassId: selectedClassId,
+          category: 'academic',
+          details: {
+            problem: reportNote,
+            status: '!!!',
+            className: selectedClass?.name || 'N/A',
+            level: levels.find(l => l._id === selectedClass?.levelId)?.name || 'N/A'
+          },
+          relatedClass: selectedClassId,
         }),
       });
+      
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
+      
       setReportingStudentId(null);
       setReportNote('');
+      fetchReports();
       onDataRefresh?.();
     } catch (error) {
       console.error('Error sending report:', error);
+      alert('Failed to send report. Please try again.');
     } finally {
       setReportSending(false);
     }
   };
 
+  // Update report status
+  const handleUpdateReportStatus = async (reportId: string, status: '!!!' | 'solved', solution?: string) => {
+    try {
+      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+      const res = await fetch(`/api/studentRecords/${reportId}`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : ''
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          details: {
+            status,
+            solution: solution || ''
+          }
+        }),
+      });
+      
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      
+      fetchReports();
+      setSelectedReport(null);
+      setSolutionNote('');
+    } catch (error) {
+      console.error('Error updating report:', error);
+      alert('Failed to update report. Please try again.');
+    }
+  };
+
   // Filter classes based on search and level filter
   const filteredClasses = (classes && Array.isArray(classes) ? classes : []).filter(c => {
-    const levelName = levels.find(l => l.id === c.levelId)?.name || '';
+    const levelName = levels.find(l => l._id === c.levelId)?.name || '';
     const matchesSearch = c.name.toLowerCase().includes(classSearch.toLowerCase()) ||
       levelName.toLowerCase().includes(classSearch.toLowerCase());
     const matchesLevel = !levelFilter || c.levelId === levelFilter;
@@ -326,18 +404,18 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
                   <div className="empty-state">
                     <div className="empty-icon">📚</div>
                     <p>No classes found.</p>
-                                         <p className="empty-subtitle">
-                       {(!classes || !Array.isArray(classes) || classes.length === 0)
-                         ? "Create your first class by selecting a level below."
-                         : "No classes match your current search criteria."
-                       }
-                     </p>
+                    <p className="empty-subtitle">
+                      {(!classes || !Array.isArray(classes) || classes.length === 0)
+                        ? "Create your first class by selecting a level below."
+                        : "No classes match your current search criteria."
+                      }
+                    </p>
                   </div>
                 </td>
               </tr>
             )}
             {filteredClasses.map(cls => (
-              <tr key={cls.id} onClick={() => setSelectedClassId(cls.id)} className="clickable-row">
+              <tr key={cls.id} onClick={() => handleClassClick(cls.id)} className="clickable-row">
                 <td className="class-name-cell">
                   <div className="class-name">{cls.name}</div>
                 </td>
@@ -348,27 +426,13 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
                 </td>
                 <td className="students-cell">
                   {cls.studentIds?.length || 0} students
-                  {cls.studentIds?.length > 0 && (
-                    <button 
-                      className="view-details-btn"
-                      onClick={(e) => { e.stopPropagation(); setSelectedClassId(cls.id); }}
-                    >
-                      View Details
-                    </button>
-                  )}
                 </td>
                 <td className="actions-cell">
                   <button 
-                    className="action-btn edit-btn"
-                    onClick={(e) => { e.stopPropagation(); setEditId(cls.id); }}
+                    className="action-btn view-btn"
+                    onClick={(e) => { e.stopPropagation(); handleClassClick(cls.id); }}
                   >
-                    Edit
-                  </button>
-                  <button 
-                    className="action-btn delete-btn"
-                    onClick={(e) => { e.stopPropagation(); handleDeleteClass(cls.id); }}
-                  >
-                    Remove
+                    {selectedClassId === cls.id ? 'Hide Details' : 'View Details'}
                   </button>
                 </td>
               </tr>
@@ -376,6 +440,83 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
           </tbody>
         </table>
       </div>
+
+      {/* Class Details Expansion */}
+      {selectedClassId && selectedClass && (
+        <div className="class-details-expansion">
+          <div className="expansion-header">
+            <h3>{selectedClass.name} - Student Details</h3>
+            <button className="close-expansion-btn" onClick={() => setSelectedClassId(null)}>×</button>
+          </div>
+          
+          <div className="students-section">
+            <h4>Students in this class ({classStudents.length}):</h4>
+            {classStudents.length === 0 ? (
+              <p className="no-students">No students assigned to this class.</p>
+            ) : (
+              <div className="students-list">
+                <table className="students-table">
+                  <thead>
+                    <tr>
+                      <th>Student ID</th>
+                      <th>Full Name</th>
+                      <th>English Name</th>
+                      <th>Age</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {classStudents.map(student => (
+                      <tr key={student.id} className="student-row">
+                        <td>{student.studentCode || student.id}</td>
+                        <td>{student.name}</td>
+                        <td>{student.englishName || 'N/A'}</td>
+                        <td>{calculateAge(student.dob)}</td>
+                        <td className="student-actions">
+                          <button 
+                            onClick={() => handleRemoveStudent(student.id)}
+                            className="action-btn remove-btn"
+                          >
+                            Remove
+                          </button>
+                          <button 
+                            onClick={() => handleReportStudent(student.id)}
+                            className="action-btn report-btn"
+                          >
+                            Report
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          <div className="assign-section">
+            <h4>Assign new student:</h4>
+            <select 
+              className="student-select"
+              onChange={e => {
+                if (e.target.value) {
+                  handleAssignStudent(e.target.value, selectedClassId);
+                  e.target.value = '';
+                }
+              }}
+            >
+              <option value="">Select a student...</option>
+              {students && Array.isArray(students) && students
+                .filter(s => !classStudents.find(cs => cs.id === s.id))
+                .map(student => (
+                  <option key={student.id} value={student.id}>
+                    {student.studentCode || student.id} - {student.name} {student.englishName ? `(${student.englishName})` : ''}
+                  </option>
+                ))}
+            </select>
+          </div>
+        </div>
+      )}
 
       {/* Add Class Form */}
       <div className="add-class-section">
@@ -402,7 +543,7 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
                 disabled={adding || !newClassLevelId} 
                 className="add-class-btn"
               >
-                {adding ? 'Creating...' : 'Add Class'}
+                {adding ? 'Creating...' : 'Create a new class'}
               </button>
             </>
           ) : (
@@ -419,121 +560,6 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
         </div>
       </div>
 
-      {/* Class Details Modal */}
-      {selectedClassId && selectedClass && (
-        <div className="class-details-modal">
-          <div className="modal-content">
-            <button className="close-btn" onClick={() => setSelectedClassId(null)}>×</button>
-            <h3>{selectedClass.name} - Student Details</h3>
-            
-            <div className="students-section">
-              <h4>Students in this class:</h4>
-              {classStudents.length === 0 ? (
-                <p className="no-students">No students assigned to this class.</p>
-              ) : (
-                <div className="students-list">
-                  {classStudents.map(student => (
-                    <div key={student.id} className="student-item">
-                      <span className="student-name">{student.displayName || student.name}</span>
-                      <div className="student-actions">
-                        <button 
-                          onClick={() => handleRemoveStudent(student.id)}
-                          className="action-btn remove-btn"
-                        >
-                          Remove
-                        </button>
-                        <button 
-                          onClick={() => handleReportStudent(student.id)}
-                          className="action-btn report-btn"
-                        >
-                          Report
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="assign-section">
-              <h4>Assign new student:</h4>
-              <select 
-                className="student-select"
-                onChange={e => {
-                  if (e.target.value) {
-                    handleAssignStudent(e.target.value, selectedClassId);
-                    e.target.value = '';
-                  }
-                }}
-              >
-                <option value="">Select a student...</option>
-                {students && Array.isArray(students) && students
-                  .filter(s => !classStudents.find(cs => cs.id === s.id))
-                  .map(student => (
-                    <option key={student.id} value={student.id}>
-                      {student.displayName || student.name}
-                    </option>
-                  ))}
-              </select>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Edit Class Modal */}
-      {editId && (
-        <div className="edit-class-modal">
-          <div className="modal-content">
-            <button className="close-btn" onClick={() => { setEditId(null); setEditName(''); }}>×</button>
-            <h3>Edit Class</h3>
-            <div className="edit-form">
-              <div className="form-group">
-                <label>Class Name</label>
-                <input 
-                  className="form-input" 
-                  value={editName} 
-                  onChange={e => setEditName(e.target.value)} 
-                />
-              </div>
-              <div className="form-group">
-                <label>Level</label>
-                <select 
-                  className="form-select"
-                  value={classLevels[editId] || ''} 
-                  onChange={e => setClassLevels(prev => ({ ...prev, [editId]: e.target.value }))}
-                >
-                  <option value="">No Level</option>
-                  {levels && Array.isArray(levels) && levels.map(level => (
-                    <option key={level._id} value={level._id}>{level.name}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            <div className="modal-actions">
-              <button 
-                className="action-btn save-btn" 
-                onClick={() => {
-                  handleEditClass(editId, editName, classLevels[editId] || null);
-                  setEditId(null);
-                  setEditName('');
-                }}
-              >
-                Save
-              </button>
-              <button 
-                className="action-btn cancel-btn" 
-                onClick={() => {
-                  setEditId(null);
-                  setEditName('');
-                }}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Report Student Modal */}
       {reportingStudentId && (
         <div className="report-modal">
@@ -542,7 +568,7 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
             <h3>Report Student</h3>
             <textarea 
               className="form-textarea"
-              placeholder="Enter report details..."
+              placeholder="Enter report details (e.g., naughty in class, did not finish homework, etc.)..."
               value={reportNote}
               onChange={e => setReportNote(e.target.value)}
               rows={4}
@@ -562,6 +588,135 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
                 Cancel
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reports Section */}
+      <div className="reports-section">
+        <h3>Student Reports</h3>
+        <div className="reports-table-container">
+          <table className="reports-table">
+            <thead>
+              <tr>
+                <th>Date & Time</th>
+                <th>Reported By</th>
+                <th>Student ID</th>
+                <th>Full Name</th>
+                <th>English Name</th>
+                <th>Level</th>
+                <th>Class</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {reports.length === 0 ? (
+                <tr>
+                  <td colSpan={9} className="empty-table">
+                    <p>No reports found.</p>
+                  </td>
+                </tr>
+              ) : (
+                reports.map(report => (
+                  <tr key={report.id} className="report-row">
+                    <td>{new Date(report.reportedAt).toLocaleString()}</td>
+                    <td>{report.reportedBy}</td>
+                    <td>{report.studentId}</td>
+                    <td>{report.studentName}</td>
+                    <td>{report.englishName || 'N/A'}</td>
+                    <td>{report.level}</td>
+                    <td>{report.className}</td>
+                    <td>
+                      <span className={`status-badge ${report.status === '!!!' ? 'urgent' : 'solved'}`}>
+                        {report.status}
+                      </span>
+                    </td>
+                    <td>
+                      <button 
+                        className="action-btn view-btn"
+                        onClick={() => setSelectedReport(report)}
+                      >
+                        View Details
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Report Details Modal */}
+      {selectedReport && (
+        <div className="report-details-modal">
+          <div className="modal-content">
+            <button className="close-btn" onClick={() => { setSelectedReport(null); setSolutionNote(''); }}>×</button>
+            <h3>Report Details</h3>
+            
+            <div className="report-info">
+              <div className="info-row">
+                <strong>Student:</strong> {selectedReport.studentName} {selectedReport.englishName ? `(${selectedReport.englishName})` : ''}
+              </div>
+              <div className="info-row">
+                <strong>Level:</strong> {selectedReport.level}
+              </div>
+              <div className="info-row">
+                <strong>Class:</strong> {selectedReport.className}
+              </div>
+              <div className="info-row">
+                <strong>Reported By:</strong> {selectedReport.reportedBy}
+              </div>
+              <div className="info-row">
+                <strong>Date:</strong> {new Date(selectedReport.reportedAt).toLocaleString()}
+              </div>
+              <div className="info-row">
+                <strong>Status:</strong> 
+                <span className={`status-badge ${selectedReport.status === '!!!' ? 'urgent' : 'solved'}`}>
+                  {selectedReport.status}
+                </span>
+              </div>
+            </div>
+            
+            <div className="problem-section">
+              <h4>Problem:</h4>
+              <p>{selectedReport.problem}</p>
+            </div>
+            
+            {selectedReport.solution && (
+              <div className="solution-section">
+                <h4>Solution:</h4>
+                <p>{selectedReport.solution}</p>
+              </div>
+            )}
+            
+            {selectedReport.status === '!!!' && (
+              <div className="solution-input-section">
+                <h4>Add Solution:</h4>
+                <textarea 
+                  className="form-textarea"
+                  placeholder="Enter your solution or recommendation..."
+                  value={solutionNote}
+                  onChange={e => setSolutionNote(e.target.value)}
+                  rows={4}
+                />
+                <div className="modal-actions">
+                  <button 
+                    className="action-btn save-btn" 
+                    onClick={() => handleUpdateReportStatus(selectedReport.id, 'solved', solutionNote)}
+                  >
+                    Mark as Solved
+                  </button>
+                  <button 
+                    className="action-btn cancel-btn" 
+                    onClick={() => { setSelectedReport(null); setSolutionNote(''); }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

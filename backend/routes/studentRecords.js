@@ -100,6 +100,48 @@ router.get('/student/:studentId', verifyToken, async (req, res) => {
   }
 });
 
+// Get reports (student problems)
+router.get('/reports', verifyToken, async (req, res) => {
+  try {
+    const { status, page = 1, limit = 50 } = req.query;
+    
+    const filter = { action: 'report' };
+    
+    if (status) {
+      filter['details.status'] = status;
+    }
+    
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    
+    const records = await StudentRecord.find(filter)
+      .populate('studentId', 'name email englishName')
+      .populate('performedBy', 'name email')
+      .populate('relatedClass', 'name')
+      .sort({ timestamp: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
+    
+    const total = await StudentRecord.countDocuments(filter);
+    
+    res.json({
+      success: true,
+      records,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / parseInt(limit))
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching reports:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch reports'
+    });
+  }
+});
+
 // Get student record by ID
 router.get('/:id', verifyToken, async (req, res) => {
   try {
@@ -148,11 +190,26 @@ router.post('/', verifyToken, async (req, res) => {
       }
     }
     
+    // For reports, ensure we have the required details
+    if (action === 'report') {
+      if (!details || !details.problem) {
+        return res.status(400).json({
+          success: false,
+          message: 'Problem description is required for reports'
+        });
+      }
+      
+      // Set default status if not provided
+      if (!details.status) {
+        details.status = '!!!';
+      }
+    }
+    
     const record = new StudentRecord({
       studentId,
       studentName: studentName || (studentId ? (await User.findById(studentId)).name : 'Unknown'),
       action,
-      category,
+      category: category || (action === 'report' ? 'academic' : 'administrative'),
       details,
       relatedClass,
       relatedAssignment,
@@ -167,7 +224,7 @@ router.post('/', verifyToken, async (req, res) => {
     // Populate the record for response (only if studentId exists)
     if (studentId) {
       await record.populate([
-        { path: 'studentId', select: 'name email' },
+        { path: 'studentId', select: 'name email englishName' },
         { path: 'performedBy', select: 'name email' },
         { path: 'relatedClass', select: 'name' },
         { path: 'relatedAssignment', select: 'title' }
@@ -206,15 +263,31 @@ router.put('/:id', verifyToken, async (req, res) => {
       });
     }
     
-    // Only allow updating certain fields
-    const allowedUpdates = ['details', 'notes'];
-    Object.keys(req.body).forEach(key => {
-      if (allowedUpdates.includes(key)) {
-        record[key] = req.body[key];
+    // Allow updating details for reports
+    if (record.action === 'report') {
+      if (req.body.details) {
+        // Merge existing details with new details
+        record.details = { ...record.details, ...req.body.details };
       }
-    });
+    } else {
+      // For other records, only allow updating certain fields
+      const allowedUpdates = ['details', 'notes'];
+      Object.keys(req.body).forEach(key => {
+        if (allowedUpdates.includes(key)) {
+          record[key] = req.body[key];
+        }
+      });
+    }
     
     await record.save();
+    
+    // Populate the record for response
+    await record.populate([
+      { path: 'studentId', select: 'name email englishName' },
+      { path: 'performedBy', select: 'name email' },
+      { path: 'relatedClass', select: 'name' },
+      { path: 'relatedAssignment', select: 'title' }
+    ]);
     
     res.json({
       success: true,
