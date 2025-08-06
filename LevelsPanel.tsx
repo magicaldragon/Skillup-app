@@ -145,19 +145,6 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
     return 'levels-card-gray';
   };
 
-  // Get level icon
-  const getLevelIcon = (levelName: string) => {
-    const name = levelName.toLowerCase();
-    if (name.includes('starters') || name.includes('pre')) return '🌟';
-    if (name.includes('movers') || name.includes('a1')) return '🚀';
-    if (name.includes('flyers') || name.includes('a2')) return '✈️';
-    if (name.includes('ket')) return '🎯';
-    if (name.includes('pet')) return '🏆';
-    if (name.includes('pre-ielts') || name.includes('b2pre')) return '📚';
-    if (name.includes('ielts')) return '🎓';
-    return '📖';
-  };
-
   // Handle level card click
   const handleLevelClick = (level: Level) => {
     if (selectedLevel?._id === level._id) {
