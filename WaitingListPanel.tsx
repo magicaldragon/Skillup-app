@@ -227,7 +227,7 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
       <div className="waiting-list-search">
         <div className="search-controls">
           <div className="search-bar-container">
-                <input
+        <input
           type="text"
           className="search-bar-input"
           placeholder="Search by name, phone, or student ID..."

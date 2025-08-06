@@ -232,7 +232,7 @@ class AuthService {
         },
         signal: controller.signal,
       });
-      
+
       clearTimeout(timeoutId);
       console.log('Profile response status:', response.status);
       
