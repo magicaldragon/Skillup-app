@@ -12,7 +12,7 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
   const [classesByLevel, setClassesByLevel] = useState<{ [level: string]: StudentClass[] }>({});
   const [loading, setLoading] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [expandedLevel, setExpandedLevel] = useState<string | null>(null);
+  const [selectedLevel, setSelectedLevel] = useState<Level | null>(null);
   const [newLevel, setNewLevel] = useState({
     name: '',
     code: '',
@@ -135,9 +135,31 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
   };
 
   // Handle level card click
-  const handleLevelClick = (levelId: string) => {
-    setExpandedLevel(expandedLevel === levelId ? null : levelId);
+  const handleLevelClick = (level: Level) => {
+    setSelectedLevel(level);
   };
+
+  // Handle modal close
+  const handleCloseModal = () => {
+    setSelectedLevel(null);
+  };
+
+  // Handle ESC key press
+  React.useEffect(() => {
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setSelectedLevel(null);
+      }
+    };
+
+    if (selectedLevel) {
+      document.addEventListener('keydown', handleEscKey);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscKey);
+    };
+  }, [selectedLevel]);
 
   // Use backend levels if available, otherwise fall back to constants
   const displayLevels = levels.length > 0 ? levels : LEVELS;
@@ -252,13 +274,12 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
             const assignedClasses = classesByLevel[level._id] || [];
             const colorClass = getLevelColor(level.name);
             const icon = getLevelIcon(level.name);
-            const isExpanded = expandedLevel === level._id;
             
             return (
               <div 
                 key={level._id} 
-                className={`levels-card ${colorClass} ${isExpanded ? 'expanded' : ''}`}
-                onClick={() => handleLevelClick(level._id)}
+                className={`levels-card ${colorClass}`}
+                onClick={() => handleLevelClick(level)}
               >
                 <div className="levels-card-header">
                   <div className="levels-card-icon">{icon}</div>
@@ -272,30 +293,45 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
                     </span>
                   </div>
                 </div>
-                {level.description && (
-                  <p className="levels-card-description">{level.description}</p>
-                )}
-                
-                {/* Expanded details */}
-                <div className="levels-card-details">
-                  <div className="levels-card-classes">
-                    <h4 className="levels-card-classes-title">Assigned Classes:</h4>
-                    {assignedClasses.length > 0 ? (
-                      <div className="levels-card-classes-list">
-                        {assignedClasses.map((cls: any) => (
-                          <span key={cls.id} className="levels-card-class-item">{cls.name}</span>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="levels-card-no-classes">No classes assigned to this level</p>
-                    )}
-                  </div>
-                </div>
               </div>
             );
           })
         )}
       </div>
+
+      {/* Level Details Modal */}
+      {selectedLevel && (
+        <div className="level-details-modal" onClick={handleCloseModal}>
+          <div className="level-details-content" onClick={(e) => e.stopPropagation()}>
+            <button className="level-details-close" onClick={handleCloseModal}>×</button>
+            
+            <div className="level-details-header">
+              <div className="level-details-icon">{getLevelIcon(selectedLevel.name)}</div>
+              <div className="level-details-info">
+                <h2>{selectedLevel.name}</h2>
+                <span className="level-details-code">{selectedLevel.code}</span>
+              </div>
+            </div>
+
+            {selectedLevel.description && (
+              <div className="level-details-description">{selectedLevel.description}</div>
+            )}
+
+            <div className="level-details-classes">
+              <h3 className="level-details-classes-title">Assigned Classes</h3>
+              {classesByLevel[selectedLevel._id] && classesByLevel[selectedLevel._id].length > 0 ? (
+                <div className="level-details-classes-list">
+                  {classesByLevel[selectedLevel._id].map((cls: any) => (
+                    <span key={cls.id} className="level-details-class-item">{cls.name}</span>
+                  ))}
+                </div>
+              ) : (
+                <p className="level-details-no-classes">No classes assigned to this level</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

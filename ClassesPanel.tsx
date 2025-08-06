@@ -77,7 +77,7 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
       classes.forEach((c: any) => { levelsMap[c.id] = c.levelId || ''; });
     }
     setClassLevels(levelsMap);
-  }, [classes]);
+  }, [classes, onDataRefresh]);
 
   // Add new class with level selection
   const handleAddClass = async () => {
