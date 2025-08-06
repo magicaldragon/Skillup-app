@@ -55,13 +55,16 @@
   filter: drop-shadow(0 4px 8px rgba(48, 118, 55, 0.2));
 }
 
-/* Backend status indicators */
+/* Backend status indicators - positioned outside the panel */
 .login-status {
+  position: absolute;
+  top: calc(50% - 300px);
+  left: 50%;
+  transform: translateX(-50%);
   background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
   color: #c62828;
   padding: 0.8rem 1.2rem;
   border-radius: 12px;
-  margin-bottom: 1.5rem;
   font-size: 0.95rem;
   font-weight: 600;
   border: 2px solid #ef5350;
@@ -69,8 +72,22 @@
   align-items: center;
   gap: 0.8rem;
   box-shadow: 0 4px 12px rgba(239, 83, 80, 0.2);
-  width: 100%;
+  width: 90%;
+  max-width: 400px;
   box-sizing: border-box;
+  z-index: 1001;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }
 
 .login-status.checking {

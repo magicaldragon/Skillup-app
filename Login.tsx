@@ -69,22 +69,22 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
   return (
     <div className="login-bg">
+      {/* Backend status indicators - positioned outside the panel */}
+      {backendStatus === 'checking' && (
+        <div className="login-status checking">
+          Checking server connection...
+        </div>
+      )}
+      {backendStatus === 'disconnected' && (
+        <div className="login-status disconnected">
+          ⚠️ Server connection failed. Please check your internet connection.
+        </div>
+      )}
+      
       <div className="login-panel">
         <div className="login-logo-wrap">
           <img src="/logo-skillup.png" alt="Skillup Center Logo" className="login-logo" />
         </div>
-        
-        {/* Backend status indicator - only show if disconnected */}
-        {backendStatus === 'checking' && (
-          <div className="login-status checking">
-            Checking server connection...
-          </div>
-        )}
-        {backendStatus === 'disconnected' && (
-          <div className="login-status disconnected">
-            ⚠️ Server connection failed. Please check your internet connection.
-          </div>
-        )}
         
         <form className="login-form" onSubmit={handleAuthAction} autoComplete="on">
           <label htmlFor="email" className="login-label">Email</label>
