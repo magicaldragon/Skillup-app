@@ -5,8 +5,6 @@ import type { Student, StudentClass } from './types';
 import type { Level } from './types';
 import './ClassesPanel.css';
 
-const API_BASE_URL = 'https://skillup-backend-v6vm.onrender.com/api';
-
 const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: { 
   students: Student[], 
   classes: StudentClass[], 
@@ -32,12 +30,9 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
   // Fetch levels from backend
   const fetchLevels = async () => {
     try {
-      const token = localStorage.getItem('authToken');
-      console.log('Fetching levels from:', `${API_BASE_URL}/levels`);
-      const res = await fetch(`${API_BASE_URL}/levels`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+      console.log('Fetching levels from: /api/levels');
+      const res = await fetch('/api/levels', { 
+        credentials: 'include' 
       });
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
@@ -52,6 +47,7 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
   };
 
   useEffect(() => {
+    console.log('ClassesPanel useEffect triggered');
     fetchLevels();
     // Sync classLevels state with classes prop
     const levelsMap: { [id: string]: string | null } = {};
@@ -71,13 +67,12 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
         return;
       }
 
-      const token = localStorage.getItem('authToken');
-      const res = await fetch(`${API_BASE_URL}/classes`, {
+      const res = await fetch('/api/classes', {
         method: 'POST',
         headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify({ levelId: newClassLevelId }),
       });
       
@@ -101,13 +96,12 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
   // Edit class name/level in backend
   const handleEditClass = async (classId: string, newName: string, newLevelId: string | null) => {
     try {
-      const token = localStorage.getItem('authToken');
-      const res = await fetch(`${API_BASE_URL}/classes/${classId}`, {
+      const res = await fetch(`/api/classes/${classId}`, {
         method: 'PUT',
         headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify({ name: newName, levelId: newLevelId }),
       });
       if (!res.ok) {
@@ -123,12 +117,9 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
   const handleDeleteClass = async (classId: string) => {
     if (!window.confirm('Are you sure you want to delete this class?')) return;
     try {
-      const token = localStorage.getItem('authToken');
-      const res = await fetch(`${API_BASE_URL}/classes/${classId}`, {
+      const res = await fetch(`/api/classes/${classId}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
+        credentials: 'include',
       });
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
@@ -142,13 +133,12 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
   // Assign student to class
   const handleAssignStudent = async (studentId: string, classId: string) => {
     try {
-      const token = localStorage.getItem('authToken');
-      const res = await fetch(`${API_BASE_URL}/classes/${classId}/students`, {
+      const res = await fetch(`/api/classes/${classId}/students`, {
         method: 'POST',
         headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify({ studentId }),
       });
       if (!res.ok) {
@@ -164,12 +154,9 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
   const handleRemoveStudent = async (studentId: string) => {
     if (!window.confirm('Are you sure you want to remove this student from the class?')) return;
     try {
-      const token = localStorage.getItem('authToken');
-      const res = await fetch(`${API_BASE_URL}/classes/${selectedClassId}/students/${studentId}`, {
+      const res = await fetch(`/api/classes/${selectedClassId}/students/${studentId}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
+        credentials: 'include',
       });
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
@@ -190,13 +177,12 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
   const handleSendReport = async (studentId: string) => {
     setReportSending(true);
     try {
-      const token = localStorage.getItem('authToken');
-      const res = await fetch(`${API_BASE_URL}/studentRecords`, {
+      const res = await fetch('/api/studentRecords', {
         method: 'POST',
         headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify({
           studentId,
           action: 'report',
@@ -229,6 +215,10 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
 
   const selectedClass = selectedClassId && classes && Array.isArray(classes) ? classes.find(c => c.id === selectedClassId) : null;
   const classStudents = selectedClass ? (students && Array.isArray(students) ? students.filter(s => (s.classIds || []).includes(selectedClass.id)) : []) : [];
+
+  // Debug logging
+  console.log('ClassesPanel render - levels:', levels);
+  console.log('ClassesPanel render - levels length:', levels.length);
 
   return (
     <div className="classes-panel">

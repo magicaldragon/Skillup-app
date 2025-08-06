@@ -233,6 +233,8 @@ body {
   color: #374151 !important;
   transition: all 0.3s ease !important;
   box-shadow: 0 2px 8px rgba(22, 101, 52, 0.1) !important;
+  height: 48px !important;
+  box-sizing: border-box !important;
 }
 
 .search-bar-input:focus {
@@ -297,6 +299,38 @@ body {
   transition: all 0.3s ease !important;
   min-width: 150px !important;
   box-shadow: 0 2px 8px rgba(22, 101, 52, 0.1) !important;
+  height: 48px !important;
+  box-sizing: border-box !important;
+}
+
+/* Level select styling for class creation */
+.level-select {
+  padding: 12px 20px !important;
+  border: 2px solid #166534 !important;
+  border-radius: 25px !important;
+  background: white !important;
+  color: #374151 !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  min-width: 200px !important;
+  box-shadow: 0 2px 8px rgba(22, 101, 52, 0.1) !important;
+  height: 48px !important;
+  box-sizing: border-box !important;
+}
+
+.level-select:focus {
+  outline: none !important;
+  border-color: #166534 !important;
+  box-shadow: 0 4px 12px rgba(22, 101, 52, 0.2) !important;
+  transform: translateY(-1px) !important;
+}
+
+.level-select option {
+  background: white !important;
+  color: #374151 !important;
+  padding: 8px !important;
 }
 
 .status-filter-select:focus {
@@ -309,4 +343,39 @@ body {
 .status-filter-select option {
   background: white;
   color: #374151;
+}
+
+/* Global Title Styling for Main Content */
+.classes-title,
+.potential-students-title,
+.waiting-list-title,
+.accounts-title,
+.records-title,
+.levels-title,
+.reports-title,
+.analytics-title,
+.settings-title,
+.admin-debug-title {
+  color: #166534 !important;
+  font-weight: 700 !important;
+  font-size: 2rem !important;
+  margin-bottom: 0.5rem !important;
+  text-align: center !important;
+}
+
+.classes-subtitle,
+.potential-students-subtitle,
+.waiting-list-subtitle,
+.accounts-subtitle,
+.records-subtitle,
+.levels-subtitle,
+.reports-subtitle,
+.analytics-subtitle,
+.settings-subtitle,
+.admin-debug-subtitle {
+  color: #6b7280 !important;
+  font-weight: 400 !important;
+  font-size: 1rem !important;
+  text-align: center !important;
+  margin-bottom: 2rem !important;
 } 
