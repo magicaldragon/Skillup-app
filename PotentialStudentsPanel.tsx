@@ -187,7 +187,7 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
   // Filtered students
   const filteredStudents = potentialStudents.filter(s => {
     const matchesSearch = s.name.toLowerCase().includes(search.toLowerCase()) ||
-      (s.email && s.email.toLowerCase().includes(search.toLowerCase())) ||
+    (s.email && s.email.toLowerCase().includes(search.toLowerCase())) ||
       (s.phone && s.phone.includes(search));
     
     const matchesStatus = statusFilter === 'all' || s.status === statusFilter;
@@ -226,19 +226,19 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
   return (
     <div className="potential-students-panel">
       <div className="potential-students-header">
-        <h2 className="potential-students-title">Potential Students</h2>
-        <p className="potential-students-subtitle">Students who need evaluation - move to Waiting List or Records</p>
+      <h2 className="potential-students-title">Potential Students</h2>
+      <p className="potential-students-subtitle">Students who need evaluation - move to Waiting List or Records</p>
       </div>
       
       <div className="potential-students-search">
         <div className="search-controls">
           <div className="search-bar-container">
-            <input
-              type="text"
+        <input
+          type="text"
               className="search-bar-input"
-              placeholder="Search by name, email, or phone..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
+          placeholder="Search by name, email, or phone..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
             />
             <button className="search-bar-button">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -259,9 +259,9 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
       </div>
       
       <div className="potential-students-table-container">
-        <table className="potential-students-table">
-          <thead>
-            <tr>
+      <table className="potential-students-table">
+        <thead>
+          <tr>
               <th className="checkbox-header">
                 <input
                   type="checkbox"
@@ -270,15 +270,15 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
                   className="select-all-checkbox"
                 />
               </th>
-              <th>Name</th>
+            <th>Name</th>
               <th>Gender</th>
-              <th>Status</th>
+            <th>Status</th>
               <th>Parent's Name</th>
               <th>Parent's Phone</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredStudents.length === 0 && (
+          </tr>
+        </thead>
+        <tbody>
+          {filteredStudents.length === 0 && (
               <tr>
                 <td colSpan={6} className="empty-table">
                   <div className="empty-state">
@@ -293,9 +293,9 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
                   </div>
                 </td>
               </tr>
-            )}
-            {filteredStudents.map(student => (
-              <tr key={student._id} onClick={() => setSelectedStudent(student)} className="clickable-row">
+          )}
+          {filteredStudents.map(student => (
+            <tr key={student._id} onClick={() => setSelectedStudent(student)} className="clickable-row">
                 <td onClick={e => e.stopPropagation()} className="checkbox-cell">
                   <input
                     type="checkbox"
@@ -315,13 +315,13 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
                   <span className={`status-badge status-${student.status}`}>
                     {student.status}
                   </span>
-                </td>
+              </td>
                 <td className="parent-name-cell">{student.parentName || 'N/A'}</td>
                 <td className="parent-phone-cell">{student.parentPhone || 'N/A'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+            </tr>
+          ))}
+        </tbody>
+      </table>
       </div>
 
       {/* Details Modal/Panel */}
@@ -380,7 +380,7 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
       
       <div className="potential-students-actions">
         {selectedIds.length > 0 && (
-          <button
+        <button
             className="potential-students-btn potential-students-btn-secondary"
             onClick={() => setShowBulkUpdate(true)}
           >
@@ -426,19 +426,19 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
       
       {showBulkUpdate && (
         <div className="potential-students-bulk-section">
-          <select
-            className="potential-students-select"
-            value={bulkStatus}
-            onChange={e => setBulkStatus(e.target.value)}
-          >
-            <option value="">Select status...</option>
+            <select
+              className="potential-students-select"
+              value={bulkStatus}
+              onChange={e => setBulkStatus(e.target.value)}
+            >
+              <option value="">Select status...</option>
             <option value="potential">Potential</option>
-            <option value="contacted">Contacted</option>
+              <option value="contacted">Contacted</option>
             <option value="studying">Studying (Move to Waiting List)</option>
             <option value="postponed">Postponed (Move to Records)</option>
             <option value="off">Off (Move to Records)</option>
             <option value="alumni">Alumni (Move to Records)</option>
-          </select>
+            </select>
           <div className="potential-students-confirm-buttons">
             <button
               className="potential-students-confirm-btn potential-students-confirm-btn-success"

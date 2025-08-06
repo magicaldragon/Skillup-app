@@ -219,19 +219,19 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
   return (
     <div className="waiting-list-panel">
       <div className="waiting-list-header">
-        <h2 className="waiting-list-title">Waiting List</h2>
+      <h2 className="waiting-list-title">Waiting List</h2>
         <p className="waiting-list-subtitle">Students ready for class assignment</p>
       </div>
       
       <div className="waiting-list-search">
         <div className="search-controls">
           <div className="search-bar-container">
-            <input
-              type="text"
+        <input
+          type="text"
               className="search-bar-input"
-              placeholder="Search by name, email, or phone..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
+          placeholder="Search by name, email, or phone..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
             />
             <button className="search-bar-button">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -241,11 +241,11 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
           </div>
         </div>
       </div>
-      
+
       <div className="waiting-list-table-container">
-        <table className="waiting-list-table">
-          <thead>
-            <tr>
+      <table className="waiting-list-table">
+        <thead>
+          <tr>
               <th className="checkbox-header">
                 <input
                   type="checkbox"
@@ -254,14 +254,14 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
                   className="select-all-checkbox"
                 />
               </th>
-              <th>Name</th>
+            <th>Name</th>
               <th>Gender</th>
-              <th>Status</th>
+            <th>Status</th>
               <th>Assign</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredStudents.length === 0 && (
+          </tr>
+        </thead>
+        <tbody>
+          {filteredStudents.length === 0 && (
               <tr>
                 <td colSpan={5} className="empty-table">
                   <div className="empty-state">
@@ -273,9 +273,9 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
                   </div>
                 </td>
               </tr>
-            )}
-            {filteredStudents.map(student => (
-              <tr key={student._id} onClick={() => setSelectedStudent(student)} className="clickable-row">
+          )}
+          {filteredStudents.map(student => (
+            <tr key={student._id} onClick={() => setSelectedStudent(student)} className="clickable-row">
                 <td onClick={e => e.stopPropagation()} className="checkbox-cell">
                   <input
                     type="checkbox"
@@ -292,17 +292,17 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
                 </td>
                 <td className="gender-cell">{student.gender || 'N/A'}</td>
                 <td className="status-cell">
-                  <select
-                    value={student.status}
-                    onChange={e => handleStatusChange(student._id, e.target.value)}
-                    onClick={e => e.stopPropagation()}
+                <select
+                  value={student.status}
+                  onChange={e => handleStatusChange(student._id, e.target.value)}
+                  onClick={e => e.stopPropagation()}
                     className="status-select"
-                  >
-                    <option value="studying">Studying</option>
-                    <option value="postponed">Postponed</option>
-                    <option value="off">Off</option>
-                    <option value="alumni">Alumni</option>
-                  </select>
+                >
+                  <option value="studying">Studying</option>
+                  <option value="postponed">Postponed</option>
+                  <option value="off">Off</option>
+                  <option value="alumni">Alumni</option>
+                </select>
                 </td>
                 <td className="assign-cell">
                   <select
@@ -315,11 +315,11 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
                       <option key={cls.id} value={cls.id}>{cls.name}</option>
                     ))}
                   </select>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
       </div>
 
       {/* Details Modal/Panel */}

@@ -47,7 +47,6 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
   };
 
   useEffect(() => {
-    console.log('ClassesPanel useEffect triggered');
     fetchLevels();
     // Sync classLevels state with classes prop
     const levelsMap: { [id: string]: string | null } = {};
@@ -119,7 +118,7 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
     try {
       const res = await fetch(`/api/classes/${classId}`, {
         method: 'DELETE',
-        credentials: 'include',
+        credentials: 'include'
       });
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
@@ -156,7 +155,7 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
     try {
       const res = await fetch(`/api/classes/${selectedClassId}/students/${studentId}`, {
         method: 'DELETE',
-        credentials: 'include',
+        credentials: 'include'
       });
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
@@ -215,10 +214,6 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
 
   const selectedClass = selectedClassId && classes && Array.isArray(classes) ? classes.find(c => c.id === selectedClassId) : null;
   const classStudents = selectedClass ? (students && Array.isArray(students) ? students.filter(s => (s.classIds || []).includes(selectedClass.id)) : []) : [];
-
-  // Debug logging
-  console.log('ClassesPanel render - levels:', levels);
-  console.log('ClassesPanel render - levels length:', levels.length);
 
   return (
     <div className="classes-panel">
