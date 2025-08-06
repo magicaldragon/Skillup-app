@@ -259,7 +259,7 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
           >
             <option value="">All Levels</option>
             {levels && Array.isArray(levels) && levels.map(level => (
-              <option key={level.id} value={level.id}>{level.name}</option>
+              <option key={level._id} value={level._id}>{level.name}</option>
             ))}
           </select>
         </div>
@@ -270,7 +270,7 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
         {(classSearch || levelFilter) && (
           <span className="filter-info">
             {classSearch && ` matching "${classSearch}"`}
-            {levelFilter && ` in ${levels.find(l => l.id === levelFilter)?.name}`}
+            {levelFilter && ` in ${levels.find(l => l._id === levelFilter)?.name}`}
           </span>
         )}
       </div>
@@ -309,7 +309,7 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
                 </td>
                 <td className="level-cell">
                   <span className="level-badge">
-                    {levels.find(l => l.id === cls.levelId)?.name || 'N/A'}
+                    {levels.find(l => l._id === cls.levelId)?.name || 'N/A'}
                   </span>
                 </td>
                 <td className="students-cell">
@@ -353,7 +353,7 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
           >
             <option value="">Select Level</option>
             {levels && Array.isArray(levels) && levels.map(level => (
-              <option key={level.id} value={level.id}>{level.name}</option>
+              <option key={level._id} value={level._id}>{level.name}</option>
             ))}
           </select>
           <button 
@@ -451,7 +451,7 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
                 >
                   <option value="">No Level</option>
                   {levels && Array.isArray(levels) && levels.map(level => (
-                    <option key={level.id} value={level.id}>{level.name}</option>
+                    <option key={level._id} value={level._id}>{level.name}</option>
                   ))}
                 </select>
               </div>

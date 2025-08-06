@@ -23,7 +23,8 @@ export interface Student {
 }
 
 export interface Level {
-  id: string;
+  _id: string;
+  id?: string; // For backward compatibility
   name: string;
   code: string;
   description: string;

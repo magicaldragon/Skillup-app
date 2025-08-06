@@ -334,7 +334,18 @@ const App: React.FC = () => {
   if (!user) {
     return (
       <Suspense fallback={<div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc' }}><div style={{ margin: '0 auto 1rem', width: 48, height: 48, borderRadius: '50%', borderBottom: '4px solid #307637', animation: 'spin 1s linear infinite' }} /><p style={{ fontSize: '1.1rem', color: '#475569' }}>Loading...</p></div>}>
-        <Login onLoginSuccess={handleLoginSuccess} />
+        <div style={{
+          minHeight: '100vh',
+          width: '100vw',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: '#f8fafc',
+          margin: 0,
+          padding: 0
+        }}>
+          <Login onLoginSuccess={handleLoginSuccess} />
+        </div>
       </Suspense>
     );
   }

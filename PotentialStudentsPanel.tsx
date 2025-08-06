@@ -187,8 +187,9 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
   // Filtered students
   const filteredStudents = potentialStudents.filter(s => {
     const matchesSearch = s.name.toLowerCase().includes(search.toLowerCase()) ||
-    (s.email && s.email.toLowerCase().includes(search.toLowerCase())) ||
-      (s.phone && s.phone.includes(search));
+      (s.englishName && s.englishName.toLowerCase().includes(search.toLowerCase())) ||
+      (s.phone && s.phone.includes(search)) ||
+      (s.studentCode && s.studentCode.toLowerCase().includes(search.toLowerCase()));
     
     const matchesStatus = statusFilter === 'all' || s.status === statusFilter;
     
@@ -233,12 +234,12 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
       <div className="potential-students-search">
         <div className="search-controls">
           <div className="search-bar-container">
-        <input
-          type="text"
+                    <input
+              type="text"
               className="search-bar-input"
-          placeholder="Search by name, email, or phone..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
+              placeholder="Search by name, phone, or student ID..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
             />
             <button className="search-bar-button">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">

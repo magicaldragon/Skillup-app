@@ -184,8 +184,9 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
   // Filtered students
   const filteredStudents = waitingStudents.filter(s =>
     s.name.toLowerCase().includes(search.toLowerCase()) ||
-    (s.email && s.email.toLowerCase().includes(search.toLowerCase())) ||
-    (s.phone && s.phone.includes(search))
+    (s.englishName && s.englishName.toLowerCase().includes(search.toLowerCase())) ||
+    (s.phone && s.phone.includes(search)) ||
+    (s.studentCode && s.studentCode.toLowerCase().includes(search.toLowerCase()))
   );
 
   if (loading) {
@@ -226,13 +227,13 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
       <div className="waiting-list-search">
         <div className="search-controls">
           <div className="search-bar-container">
-        <input
+                <input
           type="text"
-              className="search-bar-input"
-          placeholder="Search by name, email, or phone..."
+          className="search-bar-input"
+          placeholder="Search by name, phone, or student ID..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-            />
+        />
             <button className="search-bar-button">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
