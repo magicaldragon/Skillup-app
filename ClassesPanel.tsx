@@ -17,6 +17,7 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
   const [editName, setEditName] = useState('');
 
   const [levels, setLevels] = useState<Level[]>([]);
+  const [levelsLoading, setLevelsLoading] = useState(true);
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
   const [classSearch, setClassSearch] = useState('');
   const [levelFilter, setLevelFilter] = useState<string>('');
@@ -29,11 +30,11 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
 
   // Fetch levels from backend
   const fetchLevels = async () => {
+    setLevelsLoading(true);
     try {
       console.log('Fetching levels from: /api/levels');
       console.log('Current window location:', window.location.origin);
       
-      // Try both relative and absolute paths
       const res = await fetch('/api/levels', { 
         credentials: 'include',
         headers: {
@@ -42,7 +43,6 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
       });
       
       console.log('Levels response status:', res.status);
-      console.log('Levels response headers:', res.headers);
       
       if (!res.ok) {
         const errorText = await res.text();
@@ -53,10 +53,19 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
       const data = await res.json();
       console.log('Levels response data:', data);
       console.log('Levels array:', data.levels);
-      setLevels(data.levels || []);
+      
+      if (data.success && Array.isArray(data.levels)) {
+        setLevels(data.levels);
+        console.log('Successfully set levels:', data.levels.length, 'levels');
+      } else {
+        console.error('Invalid levels data structure:', data);
+        setLevels([]);
+      }
     } catch (error) {
       console.error('Error fetching levels:', error);
       setLevels([]);
+    } finally {
+      setLevelsLoading(false);
     }
   };
 
@@ -346,23 +355,42 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
       {/* Add Class Form */}
       <div className="add-class-section">
         <div className="add-class-form">
-          <select 
-            value={newClassLevelId} 
-            onChange={e => setNewClassLevelId(e.target.value)}
-            className="level-select"
-          >
-            <option value="">Select Level</option>
-            {levels && Array.isArray(levels) && levels.map(level => (
-              <option key={level._id} value={level._id}>{level.name}</option>
-            ))}
-          </select>
-          <button 
-            onClick={handleAddClass} 
-            disabled={adding || !newClassLevelId} 
-            className="add-class-btn"
-          >
-            {adding ? 'Creating...' : 'Add Class'}
-          </button>
+          {levelsLoading ? (
+            <div className="levels-loading-message">
+              <div className="loading-spinner"></div>
+              <p>Loading levels...</p>
+            </div>
+          ) : levels && Array.isArray(levels) && levels.length > 0 ? (
+            <>
+              <select 
+                value={newClassLevelId} 
+                onChange={e => setNewClassLevelId(e.target.value)}
+                className="level-select"
+              >
+                <option value="">Select Level</option>
+                {levels.map(level => (
+                  <option key={level._id} value={level._id}>{level.name}</option>
+                ))}
+              </select>
+              <button 
+                onClick={handleAddClass} 
+                disabled={adding || !newClassLevelId} 
+                className="add-class-btn"
+              >
+                {adding ? 'Creating...' : 'Add Class'}
+              </button>
+            </>
+          ) : (
+            <div className="no-levels-message">
+              <p>No levels available. Please create levels first in the Levels tab.</p>
+              <button 
+                onClick={() => window.location.hash = '#levels'}
+                className="go-to-levels-btn"
+              >
+                Go to Levels
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

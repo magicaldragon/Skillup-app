@@ -14,11 +14,12 @@
   box-shadow: 0 8px 32px 0 rgba(48, 118, 55, 0.18), 0 1.5px 8px 0 rgba(48, 118, 55, 0.10);
   border: 2.5px solid #307637;
   padding: 2.5rem 2.5rem 2rem 2.5rem;
-  max-width: 370px;
-  width: 100%;
+  width: 400px;
+  height: 400px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   animation: fadeInPanel 0.7s cubic-bezier(0.4,0,0.2,1);
   will-change: transform, opacity;
 }
@@ -140,8 +141,11 @@
 
 @media (max-width: 500px) {
   .login-panel {
-    padding: 1.2rem 0.5rem 1.2rem 0.5rem;
-    max-width: 98vw;
+    padding: 1.5rem;
+    width: 90vw;
+    height: 90vw;
+    max-width: 350px;
+    max-height: 350px;
   }
   .login-logo {
     height: 60px;

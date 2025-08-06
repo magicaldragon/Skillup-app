@@ -247,32 +247,32 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
             const colorClass = getLevelColor(level.name);
             const icon = getLevelIcon(level.name);
             return (
-              <div key={level._id} className={`levels-card ${colorClass}`} style={{ border: '2.5px solid #7fffd4', borderRadius: '18px', boxShadow: '0 4px 24px #e0f7fa', background: 'rgba(255,255,255,0.85)', margin: '0.5rem', minWidth: 220 }}>
-                <div className="levels-card-header" style={{ display: 'flex', alignItems: 'center', gap: '1rem', borderBottom: '1.5px solid #e0e7ff', paddingBottom: 8 }}>
-                  <div className="levels-card-icon" style={{ fontSize: 32 }}>{icon}</div>
+              <div key={level._id} className={`levels-card ${colorClass}`}>
+                <div className="levels-card-header">
+                  <div className="levels-card-icon">{icon}</div>
                   <div className="levels-card-info">
-                    <h3 className="levels-card-title" style={{ fontWeight: 700, fontSize: 20 }}>{level.name}</h3>
-                    <span className="levels-card-code" style={{ color: '#00b894', fontWeight: 600 }}>{level.code}</span>
+                    <h3 className="levels-card-title">{level.name}</h3>
+                    <span className="levels-card-code">{level.code}</span>
                   </div>
-                  <div className="levels-card-stats" style={{ marginLeft: 'auto', fontWeight: 600, color: '#307637' }}>
+                  <div className="levels-card-stats">
                     <span className="levels-card-class-count">
                       {assignedClasses.length} class{assignedClasses.length !== 1 ? 'es' : ''}
                     </span>
                   </div>
                 </div>
                 {level.description && (
-                  <p className="levels-card-description" style={{ color: '#555', fontSize: 15, margin: '0.5rem 0 0.5rem 0.5rem' }}>{level.description}</p>
+                  <p className="levels-card-description">{level.description}</p>
                 )}
-                <div className="levels-card-classes" style={{ padding: '0.5rem 0.5rem 0.5rem 0.5rem' }}>
-                  <h4 className="levels-card-classes-title" style={{ fontWeight: 600, fontSize: 15, marginBottom: 4 }}>Assigned Classes:</h4>
+                <div className="levels-card-classes">
+                  <h4 className="levels-card-classes-title">Assigned Classes:</h4>
                   {assignedClasses.length > 0 ? (
-                    <div className="levels-card-classes-list" style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    <div className="levels-card-classes-list">
                       {assignedClasses.map((cls: any) => (
-                        <span key={cls.id} className="levels-card-class-item" style={{ background: '#e0ffe7', color: '#00b894', borderRadius: 8, padding: '2px 10px', fontWeight: 500, fontSize: 14, marginBottom: 2 }}>{cls.name}</span>
+                        <span key={cls.id} className="levels-card-class-item">{cls.name}</span>
                       ))}
                     </div>
                   ) : (
-                    <p className="levels-card-no-classes" style={{ color: '#aaa', fontSize: 14 }}>No classes assigned to this level</p>
+                    <p className="levels-card-no-classes">No classes assigned to this level</p>
                   )}
                 </div>
               </div>
