@@ -243,11 +243,11 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
           </div>
         ) : (
           displayLevels.map((level) => {
-            const assignedClasses = classesByLevel[level.id] || [];
+            const assignedClasses = classesByLevel[level._id] || [];
             const colorClass = getLevelColor(level.name);
             const icon = getLevelIcon(level.name);
             return (
-              <div key={level.id} className={`levels-card ${colorClass}`} style={{ border: '2.5px solid #7fffd4', borderRadius: '18px', boxShadow: '0 4px 24px #e0f7fa', background: 'rgba(255,255,255,0.85)', margin: '0.5rem', minWidth: 220 }}>
+              <div key={level._id} className={`levels-card ${colorClass}`} style={{ border: '2.5px solid #7fffd4', borderRadius: '18px', boxShadow: '0 4px 24px #e0f7fa', background: 'rgba(255,255,255,0.85)', margin: '0.5rem', minWidth: 220 }}>
                 <div className="levels-card-header" style={{ display: 'flex', alignItems: 'center', gap: '1rem', borderBottom: '1.5px solid #e0e7ff', paddingBottom: 8 }}>
                   <div className="levels-card-icon" style={{ fontSize: 32 }}>{icon}</div>
                   <div className="levels-card-info">
@@ -267,7 +267,7 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
                   <h4 className="levels-card-classes-title" style={{ fontWeight: 600, fontSize: 15, marginBottom: 4 }}>Assigned Classes:</h4>
                   {assignedClasses.length > 0 ? (
                     <div className="levels-card-classes-list" style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                      {assignedClasses.map(cls => (
+                      {assignedClasses.map((cls: any) => (
                         <span key={cls.id} className="levels-card-class-item" style={{ background: '#e0ffe7', color: '#00b894', borderRadius: 8, padding: '2px 10px', fontWeight: 500, fontSize: 14, marginBottom: 2 }}>{cls.name}</span>
                       ))}
                     </div>

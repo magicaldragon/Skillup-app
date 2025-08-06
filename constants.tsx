@@ -53,13 +53,13 @@ export const ICONS = {
 };
 
 export const LEVELS: Level[] = [
-    { id: 'l1', name: 'STARTERS (PRE)', description: 'Cambridge English Qualifications Pre A1 Starters.', code: 'PRE' },
-    { id: 'l2', name: 'MOVERS (A1)', description: 'Cambridge English Qualifications A1 Movers.', code: 'A1' },
-    { id: 'l3', name: 'FLYERS (A2A)', description: 'Cambridge English Qualifications A2 Flyers.', code: 'A2A' },
-    { id: 'l4', name: 'KET (A2B)', description: 'Cambridge English Qualifications A2 Key for Schools.', code: 'A2B' },
-    { id: 'l5', name: 'PET (B1)', description: 'Cambridge English Qualifications B1 Preliminary for Schools.', code: 'B1' },
-    { id: 'l6', name: 'PRE-IELTS (B2PRE)', description: 'Foundation for IELTS.', code: 'B2PRE' },
-    { id: 'l7', name: 'IELTS', description: 'International English Language Testing System.', code: 'I' },
+    { _id: 'l1', id: 'l1', name: 'STARTERS (PRE)', description: 'Cambridge English Qualifications Pre A1 Starters.', code: 'PRE' },
+    { _id: 'l2', id: 'l2', name: 'MOVERS (A1)', description: 'Cambridge English Qualifications A1 Movers.', code: 'A1' },
+    { _id: 'l3', id: 'l3', name: 'FLYERS (A2A)', description: 'Cambridge English Qualifications A2 Flyers.', code: 'A2A' },
+    { _id: 'l4', id: 'l4', name: 'KET (A2B)', description: 'Cambridge English Qualifications A2 Key for Schools.', code: 'A2B' },
+    { _id: 'l5', id: 'l5', name: 'PET (B1)', description: 'Cambridge English Qualifications B1 Preliminary for Schools.', code: 'B1' },
+    { _id: 'l6', id: 'l6', name: 'PRE-IELTS (B2PRE)', description: 'Foundation for IELTS.', code: 'B2PRE' },
+    { _id: 'l7', id: 'l7', name: 'IELTS', description: 'International English Language Testing System.', code: 'I' },
 ];
 
 export const INITIAL_CLASSES: StudentClass[] = [
