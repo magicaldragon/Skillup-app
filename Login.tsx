@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './LoginPanel.css';
-import { authService } from './frontend/services/authService';
+import { authService } from './services/authService';
 
 interface LoginProps {
   onLoginSuccess: (user: any) => void;
@@ -49,7 +49,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         setBackendStatus('connected');
       }
 
-      const response = await authService.login({ email, password });
+      const response = await authService.login(email, password);
       if (response.success && response.user) {
         setFailedAttempts(0);
         localStorage.setItem('skillup_user', JSON.stringify(response.user));

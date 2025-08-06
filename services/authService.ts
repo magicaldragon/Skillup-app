@@ -138,6 +138,22 @@ class AuthService {
     return this.token;
   }
 
+  // Test backend connection
+  async testBackendConnection(): Promise<boolean> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/test`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      return response.ok;
+    } catch (error) {
+      console.error('Backend connection test failed:', error);
+      return false;
+    }
+  }
+
   // Clear authentication data
   clearAuth(): void {
     this.token = null;

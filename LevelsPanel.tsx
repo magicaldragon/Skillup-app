@@ -304,7 +304,6 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
           <div className="level-expanded-view">
             <div className="level-expanded-header">
               <button className="level-expanded-close" onClick={handleCloseModal}>×</button>
-              <div className="level-expanded-icon">{getLevelIcon(selectedLevel.name)}</div>
               <div className="level-expanded-info">
                 <h2>{selectedLevel.name}</h2>
                 <span className="level-expanded-code">{selectedLevel.code}</span>
@@ -333,7 +332,6 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
           displayLevels.map((level) => {
             const assignedClasses = classesByLevel[level._id] || [];
             const colorClass = getLevelColor(level.name);
-            const icon = getLevelIcon(level.name);
             
             return (
               <div 
@@ -342,7 +340,6 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
                 onClick={() => handleLevelClick(level)}
               >
                 <div className="levels-card-header">
-                  <div className="levels-card-icon">{icon}</div>
                   <div className="levels-card-info">
                     <h3 className="levels-card-title">{level.name}</h3>
                     <span className="levels-card-class-count">

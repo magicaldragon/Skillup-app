@@ -32,22 +32,34 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
   const fetchLevels = async () => {
     setLevelsLoading(true);
     try {
+      console.log('=== FETCHING LEVELS DEBUG ===');
       console.log('Fetching levels from: /api/levels');
       console.log('Current window location:', window.location.origin);
       
       // Get token from localStorage
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
       console.log('Token available:', !!token);
+      console.log('Token length:', token ? token.length : 0);
+      console.log('Token preview:', token ? token.substring(0, 20) + '...' : 'none');
+      
+      const headers: any = {
+        'Content-Type': 'application/json'
+      };
+      
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
+      console.log('Request headers:', headers);
       
       const res = await fetch('/api/levels', { 
         credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': token ? `Bearer ${token}` : ''
-        }
+        headers
       });
       
       console.log('Levels response status:', res.status);
+      console.log('Levels response ok:', res.ok);
+      console.log('Levels response headers:', Object.fromEntries(res.headers.entries()));
       
       if (!res.ok) {
         const errorText = await res.text();
@@ -59,6 +71,7 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
       console.log('Levels response data:', data);
       console.log('Levels array:', data.levels);
       console.log('Levels array length:', data.levels ? data.levels.length : 'undefined');
+      console.log('Success field:', data.success);
       
       if (data.success && Array.isArray(data.levels)) {
         setLevels(data.levels);
@@ -73,6 +86,7 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
       setLevels([]);
     } finally {
       setLevelsLoading(false);
+      console.log('=== END FETCHING LEVELS DEBUG ===');
     }
   };
 

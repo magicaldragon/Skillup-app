@@ -7,11 +7,23 @@ const Level = require('../models/Level');
 // Get all levels
 router.get('/', verifyToken, async (req, res) => {
   try {
+    console.log('=== LEVELS ROUTE DEBUG ===');
+    console.log('User from token:', req.user);
+    console.log('User role:', req.user.role);
+    console.log('User ID:', req.user.userId || req.user.id);
+    
     if (req.user.role !== 'admin' && req.user.role !== 'teacher' && req.user.role !== 'staff') {
+      console.log('Access denied - role not allowed:', req.user.role);
       return res.status(403).json({ success: false, message: 'Access denied. Admin, teacher, or staff role required.' });
     }
+    
+    console.log('Role check passed, fetching levels...');
     const levels = await Level.find({ isActive: true }).sort({ createdAt: 1 });
+    console.log('Found levels:', levels.length);
+    console.log('Levels data:', levels.map(l => ({ id: l._id, name: l.name, code: l.code })));
+    
     res.json({ success: true, levels });
+    console.log('=== END LEVELS ROUTE DEBUG ===');
   } catch (error) {
     console.error('Get levels error:', error);
     res.status(500).json({ success: false, message: 'Internal server error' });
