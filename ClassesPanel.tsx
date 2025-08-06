@@ -31,14 +31,28 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
   const fetchLevels = async () => {
     try {
       console.log('Fetching levels from: /api/levels');
+      console.log('Current window location:', window.location.origin);
+      
+      // Try both relative and absolute paths
       const res = await fetch('/api/levels', { 
-        credentials: 'include' 
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
+      
+      console.log('Levels response status:', res.status);
+      console.log('Levels response headers:', res.headers);
+      
       if (!res.ok) {
+        const errorText = await res.text();
+        console.error('Levels response error text:', errorText);
         throw new Error(`HTTP error! status: ${res.status}`);
       }
+      
       const data = await res.json();
-      console.log('Levels response:', data);
+      console.log('Levels response data:', data);
+      console.log('Levels array:', data.levels);
       setLevels(data.levels || []);
     } catch (error) {
       console.error('Error fetching levels:', error);

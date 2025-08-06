@@ -1,5 +1,6 @@
 import React, { useEffect, useState, Suspense, lazy } from "react";
 import { authService } from './frontend/services/authService';
+import './App.css';
 const Login = lazy(() => import('./Login'));
 const TeacherDashboard = lazy(() => import('./TeacherDashboard'));
 const StudentDashboard = lazy(() => import('./StudentDashboard'));
