@@ -35,10 +35,15 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
       console.log('Fetching levels from: /api/levels');
       console.log('Current window location:', window.location.origin);
       
+      // Get token from localStorage
+      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+      console.log('Token available:', !!token);
+      
       const res = await fetch('/api/levels', { 
         credentials: 'include',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : ''
         }
       });
       
@@ -53,10 +58,12 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
       const data = await res.json();
       console.log('Levels response data:', data);
       console.log('Levels array:', data.levels);
+      console.log('Levels array length:', data.levels ? data.levels.length : 'undefined');
       
       if (data.success && Array.isArray(data.levels)) {
         setLevels(data.levels);
         console.log('Successfully set levels:', data.levels.length, 'levels');
+        console.log('Levels details:', data.levels.map((l: any) => ({ id: l._id, name: l.name, code: l.code })));
       } else {
         console.error('Invalid levels data structure:', data);
         setLevels([]);
@@ -89,10 +96,14 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
         return;
       }
 
+      // Get token from localStorage
+      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+
       const res = await fetch('/api/classes', {
         method: 'POST',
         headers: { 
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : ''
         },
         credentials: 'include',
         body: JSON.stringify({ levelId: newClassLevelId }),

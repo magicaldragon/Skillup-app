@@ -24,7 +24,16 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
     setLoading(true);
     const fetchLevels = async () => {
       try {
-        const res = await fetch('/api/levels', { credentials: 'include' });
+        // Get token from localStorage
+        const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+        
+        const res = await fetch('/api/levels', { 
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token ? `Bearer ${token}` : ''
+          }
+        });
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);
         }
@@ -44,7 +53,16 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
   React.useEffect(() => {
     const fetchClasses = async () => {
       try {
-        const res = await fetch('/api/classes', { credentials: 'include' });
+        // Get token from localStorage
+        const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+        
+        const res = await fetch('/api/classes', { 
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token ? `Bearer ${token}` : ''
+          }
+        });
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);
         }
@@ -86,9 +104,15 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
 
     setLoading(true);
     try {
+      // Get token from localStorage
+      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+      
       const res = await fetch('/api/levels', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : ''
+        },
         credentials: 'include',
         body: JSON.stringify({ name, code, description }),
       });
@@ -321,13 +345,11 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
                   <div className="levels-card-icon">{icon}</div>
                   <div className="levels-card-info">
                     <h3 className="levels-card-title">{level.name}</h3>
-                    <span className="levels-card-code">{level.code}</span>
-                  </div>
-                  <div className="levels-card-stats">
                     <span className="levels-card-class-count">
                       {assignedClasses.length} class{assignedClasses.length !== 1 ? 'es' : ''}
                     </span>
                   </div>
+                  <span className="levels-card-code">{level.code}</span>
                 </div>
               </div>
             );
