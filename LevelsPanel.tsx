@@ -12,6 +12,7 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
   const [classesByLevel, setClassesByLevel] = useState<{ [level: string]: StudentClass[] }>({});
   const [loading, setLoading] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [expandedLevel, setExpandedLevel] = useState<string | null>(null);
   const [newLevel, setNewLevel] = useState({
     name: '',
     code: '',
@@ -133,6 +134,11 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
     return '📖';
   };
 
+  // Handle level card click
+  const handleLevelClick = (levelId: string) => {
+    setExpandedLevel(expandedLevel === levelId ? null : levelId);
+  };
+
   // Use backend levels if available, otherwise fall back to constants
   const displayLevels = levels.length > 0 ? levels : LEVELS;
 
@@ -246,8 +252,14 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
             const assignedClasses = classesByLevel[level._id] || [];
             const colorClass = getLevelColor(level.name);
             const icon = getLevelIcon(level.name);
+            const isExpanded = expandedLevel === level._id;
+            
             return (
-              <div key={level._id} className={`levels-card ${colorClass}`}>
+              <div 
+                key={level._id} 
+                className={`levels-card ${colorClass} ${isExpanded ? 'expanded' : ''}`}
+                onClick={() => handleLevelClick(level._id)}
+              >
                 <div className="levels-card-header">
                   <div className="levels-card-icon">{icon}</div>
                   <div className="levels-card-info">
@@ -263,17 +275,21 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
                 {level.description && (
                   <p className="levels-card-description">{level.description}</p>
                 )}
-                <div className="levels-card-classes">
-                  <h4 className="levels-card-classes-title">Assigned Classes:</h4>
-                  {assignedClasses.length > 0 ? (
-                    <div className="levels-card-classes-list">
-                      {assignedClasses.map((cls: any) => (
-                        <span key={cls.id} className="levels-card-class-item">{cls.name}</span>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="levels-card-no-classes">No classes assigned to this level</p>
-                  )}
+                
+                {/* Expanded details */}
+                <div className="levels-card-details">
+                  <div className="levels-card-classes">
+                    <h4 className="levels-card-classes-title">Assigned Classes:</h4>
+                    {assignedClasses.length > 0 ? (
+                      <div className="levels-card-classes-list">
+                        {assignedClasses.map((cls: any) => (
+                          <span key={cls.id} className="levels-card-class-item">{cls.name}</span>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="levels-card-no-classes">No classes assigned to this level</p>
+                    )}
+                  </div>
                 </div>
               </div>
             );
