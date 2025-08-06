@@ -19,17 +19,12 @@ interface StudentReport {
   solution?: string;
 }
 
-const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: { 
+const ClassesPanel = ({ students, classes, onDataRefresh }: { 
   students: Student[], 
   classes: StudentClass[], 
-  onAddClass?: (code: string) => void, 
   onDataRefresh?: () => void
 }) => {
   const [adding, setAdding] = useState(false);
-  const [classLevels, setClassLevels] = useState<{ [id: string]: string | null }>({});
-  const [editId, setEditId] = useState<string | null>(null);
-  const [editName, setEditName] = useState('');
-
   const [levels, setLevels] = useState<Level[]>([]);
   const [levelsLoading, setLevelsLoading] = useState(true);
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
@@ -139,13 +134,7 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
   useEffect(() => {
     fetchLevels();
     fetchReports();
-    // Sync classLevels state with classes prop
-    const levelsMap: { [id: string]: string | null } = {};
-    if (classes && Array.isArray(classes)) {
-      classes.forEach((c: any) => { levelsMap[c.id] = c.levelId || ''; });
-    }
-    setClassLevels(levelsMap);
-  }, [classes]);
+  }, []);
 
   // Add new class
   const handleAddClass = async () => {
@@ -257,7 +246,6 @@ const ClassesPanel = ({ students, classes, onAddClass, onDataRefresh }: {
     try {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
       const selectedClass = classes.find(c => c.id === selectedClassId);
-      const student = students.find(s => s.id === studentId);
       
       const res = await fetch('/api/studentRecords', {
         method: 'POST',
