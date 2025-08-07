@@ -18,9 +18,16 @@ router.get('/', verifyToken, async (req, res) => {
     }
     
     console.log('Role check passed, fetching levels...');
+    
+    // First, let's check if there are any levels at all (including inactive ones)
+    const allLevels = await Level.find({}).sort({ createdAt: 1 });
+    console.log('All levels in database:', allLevels.length);
+    console.log('All levels data:', allLevels.map(l => ({ id: l._id, name: l.name, code: l.code, isActive: l.isActive })));
+    
+    // Now get only active levels
     const levels = await Level.find({ isActive: true }).sort({ createdAt: 1 });
-    console.log('Found levels:', levels.length);
-    console.log('Levels data:', levels.map(l => ({ id: l._id, name: l.name, code: l.code })));
+    console.log('Active levels found:', levels.length);
+    console.log('Active levels data:', levels.map(l => ({ id: l._id, name: l.name, code: l.code })));
     
     res.json({ success: true, levels });
     console.log('=== END LEVELS ROUTE DEBUG ===');
