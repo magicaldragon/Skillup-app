@@ -65,13 +65,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
   // Add new class with level selection
   const [newClassLevelId, setNewClassLevelId] = useState<string>('');
 
-  // Calculate age from birth year
-  const calculateAge = (dob?: string) => {
-    if (!dob) return 'N/A';
-    const birthYear = new Date(dob).getFullYear();
-    const currentYear = new Date().getFullYear();
-    return currentYear - birthYear + 1;
-  };
+
 
   // Fetch levels from backend
   const fetchLevels = async () => {
@@ -212,54 +206,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
 
 
 
-  // Assign student to class
-  const handleAssignStudent = async (studentId: string, classId: string) => {
-    try {
-      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
-      const res = await fetch(`${apiUrl}/classes/${classId}/students`, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ studentId }),
-      });
-      
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-      
-      onDataRefresh?.();
-    } catch (error) {
-      console.error('Error assigning student:', error);
-      alert('Failed to assign student. Please try again.');
-    }
-  };
 
-  // Remove student from class
-  const handleRemoveStudent = async (studentId: string) => {
-    if (!window.confirm('Are you sure you want to remove this student from the class?')) return;
-    try {
-      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
-      const res = await fetch(`${apiUrl}/classes/${classEditModal.classId}/students/${studentId}`, {
-        method: 'DELETE',
-        headers: { 
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-      
-      onDataRefresh?.();
-    } catch (error) {
-      console.error('Error removing student:', error);
-      alert('Failed to remove student. Please try again.');
-    }
-  };
 
   // Open class edit modal
   const handleEditClass = (classId: string) => {
@@ -430,7 +377,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
     try {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
       const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
-
+      
       const res = await fetch(`${apiUrl}/student-records`, {
         method: 'POST',
         headers: { 
@@ -449,11 +396,11 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
           }
         }),
       });
-
+      
       if (!res.ok) {
         throw new Error('Failed to send report');
       }
-
+      
       alert('Report sent successfully!');
       handleCloseReportModal();
       onDataRefresh?.();
@@ -661,28 +608,28 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                 <div className="section-header">
                   <h4>Students in this class ({classEditModal.students.length})</h4>
                   <div className="bulk-actions">
-                    <button 
+              <button 
                       className="bulk-btn select-all-btn"
                       onClick={selectAllStudents}
-                    >
+              >
                       Select All
-                    </button>
-                    <button 
+              </button>
+              <button 
                       className="bulk-btn clear-all-btn"
                       onClick={clearAllSelections}
-                    >
+              >
                       Clear All
-                    </button>
-                  </div>
-                </div>
+              </button>
+            </div>
+          </div>
                 
                 {classEditModal.students.length === 0 ? (
                   <p className="no-students">No students assigned to this class.</p>
                 ) : (
                   <div className="students-table-container">
                     <table className="students-table">
-                      <thead>
-                        <tr>
+            <thead>
+              <tr>
                           <th className="checkbox-header">
                             <input
                               type="checkbox"
@@ -691,15 +638,15 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                               className="select-all-checkbox"
                             />
                           </th>
-                          <th>Student ID</th>
-                          <th>Full Name</th>
-                          <th>English Name</th>
+                <th>Student ID</th>
+                <th>Full Name</th>
+                <th>English Name</th>
                           <th>DOB</th>
                           <th>Gender</th>
-                          <th>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
                         {classEditModal.students.map(student => (
                           <tr key={student.id} className="student-row">
                             <td className="checkbox-cell">
@@ -709,25 +656,25 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                                 onChange={() => toggleStudentSelection(student.id)}
                                 className="row-checkbox"
                               />
-                            </td>
+                  </td>
                             <td>{student.studentCode || student.id}</td>
                             <td>{student.name}</td>
                             <td>{student.englishName || 'N/A'}</td>
                             <td>{student.dob ? new Date(student.dob).toLocaleDateString() : 'N/A'}</td>
                             <td>{student.gender || 'N/A'}</td>
                             <td className="student-actions">
-                              <button 
+                      <button 
                                 onClick={() => handleReportStudent(student.id, student.name)}
                                 className="action-btn report-btn"
-                              >
+                      >
                                 Report
-                              </button>
-                            </td>
-                          </tr>
+                      </button>
+                    </td>
+                  </tr>
                         ))}
-                      </tbody>
-                    </table>
-                  </div>
+            </tbody>
+          </table>
+        </div>
                 )}
               </div>
               
@@ -755,19 +702,19 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                             </option>
                           ))}
                       </select>
-                    </div>
+              </div>
                     <button 
                       onClick={handleBulkRemove}
                       className="bulk-btn remove-btn"
                     >
                       Remove to Waiting List
                     </button>
-                  </div>
-                </div>
+              </div>
+              </div>
               )}
+              </div>
+              </div>
             </div>
-          </div>
-        </div>
       )}
 
       {/* Report Modal */}
@@ -784,10 +731,10 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                 <p><strong>Student:</strong> {reportModal.studentName}</p>
                 <p><strong>Class:</strong> {reportModal.className}</p>
               </div>
-              
+            
               <div className="report-form">
                 <label htmlFor="problem">Problem Description:</label>
-                <textarea
+                <textarea 
                   id="problem"
                   value={reportProblem}
                   onChange={e => setReportProblem(e.target.value)}
@@ -797,22 +744,22 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                 />
               </div>
               
-              <div className="modal-actions">
-                <button 
+                <div className="modal-actions">
+                  <button 
                   onClick={handleSendReport}
                   disabled={reportSending || !reportProblem.trim()}
                   className="save-btn"
-                >
+                  >
                   {reportSending ? 'Sending...' : 'Confirm'}
-                </button>
-                <button 
+                  </button>
+                  <button 
                   onClick={handleCloseReportModal}
                   className="cancel-btn"
-                >
-                  Cancel
-                </button>
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
-            </div>
           </div>
         </div>
       )}
