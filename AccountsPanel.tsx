@@ -33,7 +33,7 @@ const AccountsPanel = () => {
       setLoading(true);
       setError(null);
       
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem('skillup_token');
       console.log('🔍 DEBUG: Auth token found:', token ? 'YES' : 'NO');
       console.log('🔍 DEBUG: Token preview:', token ? token.substring(0, 20) + '...' : 'NONE');
       
@@ -132,7 +132,7 @@ const AccountsPanel = () => {
     if (!editingId) return;
 
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem('skillup_token');
       if (!token) {
         setError('No authentication token found');
         return;
@@ -167,7 +167,7 @@ const AccountsPanel = () => {
     if (!confirm('Are you sure you want to delete this user?')) return;
 
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem('skillup_token');
       if (!token) {
         setError('No authentication token found');
         return;

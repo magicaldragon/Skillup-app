@@ -22,7 +22,7 @@ const AdminDebugPanel = ({ activeKey }: { activeKey: string }) => {
   const fetchApiUsage = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem('skillup_token');
       const response = await fetch(`${API_BASE_URL}/usage`, {
         headers: {
           'Authorization': `Bearer ${token}`,

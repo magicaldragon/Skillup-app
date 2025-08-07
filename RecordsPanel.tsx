@@ -53,7 +53,7 @@ const RecordsPanel = () => {
     setLoading(true);
     setError(null);
     
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('skillup_token');
     if (!token) {
       setError('No authentication token found');
       setLoading(false);

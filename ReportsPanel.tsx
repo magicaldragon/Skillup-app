@@ -12,7 +12,7 @@ const ReportsPanel = ({ isAdmin: _isAdmin, onDataRefresh: _onDataRefresh }: { is
         const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
         const response = await fetch(`${apiUrl}/reports`, {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+            'Authorization': `Bearer ${localStorage.getItem('skillup_token')}`,
           },
         });
         

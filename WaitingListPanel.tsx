@@ -41,7 +41,7 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
     setLoading(true);
     setError(null);
     
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('skillup_token');
     if (!token) {
       setError('No authentication token found');
       setLoading(false);
@@ -81,7 +81,7 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
 
   // Bulk assign to class
   const handleBulkAssignToClass = async () => {
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('skillup_token');
     if (!token) {
       alert('No authentication token found');
       return;
@@ -119,7 +119,7 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
 
   // Individual assign to class
   const handleAssignToClass = async (studentId: string, classId: string) => {
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('skillup_token');
     if (!token) {
       alert('No authentication token found');
       return;
@@ -153,7 +153,7 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
 
   // Update status (for moving to Records)
   const handleStatusChange = async (studentId: string, newStatus: string) => {
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('skillup_token');
     if (!token) {
       alert('No authentication token found');
       return;

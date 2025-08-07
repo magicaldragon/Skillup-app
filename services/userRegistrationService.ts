@@ -233,7 +233,7 @@ class UserRegistrationService {
   private async getAuthToken(): Promise<string | null> {
     
     // Check if we have a JWT token in localStorage
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('skillup_token');
     if (token) {
       return token;
     }
