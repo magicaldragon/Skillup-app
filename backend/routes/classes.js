@@ -61,13 +61,33 @@ router.get('/teacher/:teacherId', verifyToken, async (req, res) => {
 // Create new class
 router.post('/', verifyToken, async (req, res) => {
   try {
+    console.log('=== CREATE CLASS DEBUG ===');
+    console.log('User:', req.user);
+    console.log('Request body:', req.body);
+    
     if (req.user.role !== 'admin' && req.user.role !== 'teacher') {
+      console.log('Access denied - role not allowed:', req.user.role);
       return res.status(403).json({ success: false, message: 'Access denied. Admin or teacher role required.' });
     }
-    const { name, levelId, description, studentIds } = req.body;
-    if (!name || !levelId) {
-      return res.status(400).json({ success: false, message: 'Name and level ID are required' });
+    
+    const { levelId, description, studentIds } = req.body;
+    console.log('Extracted levelId:', levelId);
+    
+    if (!levelId) {
+      console.log('Level ID is missing');
+      return res.status(400).json({ success: false, message: 'Level ID is required' });
     }
+    
+    // Verify level exists
+    const Level = require('../models/Level');
+    const level = await Level.findById(levelId);
+    console.log('Found level:', level ? { id: level._id, name: level.name } : 'null');
+    
+    if (!level || !level.isActive) {
+      console.log('Invalid level ID or level not active');
+      return res.status(400).json({ success: false, message: 'Invalid level ID' });
+    }
+    
     // Generate next classCode (SU-XXX)
     const lastClass = await Class.findOne({}).sort({ createdAt: -1 });
     let nextNumber = 1;
@@ -78,14 +98,18 @@ router.post('/', verifyToken, async (req, res) => {
       }
     }
     const classCode = `SU-${String(nextNumber).padStart(3, '0')}`;
+    console.log('Generated classCode:', classCode);
+    
     const newClass = await Class.create({
-      name,
+      name: classCode, // Use classCode as name
       classCode,
       levelId,
       description: description || '',
       teacherId: req.user.userId,
       studentIds: studentIds || [],
     });
+    
+    console.log('Created class:', { id: newClass._id, name: newClass.name, levelId: newClass.levelId });
     await ChangeLog.create({
       userId: req.user.id,
       userName: req.user.name,
@@ -96,9 +120,13 @@ router.post('/', verifyToken, async (req, res) => {
       details: { after: newClass },
       ip: req.ip
     });
+    
+    console.log('Class created successfully, sending response');
     res.status(201).json({ success: true, message: 'Class created successfully', class: newClass });
+    console.log('=== END CREATE CLASS DEBUG ===');
   } catch (error) {
     console.error('Create class error:', error);
+    console.log('=== END CREATE CLASS DEBUG (ERROR) ===');
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
