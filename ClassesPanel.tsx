@@ -52,7 +52,16 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
   const fetchLevels = async () => {
     setLevelsLoading(true);
     try {
+      console.log('=== FETCHING LEVELS DEBUG ===');
+      console.log('Fetching levels from: /api/levels');
+      console.log('Current window location:', window.location.origin);
+      
+      // Get token from localStorage
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+      console.log('Token available:', !!token);
+      console.log('Token length:', token ? token.length : 0);
+      console.log('Token preview:', token ? token.substring(0, 20) + '...' : 'none');
+      
       const headers: any = {
         'Content-Type': 'application/json'
       };
@@ -61,20 +70,35 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
         headers['Authorization'] = `Bearer ${token}`;
       }
       
+      console.log('Request headers:', headers);
+      
       const res = await fetch('/api/levels', { 
         credentials: 'include',
         headers
       });
       
+      console.log('Levels response status:', res.status);
+      console.log('Levels response ok:', res.ok);
+      console.log('Levels response headers:', Object.fromEntries(res.headers.entries()));
+      
       if (!res.ok) {
+        const errorText = await res.text();
+        console.error('Levels response error text:', errorText);
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       
       const data = await res.json();
+      console.log('Levels response data:', data);
+      console.log('Levels array:', data.levels);
+      console.log('Levels array length:', data.levels ? data.levels.length : 'undefined');
+      console.log('Success field:', data.success);
       
       if (data.success && Array.isArray(data.levels)) {
         setLevels(data.levels);
+        console.log('Successfully set levels:', data.levels.length, 'levels');
+        console.log('Levels details:', data.levels.map((l: any) => ({ id: l._id, name: l.name, code: l.code })));
       } else {
+        console.error('Invalid levels data structure:', data);
         setLevels([]);
       }
     } catch (error) {
@@ -82,6 +106,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
       setLevels([]);
     } finally {
       setLevelsLoading(false);
+      console.log('=== END FETCHING LEVELS DEBUG ===');
     }
   };
 
@@ -132,9 +157,23 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
   };
 
   useEffect(() => {
+    console.log('=== CLASSES PANEL MOUNTED ===');
+    console.log('Component props:', { 
+      studentsCount: students?.length || 0, 
+      classesCount: classes?.length || 0,
+      onDataRefresh: !!onDataRefresh 
+    });
     fetchLevels();
     fetchReports();
   }, []);
+
+  // Debug levels state changes
+  useEffect(() => {
+    console.log('=== LEVELS STATE CHANGED ===');
+    console.log('Levels loading:', levelsLoading);
+    console.log('Levels count:', levels.length);
+    console.log('Levels data:', levels.map(l => ({ id: l._id, name: l.name, code: l.code })));
+  }, [levels, levelsLoading]);
 
   // Add new class
   const handleAddClass = async () => {
@@ -143,9 +182,18 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
       return;
     }
 
+    console.log('=== ADDING CLASS DEBUG ===');
+    console.log('Selected level ID:', newClassLevelId);
+    console.log('Selected level name:', levels.find(l => l._id === newClassLevelId)?.name);
+
     setAdding(true);
     try {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+      console.log('Token available for class creation:', !!token);
+      
+      const requestBody = { levelId: newClassLevelId };
+      console.log('Request body:', requestBody);
+      
       const res = await fetch('/api/classes', {
         method: 'POST',
         headers: { 
@@ -153,18 +201,27 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
           'Authorization': token ? `Bearer ${token}` : ''
         },
         credentials: 'include',
-        body: JSON.stringify({ levelId: newClassLevelId }),
+        body: JSON.stringify(requestBody),
       });
       
+      console.log('Class creation response status:', res.status);
+      console.log('Class creation response ok:', res.ok);
+      
       if (!res.ok) {
+        const errorText = await res.text();
+        console.error('Class creation error text:', errorText);
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       
       const data = await res.json();
+      console.log('Class creation response data:', data);
+      
       if (data.success) {
+        console.log('Class created successfully:', data.class);
         setNewClassLevelId('');
         onDataRefresh?.();
       } else {
+        console.error('Class creation failed:', data.message);
         alert(data.message || 'Failed to create class');
       }
     } catch (error) {
@@ -172,6 +229,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
       alert('Failed to add class. Please try again.');
     } finally {
       setAdding(false);
+      console.log('=== END ADDING CLASS DEBUG ===');
     }
   };
 
