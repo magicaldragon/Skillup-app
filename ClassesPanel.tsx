@@ -412,6 +412,47 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
     }
   };
 
+  // Edit class information
+  const handleEditClassInfo = async (classId: string) => {
+    // This would open a form to edit class details like name, level, etc.
+    // For now, we'll just show an alert
+    alert('Edit class information functionality will be implemented here');
+  };
+
+  // Delete class
+  const handleDeleteClass = async (classId: string) => {
+    const classObj = classes.find(c => c.id === classId);
+    if (!classObj) return;
+
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete class "${classObj.name}"? This action cannot be undone and will remove all students from this class.`
+    );
+
+    if (!confirmDelete) return;
+
+    try {
+      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+      
+      const res = await fetch(`${apiUrl}/classes/${classId}`, {
+        method: 'DELETE',
+        headers: { 
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      
+      alert('Class deleted successfully!');
+      onDataRefresh?.();
+    } catch (error) {
+      console.error('Error deleting class:', error);
+      alert('Failed to delete class. Please try again.');
+    }
+  };
+
   // Handle ESC key to close modals
   useEffect(() => {
     const handleEscKey = (event: KeyboardEvent) => {
@@ -537,12 +578,26 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                   {cls.studentIds?.length || 0} students
                 </td>
                 <td className="actions-cell">
-                  <button 
-                    className="action-btn edit-btn"
-                    onClick={(e) => { e.stopPropagation(); handleEditClass(cls.id); }}
-                  >
-                    Edit Class
-                  </button>
+                  <div className="action-buttons">
+                    <button 
+                      className="action-btn edit-btn"
+                      onClick={(e) => { e.stopPropagation(); handleEditClass(cls.id); }}
+                    >
+                      Edit
+                    </button>
+                    <button 
+                      className="action-btn edit-info-btn"
+                      onClick={(e) => { e.stopPropagation(); handleEditClassInfo(cls.id); }}
+                    >
+                      Edit Info
+                    </button>
+                    <button 
+                      className="action-btn delete-btn"
+                      onClick={(e) => { e.stopPropagation(); handleDeleteClass(cls.id); }}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -599,14 +654,14 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
         <div className="class-edit-modal">
           <div className="modal-content">
             <div className="modal-header">
-              <h3>Edit Class: {classEditModal.className} ({classEditModal.levelName})</h3>
+              <h3>CLASS: {classEditModal.className} LEVEL: {classEditModal.levelName}</h3>
               <button className="close-btn" onClick={handleCloseClassEditModal}>×</button>
             </div>
             
             <div className="modal-body">
               <div className="students-section">
                 <div className="section-header">
-                  <h4>Students in this class ({classEditModal.students.length})</h4>
+                  <h4>List of Students ({classEditModal.students.length})</h4>
                   <div className="bulk-actions">
               <button 
                       className="bulk-btn select-all-btn"
@@ -720,7 +775,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
       {/* Report Modal */}
       {reportModal.isOpen && (
         <div className="report-modal">
-          <div className="modal-content">
+          <div className="report-modal-content">
             <div className="modal-header">
               <h3>Report Student: {reportModal.studentName}</h3>
               <button className="close-btn" onClick={handleCloseReportModal}>×</button>
@@ -744,22 +799,22 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                 />
               </div>
               
-                <div className="modal-actions">
-                  <button 
+              <div className="modal-actions">
+                <button 
                   onClick={handleSendReport}
                   disabled={reportSending || !reportProblem.trim()}
                   className="save-btn"
-                  >
+                >
                   {reportSending ? 'Sending...' : 'Confirm'}
-                  </button>
-                  <button 
+                </button>
+                <button 
                   onClick={handleCloseReportModal}
                   className="cancel-btn"
-                  >
-                    Cancel
-                  </button>
-                </div>
+                >
+                  Cancel
+                </button>
               </div>
+            </div>
           </div>
         </div>
       )}
