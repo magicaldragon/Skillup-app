@@ -413,7 +413,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
   };
 
   // Edit class information
-  const handleEditClassInfo = async (classId: string) => {
+  const handleEditClassInfo = async (_classId: string) => {
     // This would open a form to edit class details like name, level, etc.
     // For now, we'll just show an alert
     alert('Edit class information functionality will be implemented here');
