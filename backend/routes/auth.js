@@ -90,8 +90,17 @@ const verifyToken = (req, res, next) => {
   }
 };
 
+// Simple connectivity test endpoint (no auth required)
+router.get('/test', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Backend server is running',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Test endpoint to verify authentication
-router.get('/test', verifyToken, (req, res) => {
+router.get('/test-auth', verifyToken, (req, res) => {
   res.json({
     success: true,
     message: 'Authentication working',

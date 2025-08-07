@@ -28,10 +28,18 @@ const App: React.FC = () => {
         console.log('Initializing authentication...');
         const profile = await authService.getProfile();
         console.log('Auth profile received:', profile);
-        if (profile && profile.email && profile.role) {
-          setUser(profile);
+        if (profile && typeof profile === 'object' && profile.email && profile.role) {
+          // Ensure profile has all required fields with safe defaults
+          const safeProfile = {
+            ...profile,
+            email: profile.email || '',
+            role: profile.role || 'student',
+            name: profile.name || profile.fullname || '',
+            id: profile.id || profile._id || ''
+          };
+          setUser(safeProfile);
           setAuthError(null);
-          console.log('User authenticated successfully:', profile);
+          console.log('User authenticated successfully:', safeProfile);
         } else {
           console.log('Invalid profile, logging out');
           await authService.logout();
@@ -50,8 +58,21 @@ const App: React.FC = () => {
 
   const handleLoginSuccess = (userData: any) => {
     console.log('Login successful, userData:', userData);
-    setUser(userData);
-    setAuthError(null);
+    // Ensure userData is safe before setting
+    if (userData && typeof userData === 'object') {
+      const safeUserData = {
+        ...userData,
+        email: userData.email || '',
+        role: userData.role || 'student',
+        name: userData.name || userData.fullname || '',
+        id: userData.id || userData._id || ''
+      };
+      setUser(safeUserData);
+      setAuthError(null);
+    } else {
+      console.error('Invalid user data received:', userData);
+      setAuthError('Invalid user data received');
+    }
   };
 
   const handleLogout = async () => {
@@ -79,7 +100,7 @@ const App: React.FC = () => {
       
       const studentsResponse = await fetch(`${apiUrl}/users`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+          'Authorization': `Bearer ${localStorage.getItem('skillup_token')}`,
         },
         signal: controller.signal,
       });
@@ -117,7 +138,7 @@ const App: React.FC = () => {
       
       const response = await fetch(`${apiUrl}/assignments`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+          'Authorization': `Bearer ${localStorage.getItem('skillup_token')}`,
         },
         signal: controller.signal,
       });
@@ -148,7 +169,7 @@ const App: React.FC = () => {
       
       const response = await fetch(`${apiUrl}/submissions`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+          'Authorization': `Bearer ${localStorage.getItem('skillup_token')}`,
         },
         signal: controller.signal,
       });
@@ -179,7 +200,7 @@ const App: React.FC = () => {
       
       const response = await fetch(`${apiUrl}/classes`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+          'Authorization': `Bearer ${localStorage.getItem('skillup_token')}`,
         },
         signal: controller.signal,
       });

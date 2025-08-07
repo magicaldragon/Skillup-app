@@ -12,7 +12,9 @@ export interface LoginCredentials {
 
 export interface UserProfile {
   _id: string;
+  id?: string;
   fullname: string;
+  name?: string;
   email: string;
   role: string;
   username: string;
@@ -147,15 +149,25 @@ class AuthService {
       if (response.ok) {
         const data = await response.json();
         console.log('Backend response data:', data);
-        localStorage.setItem('authToken', data.token);
+        localStorage.setItem('skillup_token', data.token);
         
         // Update connection cache on successful login
         this.connectionCache = { status: true, timestamp: Date.now() };
         
+        // Ensure user data is safe before returning
+        const safeUser = data.user && typeof data.user === 'object' ? {
+          _id: data.user._id || data.user.id || '',
+          fullname: data.user.name || data.user.fullname || '',
+          email: data.user.email || '',
+          role: data.user.role || 'student',
+          username: data.user.username || data.user.email || '',
+          ...data.user // Include any additional fields
+        } : null;
+
         return {
           success: true,
           message: 'Login successful',
-          user: data.user,
+          user: safeUser,
         };
       } else {
         const errorData = await response.json().catch(() => ({ message: 'Failed to parse error response' }));
@@ -205,7 +217,8 @@ class AuthService {
   async logout(): Promise<void> {
     try {
       await signOut(auth);
-      localStorage.removeItem('authToken');
+      localStorage.removeItem('skillup_token');
+      localStorage.removeItem('skillup_user');
       // Clear connection cache on logout
       this.connectionCache = null;
     } catch (error) {
@@ -215,7 +228,7 @@ class AuthService {
 
   async getProfile(): Promise<UserProfile | null> {
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem('skillup_token');
       if (!token) {
         console.log('No auth token found');
         return null;
@@ -239,8 +252,17 @@ class AuthService {
       if (response.ok) {
         const data = await response.json();
         console.log('Profile response data:', data);
-        if (data.success && data.user) {
-          return data.user;
+        if (data.success && data.user && typeof data.user === 'object') {
+          // Ensure all required fields exist with safe defaults
+          const safeUser = {
+            _id: data.user._id || data.user.id || '',
+            fullname: data.user.name || data.user.fullname || '',
+            email: data.user.email || '',
+            role: data.user.role || 'student',
+            username: data.user.username || data.user.email || '',
+            ...data.user // Include any additional fields
+          };
+          return safeUser;
         } else {
           console.error('Invalid profile response structure:', data);
           return null;
@@ -256,7 +278,7 @@ class AuthService {
   }
 
   isAuthenticated(): boolean {
-    return auth.currentUser !== null && localStorage.getItem('authToken') !== null;
+    return auth.currentUser !== null && localStorage.getItem('skillup_token') !== null;
   }
 
   getCurrentUser() {
