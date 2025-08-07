@@ -7,6 +7,24 @@ import './ClassesPanel.css';
 
 
 
+// Interface for class editing modal
+interface ClassEditModal {
+  isOpen: boolean;
+  classId: string | null;
+  className: string;
+  levelName: string;
+  students: Student[];
+}
+
+// Interface for report modal
+interface ReportModal {
+  isOpen: boolean;
+  studentId: string | null;
+  studentName: string;
+  classId: string;
+  className: string;
+}
+
 const ClassesPanel = ({ students, classes, onDataRefresh }: { 
   students: Student[], 
   classes: StudentClass[], 
@@ -19,6 +37,30 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
   const [classSearch, setClassSearch] = useState('');
   const [levelFilter, setLevelFilter] = useState<string>('');
 
+  // Class editing modal state
+  const [classEditModal, setClassEditModal] = useState<ClassEditModal>({
+    isOpen: false,
+    classId: null,
+    className: '',
+    levelName: '',
+    students: []
+  });
+
+  // Report modal state
+  const [reportModal, setReportModal] = useState<ReportModal>({
+    isOpen: false,
+    studentId: null,
+    studentName: '',
+    classId: '',
+    className: ''
+  });
+
+  // Report form state
+  const [reportProblem, setReportProblem] = useState('');
+  const [reportSending, setReportSending] = useState(false);
+
+  // Bulk selection state
+  const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
 
   // Add new class with level selection
   const [newClassLevelId, setNewClassLevelId] = useState<string>('');
@@ -222,6 +264,227 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
     }
   };
 
+  // Open class edit modal
+  const handleEditClass = (classId: string) => {
+    const classObj = classes.find(c => c.id === classId);
+    if (!classObj) return;
+
+    const levelName = levels.find(l => l._id === classObj.levelId)?.name || 'N/A';
+    const classStudents = students.filter(s => (s.classIds || []).includes(classId));
+
+    setClassEditModal({
+      isOpen: true,
+      classId,
+      className: classObj.name,
+      levelName,
+      students: classStudents
+    });
+    setSelectedStudentIds([]);
+  };
+
+  // Close class edit modal
+  const handleCloseClassEditModal = () => {
+    setClassEditModal({
+      isOpen: false,
+      classId: null,
+      className: '',
+      levelName: '',
+      students: []
+    });
+    setSelectedStudentIds([]);
+  };
+
+  // Toggle student selection for bulk actions
+  const toggleStudentSelection = (studentId: string) => {
+    setSelectedStudentIds(prev => 
+      prev.includes(studentId) 
+        ? prev.filter(id => id !== studentId)
+        : [...prev, studentId]
+    );
+  };
+
+  // Select all students
+  const selectAllStudents = () => {
+    setSelectedStudentIds(classEditModal.students.map(s => s.id));
+  };
+
+  // Clear all selections
+  const clearAllSelections = () => {
+    setSelectedStudentIds([]);
+  };
+
+  // Bulk assign students to another class
+  const handleBulkAssign = async (targetClassId: string) => {
+    if (selectedStudentIds.length === 0) {
+      alert('Please select students to assign');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+
+      for (const studentId of selectedStudentIds) {
+        const res = await fetch(`${apiUrl}/classes/${targetClassId}/students`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ studentId }),
+        });
+        
+        if (!res.ok) {
+          throw new Error(`Failed to assign student ${studentId}`);
+        }
+      }
+
+      alert('Students assigned successfully!');
+      onDataRefresh?.();
+      handleCloseClassEditModal();
+    } catch (error) {
+      console.error('Error bulk assigning students:', error);
+      alert('Failed to assign students. Please try again.');
+    }
+  };
+
+  // Bulk remove students to waiting list
+  const handleBulkRemove = async () => {
+    if (selectedStudentIds.length === 0) {
+      alert('Please select students to remove');
+      return;
+    }
+
+    if (!window.confirm(`Are you sure you want to remove ${selectedStudentIds.length} students to the waiting list?`)) return;
+
+    try {
+      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+
+      for (const studentId of selectedStudentIds) {
+        // Remove from current class
+        const removeRes = await fetch(`${apiUrl}/classes/${classEditModal.classId}/students/${studentId}`, {
+          method: 'DELETE',
+          headers: { 
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (!removeRes.ok) {
+          throw new Error(`Failed to remove student ${studentId}`);
+        }
+
+        // Update student status to "studying" (waiting list)
+        const updateRes = await fetch(`${apiUrl}/users/${studentId}`, {
+          method: 'PUT',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ status: 'studying' }),
+        });
+        
+        if (!updateRes.ok) {
+          throw new Error(`Failed to update student ${studentId} status`);
+        }
+      }
+
+      alert('Students removed to waiting list successfully!');
+      onDataRefresh?.();
+      handleCloseClassEditModal();
+    } catch (error) {
+      console.error('Error bulk removing students:', error);
+      alert('Failed to remove students. Please try again.');
+    }
+  };
+
+  // Open report modal
+  const handleReportStudent = (studentId: string, studentName: string) => {
+    setReportModal({
+      isOpen: true,
+      studentId,
+      studentName,
+      classId: classEditModal.classId || '',
+      className: classEditModal.className
+    });
+    setReportProblem('');
+  };
+
+  // Close report modal
+  const handleCloseReportModal = () => {
+    setReportModal({
+      isOpen: false,
+      studentId: null,
+      studentName: '',
+      classId: '',
+      className: ''
+    });
+    setReportProblem('');
+  };
+
+  // Send report
+  const handleSendReport = async () => {
+    if (!reportProblem.trim()) {
+      alert('Please describe the problem');
+      return;
+    }
+
+    setReportSending(true);
+    try {
+      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+
+      const res = await fetch(`${apiUrl}/student-records`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          studentId: reportModal.studentId,
+          action: 'report',
+          category: 'behavior',
+          details: {
+            problem: reportProblem,
+            classId: reportModal.classId,
+            className: reportModal.className,
+            reportedAt: new Date().toISOString()
+          }
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to send report');
+      }
+
+      alert('Report sent successfully!');
+      handleCloseReportModal();
+      onDataRefresh?.();
+    } catch (error) {
+      console.error('Error sending report:', error);
+      alert('Failed to send report. Please try again.');
+    } finally {
+      setReportSending(false);
+    }
+  };
+
+  // Handle ESC key to close modals
+  useEffect(() => {
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        if (classEditModal.isOpen) {
+          handleCloseClassEditModal();
+        }
+        if (reportModal.isOpen) {
+          handleCloseReportModal();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleEscKey);
+    return () => document.removeEventListener('keydown', handleEscKey);
+  }, [classEditModal.isOpen, reportModal.isOpen]);
+
 
 
   // Filter classes based on search and level filter
@@ -318,7 +581,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
               </tr>
             )}
             {filteredClasses.map(cls => (
-              <tr key={cls.id} onClick={() => handleClassClick(cls.id)} className="clickable-row">
+              <tr key={cls.id} onClick={() => handleEditClass(cls.id)} className="clickable-row">
                 <td className="class-name-cell">
                   <div className="class-name">{cls.name}</div>
                 </td>
@@ -332,10 +595,10 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                 </td>
                 <td className="actions-cell">
                   <button 
-                    className="action-btn view-btn"
-                    onClick={(e) => { e.stopPropagation(); handleClassClick(cls.id); }}
+                    className="action-btn edit-btn"
+                    onClick={(e) => { e.stopPropagation(); handleEditClass(cls.id); }}
                   >
-                    {selectedClassId === cls.id ? 'Hide Details' : 'View Details'}
+                    Edit Class
                   </button>
                 </td>
               </tr>
@@ -458,6 +721,175 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
         </div>
       </div>
 
+      {/* Class Edit Modal */}
+      {classEditModal.isOpen && (
+        <div className="class-edit-modal">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>Edit Class: {classEditModal.className} ({classEditModal.levelName})</h3>
+              <button className="close-btn" onClick={handleCloseClassEditModal}>×</button>
+            </div>
+            
+            <div className="modal-body">
+              <div className="students-section">
+                <div className="section-header">
+                  <h4>Students in this class ({classEditModal.students.length})</h4>
+                  <div className="bulk-actions">
+                    <button 
+                      className="bulk-btn select-all-btn"
+                      onClick={selectAllStudents}
+                    >
+                      Select All
+                    </button>
+                    <button 
+                      className="bulk-btn clear-all-btn"
+                      onClick={clearAllSelections}
+                    >
+                      Clear All
+                    </button>
+                  </div>
+                </div>
+                
+                {classEditModal.students.length === 0 ? (
+                  <p className="no-students">No students assigned to this class.</p>
+                ) : (
+                  <div className="students-table-container">
+                    <table className="students-table">
+                      <thead>
+                        <tr>
+                          <th className="checkbox-header">
+                            <input
+                              type="checkbox"
+                              checked={selectedStudentIds.length === classEditModal.students.length && classEditModal.students.length > 0}
+                              onChange={selectedStudentIds.length === classEditModal.students.length ? clearAllSelections : selectAllStudents}
+                              className="select-all-checkbox"
+                            />
+                          </th>
+                          <th>Student ID</th>
+                          <th>Full Name</th>
+                          <th>English Name</th>
+                          <th>DOB</th>
+                          <th>Gender</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {classEditModal.students.map(student => (
+                          <tr key={student.id} className="student-row">
+                            <td className="checkbox-cell">
+                              <input
+                                type="checkbox"
+                                checked={selectedStudentIds.includes(student.id)}
+                                onChange={() => toggleStudentSelection(student.id)}
+                                className="row-checkbox"
+                              />
+                            </td>
+                            <td>{student.studentCode || student.id}</td>
+                            <td>{student.name}</td>
+                            <td>{student.englishName || 'N/A'}</td>
+                            <td>{student.dob ? new Date(student.dob).toLocaleDateString() : 'N/A'}</td>
+                            <td>{student.gender || 'N/A'}</td>
+                            <td className="student-actions">
+                              <button 
+                                onClick={() => handleReportStudent(student.id, student.name)}
+                                className="action-btn report-btn"
+                              >
+                                Report
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+              
+              {selectedStudentIds.length > 0 && (
+                <div className="bulk-actions-section">
+                  <h4>Bulk Actions for {selectedStudentIds.length} selected student(s):</h4>
+                  <div className="bulk-actions-buttons">
+                    <div className="bulk-action-group">
+                      <label>Assign to another class:</label>
+                      <select 
+                        className="target-class-select"
+                        onChange={e => {
+                          if (e.target.value) {
+                            handleBulkAssign(e.target.value);
+                            e.target.value = '';
+                          }
+                        }}
+                      >
+                        <option value="">Select target class...</option>
+                        {classes && Array.isArray(classes) && classes
+                          .filter(c => c.id !== classEditModal.classId)
+                          .map(cls => (
+                            <option key={cls.id} value={cls.id}>
+                              {cls.name} ({levels.find(l => l._id === cls.levelId)?.name || 'N/A'})
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+                    <button 
+                      onClick={handleBulkRemove}
+                      className="bulk-btn remove-btn"
+                    >
+                      Remove to Waiting List
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Report Modal */}
+      {reportModal.isOpen && (
+        <div className="report-modal">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>Report Student: {reportModal.studentName}</h3>
+              <button className="close-btn" onClick={handleCloseReportModal}>×</button>
+            </div>
+            
+            <div className="modal-body">
+              <div className="report-info">
+                <p><strong>Student:</strong> {reportModal.studentName}</p>
+                <p><strong>Class:</strong> {reportModal.className}</p>
+              </div>
+              
+              <div className="report-form">
+                <label htmlFor="problem">Problem Description:</label>
+                <textarea
+                  id="problem"
+                  value={reportProblem}
+                  onChange={e => setReportProblem(e.target.value)}
+                  placeholder="Describe the problem or misbehavior..."
+                  rows={4}
+                  className="report-textarea"
+                />
+              </div>
+              
+              <div className="modal-actions">
+                <button 
+                  onClick={handleSendReport}
+                  disabled={reportSending || !reportProblem.trim()}
+                  className="save-btn"
+                >
+                  {reportSending ? 'Sending...' : 'Confirm'}
+                </button>
+                <button 
+                  onClick={handleCloseReportModal}
+                  className="cancel-btn"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
