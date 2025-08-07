@@ -33,7 +33,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
   const [adding, setAdding] = useState(false);
   const [levels, setLevels] = useState<Level[]>([]);
   const [levelsLoading, setLevelsLoading] = useState(true);
-  const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
+
   const [classSearch, setClassSearch] = useState('');
   const [levelFilter, setLevelFilter] = useState<string>('');
 
@@ -210,10 +210,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
     }
   };
 
-  // Handle class selection
-  const handleClassClick = (classId: string) => {
-    setSelectedClassId(selectedClassId === classId ? null : classId);
-  };
+
 
   // Assign student to class
   const handleAssignStudent = async (studentId: string, classId: string) => {
@@ -246,7 +243,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
     try {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
       const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
-      const res = await fetch(`${apiUrl}/classes/${selectedClassId}/students/${studentId}`, {
+      const res = await fetch(`${apiUrl}/classes/${classEditModal.classId}/students/${studentId}`, {
         method: 'DELETE',
         headers: { 
           'Authorization': `Bearer ${token}`
@@ -497,8 +494,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
     return matchesSearch && matchesLevel;
   });
 
-  const selectedClass = selectedClassId && classes && Array.isArray(classes) ? classes.find(c => c.id === selectedClassId) : null;
-  const classStudents = selectedClass ? (students && Array.isArray(students) ? students.filter(s => (s.classIds || []).includes(selectedClass.id)) : []) : [];
+
 
   return (
     <div className="classes-panel">
@@ -607,77 +603,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
         </table>
       </div>
 
-      {/* Class Details Expansion */}
-      {selectedClassId && selectedClass && (
-        <div className="class-details-expansion">
-          <div className="expansion-header">
-            <h3>{selectedClass.name} - Student Details</h3>
-            <button className="close-expansion-btn" onClick={() => setSelectedClassId(null)}>×</button>
-          </div>
-          
-          <div className="students-section">
-            <h4>Students in this class ({classStudents.length}):</h4>
-            {classStudents.length === 0 ? (
-              <p className="no-students">No students assigned to this class.</p>
-            ) : (
-              <div className="students-list">
-                <table className="students-table">
-                  <thead>
-                    <tr>
-                      <th>Student ID</th>
-                      <th>Full Name</th>
-                      <th>English Name</th>
-                      <th>Age</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {classStudents.map(student => (
-                      <tr key={student.id} className="student-row">
-                        <td>{student.studentCode || student.id}</td>
-                        <td>{student.name}</td>
-                        <td>{student.englishName || 'N/A'}</td>
-                        <td>{calculateAge(student.dob)}</td>
-                        <td className="student-actions">
-                          <button 
-                            onClick={() => handleRemoveStudent(student.id)}
-                            className="action-btn remove-btn"
-                          >
-                            Remove
-                          </button>
 
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-
-          <div className="assign-section">
-            <h4>Assign new student:</h4>
-            <select 
-              className="student-select"
-              onChange={e => {
-                if (e.target.value) {
-                  handleAssignStudent(e.target.value, selectedClassId);
-                  e.target.value = '';
-                }
-              }}
-            >
-              <option value="">Select a student...</option>
-              {students && Array.isArray(students) && students
-                .filter(s => !classStudents.find(cs => cs.id === s.id))
-                .map(student => (
-                  <option key={student.id} value={student.id}>
-                    {student.studentCode || student.id} - {student.name} {student.englishName ? `(${student.englishName})` : ''}
-                  </option>
-                ))}
-            </select>
-          </div>
-        </div>
-      )}
 
       {/* Add Class Form */}
       <div className="add-class-section">
