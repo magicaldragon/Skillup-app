@@ -5,19 +5,7 @@ import type { Student, StudentClass } from './types';
 import type { Level } from './types';
 import './ClassesPanel.css';
 
-interface StudentReport {
-  id: string;
-  studentId: string;
-  studentName: string;
-  englishName?: string;
-  level: string;
-  className: string;
-  problem: string;
-  reportedBy: string;
-  reportedAt: string;
-  status: '!!!' | 'solved';
-  solution?: string;
-}
+
 
 const ClassesPanel = ({ students, classes, onDataRefresh }: { 
   students: Student[], 
@@ -30,12 +18,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
   const [classSearch, setClassSearch] = useState('');
   const [levelFilter, setLevelFilter] = useState<string>('');
-  const [reportingStudentId, setReportingStudentId] = useState<string | null>(null);
-  const [reportNote, setReportNote] = useState('');
-  const [reportSending, setReportSending] = useState(false);
-  const [reports, setReports] = useState<StudentReport[]>([]);
-  const [selectedReport, setSelectedReport] = useState<StudentReport | null>(null);
-  const [solutionNote, setSolutionNote] = useState('');
+
 
   // Add new class with level selection
   const [newClassLevelId, setNewClassLevelId] = useState<string>('');
@@ -110,51 +93,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
     }
   };
 
-  // Fetch reports
-  const fetchReports = async () => {
-    try {
-      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      const headers: any = {
-        'Content-Type': 'application/json'
-      };
-      
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-      
-      const res = await fetch('/api/studentRecords/reports', { 
-        credentials: 'include',
-        headers
-      });
-      
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-      
-      const data = await res.json();
-      
-      if (data.success && Array.isArray(data.records)) {
-        setReports(data.records.map((record: any) => ({
-          id: record._id,
-          studentId: record.studentId?._id || record.studentId || 'N/A',
-          studentName: record.studentId?.name || record.studentName || 'N/A',
-          englishName: record.studentId?.englishName || 'N/A',
-          level: record.details?.level || 'N/A',
-          className: record.relatedClass?.name || record.details?.className || 'N/A',
-          problem: record.details?.problem || record.details?.note || '',
-          reportedBy: record.performedByName || 'N/A',
-          reportedAt: record.timestamp,
-          status: record.details?.status || '!!!',
-          solution: record.details?.solution || ''
-        })));
-      } else {
-        setReports([]);
-      }
-    } catch (error) {
-      console.error('Error fetching reports:', error);
-      setReports([]);
-    }
-  };
+
 
   useEffect(() => {
     console.log('=== CLASSES PANEL MOUNTED ===');
@@ -164,7 +103,6 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
       onDataRefresh: !!onDataRefresh 
     });
     fetchLevels();
-    fetchReports();
   }, []);
 
   // Debug levels state changes
@@ -287,92 +225,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
     }
   };
 
-  // Report student
-  const handleReportStudent = (studentId: string) => {
-    setReportingStudentId(studentId);
-    setReportNote('');
-  };
 
-  // Send report
-  const handleSendReport = async (studentId: string) => {
-    if (!reportNote.trim()) {
-      alert('Please enter a report description');
-      return;
-    }
-
-    setReportSending(true);
-    try {
-      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      const selectedClass = classes.find(c => c.id === selectedClassId);
-      
-      const res = await fetch('/api/studentRecords', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': token ? `Bearer ${token}` : ''
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          studentId,
-          action: 'report',
-          category: 'academic',
-          details: {
-            problem: reportNote,
-            status: '!!!',
-            className: selectedClass?.name || 'N/A',
-            level: levels.find(l => l._id === selectedClass?.levelId)?.name || 'N/A'
-          },
-          relatedClass: selectedClassId,
-        }),
-      });
-      
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-      
-      setReportingStudentId(null);
-      setReportNote('');
-      fetchReports();
-      onDataRefresh?.();
-    } catch (error) {
-      console.error('Error sending report:', error);
-      alert('Failed to send report. Please try again.');
-    } finally {
-      setReportSending(false);
-    }
-  };
-
-  // Update report status
-  const handleUpdateReportStatus = async (reportId: string, status: '!!!' | 'solved', solution?: string) => {
-    try {
-      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      const res = await fetch(`/api/studentRecords/${reportId}`, {
-        method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': token ? `Bearer ${token}` : ''
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          details: {
-            status,
-            solution: solution || ''
-          }
-        }),
-      });
-      
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-      
-      fetchReports();
-      setSelectedReport(null);
-      setSolutionNote('');
-    } catch (error) {
-      console.error('Error updating report:', error);
-      alert('Failed to update report. Please try again.');
-    }
-  };
 
   // Filter classes based on search and level filter
   const filteredClasses = (classes && Array.isArray(classes) ? classes : []).filter(c => {
@@ -525,12 +378,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                           >
                             Remove
                           </button>
-                          <button 
-                            onClick={() => handleReportStudent(student.id)}
-                            className="action-btn report-btn"
-                          >
-                            Report
-                          </button>
+
                         </td>
                       </tr>
                     ))}
@@ -606,166 +454,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
         </div>
       </div>
 
-      {/* Report Student Modal */}
-      {reportingStudentId && (
-        <div className="report-modal">
-          <div className="modal-content">
-            <button className="close-btn" onClick={() => setReportingStudentId(null)}>×</button>
-            <h3>Report Student</h3>
-            <textarea 
-              className="form-textarea"
-              placeholder="Enter report details (e.g., naughty in class, did not finish homework, etc.)..."
-              value={reportNote}
-              onChange={e => setReportNote(e.target.value)}
-              rows={4}
-            />
-            <div className="modal-actions">
-              <button 
-                className="action-btn save-btn" 
-                onClick={() => handleSendReport(reportingStudentId)}
-                disabled={reportSending}
-              >
-                {reportSending ? 'Sending...' : 'Send Report'}
-              </button>
-              <button 
-                className="action-btn cancel-btn" 
-                onClick={() => setReportingStudentId(null)}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
-      {/* Reports Section */}
-      <div className="reports-section">
-        <h3>Student Reports</h3>
-        <div className="reports-table-container">
-          <table className="reports-table">
-            <thead>
-              <tr>
-                <th>Date & Time</th>
-                <th>Reported By</th>
-                <th>Student ID</th>
-                <th>Full Name</th>
-                <th>English Name</th>
-                <th>Level</th>
-                <th>Class</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {reports.length === 0 ? (
-                <tr>
-                  <td colSpan={9} className="empty-table">
-                    <p>No reports found.</p>
-                  </td>
-                </tr>
-              ) : (
-                reports.map(report => (
-                  <tr key={report.id} className="report-row">
-                    <td>{new Date(report.reportedAt).toLocaleString()}</td>
-                    <td>{report.reportedBy}</td>
-                    <td>{report.studentId}</td>
-                    <td>{report.studentName}</td>
-                    <td>{report.englishName || 'N/A'}</td>
-                    <td>{report.level}</td>
-                    <td>{report.className}</td>
-                    <td>
-                      <span className={`status-badge ${report.status === '!!!' ? 'urgent' : 'solved'}`}>
-                        {report.status}
-                      </span>
-                    </td>
-                    <td>
-                      <button 
-                        className="action-btn view-btn"
-                        onClick={() => setSelectedReport(report)}
-                      >
-                        View Details
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Report Details Modal */}
-      {selectedReport && (
-        <div className="report-details-modal">
-          <div className="modal-content">
-            <button className="close-btn" onClick={() => { setSelectedReport(null); setSolutionNote(''); }}>×</button>
-            <h3>Report Details</h3>
-            
-            <div className="report-info">
-              <div className="info-row">
-                <strong>Student:</strong> {selectedReport.studentName} {selectedReport.englishName ? `(${selectedReport.englishName})` : ''}
-              </div>
-              <div className="info-row">
-                <strong>Level:</strong> {selectedReport.level}
-              </div>
-              <div className="info-row">
-                <strong>Class:</strong> {selectedReport.className}
-              </div>
-              <div className="info-row">
-                <strong>Reported By:</strong> {selectedReport.reportedBy}
-              </div>
-              <div className="info-row">
-                <strong>Date:</strong> {new Date(selectedReport.reportedAt).toLocaleString()}
-              </div>
-              <div className="info-row">
-                <strong>Status:</strong> 
-                <span className={`status-badge ${selectedReport.status === '!!!' ? 'urgent' : 'solved'}`}>
-                  {selectedReport.status}
-                </span>
-              </div>
-            </div>
-            
-            <div className="problem-section">
-              <h4>Problem:</h4>
-              <p>{selectedReport.problem}</p>
-            </div>
-            
-            {selectedReport.solution && (
-              <div className="solution-section">
-                <h4>Solution:</h4>
-                <p>{selectedReport.solution}</p>
-              </div>
-            )}
-            
-            {selectedReport.status === '!!!' && (
-              <div className="solution-input-section">
-                <h4>Add Solution:</h4>
-                <textarea 
-                  className="form-textarea"
-                  placeholder="Enter your solution or recommendation..."
-                  value={solutionNote}
-                  onChange={e => setSolutionNote(e.target.value)}
-                  rows={4}
-                />
-                <div className="modal-actions">
-                  <button 
-                    className="action-btn save-btn" 
-                    onClick={() => handleUpdateReportStatus(selectedReport.id, 'solved', solutionNote)}
-                  >
-                    Mark as Solved
-                  </button>
-                  <button 
-                    className="action-btn cancel-btn" 
-                    onClick={() => { setSelectedReport(null); setSolutionNote(''); }}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 };
