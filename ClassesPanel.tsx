@@ -134,9 +134,8 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': token ? `Bearer ${token}` : ''
+          'Authorization': `Bearer ${token}`
         },
-        credentials: 'include',
         body: JSON.stringify(requestBody),
       });
       
@@ -178,13 +177,13 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
   const handleAssignStudent = async (studentId: string, classId: string) => {
     try {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      const res = await fetch(`/api/classes/${classId}/students`, {
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+      const res = await fetch(`${apiUrl}/classes/${classId}/students`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': token ? `Bearer ${token}` : ''
+          'Authorization': `Bearer ${token}`
         },
-        credentials: 'include',
         body: JSON.stringify({ studentId }),
       });
       
@@ -204,12 +203,12 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
     if (!window.confirm('Are you sure you want to remove this student from the class?')) return;
     try {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      const res = await fetch(`/api/classes/${selectedClassId}/students/${studentId}`, {
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+      const res = await fetch(`${apiUrl}/classes/${selectedClassId}/students/${studentId}`, {
         method: 'DELETE',
         headers: { 
-          'Authorization': token ? `Bearer ${token}` : ''
-        },
-        credentials: 'include'
+          'Authorization': `Bearer ${token}`
+        }
       });
       
       if (!res.ok) {
@@ -254,6 +253,13 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
               placeholder="Search classes..."
               value={classSearch}
               onChange={e => setClassSearch(e.target.value)}
+              onKeyPress={e => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  // Search is already live, just focus the input
+                  (e.target as HTMLInputElement).focus();
+                }
+              }}
             />
             <button className="search-bar-button">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">

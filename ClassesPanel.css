@@ -50,7 +50,7 @@
 .search-bar-container {
   position: relative;
   flex: 1;
-  max-width: 400px;
+  max-width: 600px;
 }
 
 .search-bar-input {

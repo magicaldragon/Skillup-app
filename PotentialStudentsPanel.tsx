@@ -240,6 +240,12 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
               placeholder="Search by name, phone, or student ID..."
           value={search}
           onChange={e => setSearch(e.target.value)}
+          onKeyPress={e => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              (e.target as HTMLInputElement).focus();
+            }
+          }}
             />
             <button className="search-bar-button">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
