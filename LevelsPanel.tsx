@@ -13,7 +13,13 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
   const [loading, setLoading] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [selectedLevel, setSelectedLevel] = useState<Level | null>(null);
+  const [editingLevel, setEditingLevel] = useState<Level | null>(null);
   const [newLevel, setNewLevel] = useState({
+    name: '',
+    code: '',
+    description: ''
+  });
+  const [editLevel, setEditLevel] = useState({
     name: '',
     code: '',
     description: ''
@@ -104,26 +110,31 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
 
     setLoading(true);
     try {
-      // Get token from localStorage
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
       
       const res = await fetch('/api/levels', {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Authorization': token ? `Bearer ${token}` : ''
         },
         credentials: 'include',
-        body: JSON.stringify({ name, code, description }),
+        body: JSON.stringify({ name, code, description })
       });
+
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
+
       const data = await res.json();
-      setLevels([...levels, data.level]);
-      setNewLevel({ name: '', code: '', description: '' });
-      setShowAddForm(false);
-      onDataRefresh?.();
+      if (data.success) {
+        setLevels(prev => [...prev, data.level]);
+        setNewLevel({ name: '', code: '', description: '' });
+        setShowAddForm(false);
+        onDataRefresh?.();
+      } else {
+        alert(data.message || 'Failed to add level');
+      }
     } catch (error) {
       console.error('Error adding level:', error);
       alert('Failed to add level. Please try again.');
@@ -132,11 +143,120 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
     }
   };
 
-  // Get level color based on name
+  // Update existing level
+  const handleUpdateLevel = async () => {
+    if (!editingLevel) return;
+
+    const name = safeTrim(editLevel.name);
+    const code = safeTrim(editLevel.code);
+    const description = safeTrim(editLevel.description);
+    
+    if (!name || !code) {
+      alert('Level name and code are required');
+      return;
+    }
+
+    // Check if name or code already exists (excluding current level)
+    if (levels.some(l => l._id !== editingLevel._id && (l.name.toUpperCase() === name.toUpperCase() || l.code.toUpperCase() === code.toUpperCase()))) {
+      alert('Level name or code already exists');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+      
+      const res = await fetch(`/api/levels/${editingLevel._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : ''
+        },
+        credentials: 'include',
+        body: JSON.stringify({ name, code, description })
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
+      const data = await res.json();
+      if (data.success) {
+        setLevels(prev => prev.map(l => l._id === editingLevel._id ? data.level : l));
+        setEditingLevel(null);
+        setEditLevel({ name: '', code: '', description: '' });
+        onDataRefresh?.();
+      } else {
+        alert(data.message || 'Failed to update level');
+      }
+    } catch (error) {
+      console.error('Error updating level:', error);
+      alert('Failed to update level. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Delete level
+  const handleDeleteLevel = async (levelId: string) => {
+    if (!confirm('Are you sure you want to delete this level? This action cannot be undone.')) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+      
+      const res = await fetch(`/api/levels/${levelId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : ''
+        },
+        credentials: 'include'
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+
+      const data = await res.json();
+      if (data.success) {
+        setLevels(prev => prev.filter(l => l._id !== levelId));
+        setSelectedLevel(null);
+        onDataRefresh?.();
+      } else {
+        alert(data.message || 'Failed to delete level');
+      }
+    } catch (error) {
+      console.error('Error deleting level:', error);
+      alert('Failed to delete level. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Start editing a level
+  const handleEditLevel = (level: Level) => {
+    setEditingLevel(level);
+    setEditLevel({
+      name: level.name,
+      code: level.code,
+      description: level.description || ''
+    });
+  };
+
+  // Cancel editing
+  const handleCancelEdit = () => {
+    setEditingLevel(null);
+    setEditLevel({ name: '', code: '', description: '' });
+  };
+
+  // Get level color class
   const getLevelColor = (levelName: string) => {
     const name = levelName.toLowerCase();
-    if (name.includes('starters') || name.includes('pre')) return 'levels-card-blue';
-    if (name.includes('movers') || name.includes('a1')) return 'levels-card-green';
+    if (name.includes('starters') || name.includes('pre')) return 'levels-card-yellow';
+    if (name.includes('movers') || name.includes('a1')) return 'levels-card-blue';
     if (name.includes('flyers') || name.includes('a2')) return 'levels-card-yellow';
     if (name.includes('ket') || name.includes('a2b')) return 'levels-card-orange';
     if (name.includes('pet') || name.includes('b1')) return 'levels-card-purple';
@@ -166,17 +286,18 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
     const handleEscKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setSelectedLevel(null);
+        setEditingLevel(null);
       }
     };
 
-    if (selectedLevel) {
+    if (selectedLevel || editingLevel) {
       document.addEventListener('keydown', handleEscKey);
     }
 
     return () => {
       document.removeEventListener('keydown', handleEscKey);
     };
-  }, [selectedLevel]);
+  }, [selectedLevel, editingLevel]);
 
   // Use backend levels if available, otherwise fall back to constants
   const displayLevels = levels.length > 0 ? levels : LEVELS;
@@ -272,6 +393,71 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
         </div>
       )}
 
+      {/* Edit Level Form */}
+      {editingLevel && (
+        <div className="levels-edit-form">
+          <h3 className="levels-form-title">Edit Level</h3>
+          <div className="levels-form-grid">
+            <div className="levels-form-field">
+              <label htmlFor="edit-level-name">Level Name *</label>
+              <input
+                id="edit-level-name"
+                type="text"
+                value={editLevel.name}
+                onChange={e => setEditLevel(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="e.g., ADVANCED, INTERMEDIATE"
+                className="levels-form-input"
+              />
+            </div>
+            <div className="levels-form-field">
+              <label htmlFor="edit-level-code">Level Code *</label>
+              <input
+                id="edit-level-code"
+                type="text"
+                value={editLevel.code}
+                onChange={e => setEditLevel(prev => ({ ...prev, code: e.target.value }))}
+                placeholder="e.g., ADV, INT"
+                className="levels-form-input"
+              />
+            </div>
+            <div className="levels-form-field levels-form-field-full">
+              <label htmlFor="edit-level-description">Description</label>
+              <textarea
+                id="edit-level-description"
+                value={editLevel.description}
+                onChange={e => setEditLevel(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="Brief description of this level..."
+                className="levels-form-textarea"
+                rows={3}
+              />
+            </div>
+          </div>
+          <div className="levels-form-actions">
+            <button
+              className="levels-form-save-btn"
+              onClick={handleUpdateLevel}
+              disabled={loading || !editLevel.name || !editLevel.code}
+            >
+              {loading ? 'Updating...' : 'Update Level'}
+            </button>
+            <button
+              className="levels-form-cancel-btn"
+              onClick={handleCancelEdit}
+              disabled={loading}
+            >
+              Cancel
+            </button>
+            <button
+              className="levels-form-delete-btn"
+              onClick={() => handleDeleteLevel(editingLevel._id)}
+              disabled={loading}
+            >
+              Delete Level
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Levels Grid */}
       <div className="levels-grid">
         {displayLevels.length === 0 ? (
@@ -294,6 +480,20 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
               <div className="level-expanded-info">
                 <h2>{selectedLevel.name}</h2>
                 <span className="level-expanded-code">{selectedLevel.code}</span>
+              </div>
+              <div className="level-expanded-actions">
+                <button 
+                  className="level-expanded-edit-btn"
+                  onClick={() => handleEditLevel(selectedLevel)}
+                >
+                  Edit Level
+                </button>
+                <button 
+                  className="level-expanded-delete-btn"
+                  onClick={() => handleDeleteLevel(selectedLevel._id)}
+                >
+                  Delete Level
+                </button>
               </div>
             </div>
 
@@ -334,6 +534,17 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
                     </span>
                   </div>
                   <span className="levels-card-code">{level.code}</span>
+                </div>
+                <div className="levels-card-actions">
+                  <button 
+                    className="levels-card-edit-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEditLevel(level);
+                    }}
+                  >
+                    Edit
+                  </button>
                 </div>
               </div>
             );
