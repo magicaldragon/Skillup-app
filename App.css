@@ -315,30 +315,30 @@ body {
 
 .search-bar-button {
   position: absolute;
-  right: 4px;
+  right: 0.3rem;
   top: 50%;
   transform: translateY(-50%);
-  width: 40px;
-  height: 40px;
-  border: none;
-  border-radius: 50%;
-  background: #166534;
+  background: linear-gradient(135deg, #307637 0%, #4caf50 100%);
   color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.4rem;
   cursor: pointer;
+  transition: all 0.3s ease;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
 }
 
 .search-bar-button:hover {
-  background: #14532d;
   transform: translateY(-50%) scale(1.05);
 }
 
 .search-bar-button svg {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
 }
 
 /* Search controls wrapper for multiple elements */

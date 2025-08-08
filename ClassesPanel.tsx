@@ -639,30 +639,31 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                     {cls.studentIds?.length || 0} students
                   </td>
                   <td className="actions-cell">
-                    {/* Always show buttons for testing */}
-                    <div className="action-buttons">
-                      <button 
-                        className="action-btn edit-btn"
-                        onClick={(e) => { e.stopPropagation(); handleEditClass(safeClassId); }}
-                        title="View/Edit Students"
-                      >
-                        Edit
-                      </button>
-                      <button 
-                        className="action-btn edit-info-btn"
-                        onClick={(e) => { e.stopPropagation(); handleEditClassInfo(safeClassId); }}
-                        title="Edit Class Info"
-                      >
-                        Edit Info
-                      </button>
-                      <button 
-                        className="action-btn delete-btn"
-                        onClick={(e) => { e.stopPropagation(); handleDeleteClass(safeClassId); }}
-                        title="Delete Class"
-                      >
-                        Delete
-                      </button>
-                    </div>
+                    {selectedClassId === safeClassId && (
+                      <div className="action-buttons">
+                        <button 
+                          className="action-btn edit-btn"
+                          onClick={(e) => { e.stopPropagation(); handleEditClass(safeClassId); }}
+                          title="View/Edit Students"
+                        >
+                          Edit
+                        </button>
+                        <button 
+                          className="action-btn edit-info-btn"
+                          onClick={(e) => { e.stopPropagation(); handleEditClassInfo(safeClassId); }}
+                          title="Edit Class Info"
+                        >
+                          Edit Info
+                        </button>
+                        <button 
+                          className="action-btn delete-btn"
+                          onClick={(e) => { e.stopPropagation(); handleDeleteClass(safeClassId); }}
+                          title="Delete Class"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               );
