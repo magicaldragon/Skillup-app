@@ -1,6 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const compression = require('compression');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 const path = require('path');
 
@@ -17,6 +20,36 @@ if (missingEnvVars.length > 0) {
 }
 
 console.log('✅ Backend initialized - using frontend Firebase SDK for authentication');
+
+// Security middleware
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+    },
+  },
+}));
+
+// Compression middleware for better performance
+app.use(compression());
+
+// Rate limiting for API endpoints
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: {
+    success: false,
+    message: 'Too many requests from this IP, please try again later.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Apply rate limiting to all routes
+app.use('/api/', limiter);
 
 // API usage monitoring
 let apiUsage = {
@@ -66,23 +99,38 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
-app.use(express.json());
 
-// Add caching middleware for static responses
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Enhanced caching middleware for static responses
 const cacheControl = (req, res, next) => {
   // Cache test endpoint for 30 seconds
   if (req.path === '/api/test') {
     res.set('Cache-Control', 'public, max-age=30');
+  }
+  // Cache static assets for longer
+  else if (req.path.startsWith('/uploads/')) {
+    res.set('Cache-Control', 'public, max-age=31536000'); // 1 year
+  }
+  // Cache API responses for 5 minutes
+  else if (req.path.startsWith('/api/') && req.method === 'GET') {
+    res.set('Cache-Control', 'private, max-age=300');
   }
   next();
 };
 
 app.use(cacheControl);
 
-// Connect to MongoDB Atlas
+// Connect to MongoDB Atlas with optimized settings
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+  maxPoolSize: 10,
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
+  bufferMaxEntries: 0,
+  bufferCommands: false,
 })
 .then(() => console.log('Connected to MongoDB Atlas'))
 .catch(err => console.error('MongoDB connection error:', err));
@@ -109,8 +157,12 @@ app.use('/api/change-logs', changeLogsRouter);
 app.use('/api/potential-students', potentialStudentsRouter);
 app.use('/api/student-records', studentRecordsRouter);
 
-// Serve uploaded avatars statically
-app.use('/uploads/avatars', express.static(path.join(__dirname, 'uploads/avatars')));
+// Serve uploaded avatars statically with caching
+app.use('/uploads/avatars', express.static(path.join(__dirname, 'uploads/avatars'), {
+  maxAge: '1y',
+  etag: true,
+  lastModified: true
+}));
 
 // Example root route
 app.get('/', (req, res) => {
@@ -124,7 +176,8 @@ app.get('/api/test', (req, res) => {
     success: true, 
     message: 'Backend API is working and connected to MongoDB!',
     timestamp: new Date().toISOString(),
-    uptime: process.uptime()
+    uptime: process.uptime(),
+    version: '1.0.0'
   });
 });
 
@@ -174,5 +227,4 @@ app.listen(PORT, () => {
   console.log('Environment:', process.env.NODE_ENV || 'development');
   console.log('MongoDB URI configured:', !!process.env.MONGODB_URI);
   console.log('API Key configured:', !!process.env.API_KEY);
-});
-// Fixed critical bugs: role variable scope and staff role support 
+}); 

@@ -1,11 +1,22 @@
-import React, { useEffect, useState, Suspense, lazy } from "react";
+import React, { useEffect, useState, Suspense, lazy, useMemo, useCallback } from "react";
 import { authService } from './frontend/services/authService';
 import './App.css';
+
+// Lazy load components for better performance
 const Login = lazy(() => import('./Login'));
 const TeacherDashboard = lazy(() => import('./TeacherDashboard'));
 const StudentDashboard = lazy(() => import('./StudentDashboard'));
-import Sidebar from './Sidebar';
+const Sidebar = lazy(() => import('./Sidebar'));
+
 import type { Assignment, Submission, Student, StudentClass } from "./types";
+
+// Loading component for better UX
+const LoadingSpinner = () => (
+  <div className="loading-spinner">
+    <div className="spinner"></div>
+    <p>Loading...</p>
+  </div>
+);
 
 const App: React.FC = () => {
   console.log('App component loaded - version:', new Date().toISOString());
@@ -20,6 +31,19 @@ const App: React.FC = () => {
   const [dataLoading, setDataLoading] = useState(false);
   const [dataError, setDataError] = useState<string | null>(null);
   const [navKey, setNavKey] = useState('dashboard');
+
+  // Memoize API URL to avoid recalculation
+  const apiUrl = useMemo(() => 
+    import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api', 
+    []
+  );
+
+  // Memoize fetch options to avoid recreation
+  const fetchOptions = useMemo(() => ({
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  }), []);
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -56,7 +80,7 @@ const App: React.FC = () => {
     initializeAuth();
   }, []);
 
-  const handleLoginSuccess = (userData: any) => {
+  const handleLoginSuccess = useCallback((userData: any) => {
     console.log('Login successful, userData:', userData);
     // Ensure userData is safe before setting
     if (userData && typeof userData === 'object') {
@@ -73,9 +97,9 @@ const App: React.FC = () => {
       console.error('Invalid user data received:', userData);
       setAuthError('Invalid user data received');
     }
-  };
+  }, []);
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     try {
       await authService.logout();
     } catch (error) {
@@ -88,356 +112,254 @@ const App: React.FC = () => {
       setClasses([]);
       setNavKey('dashboard');
     }
-  };
+  }, []);
 
-  const fetchStudents = async () => {
+  const fetchStudents = useCallback(async () => {
     if (!user) return;
     try {
       console.log('Fetching students...');
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
       
-      const studentsResponse = await fetch(`${apiUrl}/users`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('skillup_token')}`,
-        },
+      const response = await fetch(`${apiUrl}/users`, {
+        ...fetchOptions,
         signal: controller.signal,
       });
       
       clearTimeout(timeoutId);
-      console.log('Students response status:', studentsResponse.status);
-      if (studentsResponse.ok) {
-        const studentsData = await studentsResponse.json();
-        console.log('Students data:', studentsData);
-        // Handle both array format and { users: [...] } format
-        if (Array.isArray(studentsData)) {
-          setStudents(studentsData);
-        } else if (studentsData && Array.isArray(studentsData.users)) {
-          setStudents(studentsData.users);
-        } else {
-          setStudents([]);
-        }
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      if (data.success && Array.isArray(data.users)) {
+        setStudents(data.users);
+        console.log('Students fetched successfully:', data.users.length);
       } else {
-        console.error('Failed to fetch students:', studentsResponse.status);
-        setStudents([]);
+        console.error('Invalid students data:', data);
+        setDataError('Failed to fetch students data');
       }
     } catch (error) {
       console.error('Error fetching students:', error);
-      setStudents([]);
+      setDataError('Failed to fetch students');
     }
-  };
+  }, [user, apiUrl, fetchOptions]);
 
-  const fetchAssignments = async () => {
+  const fetchAssignments = useCallback(async () => {
     if (!user) return;
     try {
       console.log('Fetching assignments...');
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
       
       const response = await fetch(`${apiUrl}/assignments`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('skillup_token')}`,
-        },
+        ...fetchOptions,
         signal: controller.signal,
       });
       
       clearTimeout(timeoutId);
-      console.log('Assignments response status:', response.status);
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Assignments data:', data);
-        setAssignments(data.assignments || []);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      if (data.success && Array.isArray(data.assignments)) {
+        setAssignments(data.assignments);
+        console.log('Assignments fetched successfully:', data.assignments.length);
       } else {
-        console.error('Failed to fetch assignments:', response.status);
-        setAssignments([]);
+        console.error('Invalid assignments data:', data);
+        setDataError('Failed to fetch assignments data');
       }
     } catch (error) {
       console.error('Error fetching assignments:', error);
-      setAssignments([]);
+      setDataError('Failed to fetch assignments');
     }
-  };
+  }, [user, apiUrl, fetchOptions]);
 
-  const fetchSubmissions = async () => {
+  const fetchSubmissions = useCallback(async () => {
     if (!user) return;
     try {
       console.log('Fetching submissions...');
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
       
       const response = await fetch(`${apiUrl}/submissions`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('skillup_token')}`,
-        },
+        ...fetchOptions,
         signal: controller.signal,
       });
       
       clearTimeout(timeoutId);
-      console.log('Submissions response status:', response.status);
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Submissions data:', data);
-        setSubmissions(data.submissions || []);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      if (data.success && Array.isArray(data.submissions)) {
+        setSubmissions(data.submissions);
+        console.log('Submissions fetched successfully:', data.submissions.length);
       } else {
-        console.error('Failed to fetch submissions:', response.status);
-        setSubmissions([]);
+        console.error('Invalid submissions data:', data);
+        setDataError('Failed to fetch submissions data');
       }
     } catch (error) {
       console.error('Error fetching submissions:', error);
-      setSubmissions([]);
+      setDataError('Failed to fetch submissions');
     }
-  };
+  }, [user, apiUrl, fetchOptions]);
 
-  const fetchClasses = async () => {
+  const fetchClasses = useCallback(async () => {
     if (!user) return;
     try {
       console.log('Fetching classes...');
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
       
       const response = await fetch(`${apiUrl}/classes`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('skillup_token')}`,
-        },
+        ...fetchOptions,
         signal: controller.signal,
       });
       
       clearTimeout(timeoutId);
-      console.log('Classes response status:', response.status);
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Classes data:', data);
-        setClasses(data.classes || []);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      if (data.success && Array.isArray(data.classes)) {
+        setClasses(data.classes);
+        console.log('Classes fetched successfully:', data.classes.length);
       } else {
-        console.error('Failed to fetch classes:', response.status);
-        setClasses([]);
+        console.error('Invalid classes data:', data);
+        setDataError('Failed to fetch classes data');
       }
     } catch (error) {
       console.error('Error fetching classes:', error);
-      setClasses([]);
+      setDataError('Failed to fetch classes');
     }
-  };
+  }, [user, apiUrl, fetchOptions]);
 
+  // Optimized data fetching with parallel execution
   useEffect(() => {
     if (!user) return;
-    console.log('User changed, fetching data for:', user);
-    setDataLoading(true);
-    setDataError(null);
+    
     const fetchData = async () => {
+      setDataLoading(true);
+      setDataError(null);
+      
       try {
-        console.log('Fetching dashboard data for user:', user);
-        
-        // Prepare all fetch promises
-        const fetchPromises: Promise<void>[] = [];
-        
-        if (user.role === 'admin' || user.role === 'teacher') {
-          fetchPromises.push(fetchStudents());
-        } else {
-          setStudents([]);
-        }
-        
-        fetchPromises.push(fetchAssignments());
-        fetchPromises.push(fetchSubmissions());
-        fetchPromises.push(fetchClasses());
+        console.log('Starting parallel data fetch...');
         
         // Execute all fetches in parallel with timeout
         const timeoutPromise = new Promise<void>((_, reject) => 
           setTimeout(() => reject(new Error('Data fetch timeout')), 15000)
         );
-        
+
         await Promise.race([
-          Promise.all(fetchPromises),
+          Promise.all([
+            fetchStudents(),
+            fetchAssignments(),
+            fetchSubmissions(),
+            fetchClasses()
+          ]),
           timeoutPromise
         ]);
         
-        console.log('Data fetching completed');
-      } catch (error: any) {
+        console.log('All data fetched successfully');
+      } catch (error) {
         console.error('Error fetching data:', error);
-        setDataError('Failed to load data. Please try again. ' + (error?.message || ''));
-        setStudents([]);
-        setAssignments([]);
-        setSubmissions([]);
-        setClasses([]);
+        setDataError('Failed to fetch data. Please try again.');
       } finally {
         setDataLoading(false);
       }
     };
-    fetchData();
-  }, [user]);
 
-  const refreshData = async () => {
+    fetchData();
+  }, [user, fetchStudents, fetchAssignments, fetchSubmissions, fetchClasses]);
+
+  const refreshData = useCallback(async () => {
     if (!user) return;
+    
     setDataLoading(true);
     setDataError(null);
+    
     try {
-      // Prepare all fetch promises
-      const fetchPromises: Promise<void>[] = [];
-      
-      if (user.role === 'admin' || user.role === 'teacher') {
-        fetchPromises.push(fetchStudents());
-      } else {
-        setStudents([]);
-      }
-      
-      fetchPromises.push(fetchAssignments());
-      fetchPromises.push(fetchSubmissions());
-      fetchPromises.push(fetchClasses());
-      
-      // Execute all fetches in parallel with timeout
-      const timeoutPromise = new Promise<void>((_, reject) => 
-        setTimeout(() => reject(new Error('Data fetch timeout')), 15000)
-      );
-      
-      await Promise.race([
-        Promise.all(fetchPromises),
-        timeoutPromise
+      await Promise.all([
+        fetchStudents(),
+        fetchAssignments(),
+        fetchSubmissions(),
+        fetchClasses()
       ]);
+      console.log('Data refreshed successfully');
     } catch (error) {
       console.error('Error refreshing data:', error);
-      setDataError('Failed to refresh data. Please try again.');
+      setDataError('Failed to refresh data');
     } finally {
       setDataLoading(false);
     }
-  };
+  }, [user, fetchStudents, fetchAssignments, fetchSubmissions, fetchClasses]);
 
-  // Debug logging
-  console.log('App render state:', {
-    loading,
-    user: user ? { id: user.id, email: user.email, role: user.role } : null,
-    dataLoading,
-    dataError,
-    navKey,
-    studentsCount: students.length,
-    assignmentsCount: assignments.length,
-    submissionsCount: submissions.length,
-    classesCount: classes.length
-  });
+  // Memoize the main content to avoid unnecessary re-renders
+  const mainContent = useMemo(() => {
+    if (loading) {
+      return <LoadingSpinner />;
+    }
 
-  if (loading) {
-    return (
-      <div className="loading-container">
-        <div style={{ textAlign: 'center' }}>
-          <div className="loading-spinner" />
-          <p className="loading-text">Initializing...</p>
+    if (authError) {
+      return (
+        <div className="error-container">
+          <h2>Authentication Error</h2>
+          <p>{authError}</p>
+          <button onClick={() => window.location.reload()}>Retry</button>
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
-  if (authError) {
-    return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc' }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ color: '#d32f2f', fontSize: '1.2rem', marginBottom: 16 }}>Authentication Error</div>
-          <p style={{ color: '#475569', marginBottom: 16 }}>{authError}</p>
-          <button onClick={() => window.location.reload()} style={{ padding: '8px 20px', background: '#307637', color: '#fff', borderRadius: 6, border: 'none', fontWeight: 600, cursor: 'pointer' }}>Retry</button>
-        </div>
-      </div>
-    );
-  }
-
-  if (dataError) {
-    return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ color: '#d32f2f', fontSize: '1.2rem', marginBottom: 16 }}>Dashboard Error</div>
-          <p style={{ color: '#475569', marginBottom: 16 }}>{dataError}</p>
-          <button onClick={refreshData} style={{ padding: '8px 20px', background: '#307637', color: '#fff', borderRadius: 6, border: 'none', fontWeight: 600, cursor: 'pointer' }}>Retry</button>
-        </div>
-      </div>
-    );
-  }
-
-  // Ensure we have a user before rendering the main app
-  if (!user) {
-    return (
-      <Suspense fallback={<div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc' }}><div style={{ margin: '0 auto 1rem', width: 48, height: 48, borderRadius: '50%', borderBottom: '4px solid #307637', animation: 'spin 1s linear infinite' }} /><p style={{ fontSize: '1.1rem', color: '#475569' }}>Loading...</p></div>}>
-        <div style={{
-          minHeight: '100vh',
-          width: '100vw',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: '#f8fafc',
-          margin: 0,
-          padding: 0
-        }}>
+    if (!user) {
+      return (
+        <Suspense fallback={<LoadingSpinner />}>
           <Login onLoginSuccess={handleLoginSuccess} />
-        </div>
-      </Suspense>
+        </Suspense>
+      );
+    }
+
+    // Determine which dashboard to show based on user role
+    const DashboardComponent = user.role === 'teacher' ? TeacherDashboard : StudentDashboard;
+    
+    return (
+      <div className="app-container">
+        <Suspense fallback={<LoadingSpinner />}>
+          <Sidebar 
+            role={user.role}
+            activeKey={navKey}
+            onNavigate={setNavKey}
+            onLogout={handleLogout} 
+            user={user}
+          />
+        </Suspense>
+        <main className="main-content">
+          <Suspense fallback={<LoadingSpinner />}>
+            <DashboardComponent
+              user={user}
+              students={students}
+              assignments={assignments}
+              classes={classes}
+              activeKey={navKey}
+              onDataRefresh={refreshData}
+            />
+          </Suspense>
+        </main>
+      </div>
     );
-  }
+  }, [loading, authError, user, students, assignments, submissions, classes, dataLoading, dataError, navKey, handleLoginSuccess, handleLogout, refreshData]);
 
   return (
-    <Suspense fallback={<div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div style={{ margin: '0 auto 1rem', width: 48, height: 48, borderRadius: '50%', borderBottom: '4px solid #307637', animation: 'spin 1s linear infinite' }} /><p style={{ fontSize: '1.1rem', color: '#475569' }}>Loading...</p></div>}>
-      <div style={{
-        display: 'flex',
-        flexDirection: 'row',
-        height: '100vh',
-        width: '100vw',
-        overflow: 'hidden',
-        margin: 0,
-        padding: 0
-      }}>
-        <Sidebar
-          role={user.role}
-          activeKey={navKey}
-          onNavigate={setNavKey}
-          onLogout={handleLogout}
-          user={user}
-        />
-        <div style={{
-          flexGrow: 1,
-          height: '100vh',
-          background: '#f8fafc',
-          overflowY: 'auto',
-          overflowX: 'hidden',
-          padding: '24px 32px',
-          display: 'flex',
-          flexDirection: 'column',
-          minWidth: 0,
-          boxSizing: 'border-box'
-        }}>
-          {dataLoading && (
-            <div className="data-loading-indicator">
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <div className="data-loading-spinner" />
-                Loading data...
-              </div>
-            </div>
-          )}
-          {user.role === "student" ? (
-            <StudentDashboard 
-              user={user}
-              classes={classes}
-              activeKey={navKey}
-            />
-          ) : user.role === "teacher" || user.role === "admin" || user.role === "staff" ? (
-            <TeacherDashboard 
-              user={user}
-              students={students}
-              assignments={assignments}
-              classes={classes}
-              activeKey={navKey}
-              onDataRefresh={refreshData}
-            />
-          ) : (
-            // Fallback for any unexpected roles - show TeacherDashboard as default
-            <TeacherDashboard 
-              user={user}
-              students={students}
-              assignments={assignments}
-              classes={classes}
-              activeKey={navKey}
-              onDataRefresh={refreshData}
-            />
-          )}
-        </div>
-      </div>
-    </Suspense>
+    <div className="App">
+      {mainContent}
+    </div>
   );
 };
 
