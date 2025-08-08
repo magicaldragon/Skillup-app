@@ -162,6 +162,11 @@
   box-shadow: 0 4px 12px rgba(48, 118, 55, 0.1);
 }
 
+/* Ensure hover effect works for entire row including action column */
+.classes-table tbody tr:hover .actions-cell {
+  background: linear-gradient(135deg, #f0f8f0 0%, #e8f5e8 100%);
+}
+
 .clickable-row {
   cursor: pointer;
 }
@@ -191,20 +196,27 @@
 }
 
 .action-btn {
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 1.2rem;
   border: none;
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   margin: 0 0.25rem;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  min-width: 80px;
 }
 
 .action-buttons {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
+  justify-content: center;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  border: 1px solid #e0f7fa;
 }
 
 .view-btn {
@@ -591,6 +603,12 @@
   box-shadow: 0 8px 32px rgba(48, 118, 55, 0.3);
 }
 
+.save-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .cancel-btn {
   background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
   color: white;
@@ -815,6 +833,11 @@
   flex: 1;
 }
 
+/* Override any other h3 styles for modal title */
+.modal-header .modal-title {
+  color: white !important;
+}
+
 .modal-body {
   padding: 2rem;
   overflow-y: auto;
@@ -915,10 +938,46 @@
   background: linear-gradient(135deg, #e8f5e8 0%, #f0f9f0 100%) !important;
   border-left: 4px solid #307637;
   box-shadow: 0 4px 12px rgba(48, 118, 55, 0.15);
+  position: relative;
+}
+
+.selected-row::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(48, 118, 55, 0.05) 0%, rgba(76, 175, 80, 0.05) 100%);
+  pointer-events: none;
 }
 
 .selected-row:hover {
   background: linear-gradient(135deg, #d4edda 0%, #e8f5e8 100%) !important;
+}
+
+.selected-row .actions-cell {
+  background: linear-gradient(135deg, #e8f5e8 0%, #f0f9f0 100%) !important;
+}
+
+.selected-row:hover .actions-cell {
+  background: linear-gradient(135deg, #d4edda 0%, #e8f5e8 100%) !important;
+}
+
+/* Make action buttons more prominent when visible */
+.selected-row .action-buttons {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .checkbox-header,

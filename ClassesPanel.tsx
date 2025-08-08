@@ -556,7 +556,9 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
 
   // Handle single click to show action buttons
   const handleClassClick = (classId: string) => {
+    console.log('Class clicked:', classId, 'Current selected:', selectedClassId);
     setSelectedClassId(selectedClassId === classId ? null : classId);
+    console.log('New selected class:', selectedClassId === classId ? null : classId);
   };
 
   // Handle double click to expand class view
