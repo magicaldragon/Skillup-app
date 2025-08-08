@@ -86,6 +86,10 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
   // Add state for showing action buttons
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
 
+  // Debug selectedClassId changes
+  useEffect(() => {
+    console.log('selectedClassId changed to:', selectedClassId);
+  }, [selectedClassId]);
 
   // Fetch levels from backend
   const fetchLevels = async () => {
@@ -146,8 +150,6 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
     }
   };
 
-
-
   useEffect(() => {
     console.log('=== CLASSES PANEL MOUNTED ===');
     console.log('Component props:', { 
@@ -155,8 +157,28 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
       classesCount: classes?.length || 0,
       onDataRefresh: !!onDataRefresh 
     });
+    
     fetchLevels();
   }, []);
+
+  // Filter classes based on search and level filter
+  const filteredClasses = (classes && Array.isArray(classes) ? classes : []).filter(c => {
+    const levelName = levels.find(l => l._id === c.levelId)?.name || '';
+    const matchesSearch = c.name.toLowerCase().includes(classSearch.toLowerCase()) ||
+      levelName.toLowerCase().includes(classSearch.toLowerCase());
+    const matchesLevel = !levelFilter || c.levelId === levelFilter;
+    
+    return matchesSearch && matchesLevel;
+  });
+
+  // Debug component render
+  useEffect(() => {
+    console.log('ClassesPanel rendered with:', {
+      classesCount: classes?.length || 0,
+      selectedClassId,
+      filteredClassesCount: filteredClasses?.length || 0
+    });
+  }, [classes, selectedClassId, filteredClasses]);
 
   // Debug levels state changes
   useEffect(() => {
@@ -544,21 +566,12 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
 
 
 
-  // Filter classes based on search and level filter
-  const filteredClasses = (classes && Array.isArray(classes) ? classes : []).filter(c => {
-    const levelName = levels.find(l => l._id === c.levelId)?.name || '';
-    const matchesSearch = c.name.toLowerCase().includes(classSearch.toLowerCase()) ||
-      levelName.toLowerCase().includes(classSearch.toLowerCase());
-    const matchesLevel = !levelFilter || c.levelId === levelFilter;
-    
-    return matchesSearch && matchesLevel;
-  });
-
   // Handle single click to show action buttons
   const handleClassClick = (classId: string) => {
     console.log('Class clicked:', classId, 'Current selected:', selectedClassId);
-    setSelectedClassId(selectedClassId === classId ? null : classId);
-    console.log('New selected class:', selectedClassId === classId ? null : classId);
+    const newSelected = selectedClassId === classId ? null : classId;
+    console.log('Setting new selected class to:', newSelected);
+    setSelectedClassId(newSelected);
   };
 
   // Handle double click to expand class view
@@ -647,54 +660,57 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                 </td>
               </tr>
             )}
-            {filteredClasses.map(cls => (
-              <tr 
-                key={cls.id} 
-                onClick={() => handleClassClick(cls.id)} 
-                onDoubleClick={() => handleClassDoubleClick(cls.id)}
-                className={`clickable-row ${selectedClassId === cls.id ? 'selected-row' : ''}`}
-                title="Click to show actions, double-click to expand"
-              >
-                <td className="class-name-cell">
-                  <div className="class-name">{cls.name}</div>
-                </td>
-                <td className="level-cell">
-                  <span className="level-badge">
-                    {levels.find(l => l._id === cls.levelId)?.name || 'N/A'}
-                  </span>
-                </td>
-                <td className="students-cell">
-                  {cls.studentIds?.length || 0} students
-                </td>
-                <td className="actions-cell">
-                  {selectedClassId === cls.id && (
-                    <div className="action-buttons">
-                      <button 
-                        className="action-btn edit-btn"
-                        onClick={(e) => { e.stopPropagation(); handleEditClass(cls.id); }}
-                        title="View/Edit Students"
-                      >
-                        Edit
-                      </button>
-                      <button 
-                        className="action-btn edit-info-btn"
-                        onClick={(e) => { e.stopPropagation(); handleEditClassInfo(cls.id); }}
-                        title="Edit Class Info"
-                      >
-                        Edit Info
-                      </button>
-                      <button 
-                        className="action-btn delete-btn"
-                        onClick={(e) => { e.stopPropagation(); handleDeleteClass(cls.id); }}
-                        title="Delete Class"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  )}
-                </td>
-              </tr>
-            ))}
+            {filteredClasses.map(cls => {
+              console.log('Rendering class:', cls.id, 'Selected:', selectedClassId === cls.id);
+              return (
+                <tr 
+                  key={cls.id} 
+                  onClick={() => handleClassClick(cls.id)} 
+                  onDoubleClick={() => handleClassDoubleClick(cls.id)}
+                  className={`clickable-row ${selectedClassId === cls.id ? 'selected-row' : ''}`}
+                  title="Click to show actions, double-click to expand"
+                >
+                  <td className="class-name-cell">
+                    <div className="class-name">{cls.name}</div>
+                  </td>
+                  <td className="level-cell">
+                    <span className="level-badge">
+                      {levels.find(l => l._id === cls.levelId)?.name || 'N/A'}
+                    </span>
+                  </td>
+                  <td className="students-cell">
+                    {cls.studentIds?.length || 0} students
+                  </td>
+                  <td className="actions-cell">
+                    {selectedClassId === cls.id && (
+                      <div className="action-buttons">
+                        <button 
+                          className="action-btn edit-btn"
+                          onClick={(e) => { e.stopPropagation(); handleEditClass(cls.id); }}
+                          title="View/Edit Students"
+                        >
+                          Edit
+                        </button>
+                        <button 
+                          className="action-btn edit-info-btn"
+                          onClick={(e) => { e.stopPropagation(); handleEditClassInfo(cls.id); }}
+                          title="Edit Class Info"
+                        >
+                          Edit Info
+                        </button>
+                        <button 
+                          className="action-btn delete-btn"
+                          onClick={(e) => { e.stopPropagation(); handleDeleteClass(cls.id); }}
+                          title="Delete Class"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
