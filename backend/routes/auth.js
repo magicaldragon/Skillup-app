@@ -34,9 +34,10 @@ router.post('/login', async (req, res) => {
     const token = jwt.sign(
       { 
         userId: user._id, 
-        id: user._id, // Add id for consistency
+        id: user._id,
         email: user.email, 
-        role: user.role 
+        role: user.role,
+        name: user.name
       },
       process.env.JWT_SECRET || 'skillup-secret-key',
       { expiresIn: '24h' }
@@ -249,7 +250,9 @@ router.post('/firebase-login', async (req, res) => {
       { 
         userId: user._id, 
         email: user.email, 
-        role: user.role 
+        role: user.role,
+        name: user.name,
+        id: user._id
       },
       process.env.JWT_SECRET || 'skillup-secret-key',
       { expiresIn: '24h' }
