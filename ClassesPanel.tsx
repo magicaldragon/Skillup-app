@@ -610,12 +610,21 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
               const displayName = cls.classCode || cls.name || 'Unnamed Class';
               const classId = cls._id || cls.id;
               
+              // Skip rendering if classId is undefined
+              if (!classId) {
+                console.warn('Class without ID found:', cls);
+                return null;
+              }
+              
+              // TypeScript now knows classId is a string
+              const safeClassId: string = classId;
+              
               return (
                 <tr 
-                  key={classId} 
-                  onClick={() => handleClassClick(classId)} 
-                  onDoubleClick={() => handleClassDoubleClick(classId)}
-                  className={`clickable-row ${selectedClassId === classId ? 'selected-row' : ''}`}
+                  key={safeClassId} 
+                  onClick={() => handleClassClick(safeClassId)} 
+                  onDoubleClick={() => handleClassDoubleClick(safeClassId)}
+                  className={`clickable-row ${selectedClassId === safeClassId ? 'selected-row' : ''}`}
                   title="Click to show actions, double-click to expand"
                 >
                   <td className="class-name-cell">
@@ -634,21 +643,21 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                     <div className="action-buttons">
                       <button 
                         className="action-btn edit-btn"
-                        onClick={(e) => { e.stopPropagation(); handleEditClass(classId); }}
+                        onClick={(e) => { e.stopPropagation(); handleEditClass(safeClassId); }}
                         title="View/Edit Students"
                       >
                         Edit
                       </button>
                       <button 
                         className="action-btn edit-info-btn"
-                        onClick={(e) => { e.stopPropagation(); handleEditClassInfo(classId); }}
+                        onClick={(e) => { e.stopPropagation(); handleEditClassInfo(safeClassId); }}
                         title="Edit Class Info"
                       >
                         Edit Info
                       </button>
                       <button 
                         className="action-btn delete-btn"
-                        onClick={(e) => { e.stopPropagation(); handleDeleteClass(classId); }}
+                        onClick={(e) => { e.stopPropagation(); handleDeleteClass(safeClassId); }}
                         title="Delete Class"
                       >
                         Delete
