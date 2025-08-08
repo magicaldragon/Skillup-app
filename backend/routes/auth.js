@@ -196,6 +196,11 @@ router.post('/logout', verifyToken, (req, res) => {
 // Firebase login route for hybrid auth users
 router.post('/firebase-login', async (req, res) => {
   try {
+    // Ensure DB is connected before proceeding
+    if (!require('mongoose').connection || require('mongoose').connection.readyState !== 1) {
+      return res.status(503).json({ success: false, message: 'Database not ready, please try again shortly' });
+    }
+
     console.log('Firebase login request received:', { 
       email: req.body.email, 
       hasToken: !!req.body.firebaseToken 
