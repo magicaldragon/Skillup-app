@@ -198,16 +198,17 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
 
   // Open class edit modal
   const handleEditClass = (classId: string) => {
-    const classObj = classes.find(c => c.id === classId);
+    const classObj = classes.find(c => (c._id || c.id) === classId);
     if (!classObj) return;
 
     const levelName = levels.find(l => l._id === classObj.levelId)?.name || 'N/A';
     const classStudents = students.filter(s => (s.classIds || []).includes(classId));
+    const displayName = classObj.classCode || classObj.name || 'Unnamed Class';
 
     setClassEditModal({
       isOpen: true,
       classId,
-      className: classObj.name,
+      className: displayName,
       levelName,
       students: classStudents
     });
@@ -330,13 +331,15 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
     }
   };
 
-  // Open report modal
+  // Report a student
   const handleReportStudent = (studentId: string, studentName: string) => {
+    if (!classEditModal.classId) return;
+    
     setReportModal({
       isOpen: true,
       studentId,
       studentName,
-      classId: classEditModal.classId || '',
+      classId: classEditModal.classId,
       className: classEditModal.className
     });
     setReportProblem('');
@@ -361,11 +364,16 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
       return;
     }
 
+    if (!reportModal.studentId || !reportModal.classId) {
+      alert('Missing student or class information');
+      return;
+    }
+
     setReportSending(true);
     try {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
       const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
-      
+
       const res = await fetch(`${apiUrl}/student-records`, {
         method: 'POST',
         headers: { 
@@ -374,21 +382,16 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
         },
         body: JSON.stringify({
           studentId: reportModal.studentId,
-          action: 'report',
-          category: 'behavior',
-          details: {
-            problem: reportProblem,
-            classId: reportModal.classId,
-            className: reportModal.className,
-            reportedAt: new Date().toISOString()
-          }
+          classId: reportModal.classId,
+          problem: reportProblem,
+          type: 'report'
         }),
       });
-      
+
       if (!res.ok) {
-        throw new Error('Failed to send report');
+        throw new Error(`HTTP error! status: ${res.status}`);
       }
-      
+
       alert('Report sent successfully!');
       handleCloseReportModal();
       onDataRefresh?.();
@@ -402,13 +405,13 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
 
   // Edit class information
   const handleEditClassInfo = async (classId: string) => {
-    const classObj = classes.find(c => c.id === classId);
+    const classObj = classes.find(c => (c._id || c.id) === classId);
     if (!classObj) return;
 
     setClassInfoEditModal({
       isOpen: true,
       classId: classId,
-      className: classObj.name,
+      className: classObj.classCode || classObj.name || '',
       levelId: classObj.levelId || null,
       description: (classObj as any).description || ''
     });
@@ -461,11 +464,12 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
 
   // Delete class
   const handleDeleteClass = async (classId: string) => {
-    const classObj = classes.find(c => c.id === classId);
+    const classObj = classes.find(c => (c._id || c.id) === classId);
     if (!classObj) return;
 
+    const displayName = classObj.classCode || classObj.name || 'this class';
     const confirmDelete = window.confirm(
-      `Are you sure you want to delete class "${classObj.name}"? This action cannot be undone and will remove all students from this class.`
+      `Are you sure you want to delete class "${displayName}"? This action cannot be undone and will remove all students from this class.`
     );
 
     if (!confirmDelete) return;
@@ -593,16 +597,29 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
               </tr>
             )}
             {filteredClasses.map(cls => {
+              console.log('Class data:', {
+                id: cls._id || cls.id,
+                name: cls.name,
+                classCode: cls.classCode,
+                levelId: cls.levelId,
+                studentIds: cls.studentIds,
+                selected: selectedClassId === (cls._id || cls.id)
+              });
+              
+              // Use classCode as the display name, fallback to name
+              const displayName = cls.classCode || cls.name || 'Unnamed Class';
+              const classId = cls._id || cls.id;
+              
               return (
                 <tr 
-                  key={cls.id} 
-                  onClick={() => handleClassClick(cls.id)} 
-                  onDoubleClick={() => handleClassDoubleClick(cls.id)}
-                  className={`clickable-row ${selectedClassId === cls.id ? 'selected-row' : ''}`}
+                  key={classId} 
+                  onClick={() => handleClassClick(classId)} 
+                  onDoubleClick={() => handleClassDoubleClick(classId)}
+                  className={`clickable-row ${selectedClassId === classId ? 'selected-row' : ''}`}
                   title="Click to show actions, double-click to expand"
                 >
                   <td className="class-name-cell">
-                    <div className="class-name">{cls.name}</div>
+                    <div className="class-name">{displayName}</div>
                   </td>
                   <td className="level-cell">
                     <span className="level-badge">
@@ -613,31 +630,30 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                     {cls.studentIds?.length || 0} students
                   </td>
                   <td className="actions-cell">
-                    {selectedClassId === cls.id && (
-                      <div className="action-buttons">
-                        <button 
-                          className="action-btn edit-btn"
-                          onClick={(e) => { e.stopPropagation(); handleEditClass(cls.id); }}
-                          title="View/Edit Students"
-                        >
-                          Edit
-                        </button>
-                        <button 
-                          className="action-btn edit-info-btn"
-                          onClick={(e) => { e.stopPropagation(); handleEditClassInfo(cls.id); }}
-                          title="Edit Class Info"
-                        >
-                          Edit Info
-                        </button>
-                        <button 
-                          className="action-btn delete-btn"
-                          onClick={(e) => { e.stopPropagation(); handleDeleteClass(cls.id); }}
-                          title="Delete Class"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    )}
+                    {/* Always show buttons for testing */}
+                    <div className="action-buttons">
+                      <button 
+                        className="action-btn edit-btn"
+                        onClick={(e) => { e.stopPropagation(); handleEditClass(classId); }}
+                        title="View/Edit Students"
+                      >
+                        Edit
+                      </button>
+                      <button 
+                        className="action-btn edit-info-btn"
+                        onClick={(e) => { e.stopPropagation(); handleEditClassInfo(classId); }}
+                        title="Edit Class Info"
+                      >
+                        Edit Info
+                      </button>
+                      <button 
+                        className="action-btn delete-btn"
+                        onClick={(e) => { e.stopPropagation(); handleDeleteClass(classId); }}
+                        title="Delete Class"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               );

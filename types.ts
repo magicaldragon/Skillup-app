@@ -31,10 +31,17 @@ export interface Level {
 }
 
 export interface StudentClass {
-  id:string;
-  name: string; // e.g., "SU-001"
-  levelId: string | null; // A class can be unassigned from a level
+  _id?: string;
+  id?: string;
+  name: string;
+  classCode?: string;
+  levelId: string | null;
   studentIds: string[];
+  teacherId?: string;
+  description?: string;
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export type AssignmentCategory = 'Reading' | 'Listening' | 'Writing' | 'Speaking' | 'Full Practice Tests' | 'Mini Tests';
