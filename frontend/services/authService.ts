@@ -29,6 +29,12 @@ class AuthService {
     console.log('Using API URL:', API_BASE_URL);
   }
 
+  // Public utility to clear cached connection status
+  clearConnectionCache(): void {
+    this.connectionCache = null;
+    console.log('Backend connection cache cleared');
+  }
+
   private isConnectionCacheValid(): boolean {
     return this.connectionCache !== null && 
            (Date.now() - this.connectionCache.timestamp) < this.CACHE_DURATION;
@@ -311,11 +317,7 @@ class AuthService {
   getCurrentUser() {
     return auth.currentUser;
   }
-
-  // Clear connection cache (useful for testing or manual refresh)
-  clearConnectionCache(): void {
-    this.connectionCache = null;
-  }
 }
 
-export const authService = new AuthService(); 
+export const authService = new AuthService();
+export type { AuthService }; 
