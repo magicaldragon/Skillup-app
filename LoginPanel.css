@@ -96,10 +96,14 @@
   border: 1.5px solid #ffeaa7;
 }
 
+/* Enhanced status display */
 .login-status.disconnected {
-  background: #f8d7da;
-  color: #721c24;
-  border: 1.5px solid #f5c6cb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 20px;
 }
 
 .login-form {
@@ -190,6 +194,28 @@
   align-items: center;
   gap: 0.8rem;
   box-shadow: 0 4px 12px rgba(255, 152, 0, 0.2);
+}
+
+/* Retry connection button */
+.retry-connection-btn {
+  background: #295b37;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  margin-left: 12px;
+  transition: background-color 0.2s ease;
+}
+
+.retry-connection-btn:hover {
+  background: #1e4a2e;
+}
+
+.retry-connection-btn:active {
+  transform: translateY(1px);
 }
 
 .login-footer {

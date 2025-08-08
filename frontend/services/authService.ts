@@ -3,7 +3,7 @@ import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { safeTrim } from '../../utils/stringUtils';
 import { performanceMonitor } from '../../utils/performanceMonitor';
 
-const API_BASE_URL = 'https://skillup-backend-v6vm.onrender.com/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
 
 export interface LoginCredentials {
   email: string;
@@ -26,6 +26,7 @@ class AuthService {
 
   constructor() {
     console.log('AuthService instantiated at:', new Date().toISOString());
+    console.log('Using API URL:', API_BASE_URL);
   }
 
   private isConnectionCacheValid(): boolean {
@@ -41,9 +42,9 @@ class AuthService {
     }
 
     try {
-      console.log('Testing backend connectivity...');
+      console.log('Testing backend connectivity to:', `${API_BASE_URL}/test`);
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 8000); // Increased timeout to 8 seconds
       
       const response = await fetch(`${API_BASE_URL}/test`, {
         method: 'GET',
@@ -51,6 +52,7 @@ class AuthService {
           'Content-Type': 'application/json',
         },
         signal: controller.signal,
+        mode: 'cors', // Explicitly set CORS mode
       });
       
       clearTimeout(timeoutId);
@@ -69,7 +71,14 @@ class AuthService {
       return isConnected;
     } catch (error) {
       console.error('Backend connectivity test failed:', error);
-      this.connectionCache = { status: false, timestamp: Date.now() };
+      console.error('Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        name: error instanceof Error ? error.name : 'Unknown',
+        stack: error instanceof Error ? error.stack : undefined
+      });
+      
+      // Don't cache failed attempts for too long
+      this.connectionCache = { status: false, timestamp: Date.now() - 25000 }; // Cache for only 5 seconds on failure
       return false;
     }
   }

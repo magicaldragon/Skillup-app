@@ -19,6 +19,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   useEffect(() => {
     const testConnection = async () => {
       try {
+        setBackendStatus('checking');
         const isConnected = await authService.testBackendConnection();
         setBackendStatus(isConnected ? 'connected' : 'disconnected');
       } catch (error) {
@@ -31,6 +32,20 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
     const timeoutId = setTimeout(testConnection, 100);
     return () => clearTimeout(timeoutId);
   }, []);
+
+  const retryConnection = async () => {
+    setBackendStatus('checking');
+    setError(null);
+    try {
+      // Clear the connection cache to force a fresh test
+      authService.clearConnectionCache();
+      const isConnected = await authService.testBackendConnection();
+      setBackendStatus(isConnected ? 'connected' : 'disconnected');
+    } catch (error) {
+      console.error('Retry connection failed:', error);
+      setBackendStatus('disconnected');
+    }
+  };
 
   const handleAuthAction = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,6 +93,14 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
       {backendStatus === 'disconnected' && (
         <div className="login-status disconnected">
           ⚠️ Server connection failed. Please check your internet connection.
+          <button 
+            type="button" 
+            onClick={retryConnection}
+            className="retry-connection-btn"
+            aria-label="Retry server connection"
+          >
+            Retry Connection
+          </button>
         </div>
       )}
       
