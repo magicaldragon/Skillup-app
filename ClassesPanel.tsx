@@ -86,20 +86,11 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
   // Add state for showing action buttons
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
 
-  // Debug selectedClassId changes
-  useEffect(() => {
-    console.log('selectedClassId changed to:', selectedClassId);
-  }, [selectedClassId]);
-
   // Fetch levels from backend
   const fetchLevels = async () => {
     setLevelsLoading(true);
     try {
-      console.log('=== FETCHING LEVELS DEBUG ===');
-      
-      // Get token from localStorage
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      console.log('Token available:', !!token);
       
       if (!token) {
         console.error('No authentication token found');
@@ -108,12 +99,10 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
         return;
       }
       
-      const headers: any = {
+      const headers = {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       };
-      
-      console.log('Making request to /api/levels with token');
       
       const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
       const res = await fetch(`${apiUrl}/levels`, { 
@@ -121,24 +110,15 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
         headers
       });
       
-      console.log('Levels response status:', res.status);
-      console.log('Levels response ok:', res.ok);
-      
       if (!res.ok) {
-        const errorText = await res.text();
-        console.error('Levels response error text:', errorText);
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       
       const data = await res.json();
-      console.log('Levels response data:', data);
       
       if (data.success && Array.isArray(data.levels)) {
         setLevels(data.levels);
-        console.log('Successfully set levels:', data.levels.length, 'levels');
-        console.log('Levels details:', data.levels.map((l: any) => ({ id: l._id, name: l.name, code: l.code })));
       } else {
-        console.error('Invalid levels data structure:', data);
         setLevels([]);
       }
     } catch (error) {
@@ -146,18 +126,10 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
       setLevels([]);
     } finally {
       setLevelsLoading(false);
-      console.log('=== END FETCHING LEVELS DEBUG ===');
     }
   };
 
   useEffect(() => {
-    console.log('=== CLASSES PANEL MOUNTED ===');
-    console.log('Component props:', { 
-      studentsCount: students?.length || 0, 
-      classesCount: classes?.length || 0,
-      onDataRefresh: !!onDataRefresh 
-    });
-    
     fetchLevels();
   }, []);
 
@@ -171,22 +143,15 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
     return matchesSearch && matchesLevel;
   });
 
-  // Debug component render
-  useEffect(() => {
-    console.log('ClassesPanel rendered with:', {
-      classesCount: classes?.length || 0,
-      selectedClassId,
-      filteredClassesCount: filteredClasses?.length || 0
-    });
-  }, [classes, selectedClassId, filteredClasses]);
+  // Handle single click to show action buttons
+  const handleClassClick = (classId: string) => {
+    setSelectedClassId(selectedClassId === classId ? null : classId);
+  };
 
-  // Debug levels state changes
-  useEffect(() => {
-    console.log('=== LEVELS STATE CHANGED ===');
-    console.log('Levels loading:', levelsLoading);
-    console.log('Levels count:', levels.length);
-    console.log('Levels data:', levels.map(l => ({ id: l._id, name: l.name, code: l.code })));
-  }, [levels, levelsLoading]);
+  // Handle double click to expand class view
+  const handleClassDoubleClick = (classId: string) => {
+    handleEditClass(classId);
+  };
 
   // Add new class
   const handleAddClass = async () => {
@@ -195,17 +160,11 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
       return;
     }
 
-    console.log('=== ADDING CLASS DEBUG ===');
-    console.log('Selected level ID:', newClassLevelId);
-    console.log('Selected level name:', levels.find(l => l._id === newClassLevelId)?.name);
-
     setAdding(true);
     try {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      console.log('Token available for class creation:', !!token);
       
       const requestBody = { levelId: newClassLevelId };
-      console.log('Request body:', requestBody);
       
       const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
       const res = await fetch(`${apiUrl}/classes`, {
@@ -217,24 +176,16 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
         body: JSON.stringify(requestBody),
       });
       
-      console.log('Class creation response status:', res.status);
-      console.log('Class creation response ok:', res.ok);
-      
       if (!res.ok) {
-        const errorText = await res.text();
-        console.error('Class creation error text:', errorText);
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       
       const data = await res.json();
-      console.log('Class creation response data:', data);
       
       if (data.success) {
-        console.log('Class created successfully:', data.class);
         setNewClassLevelId('');
         onDataRefresh?.();
       } else {
-        console.error('Class creation failed:', data.message);
         alert(data.message || 'Failed to create class');
       }
     } catch (error) {
@@ -242,13 +193,8 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
       alert('Failed to add class. Please try again.');
     } finally {
       setAdding(false);
-      console.log('=== END ADDING CLASS DEBUG ===');
     }
   };
-
-
-
-
 
   // Open class edit modal
   const handleEditClass = (classId: string) => {
@@ -566,20 +512,6 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
 
 
 
-  // Handle single click to show action buttons
-  const handleClassClick = (classId: string) => {
-    console.log('Class clicked:', classId, 'Current selected:', selectedClassId);
-    const newSelected = selectedClassId === classId ? null : classId;
-    console.log('Setting new selected class to:', newSelected);
-    setSelectedClassId(newSelected);
-  };
-
-  // Handle double click to expand class view
-  const handleClassDoubleClick = (classId: string) => {
-    handleEditClass(classId);
-  };
-
-
   return (
     <div className="classes-panel">
       <div className="classes-header">
@@ -661,7 +593,6 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
               </tr>
             )}
             {filteredClasses.map(cls => {
-              console.log('Rendering class:', cls.id, 'Selected:', selectedClassId === cls.id);
               return (
                 <tr 
                   key={cls.id} 
