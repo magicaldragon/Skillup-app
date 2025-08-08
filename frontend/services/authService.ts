@@ -311,6 +311,8 @@ class AuthService {
             username: data.user.username || data.user.email || '',
             ...data.user // Include any additional fields
           };
+          console.log('Safe user object:', safeUser);
+          console.log('User role from profile:', safeUser.role);
           return safeUser;
         } else {
           console.error('Invalid profile response structure:', data);

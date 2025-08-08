@@ -61,6 +61,11 @@ const App: React.FC = () => {
             name: profile.name || profile.fullname || '',
             id: profile.id || profile._id || ''
           };
+          console.log('Original profile role:', profile.role);
+          console.log('Safe profile role:', safeProfile.role);
+          console.log('Profile received:', profile);
+          console.log('Safe profile:', safeProfile);
+          console.log('User role in profile:', safeProfile.role);
           setUser(safeProfile);
           setAuthError(null);
           console.log('User authenticated successfully:', safeProfile);
@@ -328,7 +333,11 @@ const App: React.FC = () => {
 
     // Determine which dashboard to show based on user role
     // Show StudentDashboard only for explicit student role; everyone else (teacher/admin/staff) gets TeacherDashboard
+    console.log('Dashboard selection - User role:', user.role);
+    console.log('Dashboard selection - User object:', user);
+    console.log('Dashboard selection - Role comparison:', user.role === 'student');
     const DashboardComponent = user.role === 'student' ? StudentDashboard : TeacherDashboard;
+    console.log('Dashboard selection - Selected component:', DashboardComponent === StudentDashboard ? 'StudentDashboard' : 'TeacherDashboard');
     
     return (
       <div className="app-container">
