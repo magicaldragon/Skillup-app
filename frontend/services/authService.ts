@@ -180,7 +180,9 @@ class AuthService {
       if (response.ok) {
         const data = await response.json();
         console.log('Backend response data:', data);
+        console.log('Token received:', data.token ? 'Token exists' : 'No token');
         localStorage.setItem('skillup_token', data.token);
+        console.log('Token stored in localStorage');
         
         // Update connection cache on successful login
         this.connectionCache = { status: true, timestamp: Date.now() };
@@ -278,6 +280,7 @@ class AuthService {
   async getProfile(): Promise<UserProfile | null> {
     try {
       const token = localStorage.getItem('skillup_token');
+      console.log('Getting profile - Token exists:', !!token);
       if (!token) {
         console.log('No auth token found');
         return null;

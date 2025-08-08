@@ -70,20 +70,26 @@ router.post('/login', async (req, res) => {
 
 // Verify token middleware
 const verifyToken = (req, res, next) => {
+  console.log('Token verification - Headers:', req.headers.authorization ? 'Authorization header present' : 'No authorization header');
   const token = req.headers.authorization?.split(' ')[1];
   
   if (!token) {
+    console.log('Token verification - No token found');
     return res.status(401).json({ 
       success: false, 
       message: 'Access token required' 
     });
   }
 
+  console.log('Token verification - Token found:', token.substring(0, 20) + '...');
+  
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'skillup-secret-key');
+    console.log('Token verification - Token decoded successfully:', { userId: decoded.userId, email: decoded.email, role: decoded.role });
     req.user = decoded;
     next();
   } catch (error) {
+    console.log('Token verification - Token verification failed:', error.message);
     return res.status(401).json({ 
       success: false, 
       message: 'Invalid or expired token' 

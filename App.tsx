@@ -38,12 +38,25 @@ const App: React.FC = () => {
     []
   );
 
+  // Get current auth token
+  const getAuthToken = useCallback(() => {
+    const token = localStorage.getItem('skillup_token');
+    console.log('Getting auth token:', token ? 'Token exists' : 'No token');
+    return token;
+  }, []);
+
   // Memoize fetch options to avoid recreation
-  const fetchOptions = useMemo(() => ({
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  }), []);
+  const fetchOptions = useMemo(() => {
+    const token = getAuthToken();
+    const options = {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` }),
+      },
+    };
+    console.log('Fetch options created:', { hasToken: !!token, headers: options.headers });
+    return options;
+  }, [getAuthToken]);
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -71,6 +84,7 @@ const App: React.FC = () => {
           console.log('User authenticated successfully:', safeProfile);
         } else {
           console.log('Invalid profile, logging out');
+          console.log('Profile validation failed:', { profile, hasEmail: !!profile?.email, hasRole: !!profile?.role });
           await authService.logout();
           setUser(null);
         }
@@ -123,6 +137,7 @@ const App: React.FC = () => {
     if (!user) return;
     try {
       console.log('Fetching students...');
+      console.log('Using fetch options:', fetchOptions);
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
       
