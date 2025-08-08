@@ -21,7 +21,7 @@ interface ClassInfoEditModal {
   isOpen: boolean;
   classId: string;
   className: string;
-  levelId: string;
+  levelId: string | null;
   description: string;
 }
 
@@ -58,9 +58,9 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
   // Class info editing modal state
   const [classInfoEditModal, setClassInfoEditModal] = useState<ClassInfoEditModal>({
     isOpen: false,
-    classId: null,
+    classId: '',
     className: '',
-    levelId: '',
+    levelId: null,
     description: ''
   });
 
@@ -437,9 +437,9 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
 
     setClassInfoEditModal({
       isOpen: true,
-      classId: classId || '',
+      classId: classId,
       className: classObj.name,
-      levelId: classObj.levelId,
+      levelId: classObj.levelId || null,
       description: (classObj as any).description || ''
     });
   };
@@ -448,9 +448,9 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
   const handleCloseClassInfoEditModal = () => {
     setClassInfoEditModal({
       isOpen: false,
-      classId: null,
+      classId: '',
       className: '',
-      levelId: '',
+      levelId: null,
       description: ''
     });
   };
@@ -471,7 +471,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
         },
         body: JSON.stringify({
           name: classInfoEditModal.className,
-          levelId: classInfoEditModal.levelId,
+          levelId: classInfoEditModal.levelId || null,
           description: classInfoEditModal.description
         }),
       });
@@ -876,10 +876,11 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                 <label htmlFor="class-level">Level:</label>
                 <select
                   id="class-level"
-                  value={classInfoEditModal.levelId}
-                  onChange={e => setClassInfoEditModal(prev => ({ ...prev, levelId: e.target.value }))}
+                  value={classInfoEditModal.levelId || ''}
+                  onChange={e => setClassInfoEditModal(prev => ({ ...prev, levelId: e.target.value || null }))}
                   className="form-select"
                 >
+                  <option value="">Select Level</option>
                   {levels.map(level => (
                     <option key={level._id} value={level._id}>{level.name}</option>
                   ))}
