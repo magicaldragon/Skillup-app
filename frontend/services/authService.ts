@@ -48,30 +48,46 @@ class AuthService {
     }
 
     try {
-      console.log('Testing backend connectivity to:', `${API_BASE_URL}/test`);
+      console.log('Testing backend connectivity to:', `${API_BASE_URL}/health`);
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 8000); // Increased timeout to 8 seconds
       
-      const response = await fetch(`${API_BASE_URL}/test`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        signal: controller.signal,
-        mode: 'cors', // Explicitly set CORS mode
-      });
+      // Prefer health endpoint if available
+      let response: Response | null = null;
+      try {
+        response = await fetch(`${API_BASE_URL}/health`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+          signal: controller.signal,
+          mode: 'cors',
+        });
+      } catch (e) {
+        // fallback to /test
+        console.warn('Health endpoint failed, falling back to /test');
+      }
+
+      if (!response) {
+        response = await fetch(`${API_BASE_URL}/test`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+          signal: controller.signal,
+          mode: 'cors',
+        });
+      }
       
       clearTimeout(timeoutId);
-      console.log('Backend test response status:', response.status);
+      console.log('Connectivity response status:', response.status);
       
       const isConnected = response.ok;
       this.connectionCache = { status: isConnected, timestamp: Date.now() };
       
       if (isConnected) {
-        const data = await response.json();
-        console.log('Backend test response:', data);
+        const data = await response.json().catch(() => ({}));
+        console.log('Connectivity response:', data);
+      } else if (response.status === 503) {
+        console.error('Backend unhealthy (503). Likely DB unavailable');
       } else {
-        console.error('Backend test failed with status:', response.status);
+        console.error('Connectivity test failed with status:', response.status);
       }
       
       return isConnected;

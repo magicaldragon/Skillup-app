@@ -21,6 +21,17 @@ if (missingEnvVars.length > 0) {
 
 console.log('✅ Backend initialized - using frontend Firebase SDK for authentication');
 
+// Mongo connection state logging
+mongoose.connection.on('connected', () => {
+  console.log('✅ Mongoose connected');
+});
+mongoose.connection.on('disconnected', () => {
+  console.log('⚠️ Mongoose disconnected');
+});
+mongoose.connection.on('error', (err) => {
+  console.error('❌ Mongoose connection error:', err);
+});
+
 // Security middleware
 app.use(helmet({
   contentSecurityPolicy: {
@@ -179,6 +190,38 @@ app.get('/api/test', (req, res) => {
     uptime: process.uptime(),
     version: '1.0.0'
   });
+});
+
+// --- Health route that checks database connectivity ---
+app.get('/api/health', async (req, res) => {
+  const state = mongoose.connection.readyState; // 0=disconnected, 1=connected, 2=connecting, 3=disconnecting
+  let dbPingOk = false;
+  try {
+    if (state === 1 && mongoose.connection.db) {
+      // Ping database
+      await mongoose.connection.db.admin().ping();
+      dbPingOk = true;
+    }
+  } catch (err) {
+    dbPingOk = false;
+  }
+
+  const healthy = state === 1 && dbPingOk;
+  const payload = {
+    success: healthy,
+    health: {
+      dbConnected: state === 1,
+      dbPingOk,
+      state,
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+    }
+  };
+
+  if (!healthy) {
+    return res.status(503).json({ ...payload, message: 'Database unavailable' });
+  }
+  return res.json({ ...payload, message: 'OK' });
 });
 
 // --- CORS test route ---
