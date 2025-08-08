@@ -42,21 +42,22 @@ const App: React.FC = () => {
   const getAuthToken = useCallback(() => {
     const token = localStorage.getItem('skillup_token');
     console.log('Getting auth token:', token ? 'Token exists' : 'No token');
+    if (token) {
+      console.log('Token preview:', token.substring(0, 20) + '...');
+    }
     return token;
   }, []);
 
   // Memoize fetch options to avoid recreation
   const fetchOptions = useMemo(() => {
-    const token = getAuthToken();
-    const options = {
+    const token = localStorage.getItem('skillup_token');
+    return {
       headers: {
         'Content-Type': 'application/json',
         ...(token && { 'Authorization': `Bearer ${token}` }),
       },
     };
-    console.log('Fetch options created:', { hasToken: !!token, headers: options.headers });
-    return options;
-  }, [getAuthToken]);
+  }, []);
 
   useEffect(() => {
     const initializeAuth = async () => {
@@ -137,12 +138,16 @@ const App: React.FC = () => {
     if (!user) return;
     try {
       console.log('Fetching students...');
-      console.log('Using fetch options:', fetchOptions);
+      const token = localStorage.getItem('skillup_token');
+      console.log('Token for students request:', token ? 'Present' : 'Missing');
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
       
       const response = await fetch(`${apiUrl}/users`, {
-        ...fetchOptions,
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` }),
+        },
         signal: controller.signal,
       });
       
@@ -170,6 +175,7 @@ const App: React.FC = () => {
     if (!user) return;
     try {
       console.log('Fetching assignments...');
+      const fetchOptions = createFetchOptions();
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
       
@@ -202,6 +208,7 @@ const App: React.FC = () => {
     if (!user) return;
     try {
       console.log('Fetching submissions...');
+      const fetchOptions = createFetchOptions();
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
       
@@ -234,6 +241,7 @@ const App: React.FC = () => {
     if (!user) return;
     try {
       console.log('Fetching classes...');
+      const fetchOptions = createFetchOptions();
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
       
