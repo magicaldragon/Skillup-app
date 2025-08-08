@@ -38,16 +38,6 @@ const App: React.FC = () => {
     []
   );
 
-  // Get current auth token
-  const getAuthToken = useCallback(() => {
-    const token = localStorage.getItem('skillup_token');
-    console.log('Getting auth token:', token ? 'Token exists' : 'No token');
-    if (token) {
-      console.log('Token preview:', token.substring(0, 20) + '...');
-    }
-    return token;
-  }, []);
-
   // Memoize fetch options to avoid recreation
   const fetchOptions = useMemo(() => {
     const token = localStorage.getItem('skillup_token');
