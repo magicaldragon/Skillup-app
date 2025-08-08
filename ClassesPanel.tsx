@@ -145,7 +145,11 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
 
   // Handle single click to show action buttons
   const handleClassClick = (classId: string) => {
-    setSelectedClassId(selectedClassId === classId ? null : classId);
+    console.log('Class clicked:', classId);
+    console.log('Current selectedClassId:', selectedClassId);
+    const newSelectedId = selectedClassId === classId ? null : classId;
+    console.log('New selectedClassId will be:', newSelectedId);
+    setSelectedClassId(newSelectedId);
   };
 
   // Handle double click to expand class view
@@ -597,7 +601,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
               </tr>
             )}
             {filteredClasses.map(cls => {
-              console.log('Class data:', {
+              console.log('Rendering class:', {
                 id: cls._id || cls.id,
                 name: cls.name,
                 classCode: cls.classCode,
@@ -639,31 +643,30 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                     {cls.studentIds?.length || 0} students
                   </td>
                   <td className="actions-cell">
-                    {selectedClassId === safeClassId && (
-                      <div className="action-buttons">
-                        <button 
-                          className="action-btn edit-btn"
-                          onClick={(e) => { e.stopPropagation(); handleEditClass(safeClassId); }}
-                          title="View/Edit Students"
-                        >
-                          Edit
-                        </button>
-                        <button 
-                          className="action-btn edit-info-btn"
-                          onClick={(e) => { e.stopPropagation(); handleEditClassInfo(safeClassId); }}
-                          title="Edit Class Info"
-                        >
-                          Edit Info
-                        </button>
-                        <button 
-                          className="action-btn delete-btn"
-                          onClick={(e) => { e.stopPropagation(); handleDeleteClass(safeClassId); }}
-                          title="Delete Class"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    )}
+                    {/* Temporarily show buttons always for debugging */}
+                    <div className="action-buttons">
+                      <button 
+                        className="action-btn edit-btn"
+                        onClick={(e) => { e.stopPropagation(); handleEditClass(safeClassId); }}
+                        title="View/Edit Students"
+                      >
+                        Edit
+                      </button>
+                      <button 
+                        className="action-btn edit-info-btn"
+                        onClick={(e) => { e.stopPropagation(); handleEditClassInfo(safeClassId); }}
+                        title="Edit Class Info"
+                      >
+                        Edit Info
+                      </button>
+                      <button 
+                        className="action-btn delete-btn"
+                        onClick={(e) => { e.stopPropagation(); handleDeleteClass(safeClassId); }}
+                        title="Delete Class"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               );

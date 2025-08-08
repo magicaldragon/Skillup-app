@@ -63,7 +63,7 @@
 
 .search-bar-button {
   position: absolute;
-  right: 0.3rem;
+  right: 0.8rem;
   top: 50%;
   transform: translateY(-50%);
   background: linear-gradient(135deg, #307637 0%, #4caf50 100%);
@@ -90,7 +90,7 @@
 }
 .records-search-input {
   width: 100%;
-  padding: 0.8rem 3rem 0.8rem 1rem;
+  padding: 0.8rem 3.5rem 0.8rem 1rem;
   border: 2px solid #e0f7fa;
   border-radius: 12px;
   font-size: 0.95rem;
