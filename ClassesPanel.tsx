@@ -83,6 +83,8 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
   // Add new class with level selection
   const [newClassLevelId, setNewClassLevelId] = useState<string>('');
 
+  // Add state for showing action buttons
+  const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
 
 
   // Fetch levels from backend
@@ -552,6 +554,15 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
     return matchesSearch && matchesLevel;
   });
 
+  // Handle single click to show action buttons
+  const handleClassClick = (classId: string) => {
+    setSelectedClassId(selectedClassId === classId ? null : classId);
+  };
+
+  // Handle double click to expand class view
+  const handleClassDoubleClick = (classId: string) => {
+    handleEditClass(classId);
+  };
 
 
   return (
@@ -637,10 +648,10 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
             {filteredClasses.map(cls => (
               <tr 
                 key={cls.id} 
-                onClick={() => handleEditClass(cls.id)} 
-                onDoubleClick={() => handleEditClass(cls.id)}
-                className="clickable-row"
-                title="Click to view/edit students, double-click to expand"
+                onClick={() => handleClassClick(cls.id)} 
+                onDoubleClick={() => handleClassDoubleClick(cls.id)}
+                className={`clickable-row ${selectedClassId === cls.id ? 'selected-row' : ''}`}
+                title="Click to show actions, double-click to expand"
               >
                 <td className="class-name-cell">
                   <div className="class-name">{cls.name}</div>
@@ -654,29 +665,31 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                   {cls.studentIds?.length || 0} students
                 </td>
                 <td className="actions-cell">
-                  <div className="action-buttons">
-                    <button 
-                      className="action-btn edit-btn"
-                      onClick={(e) => { e.stopPropagation(); handleEditClass(cls.id); }}
-                      title="View/Edit Students"
-                    >
-                      Edit
-                    </button>
-                    <button 
-                      className="action-btn edit-info-btn"
-                      onClick={(e) => { e.stopPropagation(); handleEditClassInfo(cls.id); }}
-                      title="Edit Class Info"
-                    >
-                      Edit Info
-                    </button>
-                    <button 
-                      className="action-btn delete-btn"
-                      onClick={(e) => { e.stopPropagation(); handleDeleteClass(cls.id); }}
-                      title="Delete Class"
-                    >
-                      Delete
-                    </button>
-                  </div>
+                  {selectedClassId === cls.id && (
+                    <div className="action-buttons">
+                      <button 
+                        className="action-btn edit-btn"
+                        onClick={(e) => { e.stopPropagation(); handleEditClass(cls.id); }}
+                        title="View/Edit Students"
+                      >
+                        Edit
+                      </button>
+                      <button 
+                        className="action-btn edit-info-btn"
+                        onClick={(e) => { e.stopPropagation(); handleEditClassInfo(cls.id); }}
+                        title="Edit Class Info"
+                      >
+                        Edit Info
+                      </button>
+                      <button 
+                        className="action-btn delete-btn"
+                        onClick={(e) => { e.stopPropagation(); handleDeleteClass(cls.id); }}
+                        title="Delete Class"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  )}
                 </td>
               </tr>
             ))}
@@ -733,7 +746,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
         <div className="class-edit-modal">
           <div className="modal-content">
             <div className="modal-header">
-              <h3>CLASS: {classEditModal.className} LEVEL: {classEditModal.levelName}</h3>
+              <h3 className="modal-title">CLASS: {classEditModal.className} LEVEL: {classEditModal.levelName}</h3>
               <button className="close-btn" onClick={handleCloseClassEditModal}>×</button>
             </div>
             

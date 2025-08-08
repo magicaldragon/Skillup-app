@@ -517,21 +517,28 @@
 
 .close-btn {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
+  top: 50%;
+  right: 1.5rem;
+  transform: translateY(-50%);
   background: none;
   border: none;
-  font-size: 1.5rem;
+  font-size: 2rem;
   cursor: pointer;
-  color: #666;
+  color: white;
   padding: 0.5rem;
   border-radius: 50%;
   transition: all 0.3s ease;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .close-btn:hover {
-  background: #f0f0f0;
-  color: #333;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  transform: translateY(-50%) scale(1.1);
 }
 
 .modal-content h3 {
@@ -786,9 +793,10 @@
   color: white;
   padding: 1.5rem 2rem;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   border-radius: 20px 20px 0 0;
+  position: relative;
 }
 
 .modal-header h3 {
@@ -796,6 +804,15 @@
   font-size: 1.5rem;
   font-weight: 700;
   color: white;
+}
+
+.modal-title {
+  text-align: center;
+  font-weight: 900;
+  color: white !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  margin: 0;
+  flex: 1;
 }
 
 .modal-body {
@@ -892,6 +909,16 @@
   background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
   transform: scale(1.01);
   transition: all 0.2s ease;
+}
+
+.selected-row {
+  background: linear-gradient(135deg, #e8f5e8 0%, #f0f9f0 100%) !important;
+  border-left: 4px solid #307637;
+  box-shadow: 0 4px 12px rgba(48, 118, 55, 0.15);
+}
+
+.selected-row:hover {
+  background: linear-gradient(135deg, #d4edda 0%, #e8f5e8 100%) !important;
 }
 
 .checkbox-header,
