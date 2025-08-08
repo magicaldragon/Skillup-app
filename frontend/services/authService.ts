@@ -181,8 +181,12 @@ class AuthService {
         const data = await response.json();
         console.log('Backend response data:', data);
         console.log('Token received:', data.token ? 'Token exists' : 'No token');
+        if (data.token) {
+          console.log('Token preview:', data.token.substring(0, 20) + '...');
+        }
         localStorage.setItem('skillup_token', data.token);
         console.log('Token stored in localStorage');
+        console.log('Token verification - stored token:', localStorage.getItem('skillup_token') ? 'Present' : 'Missing');
         
         // Update connection cache on successful login
         this.connectionCache = { status: true, timestamp: Date.now() };

@@ -140,14 +140,20 @@ const App: React.FC = () => {
       console.log('Fetching students...');
       const token = localStorage.getItem('skillup_token');
       console.log('Token for students request:', token ? 'Present' : 'Missing');
+      if (token) {
+        console.log('Token preview for students:', token.substring(0, 20) + '...');
+      }
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
       
+      const headers = {
+        'Content-Type': 'application/json',
+        ...(token && { 'Authorization': `Bearer ${token}` }),
+      };
+      console.log('Request headers for students:', headers);
+      
       const response = await fetch(`${apiUrl}/users`, {
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token && { 'Authorization': `Bearer ${token}` }),
-        },
+        headers,
         signal: controller.signal,
       });
       
@@ -175,12 +181,15 @@ const App: React.FC = () => {
     if (!user) return;
     try {
       console.log('Fetching assignments...');
-      const fetchOptions = createFetchOptions();
+      const token = localStorage.getItem('skillup_token');
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
       
       const response = await fetch(`${apiUrl}/assignments`, {
-        ...fetchOptions,
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` }),
+        },
         signal: controller.signal,
       });
       
@@ -208,12 +217,15 @@ const App: React.FC = () => {
     if (!user) return;
     try {
       console.log('Fetching submissions...');
-      const fetchOptions = createFetchOptions();
+      const token = localStorage.getItem('skillup_token');
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
       
       const response = await fetch(`${apiUrl}/submissions`, {
-        ...fetchOptions,
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` }),
+        },
         signal: controller.signal,
       });
       
@@ -241,12 +253,15 @@ const App: React.FC = () => {
     if (!user) return;
     try {
       console.log('Fetching classes...');
-      const fetchOptions = createFetchOptions();
+      const token = localStorage.getItem('skillup_token');
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
       
       const response = await fetch(`${apiUrl}/classes`, {
-        ...fetchOptions,
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` }),
+        },
         signal: controller.signal,
       });
       
