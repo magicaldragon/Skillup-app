@@ -16,6 +16,15 @@ interface ClassEditModal {
   students: Student[];
 }
 
+// Interface for class info editing modal
+interface ClassInfoEditModal {
+  isOpen: boolean;
+  classId: string;
+  className: string;
+  levelId: string;
+  description: string;
+}
+
 // Interface for report modal
 interface ReportModal {
   isOpen: boolean;
@@ -44,6 +53,15 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
     className: '',
     levelName: '',
     students: []
+  });
+
+  // Class info editing modal state
+  const [classInfoEditModal, setClassInfoEditModal] = useState<ClassInfoEditModal>({
+    isOpen: false,
+    classId: null,
+    className: '',
+    levelId: '',
+    description: ''
   });
 
   // Report modal state
@@ -413,10 +431,62 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
   };
 
   // Edit class information
-  const handleEditClassInfo = async (_classId: string) => {
-    // This would open a form to edit class details like name, level, etc.
-    // For now, we'll just show an alert
-    alert('Edit class information functionality will be implemented here');
+  const handleEditClassInfo = async (classId: string) => {
+    const classObj = classes.find(c => c.id === classId);
+    if (!classObj) return;
+
+    setClassInfoEditModal({
+      isOpen: true,
+      classId: classId || '',
+      className: classObj.name,
+      levelId: classObj.levelId,
+      description: (classObj as any).description || ''
+    });
+  };
+
+  // Close class info edit modal
+  const handleCloseClassInfoEditModal = () => {
+    setClassInfoEditModal({
+      isOpen: false,
+      classId: null,
+      className: '',
+      levelId: '',
+      description: ''
+    });
+  };
+
+  // Update class information
+  const handleUpdateClassInfo = async () => {
+    if (!classInfoEditModal.classId) return;
+
+    try {
+      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+      
+      const res = await fetch(`${apiUrl}/classes/${classInfoEditModal.classId}`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          name: classInfoEditModal.className,
+          levelId: classInfoEditModal.levelId,
+          description: classInfoEditModal.description
+        }),
+      });
+      
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      
+      alert('Class information updated successfully!');
+      handleCloseClassInfoEditModal();
+      onDataRefresh?.();
+    } catch (error) {
+      console.error('Error updating class info:', error);
+      alert('Failed to update class information. Please try again.');
+    }
   };
 
   // Delete class
@@ -565,7 +635,13 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
               </tr>
             )}
             {filteredClasses.map(cls => (
-              <tr key={cls.id} onClick={() => handleEditClass(cls.id)} className="clickable-row">
+              <tr 
+                key={cls.id} 
+                onClick={() => handleEditClass(cls.id)} 
+                onDoubleClick={() => handleEditClass(cls.id)}
+                className="clickable-row"
+                title="Click to view/edit students, double-click to expand"
+              >
                 <td className="class-name-cell">
                   <div className="class-name">{cls.name}</div>
                 </td>
@@ -582,18 +658,21 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                     <button 
                       className="action-btn edit-btn"
                       onClick={(e) => { e.stopPropagation(); handleEditClass(cls.id); }}
+                      title="View/Edit Students"
                     >
                       Edit
                     </button>
                     <button 
                       className="action-btn edit-info-btn"
                       onClick={(e) => { e.stopPropagation(); handleEditClassInfo(cls.id); }}
+                      title="Edit Class Info"
                     >
                       Edit Info
                     </button>
                     <button 
                       className="action-btn delete-btn"
                       onClick={(e) => { e.stopPropagation(); handleDeleteClass(cls.id); }}
+                      title="Delete Class"
                     >
                       Delete
                     </button>
@@ -770,6 +849,71 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
               </div>
               </div>
             </div>
+      )}
+
+      {/* Class Info Edit Modal */}
+      {classInfoEditModal.isOpen && (
+        <div className="class-info-edit-modal">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>Edit Class Information</h3>
+              <button className="close-btn" onClick={handleCloseClassInfoEditModal}>×</button>
+            </div>
+            
+            <div className="modal-body">
+              <div className="form-group">
+                <label htmlFor="class-name">Class Name:</label>
+                <input
+                  id="class-name"
+                  type="text"
+                  value={classInfoEditModal.className}
+                  onChange={e => setClassInfoEditModal(prev => ({ ...prev, className: e.target.value }))}
+                  className="form-input"
+                />
+              </div>
+              
+              <div className="form-group">
+                <label htmlFor="class-level">Level:</label>
+                <select
+                  id="class-level"
+                  value={classInfoEditModal.levelId}
+                  onChange={e => setClassInfoEditModal(prev => ({ ...prev, levelId: e.target.value }))}
+                  className="form-select"
+                >
+                  {levels.map(level => (
+                    <option key={level._id} value={level._id}>{level.name}</option>
+                  ))}
+                </select>
+              </div>
+              
+              <div className="form-group">
+                <label htmlFor="class-description">Description:</label>
+                <textarea
+                  id="class-description"
+                  value={classInfoEditModal.description}
+                  onChange={e => setClassInfoEditModal(prev => ({ ...prev, description: e.target.value }))}
+                  className="form-textarea"
+                  rows={3}
+                />
+              </div>
+              
+              <div className="modal-actions">
+                <button 
+                  onClick={handleUpdateClassInfo}
+                  className="save-btn"
+                >
+                  Update Class
+                </button>
+                <button 
+                  onClick={handleCloseClassInfoEditModal}
+                  className="cancel-btn"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Report Modal */}

@@ -39,21 +39,35 @@ const ReportsPanel = ({ isAdmin: _isAdmin, onDataRefresh: _onDataRefresh }: { is
       }
 
       const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+      console.log('Fetching reports from:', `${apiUrl}/student-records/reports`);
+      
       const response = await fetch(`${apiUrl}/student-records/reports`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
       });
 
+      console.log('Reports response status:', response.status);
+      console.log('Reports response ok:', response.ok);
+
       if (!response.ok) {
-        throw new Error('Failed to fetch reports');
+        const errorText = await response.text();
+        console.error('Reports response error:', errorText);
+        throw new Error(`Failed to fetch reports: ${response.status} ${errorText}`);
       }
 
       const data = await response.json();
-      setReports(data || []);
+      console.log('Reports data:', data);
+      
+      if (data.success && Array.isArray(data.records)) {
+        setReports(data.records);
+      } else {
+        console.error('Invalid reports data structure:', data);
+        setReports([]);
+      }
     } catch (err: any) {
       console.error('Fetch reports error:', err);
-      setError('Failed to load reports. Please try again.');
+      setError(`Failed to load reports: ${err.message}`);
     } finally {
       setLoading(false);
     }

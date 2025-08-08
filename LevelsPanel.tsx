@@ -165,19 +165,20 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
     setLoading(true);
     try {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
       
-      const res = await fetch(`/api/levels/${editingLevel._id}`, {
+      const res = await fetch(`${apiUrl}/levels/${editingLevel._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': token ? `Bearer ${token}` : ''
         },
-        credentials: 'include',
         body: JSON.stringify({ name, code, description })
       });
 
       if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
+        const errorData = await res.json().catch(() => ({ message: 'Failed to update level' }));
+        throw new Error(errorData.message || `HTTP error! status: ${res.status}`);
       }
 
       const data = await res.json();
@@ -186,12 +187,13 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
         setEditingLevel(null);
         setEditLevel({ name: '', code: '', description: '' });
         onDataRefresh?.();
+        alert('Level updated successfully!');
       } else {
         alert(data.message || 'Failed to update level');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating level:', error);
-      alert('Failed to update level. Please try again.');
+      alert(`Failed to update level: ${error.message || 'Unknown error'}`);
     } finally {
       setLoading(false);
     }
@@ -206,18 +208,19 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
     setLoading(true);
     try {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
       
-      const res = await fetch(`/api/levels/${levelId}`, {
+      const res = await fetch(`${apiUrl}/levels/${levelId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': token ? `Bearer ${token}` : ''
-        },
-        credentials: 'include'
+        }
       });
 
       if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
+        const errorData = await res.json().catch(() => ({ message: 'Failed to delete level' }));
+        throw new Error(errorData.message || `HTTP error! status: ${res.status}`);
       }
 
       const data = await res.json();
@@ -225,12 +228,13 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
         setLevels(prev => prev.filter(l => l._id !== levelId));
         setSelectedLevel(null);
         onDataRefresh?.();
+        alert('Level deleted successfully!');
       } else {
         alert(data.message || 'Failed to delete level');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting level:', error);
-      alert('Failed to delete level. Please try again.');
+      alert(`Failed to delete level: ${error.message || 'Unknown error'}`);
     } finally {
       setLoading(false);
     }
