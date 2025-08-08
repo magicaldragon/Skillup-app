@@ -90,6 +90,46 @@ const verifyToken = (req, res, next) => {
   }
 };
 
+// Debug route to check if user exists (for troubleshooting)
+router.get('/debug/user/:email', async (req, res) => {
+  try {
+    const email = req.params.email;
+    console.log('Debug: Checking user existence for:', email);
+    
+    const user = await User.findOne({ email: email.toLowerCase() });
+    
+    if (!user) {
+      return res.json({
+        success: false,
+        message: 'User not found',
+        email: email
+      });
+    }
+    
+    // Return user info without sensitive data
+    res.json({
+      success: true,
+      message: 'User found',
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        status: user.status,
+        createdAt: user.createdAt
+      }
+    });
+    
+  } catch (error) {
+    console.error('Debug user check error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error checking user',
+      error: error.message
+    });
+  }
+});
+
 // Simple connectivity test endpoint (no auth required)
 router.get('/test', (req, res) => {
   res.json({
@@ -156,9 +196,15 @@ router.post('/logout', verifyToken, (req, res) => {
 // Firebase login route for hybrid auth users
 router.post('/firebase-login', async (req, res) => {
   try {
+    console.log('Firebase login request received:', { 
+      email: req.body.email, 
+      hasToken: !!req.body.firebaseToken 
+    });
+
     const { firebaseToken, email } = req.body;
 
     if (!firebaseToken || !email) {
+      console.log('Missing required fields:', { hasToken: !!firebaseToken, hasEmail: !!email });
       return res.status(400).json({ 
         success: false, 
         message: 'Firebase token and email are required' 
@@ -166,19 +212,30 @@ router.post('/firebase-login', async (req, res) => {
     }
 
     // Find user by email in MongoDB
+    console.log('Looking up user with email:', email);
     const user = await User.findOne({ email: email.toLowerCase() });
+    
     if (!user) {
+      console.log('User not found in database:', email);
       return res.status(401).json({ 
         success: false, 
-        message: 'User not found in database' 
+        message: 'User not found in database. Please contact administrator.' 
       });
     }
 
-    // Check if user is active
-    if (user.status !== 'active') {
+    console.log('User found:', { 
+      id: user._id, 
+      name: user.name, 
+      role: user.role, 
+      status: user.status 
+    });
+
+    // Check if user is active (allow all statuses for now to avoid blocking users)
+    if (user.status === 'off') {
+      console.log('User account is disabled:', email);
       return res.status(401).json({ 
         success: false, 
-        message: 'Account is not active. Please contact administrator.' 
+        message: 'Account is disabled. Please contact administrator.' 
       });
     }
 
@@ -193,26 +250,47 @@ router.post('/firebase-login', async (req, res) => {
       { expiresIn: '24h' }
     );
 
+    console.log('JWT token generated successfully for user:', user.email);
+
     // Return user data and token
+    const userResponse = {
+      id: user._id,
+      _id: user._id, // Include both for compatibility
+      name: user.name,
+      fullname: user.name, // Include both for compatibility
+      email: user.email,
+      role: user.role,
+      avatarUrl: user.avatarUrl,
+      status: user.status,
+      studentCode: user.studentCode
+    };
+
+    console.log('Sending successful response for user:', user.email);
     res.json({
       success: true,
       message: 'Firebase login successful',
       token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        avatarUrl: user.avatarUrl,
-        status: user.status
-      }
+      user: userResponse
     });
 
   } catch (error) {
     console.error('Firebase login error:', error);
+    console.error('Error stack:', error.stack);
+    
+    // Provide more specific error messages
+    let errorMessage = 'Internal server error';
+    if (error.name === 'ValidationError') {
+      errorMessage = 'Invalid user data';
+    } else if (error.name === 'MongoError' || error.name === 'MongoServerError') {
+      errorMessage = 'Database error occurred';
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+    
     res.status(500).json({ 
       success: false, 
-      message: 'Internal server error' 
+      message: errorMessage,
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });

@@ -181,7 +181,25 @@ class AuthService {
       } else {
         const errorData = await response.json().catch(() => ({ message: 'Failed to parse error response' }));
         console.error('Backend error response:', errorData);
-        throw new Error(errorData.message || `Backend request failed with status ${response.status}`);
+        
+        // Provide more specific error messages based on backend response
+        let errorMessage = errorData.message || `Backend request failed with status ${response.status}`;
+        
+        if (response.status === 401) {
+          if (errorData.message?.includes('not found')) {
+            errorMessage = 'User not found. Please contact administrator.';
+          } else if (errorData.message?.includes('disabled')) {
+            errorMessage = 'Account is disabled. Please contact administrator.';
+          } else {
+            errorMessage = 'Authentication failed. Please check your credentials.';
+          }
+        } else if (response.status === 400) {
+          errorMessage = 'Invalid request. Please check your input.';
+        } else if (response.status === 500) {
+          errorMessage = 'Server error. Please try again later.';
+        }
+        
+        throw new Error(errorMessage);
       }
     } catch (error: any) {
       console.error('Login error details:', error);
