@@ -38,7 +38,10 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
 
   const currentClasses = useMemo(() => {
     if (!currentUser.classIds || !classes.length) return [];
-    return classes.filter(c => currentUser.classIds?.includes(c.id)).map(c => c.name);
+    return classes.filter(c => {
+      const classId = c._id || c.id;
+      return classId && currentUser.classIds?.includes(classId);
+    }).map(c => c.classCode || c.name || 'Unnamed Class');
   }, [currentUser.classIds, classes]);
 
   // Check if user can edit their information
