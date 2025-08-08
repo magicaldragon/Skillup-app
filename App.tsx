@@ -327,7 +327,8 @@ const App: React.FC = () => {
     }
 
     // Determine which dashboard to show based on user role
-    const DashboardComponent = user.role === 'teacher' ? TeacherDashboard : StudentDashboard;
+    // Show StudentDashboard only for explicit student role; everyone else (teacher/admin/staff) gets TeacherDashboard
+    const DashboardComponent = user.role === 'student' ? StudentDashboard : TeacherDashboard;
     
     return (
       <div className="app-container">
