@@ -212,15 +212,6 @@ const AccountsPanel = () => {
     <div className="accounts-panel-container">
       <h2 className="accounts-title">Accounts</h2>
       
-      {/* Debug Information */}
-      <div style={{ background: '#f0f0f0', padding: '10px', margin: '10px 0', borderRadius: '5px', fontSize: '12px' }}>
-        <strong>Debug Info:</strong><br/>
-        Loading: {loading.toString()}<br/>
-        Error: {error || 'None'}<br/>
-        Accounts Count: {accounts.length}<br/>
-        Filtered Count: {filteredAccounts.length}
-      </div>
-      
       {loading ? (
         <div className="accounts-loading">Loading accounts...</div>
       ) : error ? (

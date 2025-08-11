@@ -1,34 +1,59 @@
+/* AccountsPanel.css - Updated to match overall app vibe */
+
+.accounts-panel-container {
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+  border-radius: 18px;
+  box-shadow: 0 8px 32px 0 rgba(48, 118, 55, 0.08), 0 1.5px 8px 0 rgba(48, 118, 55, 0.06);
+  border: 2px solid #e0f7fa;
+  margin: 1rem;
+  min-height: 600px;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+}
+
+.accounts-title {
+  color: #ff8c42;
+  font-size: 2.5rem;
+  font-weight: 900;
+  margin-bottom: 8px;
+  letter-spacing: 1.5px;
+  text-shadow: 0 4px 12px rgba(48, 118, 55, 0.13), 0 1px 0 #fffbe6;
+  text-transform: uppercase;
+  text-align: center;
+}
+
 .panel-title {
   color: #307637;
   font-size: 1.8rem;
   font-weight: 700;
-  margin-bottom: 24px;
+  margin-bottom: 1.5rem;
   text-align: center;
-  text-transform: uppercase;
-  letter-spacing: 1px;
 }
 
-.error-message {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #dc2626;
-  padding: 12px 16px;
-  border-radius: 8px;
-  margin-bottom: 16px;
-  font-weight: 500;
-}
-
+/* Search and Filter Section - Centered */
 .filters-section {
   display: flex;
-  gap: 16px;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
+  justify-content: center;
   align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  max-width: 800px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .search-box {
   flex: 1;
+  max-width: 500px;
   min-width: 300px;
+}
+
+.search-bar-container {
+  position: relative;
+  width: 100%;
 }
 
 .search-bar-input {
@@ -41,6 +66,12 @@
   color: #307637;
   transition: all 0.3s ease;
   box-shadow: 0 2px 8px rgba(48, 118, 55, 0.05);
+}
+
+.search-bar-input:focus {
+  border-color: #307637;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(48, 118, 55, 0.1);
 }
 
 .search-bar-button {
@@ -73,166 +104,212 @@
 
 .filter-controls {
   display: flex;
-  gap: 12px;
+  gap: 1rem;
+  align-items: center;
+  justify-content: center;
 }
 
 .filter-select {
-  padding: 12px 16px;
-  border: 2px solid #e5e7eb;
-  border-radius: 8px;
-  font-size: 1rem;
-  background: #fff;
-  transition: border-color 0.2s ease;
+  padding: 0.8rem 1rem;
+  border: 2px solid #e0f7fa;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  background: #ffffff;
+  color: #307637;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(48, 118, 55, 0.05);
+  min-width: 150px;
+  cursor: pointer;
 }
 
 .filter-select:focus {
-  outline: none;
   border-color: #307637;
+  outline: none;
   box-shadow: 0 0 0 3px rgba(48, 118, 55, 0.1);
 }
 
+/* Table Styling - Matching ClassesPanel */
 .table-wrapper {
-  overflow-x: auto;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  border-radius: 16px;
+  border: 2px solid #ffd700;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(48, 118, 55, 0.1);
 }
 
 .accounts-table {
   width: 100%;
   border-collapse: collapse;
-  background: #fff;
+  background: #ffffff;
 }
 
 .accounts-table th {
-  background: #f8fafc;
-  padding: 16px 12px;
+  background: linear-gradient(135deg, #307637 0%, #4caf50 100%);
+  color: white;
+  padding: 1rem 0.8rem;
   text-align: left;
-  font-weight: 600;
-  color: #374151;
-  border-bottom: 2px solid #e5e7eb;
+  font-weight: 700;
   font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #2e7d32;
+}
+
+.accounts-table td {
+  padding: 1rem 0.8rem;
+  border-bottom: 1px solid #e0f7fa;
+  vertical-align: middle;
+  font-size: 0.9rem;
+  color: #333;
+  min-height: 60px;
+}
+
+.accounts-table tbody tr {
+  transition: all 0.2s ease;
+  height: 60px;
+}
+
+.accounts-table tbody tr:hover {
+  background: linear-gradient(135deg, #f0f8f0 0%, #e8f5e8 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(48, 118, 55, 0.1);
+}
+
+/* Action Buttons - Matching ClassesPanel */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 50px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.accounts-table td {
-  padding: 12px;
-  border-bottom: 1px solid #f3f4f6;
-  vertical-align: middle;
-}
-
-.accounts-table tr:hover {
-  background: #f9fafb;
-}
-
-.edit-input {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 4px;
-  font-size: 0.9rem;
-}
-
-.edit-input:focus {
-  outline: none;
-  border-color: #307637;
-  box-shadow: 0 0 0 2px rgba(48, 118, 55, 0.1);
-}
-
-.edit-select {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  background: #fff;
-}
-
-.edit-select:focus {
-  outline: none;
-  border-color: #307637;
-  box-shadow: 0 0 0 2px rgba(48, 118, 55, 0.1);
-}
-
-.action-buttons {
-  display: flex;
-  gap: 8px;
-}
-
 .edit-btn {
-  background: #3b82f6;
+  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
   color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
 }
 
 .edit-btn:hover {
-  background: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
 }
 
 .delete-btn {
-  background: #dc2626;
+  background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
   color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
 }
 
 .delete-btn:hover {
-  background: #b91c1c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
 }
 
 .save-btn {
-  background: #16a34a;
+  background: linear-gradient(135deg, #307637 0%, #4caf50 100%);
   color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
 }
 
 .save-btn:hover {
-  background: #15803d;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(48, 118, 55, 0.3);
 }
 
 .cancel-btn {
-  background: #6b7280;
+  background: linear-gradient(135deg, #757575 0%, #616161 100%);
   color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
 }
 
 .cancel-btn:hover {
-  background: #4b5563;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(117, 117, 117, 0.3);
 }
 
-.no-data {
-  text-align: center;
-  padding: 40px 20px;
-  color: #6b7280;
-  font-style: italic;
+/* Edit Input Styling */
+.edit-input, .edit-select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #e0f7fa;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background: #ffffff;
+  color: #333;
+  transition: all 0.2s ease;
 }
 
-.loading-spinner {
+.edit-input:focus, .edit-select:focus {
+  border-color: #307637;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(48, 118, 55, 0.1);
+}
+
+/* Loading and Error States */
+.accounts-loading, .accounts-error, .accounts-empty {
   text-align: center;
-  padding: 40px;
-  color: #6b7280;
+  padding: 2rem;
+  color: #666;
   font-size: 1.1rem;
+}
+
+.accounts-error {
+  color: #d32f2f;
+  background: #ffebee;
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .accounts-panel-container {
+    padding: 1rem;
+    margin: 0.5rem;
+  }
+  
+  .accounts-title {
+    font-size: 2rem;
+  }
+  
+  .filters-section {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .search-box {
+    max-width: none;
+  }
+  
+  .filter-controls {
+    justify-content: center;
+  }
+  
+  .accounts-table {
+    font-size: 0.8rem;
+  }
+  
+  .accounts-table th,
+  .accounts-table td {
+    padding: 0.6rem 0.4rem;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .action-btn {
+    width: 100%;
+    min-width: auto;
+  }
 } 

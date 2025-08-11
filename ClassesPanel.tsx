@@ -132,15 +132,6 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
     fetchLevels();
   }, []);
 
-  // Debug logging
-  useEffect(() => {
-    console.log('ClassesPanel rendered with:', {
-      classesCount: classes?.length || 0,
-      selectedClassId,
-      classes: classes?.slice(0, 2) // Log first 2 classes for debugging
-    });
-  }, [classes, selectedClassId]);
-
   // Filter classes based on search and level filter
   const filteredClasses = (classes && Array.isArray(classes) ? classes : []).filter(c => {
     // Handle both populated levelId object and string levelId
@@ -157,13 +148,8 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
 
   // Handle single click to show action buttons
   const handleClassClick = (classId: string) => {
-    console.log('Class clicked:', classId, 'Current selected:', selectedClassId);
     // Toggle selection: if same class is clicked, deselect it; otherwise select the new one
-    setSelectedClassId(prevId => {
-      const newId = prevId === classId ? null : classId;
-      console.log('Setting selectedClassId to:', newId);
-      return newId;
-    });
+    setSelectedClassId(prevId => prevId === classId ? null : classId);
   };
 
   // Handle keyboard events for accessibility
@@ -671,34 +657,10 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                     {studentCount} students
                   </td>
                   <td className="actions-cell">
-                    {/* Simple test - always show a visible element */}
-                    <div style={{backgroundColor: 'red', color: 'white', padding: '4px', fontSize: '12px'}}>
-                      TEST: Actions Cell Working
-                    </div>
-                    
-                    {/* Temporary: Always show buttons for testing */}
-                    <div className="action-buttons" style={{
-                      display: 'flex',
-                      gap: '0.5rem',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      height: '100%',
-                      border: '2px solid blue',
-                      padding: '4px',
-                      backgroundColor: 'lightblue'
-                    }}>
+                    {isSelected && (
+                      <div className="action-buttons">
                         <button 
                           className="action-btn show-btn"
-                          style={{
-                            padding: '4px 8px',
-                            border: '2px solid green',
-                            borderRadius: '4px',
-                            backgroundColor: 'green',
-                            color: 'white',
-                            cursor: 'pointer',
-                            fontSize: '12px',
-                            fontWeight: 'bold'
-                          }}
                           onClick={(e) => { 
                             e.stopPropagation(); 
                             handleEditClass(safeClassId); 
@@ -709,19 +671,8 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                         </button>
                         <button 
                           className="action-btn edit-btn"
-                          style={{
-                            padding: '4px 8px',
-                            border: '2px solid blue',
-                            borderRadius: '4px',
-                            backgroundColor: 'blue',
-                            color: 'white',
-                            cursor: 'pointer',
-                            fontSize: '12px',
-                            fontWeight: 'bold'
-                          }}
                           onClick={(e) => { 
                             e.stopPropagation(); 
-                            // open level-only edit modal
                             const cls = classes.find(c => (c._id || c.id) === safeClassId);
                             if (!cls) return;
                             const displayNameLocal = cls.classCode || cls.name || 'Unnamed Class';
@@ -739,16 +690,6 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                         </button>
                         <button 
                           className="action-btn delete-btn"
-                          style={{
-                            padding: '4px 8px',
-                            border: '2px solid red',
-                            borderRadius: '4px',
-                            backgroundColor: 'red',
-                            color: 'white',
-                            cursor: 'pointer',
-                            fontSize: '12px',
-                            fontWeight: 'bold'
-                          }}
                           onClick={(e) => { 
                             e.stopPropagation(); 
                             handleDeleteClass(safeClassId); 
@@ -757,11 +698,8 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                         >
                           Delete
                         </button>
-                    </div>
-                    {/* Debug indicator */}
-                    <div style={{fontSize: '12px', color: 'red', backgroundColor: 'yellow', padding: '2px', marginTop: '4px'}}>
-                      Debug: isSelected={isSelected ? 'true' : 'false'}, selectedClassId={selectedClassId}, safeClassId={safeClassId}
-                    </div>
+                      </div>
+                    )}
                   </td>
                 </tr>
               );
