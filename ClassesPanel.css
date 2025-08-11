@@ -136,7 +136,7 @@
   background: #ffffff;
   border-radius: 12px;
   border: 2px solid #ffd700;
-  overflow: hidden;
+  overflow: visible;
   box-shadow: 0 2px 8px rgba(48, 118, 55, 0.1);
   margin-bottom: 1rem;
 }
@@ -186,6 +186,8 @@
   text-align: center;
   min-height: 40px;
   padding: 4px;
+  position: relative;
+  z-index: 10;
 }
 
 /* Action Buttons - Matching ClassesPanel */
@@ -195,6 +197,8 @@
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
+  position: relative;
+  z-index: 20;
 }
 
 .action-btn {

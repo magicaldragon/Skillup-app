@@ -657,49 +657,97 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                     {studentCount} students
                   </td>
                   <td className="actions-cell">
-                    {isSelected && (
-                      <div className="action-buttons">
-                        <button 
-                          className="action-btn show-btn"
-                          onClick={(e) => { 
-                            e.stopPropagation(); 
-                            handleEditClass(safeClassId); 
-                          }}
-                          title="Show class details"
-                        >
-                          Show
-                        </button>
-                        <button 
-                          className="action-btn edit-btn"
-                          onClick={(e) => { 
-                            e.stopPropagation(); 
-                            const cls = classes.find(c => (c._id || c.id) === safeClassId);
-                            if (!cls) return;
-                            const displayNameLocal = cls.classCode || cls.name || 'Unnamed Class';
-                            setClassInfoEditModal({
-                              isOpen: true,
-                              classId: safeClassId,
-                              className: displayNameLocal,
-                              levelId: (typeof cls.levelId === 'object' ? (cls.levelId?._id || null) : (cls.levelId || null)),
-                              description: cls.description || ''
-                            });
-                          }}
-                          title="Edit Level"
-                        >
-                          Edit
-                        </button>
-                        <button 
-                          className="action-btn delete-btn"
-                          onClick={(e) => { 
-                            e.stopPropagation(); 
-                            handleDeleteClass(safeClassId); 
-                          }}
-                          title="Delete Class"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    )}
+                    {/* Temporary test - always show buttons */}
+                    <div className="action-buttons" style={{
+                      display: 'flex',
+                      gap: '12px',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      backgroundColor: 'yellow',
+                      border: '2px solid red',
+                      padding: '4px'
+                    }}>
+                      <button 
+                        className="action-btn show-btn"
+                        style={{
+                          padding: '6px 18px',
+                          border: 'none',
+                          borderRadius: '999px',
+                          backgroundColor: 'green',
+                          color: 'white',
+                          fontSize: '12px',
+                          fontWeight: '600',
+                          cursor: 'pointer'
+                        }}
+                        onClick={(e) => { 
+                          e.stopPropagation(); 
+                          handleEditClass(safeClassId); 
+                        }}
+                        title="Show class details"
+                      >
+                        Show
+                      </button>
+                      <button 
+                        className="action-btn edit-btn"
+                        style={{
+                          padding: '6px 18px',
+                          border: 'none',
+                          borderRadius: '999px',
+                          backgroundColor: 'blue',
+                          color: 'white',
+                          fontSize: '12px',
+                          fontWeight: '600',
+                          cursor: 'pointer'
+                        }}
+                        onClick={(e) => { 
+                          e.stopPropagation(); 
+                          const cls = classes.find(c => (c._id || c.id) === safeClassId);
+                          if (!cls) return;
+                          const displayNameLocal = cls.classCode || cls.name || 'Unnamed Class';
+                          setClassInfoEditModal({
+                            isOpen: true,
+                            classId: safeClassId,
+                            className: displayNameLocal,
+                            levelId: (typeof cls.levelId === 'object' ? (cls.levelId?._id || null) : (cls.levelId || null)),
+                            description: cls.description || ''
+                          });
+                        }}
+                        title="Edit Level"
+                      >
+                        Edit
+                      </button>
+                      <button 
+                        className="action-btn delete-btn"
+                        style={{
+                          padding: '6px 18px',
+                          border: 'none',
+                          borderRadius: '999px',
+                          backgroundColor: 'red',
+                          color: 'white',
+                          fontSize: '12px',
+                          fontWeight: '600',
+                          cursor: 'pointer'
+                        }}
+                        onClick={(e) => { 
+                          e.stopPropagation(); 
+                          handleDeleteClass(safeClassId); 
+                        }}
+                        title="Delete Class"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                    {/* Debug info */}
+                    <div style={{
+                      fontSize: '10px',
+                      color: 'red',
+                      backgroundColor: 'white',
+                      padding: '2px',
+                      marginTop: '2px',
+                      border: '1px solid red'
+                    }}>
+                      Debug: isSelected={isSelected ? 'YES' : 'NO'} | ID={safeClassId} | selectedClassId={selectedClassId}
+                    </div>
                   </td>
                 </tr>
               );
