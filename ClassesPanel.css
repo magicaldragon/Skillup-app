@@ -194,6 +194,11 @@
   vertical-align: middle;
   text-align: center;
   /* height is set by td, no need for flex here */
+  /* Temporary debugging styles */
+  background-color: yellow !important;
+  border: 3px solid red !important;
+  min-height: 50px !important;
+  padding: 10px !important;
 }
 
 .action-buttons {

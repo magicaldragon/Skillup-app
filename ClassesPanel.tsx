@@ -132,6 +132,15 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
     fetchLevels();
   }, []);
 
+  // Debug logging
+  useEffect(() => {
+    console.log('ClassesPanel rendered with:', {
+      classesCount: classes?.length || 0,
+      selectedClassId,
+      classes: classes?.slice(0, 2) // Log first 2 classes for debugging
+    });
+  }, [classes, selectedClassId]);
+
   // Filter classes based on search and level filter
   const filteredClasses = (classes && Array.isArray(classes) ? classes : []).filter(c => {
     // Handle both populated levelId object and string levelId
@@ -662,10 +671,34 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                     {studentCount} students
                   </td>
                   <td className="actions-cell">
+                    {/* Simple test - always show a visible element */}
+                    <div style={{backgroundColor: 'red', color: 'white', padding: '4px', fontSize: '12px'}}>
+                      TEST: Actions Cell Working
+                    </div>
+                    
                     {/* Temporary: Always show buttons for testing */}
-                    <div className="action-buttons">
+                    <div className="action-buttons" style={{
+                      display: 'flex',
+                      gap: '0.5rem',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      height: '100%',
+                      border: '2px solid blue',
+                      padding: '4px',
+                      backgroundColor: 'lightblue'
+                    }}>
                         <button 
                           className="action-btn show-btn"
+                          style={{
+                            padding: '4px 8px',
+                            border: '2px solid green',
+                            borderRadius: '4px',
+                            backgroundColor: 'green',
+                            color: 'white',
+                            cursor: 'pointer',
+                            fontSize: '12px',
+                            fontWeight: 'bold'
+                          }}
                           onClick={(e) => { 
                             e.stopPropagation(); 
                             handleEditClass(safeClassId); 
@@ -676,6 +709,16 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                         </button>
                         <button 
                           className="action-btn edit-btn"
+                          style={{
+                            padding: '4px 8px',
+                            border: '2px solid blue',
+                            borderRadius: '4px',
+                            backgroundColor: 'blue',
+                            color: 'white',
+                            cursor: 'pointer',
+                            fontSize: '12px',
+                            fontWeight: 'bold'
+                          }}
                           onClick={(e) => { 
                             e.stopPropagation(); 
                             // open level-only edit modal
@@ -696,6 +739,16 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                         </button>
                         <button 
                           className="action-btn delete-btn"
+                          style={{
+                            padding: '4px 8px',
+                            border: '2px solid red',
+                            borderRadius: '4px',
+                            backgroundColor: 'red',
+                            color: 'white',
+                            cursor: 'pointer',
+                            fontSize: '12px',
+                            fontWeight: 'bold'
+                          }}
                           onClick={(e) => { 
                             e.stopPropagation(); 
                             handleDeleteClass(safeClassId); 
