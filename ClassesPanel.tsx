@@ -631,7 +631,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                   key={safeClassId} 
                   onClick={() => handleClassClick(safeClassId)} 
                   className={`clickable-row ${isSelected ? 'selected-row' : ''}`}
-                  title="Click to select row, then use actions"
+                  title="Use the actions on the right to manage this class"
                 >
                   <td className="class-name-cell">
                     <div className="class-name">{displayName}</div>
@@ -645,8 +645,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                     {studentCount} students
                   </td>
                   <td className="actions-cell">
-                    {isSelected && (
-                      <div className="action-buttons">
+                    <div className="action-buttons">
                         <button 
                           className="action-btn show-btn"
                           onClick={(e) => { 
@@ -687,8 +686,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                         >
                           Delete
                         </button>
-                      </div>
-                    )}
+                    </div>
                   </td>
                 </tr>
               );
