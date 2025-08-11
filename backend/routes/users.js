@@ -82,7 +82,8 @@ router.post('/', async (req, res) => {
       parentPhone, 
       notes,
       status = 'potential',
-      firebaseUid // Accept firebaseUid from frontend
+      firebaseUid, // Accept firebaseUid from frontend
+      username // Accept username from frontend
     } = req.body;
 
     // Check if user already exists
@@ -92,6 +93,17 @@ router.post('/', async (req, res) => {
         success: false,
         message: 'User with this email already exists' 
       });
+    }
+
+    // Check if username already exists
+    if (username) {
+      const existingUsername = await User.findOne({ username });
+      if (existingUsername) {
+        return res.status(400).json({ 
+          success: false,
+          message: 'Username already exists' 
+        });
+      }
     }
 
     // Validate that firebaseUid is provided
@@ -111,6 +123,7 @@ router.post('/', async (req, res) => {
 
     // Create user in MongoDB
     const user = new User({
+      username, // Include username in user creation
       name,
       email,
       role,
@@ -244,6 +257,30 @@ router.delete('/:id', verifyToken, async (req, res) => {
   } catch (error) {
     console.error('Error deleting user:', error);
     res.status(500).json({ message: 'Failed to delete user' });
+  }
+});
+
+// Check if email exists
+router.get('/check-email/:email', async (req, res) => {
+  try {
+    const { email } = req.params;
+    const user = await User.findOne({ email });
+    res.json({ exists: !!user });
+  } catch (error) {
+    console.error('Error checking email:', error);
+    res.status(500).json({ exists: false });
+  }
+});
+
+// Check if username exists
+router.get('/check-username/:username', async (req, res) => {
+  try {
+    const { username } = req.params;
+    const user = await User.findOne({ username });
+    res.json({ exists: !!user });
+  } catch (error) {
+    console.error('Error checking username:', error);
+    res.status(500).json({ exists: false });
   }
 });
 

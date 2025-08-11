@@ -6,7 +6,7 @@ import { safeTrim } from '../utils/stringUtils';
 const API_BASE_URL = 'https://skillup-backend-v6vm.onrender.com/api';
 
 export interface NewUserData {
-  fullname: string;
+  name: string; // Change from fullname to name
   role: 'admin' | 'teacher' | 'student';
   email?: string;
   phone?: string;
@@ -295,7 +295,7 @@ class UserRegistrationService {
     try {
       
       // Step 1: Use provided username or generate one
-      const username = userData.username || await this.generateUsername(userData.fullname);
+      const username = userData.username || await this.generateUsername(userData.name);
       const email = userData.email || this.generateEmail(username, userData.role);
       const password = this.generatePassword(userData.role);
 
@@ -306,7 +306,7 @@ class UserRegistrationService {
       try {
         const mongoUser = await this.createMongoDBUser({
           firebaseUid,
-          name: userData.fullname,
+          name: userData.name,
           email,
           role: userData.role,
           username,
@@ -325,7 +325,7 @@ class UserRegistrationService {
           try {
             await this.createPotentialStudent({
               firebaseUid,
-              name: userData.fullname,
+              name: userData.name,
               email,
               username,
               phone: userData.phone,

@@ -9,6 +9,7 @@ const AddNewMembers = () => {
   const [form, setForm] = useState({
     name: '',
     email: '',
+    username: '', // Add username field
     role: 'student' as 'student' | 'teacher' | 'admin' | 'staff',
     gender: 'male' as 'male' | 'female' | 'other',
     englishName: '',
@@ -38,6 +39,7 @@ const AddNewMembers = () => {
     setForm({
       name: '',
       email: '',
+      username: '', // Add username field
       role: 'student',
       gender: 'male',
       englishName: '',
@@ -63,6 +65,13 @@ const AddNewMembers = () => {
     setCreatedUser(null);
 
     try {
+      // Validate username is not empty
+      if (!form.username.trim()) {
+        setError('Username is required');
+        setLoading(false);
+        return;
+      }
+
       // Set appropriate status based on role
       const userStatus = form.role === 'student' ? 'potential' : 'active';
       
@@ -153,6 +162,23 @@ const AddNewMembers = () => {
               </div>
 
               {/* Right Column */}
+              {/* Username */}
+              <div className="form-group">
+                <label className="form-label">
+                  Username <span className="required">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="username"
+                  value={form.username}
+                  onChange={handleChange}
+                  className="form-input"
+                  required
+                  placeholder="Enter unique username"
+                />
+              </div>
+
+              {/* Left Column */}
               {/* Role */}
               <div className="form-group">
                 <label className="form-label">
