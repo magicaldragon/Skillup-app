@@ -650,13 +650,14 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
               const levelName = cls.levelId ? (typeof cls.levelId === 'object' ? cls.levelId.name : 
                                levels.find(l => l._id === cls.levelId)?.name || 'N/A') : 'N/A';
               const studentCount = cls.studentIds?.length || 0;
+              const isSelected = selectedClassId === safeClassId;
               
               return (
                 <tr 
                   key={safeClassId} 
                   onClick={() => handleClassClick(safeClassId)} 
                   onDoubleClick={() => handleClassDoubleClick(safeClassId)}
-                  className={`clickable-row ${selectedClassId === safeClassId ? 'selected-row' : ''}`}
+                  className={`clickable-row ${isSelected ? 'selected-row' : ''}`}
                   title="Click to show actions, double-click to expand"
                 >
                   <td className="class-name-cell">
@@ -671,30 +672,28 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                     {studentCount} students
                   </td>
                   <td className="actions-cell">
-                    {selectedClassId === safeClassId && (
-                      <div className="action-buttons">
-                        <button 
-                          className="action-btn edit-btn"
-                          onClick={(e) => { 
-                            e.stopPropagation(); 
-                            handleEditClassInfo(safeClassId); 
-                          }}
-                          title="Edit Class Code and Level"
-                        >
-                          Edit
-                        </button>
-                        <button 
-                          className="action-btn delete-btn"
-                          onClick={(e) => { 
-                            e.stopPropagation(); 
-                            handleDeleteClass(safeClassId); 
-                          }}
-                          title="Delete Class"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    )}
+                    <div className={`action-buttons ${isSelected ? 'visible' : 'hidden'}`}>
+                      <button 
+                        className="action-btn edit-btn"
+                        onClick={(e) => { 
+                          e.stopPropagation(); 
+                          handleEditClassInfo(safeClassId); 
+                        }}
+                        title="Edit Class Code and Level"
+                      >
+                        Edit
+                      </button>
+                      <button 
+                        className="action-btn delete-btn"
+                        onClick={(e) => { 
+                          e.stopPropagation(); 
+                          handleDeleteClass(safeClassId); 
+                        }}
+                        title="Delete Class"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               );
