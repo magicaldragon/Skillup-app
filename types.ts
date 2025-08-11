@@ -35,7 +35,7 @@ export interface StudentClass {
   id?: string;
   name: string;
   classCode?: string;
-  levelId: string | null;
+  levelId: string | null | { _id: string; name: string; code: string };
   studentIds: string[];
   teacherId?: string;
   description?: string;

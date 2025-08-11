@@ -17,7 +17,10 @@ router.get('/', verifyToken, async (req, res) => {
       query.teacherId = req.user.userId;
     }
     // TODO: Staff-specific filtering if needed
-    const classes = await Class.find(query).populate('teacherId', 'name').populate('studentIds', 'name email');
+    const classes = await Class.find(query)
+      .populate('teacherId', 'name')
+      .populate('studentIds', 'name email')
+      .populate('levelId', 'name code');
     res.json({ success: true, classes });
   } catch (error) {
     console.error('Get classes error:', error);
@@ -32,7 +35,10 @@ router.get('/student/:studentId', verifyToken, async (req, res) => {
     if (req.user.role !== 'admin' && req.user.role !== 'teacher' && req.user.role !== 'staff' && req.user.userId !== studentId) {
       return res.status(403).json({ success: false, message: 'Access denied.' });
     }
-    const classes = await Class.find({ studentIds: studentId, isActive: true }).populate('teacherId', 'name').populate('studentIds', 'name email');
+    const classes = await Class.find({ studentIds: studentId, isActive: true })
+      .populate('teacherId', 'name')
+      .populate('studentIds', 'name email')
+      .populate('levelId', 'name code');
     res.json({ success: true, classes });
   } catch (error) {
     console.error('Get student classes error:', error);
@@ -50,7 +56,10 @@ router.get('/teacher/:teacherId', verifyToken, async (req, res) => {
     if (req.user.role === 'teacher' && req.user.userId !== teacherId) {
       return res.status(403).json({ success: false, message: 'You can only view your own classes' });
     }
-    const classes = await Class.find({ teacherId, isActive: true }).populate('teacherId', 'name').populate('studentIds', 'name email');
+    const classes = await Class.find({ teacherId, isActive: true })
+      .populate('teacherId', 'name')
+      .populate('studentIds', 'name email')
+      .populate('levelId', 'name code');
     res.json({ success: true, classes });
   } catch (error) {
     console.error('Get teacher classes error:', error);

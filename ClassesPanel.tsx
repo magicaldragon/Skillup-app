@@ -5,8 +5,6 @@ import type { Student, StudentClass } from './types';
 import type { Level } from './types';
 import './ClassesPanel.css';
 
-
-
 // Interface for class editing modal
 interface ClassEditModal {
   isOpen: boolean;
@@ -135,10 +133,14 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
 
   // Filter classes based on search and level filter
   const filteredClasses = (classes && Array.isArray(classes) ? classes : []).filter(c => {
-    const levelName = levels.find(l => l._id === c.levelId)?.name || '';
+    // Handle both populated levelId object and string levelId
+    const levelId = c.levelId ? (typeof c.levelId === 'object' ? c.levelId._id : c.levelId) : null;
+    const levelName = c.levelId ? (typeof c.levelId === 'object' ? c.levelId.name : 
+                     levels.find(l => l._id === c.levelId)?.name || '') : 'N/A';
+    
     const matchesSearch = c.name.toLowerCase().includes(classSearch.toLowerCase()) ||
       levelName.toLowerCase().includes(classSearch.toLowerCase());
-    const matchesLevel = !levelFilter || c.levelId === levelFilter;
+    const matchesLevel = !levelFilter || levelId === levelFilter;
     
     return matchesSearch && matchesLevel;
   });
@@ -205,7 +207,9 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
     const classObj = classes.find(c => (c._id || c.id) === classId);
     if (!classObj) return;
 
-    const levelName = levels.find(l => l._id === classObj.levelId)?.name || 'N/A';
+    // Handle both populated levelId object and string levelId
+    const levelName = classObj.levelId ? (typeof classObj.levelId === 'object' ? classObj.levelId.name : 
+                     levels.find(l => l._id === classObj.levelId)?.name || 'N/A') : 'N/A';
     const classStudents = students.filter(s => (s.classIds || []).includes(classId));
     const displayName = classObj.classCode || classObj.name || 'Unnamed Class';
 
@@ -412,11 +416,14 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
     const classObj = classes.find(c => (c._id || c.id) === classId);
     if (!classObj) return;
 
+    // Extract levelId properly, handling both populated object and string
+    const levelId = classObj.levelId ? (typeof classObj.levelId === 'object' ? classObj.levelId._id : classObj.levelId) : null;
+
     setClassInfoEditModal({
       isOpen: true,
       classId: classId,
       className: classObj.classCode || classObj.name || '',
-      levelId: classObj.levelId || null,
+      levelId: levelId,
       description: (classObj as any).description || ''
     });
   };
@@ -517,8 +524,6 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
     document.addEventListener('keydown', handleEscKey);
     return () => document.removeEventListener('keydown', handleEscKey);
   }, [classEditModal.isOpen, reportModal.isOpen]);
-
-
 
   return (
     <div className="classes-panel">
@@ -622,6 +627,10 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
               
               // TypeScript now knows classId is a string
               const safeClassId: string = classId;
+              // Handle both populated levelId object and string levelId
+              const levelName = cls.levelId ? (typeof cls.levelId === 'object' ? cls.levelId.name : 
+                               levels.find(l => l._id === cls.levelId)?.name || 'N/A') : 'N/A';
+              const studentCount = cls.studentIds?.length || 0;
               
               return (
                 <tr 
@@ -636,37 +645,38 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                   </td>
                   <td className="level-cell">
                     <span className="level-badge">
-                      {levels.find(l => l._id === cls.levelId)?.name || 'N/A'}
+                      {levelName}
                     </span>
                   </td>
                   <td className="students-cell">
-                    {cls.studentIds?.length || 0} students
+                    {studentCount} students
                   </td>
                   <td className="actions-cell">
-                    {/* Temporarily show buttons always for debugging */}
-                    <div className="action-buttons">
-                      <button 
-                        className="action-btn edit-btn"
-                        onClick={(e) => { e.stopPropagation(); handleEditClass(safeClassId); }}
-                        title="View/Edit Students"
-                      >
-                        Edit
-                      </button>
-                      <button 
-                        className="action-btn edit-info-btn"
-                        onClick={(e) => { e.stopPropagation(); handleEditClassInfo(safeClassId); }}
-                        title="Edit Class Info"
-                      >
-                        Edit Info
-                      </button>
-                      <button 
-                        className="action-btn delete-btn"
-                        onClick={(e) => { e.stopPropagation(); handleDeleteClass(safeClassId); }}
-                        title="Delete Class"
-                      >
-                        Delete
-                      </button>
-                    </div>
+                    {selectedClassId === safeClassId && (
+                      <div className="action-buttons">
+                        <button 
+                          className="action-btn edit-btn"
+                          onClick={(e) => { e.stopPropagation(); handleEditClass(safeClassId); }}
+                          title="View/Edit Students"
+                        >
+                          Edit
+                        </button>
+                        <button 
+                          className="action-btn edit-info-btn"
+                          onClick={(e) => { e.stopPropagation(); handleEditClassInfo(safeClassId); }}
+                          title="Edit Class Info"
+                        >
+                          Edit Info
+                        </button>
+                        <button 
+                          className="action-btn delete-btn"
+                          onClick={(e) => { e.stopPropagation(); handleDeleteClass(safeClassId); }}
+                          title="Delete Class"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               );
@@ -674,8 +684,6 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
           </tbody>
         </table>
       </div>
-
-
 
       {/* Add Class Form */}
       <div className="add-class-section">
@@ -724,7 +732,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
         <div className="class-edit-modal">
           <div className="modal-content">
             <div className="modal-header">
-              <h3 className="modal-title">CLASS: {classEditModal.className} LEVEL: {classEditModal.levelName}</h3>
+              <h3 className="modal-title">CLASS: {classEditModal.className} / LEVEL: {classEditModal.levelName}</h3>
               <button className="close-btn" onClick={handleCloseClassEditModal}>×</button>
             </div>
             
@@ -733,28 +741,28 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                 <div className="section-header">
                   <h4>List of Students ({classEditModal.students.length})</h4>
                   <div className="bulk-actions">
-              <button 
+                    <button 
                       className="bulk-btn select-all-btn"
                       onClick={selectAllStudents}
-              >
+                    >
                       Select All
-              </button>
-              <button 
+                    </button>
+                    <button 
                       className="bulk-btn clear-all-btn"
                       onClick={clearAllSelections}
-              >
+                    >
                       Clear All
-              </button>
-            </div>
-          </div>
+                    </button>
+                  </div>
+                </div>
                 
                 {classEditModal.students.length === 0 ? (
                   <p className="no-students">No students assigned to this class.</p>
                 ) : (
                   <div className="students-table-container">
                     <table className="students-table">
-            <thead>
-              <tr>
+                      <thead>
+                        <tr>
                           <th className="checkbox-header">
                             <input
                               type="checkbox"
@@ -763,15 +771,15 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                               className="select-all-checkbox"
                             />
                           </th>
-                <th>Student ID</th>
-                <th>Full Name</th>
-                <th>English Name</th>
+                          <th>Student ID</th>
+                          <th>Full Name</th>
+                          <th>English Name</th>
                           <th>DOB</th>
                           <th>Gender</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
                         {classEditModal.students.map(student => (
                           <tr key={student.id} className="student-row">
                             <td className="checkbox-cell">
@@ -781,25 +789,25 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                                 onChange={() => toggleStudentSelection(student.id)}
                                 className="row-checkbox"
                               />
-                  </td>
+                            </td>
                             <td>{student.studentCode || student.id}</td>
                             <td>{student.name}</td>
                             <td>{student.englishName || 'N/A'}</td>
                             <td>{student.dob ? new Date(student.dob).toLocaleDateString() : 'N/A'}</td>
                             <td>{student.gender || 'N/A'}</td>
                             <td className="student-actions">
-                      <button 
+                              <button 
                                 onClick={() => handleReportStudent(student.id, student.name)}
                                 className="action-btn report-btn"
-                      >
+                              >
                                 Report
-                      </button>
-                    </td>
-                  </tr>
+                              </button>
+                            </td>
+                          </tr>
                         ))}
-            </tbody>
-          </table>
-        </div>
+                      </tbody>
+                    </table>
+                  </div>
                 )}
               </div>
               
@@ -821,25 +829,30 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                         <option value="">Select target class...</option>
                         {classes && Array.isArray(classes) && classes
                           .filter(c => c.id !== classEditModal.classId)
-                          .map(cls => (
-                            <option key={cls.id} value={cls.id}>
-                              {cls.name} ({levels.find(l => l._id === cls.levelId)?.name || 'N/A'})
-                            </option>
-                          ))}
+                          .map(cls => {
+                            // Handle both populated levelId object and string levelId
+                            const levelName = cls.levelId ? (typeof cls.levelId === 'object' ? cls.levelId.name : 
+                                             levels.find(l => l._id === cls.levelId)?.name || 'N/A') : 'N/A';
+                            return (
+                              <option key={cls.id} value={cls.id}>
+                                {cls.name} ({levelName})
+                              </option>
+                            );
+                          })}
                       </select>
-              </div>
+                    </div>
                     <button 
                       onClick={handleBulkRemove}
                       className="bulk-btn remove-btn"
                     >
                       Remove to Waiting List
                     </button>
-              </div>
-              </div>
+                  </div>
+                </div>
               )}
-              </div>
-              </div>
             </div>
+          </div>
+        </div>
       )}
 
       {/* Class Info Edit Modal */}
@@ -954,7 +967,6 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
           </div>
         </div>
       )}
-
     </div>
   );
 };
