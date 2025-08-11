@@ -60,6 +60,7 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
   React.useEffect(() => {
     const fetchClasses = async () => {
       try {
+        console.log('Fetching classes for levels...');
         // Get token from localStorage
         const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
         const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
@@ -75,18 +76,26 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
           throw new Error(`HTTP error! status: ${res.status}`);
         }
         const data = await res.json();
+        console.log('Classes data received:', data.classes);
+        
         // Group classes by level
         const classesByLevelMap: { [level: string]: StudentClass[] } = {};
         (data.classes || []).forEach((cls: any) => {
           // Handle both populated levelId object and string levelId
           const levelId = cls.levelId ? (typeof cls.levelId === 'object' ? cls.levelId._id : cls.levelId) : null;
+          console.log(`Class ${cls.classCode || cls.name} has levelId:`, levelId);
+          
           if (levelId) {
             if (!classesByLevelMap[levelId]) {
               classesByLevelMap[levelId] = [];
             }
             classesByLevelMap[levelId].push(cls);
+          } else {
+            console.warn(`Class ${cls.classCode || cls.name} has no levelId assigned`);
           }
         });
+        
+        console.log('Classes grouped by level:', classesByLevelMap);
         setClassesByLevel(classesByLevelMap);
       } catch (error) {
         console.error('Error fetching classes:', error);
@@ -95,6 +104,35 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
     };
     if (levels.length > 0) fetchClasses();
   }, [levels]);
+
+  // Refresh data function
+  const refreshData = async () => {
+    try {
+      setLoading(true);
+      // Fetch levels first, then classes will be fetched automatically
+      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+      
+      const res = await fetch(`${apiUrl}/levels`, { 
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : ''
+        }
+      });
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      const data = await res.json();
+      setLevels(data.levels || []);
+      
+      // Classes will be fetched automatically due to the useEffect dependency
+    } catch (error) {
+      console.error('Error refreshing data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Add new level
   const handleAddLevel = async () => {
@@ -339,6 +377,14 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
           {ICONS.add}
           Add New Level
         </button>
+        <button
+          className="levels-refresh-btn"
+          onClick={refreshData}
+          disabled={loading}
+          title="Refresh data"
+        >
+          🔄 Refresh
+        </button>
       </div>
 
       {/* Add Level Form */}
@@ -514,12 +560,32 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
               <h3 className="level-expanded-classes-title">Assigned Classes</h3>
               {classesByLevel[selectedLevel._id] && classesByLevel[selectedLevel._id].length > 0 ? (
                 <div className="level-expanded-classes-list">
-                  {classesByLevel[selectedLevel._id].map((cls: any) => (
-                    <span key={cls.id} className="level-expanded-class-item">{cls.name}</span>
-                  ))}
+                  {classesByLevel[selectedLevel._id].map((cls: any) => {
+                    const classCode = cls.classCode || cls.name || 'Unnamed Class';
+                    const studentCount = cls.studentIds?.length || 0;
+                    const levelName = cls.levelId ? (typeof cls.levelId === 'object' ? cls.levelId.name : 'N/A') : 'N/A';
+                    
+                    return (
+                      <div key={cls._id || cls.id} className="level-expanded-class-item">
+                        <div className="class-item-header">
+                          <span className="class-item-code">{classCode}</span>
+                          <span className="class-item-students">{studentCount} students</span>
+                        </div>
+                        <div className="class-item-details">
+                          <span className="class-item-level">Level: {levelName}</span>
+                          {cls.description && (
+                            <span className="class-item-description">{cls.description}</span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               ) : (
-                <p className="level-expanded-no-classes">No classes assigned to this level</p>
+                <div className="level-expanded-no-classes">
+                  <p>No classes assigned to this level</p>
+                  <p className="no-classes-hint">Classes will appear here when they are created and assigned to this level.</p>
+                </div>
               )}
             </div>
           </div>
@@ -528,6 +594,7 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
           displayLevels.map((level) => {
             const assignedClasses = classesByLevel[level._id] || [];
             const colorClass = getLevelColor(level.name);
+            const totalStudents = assignedClasses.reduce((total, cls) => total + (cls.studentIds?.length || 0), 0);
             
             return (
               <div 
@@ -538,12 +605,33 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
                 <div className="levels-card-header">
                   <div className="levels-card-info">
                     <h3 className="levels-card-title">{level.name}</h3>
-                    <span className="levels-card-class-count">
-                      {assignedClasses.length} class{assignedClasses.length !== 1 ? 'es' : ''}
-                    </span>
+                    <div className="levels-card-stats">
+                      <span className="levels-card-class-count">
+                        {assignedClasses.length} class{assignedClasses.length !== 1 ? 'es' : ''}
+                      </span>
+                      {totalStudents > 0 && (
+                        <span className="levels-card-student-count">
+                          • {totalStudents} student{totalStudents !== 1 ? 's' : ''}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <span className="levels-card-code">{level.code}</span>
                 </div>
+                {assignedClasses.length > 0 && (
+                  <div className="levels-card-preview">
+                    <div className="levels-card-classes-preview">
+                      {assignedClasses.slice(0, 3).map((cls: any) => (
+                        <span key={cls._id || cls.id} className="levels-card-class-preview">
+                          {cls.classCode || cls.name}
+                        </span>
+                      ))}
+                      {assignedClasses.length > 3 && (
+                        <span className="levels-card-more">+{assignedClasses.length - 3} more</span>
+                      )}
+                    </div>
+                  </div>
+                )}
                 <div className="levels-card-actions">
                   <button 
                     className="levels-card-edit-btn"

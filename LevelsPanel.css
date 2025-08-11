@@ -63,6 +63,8 @@
   margin-bottom: 2rem;
   display: flex;
   justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .levels-add-btn {
@@ -89,6 +91,35 @@
 }
 
 .levels-add-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.levels-refresh-btn {
+  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  box-shadow: 0 4px 16px rgba(33, 150, 243, 0.2);
+  border: 2px solid transparent;
+}
+
+.levels-refresh-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(33, 150, 243, 0.3);
+  border-color: #e3f2fd;
+}
+
+.levels-refresh-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
@@ -725,4 +756,120 @@
   background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.levels-card-stats {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.levels-card-student-count {
+  font-weight: 500;
+}
+
+.levels-card-preview {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.levels-card-classes-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.levels-card-class-preview {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.levels-card-more {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.75rem;
+  font-weight: 500;
+  font-style: italic;
+}
+
+/* Enhanced class item styles */
+.level-expanded-class-item {
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+  border: 1px solid #e0f7fa;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(48, 118, 55, 0.1);
+}
+
+.level-expanded-class-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(48, 118, 55, 0.15);
+  border-color: #4caf50;
+}
+
+.class-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.class-item-code {
+  font-weight: 700;
+  color: #307637;
+  font-size: 1.1rem;
+  letter-spacing: 0.5px;
+}
+
+.class-item-students {
+  background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.class-item-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.class-item-level {
+  color: #475569;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.class-item-description {
+  color: #64748b;
+  font-size: 0.85rem;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.level-expanded-no-classes {
+  text-align: center;
+  padding: 2rem;
+  color: #64748b;
+}
+
+.level-expanded-no-classes p {
+  margin: 0.5rem 0;
+}
+
+.no-classes-hint {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  font-style: italic;
 }
