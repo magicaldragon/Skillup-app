@@ -162,24 +162,24 @@
 }
 
 .classes-table th:nth-child(1) {
-  width: 25%;
+  width: 30%;
 }
 
 .classes-table th:nth-child(2) {
-  width: 20%;
+  width: 24%;
 }
 
 .classes-table th:nth-child(3) {
-  width: 20%;
+  width: 24%;
 }
 
 .classes-table th:nth-child(4) {
-  width: 35%;
-  min-width: 200px;
+  width: 22%;
+  min-width: 180px;
 }
 
 .classes-table td {
-  padding: 0.75rem 1rem;
+  padding: 0.6rem 0.9rem;
   border-bottom: 1px solid #e0f7fa;
   vertical-align: middle;
   overflow: hidden;
@@ -187,18 +187,7 @@
   white-space: nowrap;
 }
 
-.actions-cell {
-  text-align: center;
-  position: relative;
-  min-height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: visible;
-  padding: 0.5rem;
-  width: 100%;
-  box-sizing: border-box;
-}
+/* merged into single definition below to avoid conflicts */
 
 .classes-table tbody tr {
   transition: all 0.3s ease;
@@ -212,8 +201,6 @@
 
 .classes-table tbody tr:hover {
   background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(48, 118, 55, 0.1);
 }
 
 .clickable-row {
@@ -242,61 +229,57 @@
 
 .actions-cell {
   text-align: center;
-  position: relative;
-  min-height: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: visible;
   padding: 0.5rem;
+  height: 48px;
 }
 
 .action-buttons {
-  display: flex;
+  display: inline-flex;
   gap: 0.5rem;
   justify-content: center;
   align-items: center;
-  padding: 0.5rem;
+  padding: 0.25rem;
   background: rgba(255, 255, 255, 0.95);
   border-radius: 8px;
   border: 1px solid #e0f7fa;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-  position: relative;
-  z-index: 10;
-  min-width: 180px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: opacity 0.2s ease;
+  position: static;
+  z-index: 1;
+  min-width: 0;
   backdrop-filter: blur(10px);
-  width: 100%;
-  max-width: 200px;
+  width: auto;
+  max-width: none;
 }
 
 .action-buttons.hidden {
   opacity: 0;
   visibility: hidden;
-  transform: scale(0.8);
   pointer-events: none;
 }
 
 .action-buttons.visible {
   opacity: 1;
   visibility: visible;
-  transform: scale(1);
   pointer-events: auto;
 }
 
 .action-btn {
-  padding: 0.5rem 1rem;
+  padding: 0.4rem 0.8rem;
   border: none;
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   margin: 0 0.25rem;
-  font-size: 0.85rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  min-width: 70px;
-  width: 70px;
-  height: 35px;
+  font-size: 0.82rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+  min-width: 64px;
+  width: 64px;
+  height: 32px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1026,15 +1009,12 @@
 }
 
 .selected-row::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: #307637;
-  border-radius: 0 2px 2px 0;
-  z-index: 1;
+  content: none;
+}
+
+/* replace the left stripe with inset shadow to avoid layout shifts */
+.selected-row {
+  box-shadow: inset 4px 0 0 0 #307637, 0 2px 8px rgba(48, 118, 55, 0.15);
 }
 
 .selected-row:hover {
