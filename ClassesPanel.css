@@ -140,8 +140,13 @@
 
 .classes-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(48, 118, 55, 0.1);
+  border: 2px solid #ffd700;
 }
 
 .classes-table th {
@@ -150,9 +155,30 @@
   padding: 1rem;
   text-align: left;
   font-weight: 700;
+  font-size: 1rem;
   text-transform: uppercase;
-  font-size: 0.9rem;
   letter-spacing: 0.5px;
+  border-bottom: 2px solid #e0f7fa;
+}
+
+.classes-table th:first-child {
+  width: 25%;
+  min-width: 150px;
+}
+
+.classes-table th:nth-child(2) {
+  width: 25%;
+  min-width: 150px;
+}
+
+.classes-table th:nth-child(3) {
+  width: 25%;
+  min-width: 150px;
+}
+
+.classes-table th:last-child {
+  width: 25%;
+  min-width: 200px;
 }
 
 .classes-table td {
@@ -163,22 +189,26 @@
 
 .classes-table tbody tr {
   transition: all 0.3s ease;
-  cursor: pointer;
+  background: white;
+}
+
+.classes-table tbody tr:nth-child(even) {
+  background: #f8fafc;
 }
 
 .classes-table tbody tr:hover {
-  background: linear-gradient(135deg, #f0f8f0 0%, #e8f5e8 100%);
-  transform: translateY(-2px);
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(48, 118, 55, 0.1);
 }
 
-/* Ensure hover effect works for entire row including action column */
 .classes-table tbody tr:hover .actions-cell {
-  background: linear-gradient(135deg, #f0f8f0 0%, #e8f5e8 100%);
+  background: transparent;
 }
 
 .clickable-row {
   cursor: pointer;
+  position: relative;
 }
 
 .class-name-cell {
@@ -203,6 +233,9 @@
 
 .actions-cell {
   text-align: center;
+  width: 200px;
+  min-width: 200px;
+  position: relative;
 }
 
 .action-btn {
@@ -216,17 +249,23 @@
   font-size: 0.9rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   min-width: 80px;
+  width: 80px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .action-buttons {
   display: flex;
   gap: 0.5rem;
-  flex-wrap: wrap;
   justify-content: center;
   padding: 0.5rem;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   border-radius: 8px;
   border: 1px solid #e0f7fa;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.3s ease-in;
 }
 
 .view-btn {
@@ -945,29 +984,28 @@
 }
 
 .selected-row {
-  background: linear-gradient(135deg, #e8f5e8 0%, #f0f9f0 100%) !important;
+  background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%) !important;
   border-left: 4px solid #307637;
-  box-shadow: 0 4px 12px rgba(48, 118, 55, 0.15);
-  position: relative;
+  box-shadow: 0 2px 8px rgba(48, 118, 55, 0.15);
 }
 
 .selected-row::before {
   content: '';
   position: absolute;
-  top: 0;
   left: 0;
-  right: 0;
+  top: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(48, 118, 55, 0.05) 0%, rgba(76, 175, 80, 0.05) 100%);
-  pointer-events: none;
+  width: 4px;
+  background: #307637;
+  border-radius: 0 2px 2px 0;
 }
 
 .selected-row:hover {
-  background: linear-gradient(135deg, #d4edda 0%, #e8f5e8 100%) !important;
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%) !important;
 }
 
 .selected-row .actions-cell {
-  background: linear-gradient(135deg, #e8f5e8 0%, #f0f9f0 100%) !important;
+  background: transparent !important;
 }
 
 .selected-row:hover .actions-cell {
@@ -976,7 +1014,8 @@
 
 /* Make action buttons more prominent when visible */
 .selected-row .action-buttons {
-  animation: fadeIn 0.3s ease-in;
+  opacity: 1;
+  transform: scale(1);
 }
 
 @keyframes fadeIn {
@@ -1005,21 +1044,11 @@
 }
 
 .edit-btn {
-  background: linear-gradient(135deg, #307637 0%, #4caf50 100%);
-  color: white;
-}
-
-.edit-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(48, 118, 55, 0.3);
-}
-
-.edit-info-btn {
   background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
   color: white;
 }
 
-.edit-info-btn:hover {
+.edit-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 16px rgba(33, 150, 243, 0.3);
 }
@@ -1280,5 +1309,16 @@
   
   .modal-actions {
     flex-direction: column;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }

@@ -443,6 +443,18 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
   const handleUpdateClassInfo = async () => {
     if (!classInfoEditModal.classId) return;
 
+    // Confirmation dialog
+    const confirmUpdate = window.confirm(
+      `Are you sure you want to update class "${classInfoEditModal.className}"?\n\n` +
+      `Changes to be made:\n` +
+      `• Class Code: ${classInfoEditModal.className}\n` +
+      `• Level: ${levels.find(l => l._id === classInfoEditModal.levelId)?.name || 'Not specified'}\n` +
+      `• Description: ${classInfoEditModal.description || 'None'}\n\n` +
+      `Proceed with update?`
+    );
+
+    if (!confirmUpdate) return;
+
     try {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
       const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
@@ -464,12 +476,14 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       
-      alert('Class information updated successfully!');
+      alert(`✅ Class "${classInfoEditModal.className}" has been successfully updated!`);
       handleCloseClassInfoEditModal();
       onDataRefresh?.();
+      // Clear selection after update
+      setSelectedClassId(null);
     } catch (error) {
       console.error('Error updating class info:', error);
-      alert('Failed to update class information. Please try again.');
+      alert('❌ Failed to update class information. Please try again.');
     }
   };
 
@@ -479,11 +493,26 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
     if (!classObj) return;
 
     const displayName = classObj.classCode || classObj.name || 'this class';
+    const levelName = classObj.levelId ? (typeof classObj.levelId === 'object' ? classObj.levelId.name : 
+                     levels.find(l => l._id === classObj.levelId)?.name || 'N/A') : 'N/A';
+    
     const confirmDelete = window.confirm(
-      `Are you sure you want to delete class "${displayName}"? This action cannot be undone and will remove all students from this class.`
+      `Are you sure you want to delete class "${displayName}" (Level: ${levelName})?\n\n` +
+      `⚠️  WARNING: This action cannot be undone!\n` +
+      `• All students will be removed from this class\n` +
+      `• Class assignments will be lost\n` +
+      `• This will affect student progress tracking\n\n` +
+      `Type "DELETE" to confirm:`
     );
 
     if (!confirmDelete) return;
+
+    // Additional confirmation step
+    const userInput = prompt('Please type "DELETE" to confirm deletion:');
+    if (userInput !== 'DELETE') {
+      alert('Deletion cancelled. Class was not deleted.');
+      return;
+    }
 
     try {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
@@ -500,11 +529,13 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       
-      alert('Class deleted successfully!');
+      alert(`✅ Class "${displayName}" has been successfully deleted.`);
       onDataRefresh?.();
+      // Clear selection after deletion
+      setSelectedClassId(null);
     } catch (error) {
       console.error('Error deleting class:', error);
-      alert('Failed to delete class. Please try again.');
+      alert('❌ Failed to delete class. Please try again.');
     }
   };
 
@@ -582,7 +613,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
         <table className="classes-table">
           <thead>
             <tr>
-              <th>Class Name</th>
+              <th>Class Code</th>
               <th>Level</th>
               <th>Students</th>
               <th>Actions</th>
@@ -656,21 +687,20 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                       <div className="action-buttons">
                         <button 
                           className="action-btn edit-btn"
-                          onClick={(e) => { e.stopPropagation(); handleEditClass(safeClassId); }}
-                          title="View/Edit Students"
+                          onClick={(e) => { 
+                            e.stopPropagation(); 
+                            handleEditClassInfo(safeClassId); 
+                          }}
+                          title="Edit Class Code and Level"
                         >
                           Edit
                         </button>
                         <button 
-                          className="action-btn edit-info-btn"
-                          onClick={(e) => { e.stopPropagation(); handleEditClassInfo(safeClassId); }}
-                          title="Edit Class Info"
-                        >
-                          Edit Info
-                        </button>
-                        <button 
                           className="action-btn delete-btn"
-                          onClick={(e) => { e.stopPropagation(); handleDeleteClass(safeClassId); }}
+                          onClick={(e) => { 
+                            e.stopPropagation(); 
+                            handleDeleteClass(safeClassId); 
+                          }}
                           title="Delete Class"
                         >
                           Delete
@@ -860,19 +890,20 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
         <div className="class-info-edit-modal">
           <div className="modal-content">
             <div className="modal-header">
-              <h3>Edit Class Information</h3>
+              <h3>Edit Class Code and Level</h3>
               <button className="close-btn" onClick={handleCloseClassInfoEditModal}>×</button>
             </div>
             
             <div className="modal-body">
               <div className="form-group">
-                <label htmlFor="class-name">Class Name:</label>
+                <label htmlFor="class-name">Class Code:</label>
                 <input
                   id="class-name"
                   type="text"
                   value={classInfoEditModal.className}
                   onChange={e => setClassInfoEditModal(prev => ({ ...prev, className: e.target.value }))}
                   className="form-input"
+                  placeholder="e.g., SU-001, SU-002"
                 />
               </div>
               
@@ -892,13 +923,14 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
               </div>
               
               <div className="form-group">
-                <label htmlFor="class-description">Description:</label>
+                <label htmlFor="class-description">Description (Optional):</label>
                 <textarea
                   id="class-description"
                   value={classInfoEditModal.description}
                   onChange={e => setClassInfoEditModal(prev => ({ ...prev, description: e.target.value }))}
                   className="form-textarea"
                   rows={3}
+                  placeholder="Add any additional notes about this class..."
                 />
               </div>
               
