@@ -644,51 +644,50 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                     {studentCount} students
                   </td>
                   <td className="actions-cell">
-                    <div className={`action-buttons ${isSelected ? 'visible' : 'hidden'}`} style={{ display: 'flex' }}>
-                      <button 
-                        className="action-btn show-btn"
-                        onClick={(e) => { 
-                          e.stopPropagation(); 
-                          handleEditClass(safeClassId); 
-                        }}
-                        title="Show class details"
-                        style={{ display: 'inline-flex' }}
-                      >
-                        Show
-                      </button>
-                      <button 
-                        className="action-btn edit-btn"
-                        onClick={(e) => { 
-                          e.stopPropagation(); 
-                          // open level-only edit modal
-                          const cls = classes.find(c => (c._id || c.id) === safeClassId);
-                          if (!cls) return;
-                          const displayNameLocal = cls.classCode || cls.name || 'Unnamed Class';
-                          setClassInfoEditModal({
-                            isOpen: true,
-                            classId: safeClassId,
-                            className: displayNameLocal,
-                            levelId: (typeof cls.levelId === 'object' ? (cls.levelId?._id || null) : (cls.levelId || null)),
-                            description: cls.description || ''
-                          });
-                        }}
-                        title="Edit Level"
-                        style={{ display: 'inline-flex' }}
-                      >
-                        Edit
-                      </button>
-                      <button 
-                        className="action-btn delete-btn"
-                        onClick={(e) => { 
-                          e.stopPropagation(); 
-                          handleDeleteClass(safeClassId); 
-                        }}
-                        title="Delete Class"
-                        style={{ display: 'inline-flex' }}
-                      >
-                        Delete
-                      </button>
-                    </div>
+                    {isSelected && (
+                      <div className="action-buttons">
+                        <button 
+                          className="action-btn show-btn"
+                          onClick={(e) => { 
+                            e.stopPropagation(); 
+                            handleEditClass(safeClassId); 
+                          }}
+                          title="Show class details"
+                        >
+                          Show
+                        </button>
+                        <button 
+                          className="action-btn edit-btn"
+                          onClick={(e) => { 
+                            e.stopPropagation(); 
+                            // open level-only edit modal
+                            const cls = classes.find(c => (c._id || c.id) === safeClassId);
+                            if (!cls) return;
+                            const displayNameLocal = cls.classCode || cls.name || 'Unnamed Class';
+                            setClassInfoEditModal({
+                              isOpen: true,
+                              classId: safeClassId,
+                              className: displayNameLocal,
+                              levelId: (typeof cls.levelId === 'object' ? (cls.levelId?._id || null) : (cls.levelId || null)),
+                              description: cls.description || ''
+                            });
+                          }}
+                          title="Edit Level"
+                        >
+                          Edit
+                        </button>
+                        <button 
+                          className="action-btn delete-btn"
+                          onClick={(e) => { 
+                            e.stopPropagation(); 
+                            handleDeleteClass(safeClassId); 
+                          }}
+                          title="Delete Class"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               );
