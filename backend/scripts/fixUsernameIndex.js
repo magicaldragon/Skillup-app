@@ -1,13 +1,29 @@
 const mongoose = require('mongoose');
 const User = require('../models/User');
 
-// MongoDB connection string
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/skillup';
+// MongoDB connection string - will use environment variable from Render
+const MONGODB_URI = process.env.MONGODB_URI;
+
+if (!MONGODB_URI) {
+  console.error('❌ Missing MONGODB_URI environment variable');
+  console.error('💡 This script needs to be run in an environment with MONGODB_URI set');
+  console.error('💡 For local development, create a .env file with your MongoDB connection string');
+  console.error('💡 For production, ensure MONGODB_URI is set in your deployment environment');
+  process.exit(1);
+}
 
 async function fixUsernameIndex() {
   try {
     console.log('🔧 Connecting to MongoDB...');
-    await mongoose.connect(MONGODB_URI);
+    console.log('📍 Using connection string:', MONGODB_URI.replace(/\/\/[^:]+:[^@]+@/, '//***:***@')); // Hide credentials
+    
+    await mongoose.connect(MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      maxPoolSize: 5,
+      serverSelectionTimeoutMS: 15000, // Increased timeout for cloud connections
+      socketTimeoutMS: 45000
+    });
     console.log('✅ Connected to MongoDB');
 
     // Get the database instance
@@ -57,6 +73,11 @@ async function fixUsernameIndex() {
     
   } catch (error) {
     console.error('❌ Error fixing username index:', error);
+    if (error.name === 'MongooseServerSelectionError') {
+      console.error('💡 Make sure your MONGODB_URI is correct and the database is accessible');
+      console.error('💡 Check if you have internet connection and the MongoDB Atlas cluster is running');
+      console.error('💡 Verify your MongoDB Atlas IP whitelist includes your current IP address');
+    }
   } finally {
     await mongoose.disconnect();
     console.log('🔌 Disconnected from MongoDB');
