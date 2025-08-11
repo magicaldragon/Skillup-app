@@ -197,11 +197,18 @@
 }
 
 .action-buttons {
-  display: none;
   gap: 0.5rem;
   justify-content: center;
   align-items: center;
   height: 100%;
+  transition: opacity 0.2s;
+  opacity: 0.2;
+}
+
+.selected-row .action-buttons {
+  display: flex !important;
+  opacity: 1;
+  animation: fadeIn 0.2s;
 }
 
 .action-buttons.hidden {

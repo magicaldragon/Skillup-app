@@ -632,6 +632,8 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                   onClick={() => handleClassClick(safeClassId)} 
                   className={`clickable-row ${isSelected ? 'selected-row' : ''}`}
                   title="Click this row to reveal actions"
+                  tabIndex={0}
+                  aria-selected={isSelected}
                 >
                   <td className="class-name-cell">
                     <div className="class-name">{displayName}</div>
