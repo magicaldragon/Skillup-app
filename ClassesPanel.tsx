@@ -665,24 +665,48 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                   <td className="students-cell">
                     {studentCount} students
                   </td>
-                  <td className="actions-cell" style={{ border: '3px solid red', backgroundColor: 'yellow' }}>
-                    {/* Very prominent test element */}
+                  <td className="actions-cell" style={{ 
+                    border: '5px solid red !important', 
+                    backgroundColor: 'yellow !important',
+                    padding: '10px !important',
+                    minHeight: '60px !important'
+                  }}>
+                    {/* Ultra prominent test element */}
                     <div style={{ 
-                      backgroundColor: 'red', 
-                      color: 'white', 
-                      padding: '8px', 
-                      fontSize: '12px',
-                      fontWeight: 'bold',
-                      marginBottom: '8px',
-                      border: '2px solid black'
+                      backgroundColor: 'red !important', 
+                      color: 'white !important', 
+                      padding: '12px !important', 
+                      fontSize: '14px !important',
+                      fontWeight: 'bold !important',
+                      marginBottom: '10px !important',
+                      border: '3px solid black !important',
+                      textAlign: 'center'
                     }}>
-                      🔴 TEST: Actions Cell is Rendering for {displayName}
+                      🔴 ULTRA TEST: Actions Cell for {displayName} 🔴
                     </div>
                     
-                    <div className={`action-buttons ${true ? 'selected' : 'unselected'}`} style={{ border: '2px solid blue', backgroundColor: 'lightblue', padding: '4px' }}>
+                    <div className={`action-buttons ${true ? 'selected' : 'unselected'}`} style={{ 
+                      border: '3px solid blue !important', 
+                      backgroundColor: 'lightblue !important', 
+                      padding: '8px !important',
+                      display: 'flex !important',
+                      gap: '8px !important',
+                      justifyContent: 'center !important'
+                    }}>
                       <button 
                         className="action-btn show-btn"
-                        style={{ backgroundColor: 'green', color: 'white', padding: '8px 16px', margin: '2px', border: 'none', borderRadius: '4px' }}
+                        style={{ 
+                          backgroundColor: 'green !important', 
+                          color: 'white !important', 
+                          padding: '10px 20px !important', 
+                          margin: '2px !important', 
+                          border: '2px solid black !important', 
+                          borderRadius: '6px !important',
+                          fontSize: '12px !important',
+                          fontWeight: 'bold !important',
+                          cursor: 'pointer !important',
+                          display: 'inline-block !important'
+                        }}
                         onClick={(e) => { 
                           e.stopPropagation(); 
                           handleEditClass(safeClassId); 
@@ -693,7 +717,18 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                       </button>
                       <button 
                         className="action-btn edit-btn"
-                        style={{ backgroundColor: 'blue', color: 'white', padding: '8px 16px', margin: '2px', border: 'none', borderRadius: '4px' }}
+                        style={{ 
+                          backgroundColor: 'blue !important', 
+                          color: 'white !important', 
+                          padding: '10px 20px !important', 
+                          margin: '2px !important', 
+                          border: '2px solid black !important', 
+                          borderRadius: '6px !important',
+                          fontSize: '12px !important',
+                          fontWeight: 'bold !important',
+                          cursor: 'pointer !important',
+                          display: 'inline-block !important'
+                        }}
                         onClick={(e) => { 
                           e.stopPropagation(); 
                           const cls = classes.find(c => (c._id || c.id) === safeClassId);
@@ -713,7 +748,18 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                       </button>
                       <button 
                         className="action-btn delete-btn"
-                        style={{ backgroundColor: 'red', color: 'white', padding: '8px 16px', margin: '2px', border: 'none', borderRadius: '4px' }}
+                        style={{ 
+                          backgroundColor: 'red !important', 
+                          color: 'white !important', 
+                          padding: '10px 20px !important', 
+                          margin: '2px !important', 
+                          border: '2px solid black !important', 
+                          borderRadius: '6px !important',
+                          fontSize: '12px !important',
+                          fontWeight: 'bold !important',
+                          cursor: 'pointer !important',
+                          display: 'inline-block !important'
+                        }}
                         onClick={(e) => { 
                           e.stopPropagation(); 
                           handleDeleteClass(safeClassId); 
