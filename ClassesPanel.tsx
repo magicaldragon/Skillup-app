@@ -148,8 +148,13 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
 
   // Handle single click to show action buttons
   const handleClassClick = (classId: string) => {
+    console.log('Class clicked:', classId, 'Current selected:', selectedClassId);
     // Toggle selection: if same class is clicked, deselect it; otherwise select the new one
-    setSelectedClassId(prevId => prevId === classId ? null : classId);
+    setSelectedClassId(prevId => {
+      const newId = prevId === classId ? null : classId;
+      console.log('Setting selectedClassId to:', newId);
+      return newId;
+    });
   };
 
   // Handle keyboard events for accessibility

@@ -182,13 +182,17 @@
 }
 
 .classes-table td {
-  padding: 0.6rem 0.7rem;
+  padding: 0.8rem 0.8rem;
   border-bottom: 1px solid #e0f7fa;
   vertical-align: middle;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  line-height: 1.5;
+  font-size: 0.9rem;
+  color: #333;
+  min-height: 48px;
+  height: 48px;
+}
+
+.classes-table tbody tr {
+  transition: all 0.2s ease;
   height: 48px;
 }
 
@@ -199,25 +203,30 @@
   padding: 8px;
 }
 
+/* Action Buttons - Matching ClassesPanel */
 .action-buttons {
   display: flex;
-  gap: 8px;
+  gap: 16px;
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
 }
 
 .action-btn {
-  padding: 6px 12px;
+  padding: 7px 22px;
   border: none;
-  border-radius: 6px;
+  border-radius: 999px;
   font-weight: 600;
-  font-size: 12px;
+  font-size: 13px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  min-width: 50px;
+  transition: all 0.2s cubic-bezier(.4,0,.2,1);
+  min-width: 70px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  outline: none;
+  margin: 0 2px;
+  position: relative;
 }
 
 .show-btn {
@@ -225,9 +234,10 @@
   color: white;
 }
 
-.show-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(48, 118, 55, 0.3);
+.show-btn:hover, .show-btn:focus {
+  background: linear-gradient(135deg, #4caf50 0%, #307637 100%);
+  box-shadow: 0 4px 16px rgba(48, 118, 55, 0.18);
+  transform: translateY(-2px) scale(1.04);
 }
 
 .edit-btn {
@@ -235,9 +245,10 @@
   color: white;
 }
 
-.edit-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+.edit-btn:hover, .edit-btn:focus {
+  background: linear-gradient(135deg, #1976d2 0%, #2196f3 100%);
+  box-shadow: 0 4px 16px rgba(33, 150, 243, 0.18);
+  transform: translateY(-2px) scale(1.04);
 }
 
 .delete-btn {
@@ -245,9 +256,10 @@
   color: white;
 }
 
-.delete-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+.delete-btn:hover, .delete-btn:focus {
+  background: linear-gradient(135deg, #d32f2f 0%, #f44336 100%);
+  box-shadow: 0 4px 16px rgba(244, 67, 54, 0.18);
+  transform: translateY(-2px) scale(1.04);
 }
 
 .report-btn {

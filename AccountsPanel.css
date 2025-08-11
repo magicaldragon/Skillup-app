@@ -153,17 +153,18 @@
 }
 
 .accounts-table td {
-  padding: 1rem 0.8rem;
+  padding: 0.8rem 0.8rem;
   border-bottom: 1px solid #e0f7fa;
   vertical-align: middle;
   font-size: 0.9rem;
   color: #333;
-  min-height: 60px;
+  min-height: 48px;
+  height: 48px;
 }
 
 .accounts-table tbody tr {
   transition: all 0.2s ease;
-  height: 60px;
+  height: 48px;
 }
 
 .accounts-table tbody tr:hover {
@@ -175,43 +176,51 @@
 /* Action Buttons - Matching ClassesPanel */
 .action-buttons {
   display: flex;
-  gap: 8px;
+  gap: 16px;
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
 }
 
 .action-btn {
-  padding: 6px 12px;
+  padding: 7px 22px;
   border: none;
-  border-radius: 6px;
+  border-radius: 999px;
   font-weight: 600;
-  font-size: 12px;
+  font-size: 13px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  min-width: 50px;
+  transition: all 0.2s cubic-bezier(.4,0,.2,1);
+  min-width: 70px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  outline: none;
+  margin: 0 2px;
+  position: relative;
 }
 
 .edit-btn {
   background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
   color: white;
+  border: none;
 }
 
-.edit-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+.edit-btn:hover, .edit-btn:focus {
+  background: linear-gradient(135deg, #1976d2 0%, #2196f3 100%);
+  box-shadow: 0 4px 16px rgba(33, 150, 243, 0.18);
+  transform: translateY(-2px) scale(1.04);
 }
 
 .delete-btn {
   background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
   color: white;
+  border: none;
 }
 
-.delete-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+.delete-btn:hover, .delete-btn:focus {
+  background: linear-gradient(135deg, #d32f2f 0%, #f44336 100%);
+  box-shadow: 0 4px 16px rgba(244, 67, 54, 0.18);
+  transform: translateY(-2px) scale(1.04);
 }
 
 .save-btn {
