@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import type { Student, StudentClass } from './types';
 import DiceBearAvatar from './DiceBearAvatar';
+import './SettingsPanel.css';
 
 const DICEBEAR_STYLES = [
   { label: 'Cartoon', value: 'avataaars' },
@@ -124,22 +125,28 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
       <div className="settings-panel-wrapper">
         <div className="settings-id-card">
           <h2>User Profile</h2>
+          
           {/* Avatar and badge */}
-          <div className="relative mb-4">
-            <div className="flex justify-center">
+          <div className="avatar-section">
+            <div className="avatar-container">
               {avatarUrl ? (
-                <img src={avatarUrl} alt="User Avatar" className="w-32 h-32 rounded-full border-4 border-green-400 shadow-xl object-cover bg-slate-100" />
+                <img src={avatarUrl} alt="User Avatar" className="avatar-image" />
               ) : (
                 <DiceBearAvatar seed={avatarSeed} size={128} style={avatarStyle} />
               )}
+              <span className="role-badge">{currentUser.role}</span>
             </div>
-            <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 px-5 py-1 rounded-full bg-green-700 text-white text-xs font-bold shadow-md border-2 border-white uppercase tracking-widest" style={{ letterSpacing: 2 }}>{currentUser.role}</span>
           </div>
-          <div className="text-3xl font-extrabold tracking-wide text-green-900 drop-shadow mb-1">{currentUser.name}</div>
-          {currentUser.englishName && <div className="text-lg text-green-700 font-semibold mb-4">{currentUser.englishName}</div>}
-          {currentUser.studentCode && <div className="text-lg text-blue-600 font-semibold mb-4">Student Code: {currentUser.studentCode}</div>}
           
-          <div className="flex flex-col gap-2 w-full max-w-md mt-4">
+          {/* User Name Section */}
+          <div className="user-name-section">
+            <div className="user-name">{currentUser.name}</div>
+            {currentUser.englishName && <div className="user-english-name">{currentUser.englishName}</div>}
+            {currentUser.studentCode && <div className="user-student-code">Student Code: {currentUser.studentCode}</div>}
+          </div>
+          
+          {/* Information Grid */}
+          <div className="info-grid">
             <div className="info-row">
               <span className="info-label">Email:</span>
               <span className="info-value">{currentUser.email}</span>
@@ -185,9 +192,13 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
               </div>
             )}
           </div>
-          <div className="flex gap-4 mt-6 justify-center">
+          
+          {/* Action Buttons */}
+          <div className="action-buttons">
             {canEdit && (
-              <button className="px-6 py-2 bg-[#307637] text-white rounded-xl shadow-lg hover:bg-[#245929] text-lg font-bold tracking-wide" onClick={() => setEditMode(true)}>Edit</button>
+              <button className="btn btn-primary" onClick={() => setEditMode(true)}>
+                Edit Profile
+              </button>
             )}
           </div>
         </div>
@@ -200,7 +211,7 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
     return (
       <div className="settings-panel-wrapper">
         <div className="settings-id-card">
-          <div className="text-center text-red-600 font-semibold">
+          <div className="status-message status-error">
             You don't have permission to edit your profile. Please contact an administrator.
           </div>
         </div>
@@ -212,110 +223,145 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
     <div className="settings-panel-wrapper">
       <div className="settings-id-card">
         <h2>Edit Profile</h2>
-        <form onSubmit={handleSave} className="flex flex-col items-center gap-4">
-          <div className="relative mb-4">
-            <div className="flex justify-center">
+        
+        <form onSubmit={handleSave} className="edit-form">
+          {/* Avatar Section */}
+          <div className="avatar-section">
+            <div className="avatar-container">
               {avatarUrl ? (
-                <img src={avatarUrl} alt="User Avatar" className="w-32 h-32 rounded-full border-4 border-green-400 shadow-xl object-cover bg-slate-100" />
+                <img src={avatarUrl} alt="User Avatar" className="avatar-image" />
               ) : (
                 <DiceBearAvatar seed={avatarSeed} size={128} style={avatarStyle} />
               )}
+              <span className="role-badge">{currentUser.role}</span>
             </div>
-            <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 px-5 py-1 rounded-full bg-green-700 text-white text-xs font-bold shadow-md border-2 border-white uppercase tracking-widest" style={{ letterSpacing: 2 }}>{currentUser.role}</span>
+            
+            {/* Avatar Controls */}
+            <div className="avatar-controls">
+              <select
+                value={avatarStyle}
+                onChange={e => { setAvatarStyle(e.target.value); }}
+                className="avatar-select"
+                disabled={!!avatarUrl}
+              >
+                {DICEBEAR_STYLES.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={() => { handleRandomize(); }}
+                className="btn-randomize"
+                disabled={!!avatarUrl}
+              >
+                Randomize
+              </button>
+            </div>
+            
+            {/* Upload Section */}
+            <div className="upload-section">
+              <label className="upload-label">Upload your own avatar:</label>
+              <input 
+                type="file" 
+                accept="image/*" 
+                onChange={handleAvatarUpload} 
+                disabled={avatarUploading} 
+                className="upload-input" 
+              />
+              {avatarUploading && <span className="status-message status-info">Uploading...</span>}
+              {avatarError && <span className="status-message status-error">{avatarError}</span>}
+            </div>
           </div>
-          <div className="flex gap-2 mt-2">
-            <select
-              value={avatarStyle}
-              onChange={e => { setAvatarStyle(e.target.value); }}
-              className="border rounded px-2 py-1 text-sm"
-              disabled={!!avatarUrl}
-            >
-              {DICEBEAR_STYLES.map(opt => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
-            </select>
-            <button
-              type="button"
-              onClick={() => { handleRandomize(); }}
-              className="px-2 py-1 bg-green-200 rounded text-xs font-semibold hover:bg-green-300"
-              disabled={!!avatarUrl}
-            >
-              Randomize
-            </button>
-          </div>
-          <div className="mt-2 flex flex-col items-center">
-            <label className="block text-xs font-medium mb-1">Upload your own avatar:</label>
-            <input type="file" accept="image/*" onChange={handleAvatarUpload} disabled={avatarUploading} className="text-xs" />
-            {avatarUploading && <span className="text-xs text-slate-500">Uploading...</span>}
-            {avatarError && <span className="text-xs text-red-600">{avatarError}</span>}
-          </div>
-          <div className="flex flex-col gap-2 w-full max-w-md mt-4">
-            <label className="text-base font-medium text-slate-700">English Name</label>
-            <input
-              type="text"
-              name="englishName"
-              value={form.englishName}
-              onChange={handleChange}
-              className="w-full p-3 border-2 border-green-200 rounded-lg text-lg"
-            />
-            <label className="text-base font-medium text-slate-700">Phone Number</label>
-            <input
-              type="tel"
-              name="phone"
-              value={form.phone}
-              onChange={handleChange}
-              className="w-full p-3 border-2 border-green-200 rounded-lg text-lg"
-            />
-            <label className="text-base font-medium text-slate-700">Date of Birth</label>
-            <input
-              type="date"
-              name="dob"
-              value={form.dob}
-              onChange={handleChange}
-              className="w-full p-3 border-2 border-green-200 rounded-lg text-lg"
-            />
+          
+          {/* Form Fields */}
+          <div className="form-fields">
+            <div className="form-group">
+              <label className="form-label">English Name</label>
+              <input
+                type="text"
+                name="englishName"
+                value={form.englishName}
+                onChange={handleChange}
+                className="form-input"
+              />
+            </div>
+            
+            <div className="form-group">
+              <label className="form-label">Phone Number</label>
+              <input
+                type="tel"
+                name="phone"
+                value={form.phone}
+                onChange={handleChange}
+                className="form-input"
+              />
+            </div>
+            
+            <div className="form-group">
+              <label className="form-label">Date of Birth</label>
+              <input
+                type="date"
+                name="dob"
+                value={form.dob}
+                onChange={handleChange}
+                className="form-input"
+              />
+            </div>
+            
             {currentUser.role === 'student' && (
               <>
-                <label className="text-base font-medium text-slate-700">Parent's Name</label>
-                <input
-                  type="text"
-                  name="parentName"
-                  value={form.parentName}
-                  onChange={handleChange}
-                  className="w-full p-3 border-2 border-green-200 rounded-lg text-lg"
-                />
-                <label className="text-base font-medium text-slate-700">Parent's Phone</label>
-                <input
-                  type="tel"
-                  name="parentPhone"
-                  value={form.parentPhone}
-                  onChange={handleChange}
-                  className="w-full p-3 border-2 border-green-200 rounded-lg text-lg"
-                />
-                <label className="text-base font-medium text-slate-700">Notes</label>
-                <textarea
-                  name="notes"
-                  value={form.notes}
-                  onChange={handleChange}
-                  className="w-full p-3 border-2 border-green-200 rounded-lg text-lg"
-                  rows={3}
-                />
+                <div className="form-group">
+                  <label className="form-label">Parent's Name</label>
+                  <input
+                    type="text"
+                    name="parentName"
+                    value={form.parentName}
+                    onChange={handleChange}
+                    className="form-input"
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label className="form-label">Parent's Phone</label>
+                  <input
+                    type="tel"
+                    name="parentPhone"
+                    value={form.parentPhone}
+                    onChange={handleChange}
+                    className="form-input"
+                  />
+                </div>
+                
+                <div className="form-group">
+                  <label className="form-label">Notes</label>
+                  <textarea
+                    name="notes"
+                    value={form.notes}
+                    onChange={handleChange}
+                    className="form-textarea"
+                    rows={3}
+                  />
+                </div>
               </>
             )}
           </div>
-          {error && <div className="text-red-600 font-semibold text-center">{error}</div>}
-          {success && <div className="text-green-600 font-semibold text-center">{success}</div>}
-          <div className="flex gap-4 mt-6 justify-center">
+          
+          {/* Status Messages */}
+          {error && <div className="status-message status-error">{error}</div>}
+          {success && <div className="status-message status-success">{success}</div>}
+          
+          {/* Action Buttons */}
+          <div className="action-buttons">
             <button
               type="submit"
-              className="px-6 py-2 bg-[#307637] text-white rounded-xl shadow-lg hover:bg-[#245929] text-lg font-bold tracking-wide"
+              className="btn btn-primary"
               disabled={loading}
             >
               {loading ? 'Saving...' : 'Save Changes'}
             </button>
             <button
               type="button"
-              className="px-6 py-2 bg-gray-200 text-gray-800 rounded-xl shadow hover:bg-gray-300 text-lg font-bold tracking-wide"
+              className="btn btn-secondary"
               onClick={() => { setEditMode(false); setError(null); setSuccess(null); }}
               disabled={loading}
             >
