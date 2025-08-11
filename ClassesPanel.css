@@ -182,6 +182,23 @@
 }
 
 /* COMPLETELY NEW ACTIONS COLUMN STYLING - FRESH START */
+.actions-column-debug {
+  width: 200px !important;
+  min-width: 200px !important;
+  max-width: 200px !important;
+  vertical-align: middle !important;
+  text-align: center !important;
+  padding: 8px !important;
+  background: red !important;
+  border: 3px solid black !important;
+  position: relative !important;
+  overflow: visible !important;
+  display: table-cell !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 9999 !important;
+}
+
 .actions-cell {
   width: 200px !important;
   min-width: 200px !important;

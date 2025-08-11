@@ -665,7 +665,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                   <td className="students-cell">
                     {studentCount} students
                   </td>
-                  <td className="actions-cell">
+                  <td className="actions-column-debug">
                     <div className={`action-buttons ${isSelected ? 'selected' : 'unselected'}`}>
                       <button 
                         className="action-btn show-btn"
