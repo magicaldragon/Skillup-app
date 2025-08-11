@@ -125,8 +125,31 @@
 }
 
 .filter-info {
-  color: #307637;
+  color: #64748b;
+  font-style: italic;
+  margin-left: 0.5rem;
+}
+
+.debug-info {
+  color: #ef4444;
   font-weight: 600;
+  margin-left: 1rem;
+  padding: 0.25rem 0.5rem;
+  background: rgba(239, 68, 68, 0.1);
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.debug-cell-info {
+  font-size: 0.7rem;
+  color: #666;
+  text-align: left;
+  line-height: 1.2;
+  margin-top: 0.5rem;
+  padding: 0.25rem;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  font-family: monospace;
 }
 
 .classes-table-container {
@@ -141,24 +164,22 @@
 .classes-table {
   width: 100%;
   border-collapse: collapse;
-  background: white;
-  border-radius: 16px;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(48, 118, 55, 0.1);
-  border: 2px solid #ffd700;
+  box-shadow: 0 4px 16px rgba(48, 118, 55, 0.1);
+  background: white;
   table-layout: fixed;
 }
 
 .classes-table th {
-  background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
+  background: linear-gradient(135deg, #307637 0%, #4caf50 100%);
   color: white;
   padding: 1rem;
   text-align: left;
   font-weight: 700;
   font-size: 1rem;
-  text-transform: uppercase;
   letter-spacing: 0.5px;
-  border-bottom: 2px solid #e0f7fa;
+  text-transform: uppercase;
 }
 
 .classes-table th:nth-child(1) {
@@ -166,15 +187,15 @@
 }
 
 .classes-table th:nth-child(2) {
-  width: 25%;
+  width: 20%;
 }
 
 .classes-table th:nth-child(3) {
-  width: 25%;
+  width: 20%;
 }
 
 .classes-table th:nth-child(4) {
-  width: 25%;
+  width: 35%;
 }
 
 .classes-table td {
@@ -233,6 +254,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: visible;
 }
 
 .action-btn {
@@ -269,7 +291,9 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  z-index: 10;
+  z-index: 100;
+  min-width: 200px;
+  backdrop-filter: blur(10px);
 }
 
 .view-btn {
@@ -1322,4 +1346,38 @@
     opacity: 1;
     transform: scale(1);
   }
+}
+
+.classes-actions {
+  margin: 1rem 0;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.test-select-btn,
+.test-clear-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.test-select-btn {
+  background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+  color: white;
+}
+
+.test-clear-btn {
+  background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+  color: white;
+}
+
+.test-select-btn:hover,
+.test-clear-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }

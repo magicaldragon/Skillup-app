@@ -84,6 +84,11 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
   // Add state for showing action buttons
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
 
+  // Debug: Monitor selectedClassId changes
+  useEffect(() => {
+    console.log('selectedClassId changed to:', selectedClassId);
+  }, [selectedClassId]);
+
   // Fetch levels from backend
   const fetchLevels = async () => {
     setLevelsLoading(true);
@@ -147,11 +152,8 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
 
   // Handle single click to show action buttons
   const handleClassClick = (classId: string) => {
-    console.log('Class clicked:', classId);
-    console.log('Current selectedClassId:', selectedClassId);
-    const newSelectedId = selectedClassId === classId ? null : classId;
-    console.log('New selectedClassId will be:', newSelectedId);
-    setSelectedClassId(newSelectedId);
+    // Toggle selection: if same class is clicked, deselect it; otherwise select the new one
+    setSelectedClassId(prevId => prevId === classId ? null : classId);
   };
 
   // Handle double click to expand class view
@@ -607,8 +609,25 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
             {levelFilter && ` in ${levels.find(l => l._id === levelFilter)?.name}`}
           </span>
         )}
+        <span className="debug-info">Selected: {selectedClassId || 'None'}</span>
       </div>
       
+      <div className="classes-actions">
+        <button
+          className="test-select-btn"
+          onClick={() => setSelectedClassId('test-id')}
+          style={{ marginRight: '1rem' }}
+        >
+          Test Select
+        </button>
+        <button
+          className="test-clear-btn"
+          onClick={() => setSelectedClassId(null)}
+        >
+          Test Clear
+        </button>
+      </div>
+
       <div className="classes-table-container">
         <table className="classes-table">
           <thead>
@@ -637,15 +656,6 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
               </tr>
             )}
             {filteredClasses.map(cls => {
-              console.log('Rendering class:', {
-                id: cls._id || cls.id,
-                name: cls.name,
-                classCode: cls.classCode,
-                levelId: cls.levelId,
-                studentIds: cls.studentIds,
-                selected: selectedClassId === (cls._id || cls.id)
-              });
-              
               // Use classCode as the display name, fallback to name
               const displayName = cls.classCode || cls.name || 'Unnamed Class';
               const classId = cls._id || cls.id;
@@ -707,6 +717,12 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                         </button>
                       </div>
                     )}
+                    {/* Debug info */}
+                    <div className="debug-cell-info">
+                      Selected: {selectedClassId}<br/>
+                      This: {safeClassId}<br/>
+                      Match: {selectedClassId === safeClassId ? 'YES' : 'NO'}
+                    </div>
                   </td>
                 </tr>
               );
