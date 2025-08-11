@@ -147,6 +147,7 @@
   box-shadow: 0 4px 16px rgba(48, 118, 55, 0.1);
   background: white;
   table-layout: fixed;
+  border: 3px solid #1e4d2b;
 }
 
 .classes-table th {
@@ -173,7 +174,7 @@
 }
 
 .classes-table th:nth-child(4) {
-  width: 35%;
+  width: 40%;
 }
 
 .classes-table td {
@@ -183,6 +184,18 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.actions-cell {
+  text-align: center;
+  position: relative;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  padding: 0.5rem;
+  width: 100%;
 }
 
 .classes-table tbody tr {
@@ -233,6 +246,24 @@
   align-items: center;
   justify-content: center;
   overflow: visible;
+  padding: 0.5rem;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  align-items: center;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  border: 1px solid #e0f7fa;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.3s ease-in;
+  position: relative;
+  z-index: 10;
+  min-width: 180px;
+  backdrop-filter: blur(10px);
 }
 
 .action-btn {
@@ -252,26 +283,6 @@
   align-items: center;
   justify-content: center;
   white-space: nowrap;
-}
-
-.action-buttons {
-  display: flex;
-  gap: 0.5rem;
-  justify-content: center;
-  align-items: center;
-  padding: 0.5rem;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 8px;
-  border: 1px solid #e0f7fa;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  animation: fadeIn 0.3s ease-in;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 100;
-  min-width: 200px;
-  backdrop-filter: blur(10px);
 }
 
 .view-btn {
