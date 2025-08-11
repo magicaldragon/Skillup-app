@@ -234,8 +234,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.25rem 0.4rem;
-  height: 36px;
+  padding: 0.2rem 0.3rem;
+  height: 34px;
 }
 
 .action-buttons {
@@ -243,16 +243,15 @@
   gap: 0.5rem;
   justify-content: center;
   align-items: center;
-  padding: 0.25rem;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 8px;
-  border: 1px solid #e0f7fa;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
   transition: opacity 0.2s ease;
   position: static;
   z-index: 1;
   min-width: 0;
-  backdrop-filter: blur(10px);
   width: auto;
   max-width: none;
 }
@@ -270,17 +269,17 @@
 }
 
 .action-btn {
-  padding: 0.3rem 0.6rem;
+  padding: 0.28rem 0.6rem;
   border: none;
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  margin: 0 0.2rem;
+  margin: 0 0.25rem;
   font-size: 0.78rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   min-width: 56px;
-  width: 56px;
+  width: auto;
   height: 28px;
   display: inline-flex;
   align-items: center;

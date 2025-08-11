@@ -147,6 +147,20 @@ studentRecordSchema.statics.createClassAssignmentRecord = function(studentId, st
   });
 };
 
+// Static method to create class removal record
+studentRecordSchema.statics.createClassRemovalRecord = function(studentId, studentName, performedBy, performedByName, classId, className) {
+  return this.create({
+    studentId,
+    studentName,
+    action: 'class_removal',
+    category: 'academic',
+    details: { className },
+    relatedClass: classId,
+    performedBy,
+    performedByName
+  });
+};
+
 // Static method to create grade update record
 studentRecordSchema.statics.createGradeRecord = function(studentId, studentName, performedBy, performedByName, assignmentId, oldGrade, newGrade) {
   return this.create({

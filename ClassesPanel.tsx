@@ -151,10 +151,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
     setSelectedClassId(prevId => prevId === classId ? null : classId);
   };
 
-  // Handle double click to expand class view
-  const handleClassDoubleClick = (classId: string) => {
-    handleEditClass(classId);
-  };
+  // Removed double click behavior; Show button will handle details view
 
   // Add new class
   const handleAddClass = async () => {
@@ -440,12 +437,9 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
   const handleUpdateClassInfo = async () => {
     if (!classInfoEditModal.classId) return;
 
-    // Confirmation dialog
     const confirmUpdate = window.confirm(
-      `Are you sure you want to update class "${classInfoEditModal.className}"?\n\n` +
-      `Changes to be made:\n` +
-      `• Class Code: ${classInfoEditModal.className}\n` +
-      `• Level: ${levels.find(l => l._id === classInfoEditModal.levelId)?.name || 'Not specified'}\n` +
+      `Are you sure you want to update the level for class "${classInfoEditModal.className}"?\n\n` +
+      `• New Level: ${levels.find(l => l._id === classInfoEditModal.levelId)?.name || 'Not specified'}\n` +
       `• Description: ${classInfoEditModal.description || 'None'}\n\n` +
       `Proceed with update?`
     );
@@ -455,7 +449,6 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
     try {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
       const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
-      
       const res = await fetch(`${apiUrl}/classes/${classInfoEditModal.classId}`, {
         method: 'PUT',
         headers: { 
@@ -463,20 +456,17 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          name: classInfoEditModal.className,
+          // Do not allow changing class code/name
           levelId: classInfoEditModal.levelId || null,
           description: classInfoEditModal.description
         }),
       });
-      
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
-      
       alert(`✅ Class "${classInfoEditModal.className}" has been successfully updated!`);
       handleCloseClassInfoEditModal();
       onDataRefresh?.();
-      // Clear selection after update
       setSelectedClassId(null);
     } catch (error) {
       console.error('Error updating class info:', error);
@@ -656,9 +646,8 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                 <tr 
                   key={safeClassId} 
                   onClick={() => handleClassClick(safeClassId)} 
-                  onDoubleClick={() => handleClassDoubleClick(safeClassId)}
                   className={`clickable-row ${isSelected ? 'selected-row' : ''}`}
-                  title="Click to show actions, double-click to expand"
+                  title="Click to select row, then use actions"
                 >
                   <td className="class-name-cell">
                     <div className="class-name">{displayName}</div>
@@ -674,12 +663,33 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                   <td className="actions-cell">
                     <div className={`action-buttons ${isSelected ? 'visible' : 'hidden'}`} style={{ display: 'flex' }}>
                       <button 
+                        className="action-btn show-btn"
+                        onClick={(e) => { 
+                          e.stopPropagation(); 
+                          handleEditClass(safeClassId); 
+                        }}
+                        title="Show class details"
+                        style={{ display: 'inline-flex' }}
+                      >
+                        Show
+                      </button>
+                      <button 
                         className="action-btn edit-btn"
                         onClick={(e) => { 
                           e.stopPropagation(); 
-                          handleEditClassInfo(safeClassId); 
+                          // open level-only edit modal
+                          const cls = classes.find(c => (c._id || c.id) === safeClassId);
+                          if (!cls) return;
+                          const displayNameLocal = cls.classCode || cls.name || 'Unnamed Class';
+                          setClassInfoEditModal({
+                            isOpen: true,
+                            classId: safeClassId,
+                            className: displayNameLocal,
+                            levelId: (typeof cls.levelId === 'object' ? (cls.levelId?._id || null) : (cls.levelId || null)),
+                            description: cls.description || ''
+                          });
                         }}
-                        title="Edit Class Code and Level"
+                        title="Edit Level"
                         style={{ display: 'inline-flex' }}
                       >
                         Edit
@@ -879,10 +889,9 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
         <div className="class-info-edit-modal">
           <div className="modal-content">
             <div className="modal-header">
-              <h3>Edit Class Code and Level</h3>
+              <h3>Edit Class Level</h3>
               <button className="close-btn" onClick={handleCloseClassInfoEditModal}>×</button>
             </div>
-            
             <div className="modal-body">
               <div className="form-group">
                 <label htmlFor="class-name">Class Code:</label>
@@ -890,12 +899,11 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                   id="class-name"
                   type="text"
                   value={classInfoEditModal.className}
-                  onChange={e => setClassInfoEditModal(prev => ({ ...prev, className: e.target.value }))}
+                  readOnly
+                  disabled
                   className="form-input"
-                  placeholder="e.g., SU-001, SU-002"
                 />
               </div>
-              
               <div className="form-group">
                 <label htmlFor="class-level">Level:</label>
                 <select
@@ -910,7 +918,6 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                   ))}
                 </select>
               </div>
-              
               <div className="form-group">
                 <label htmlFor="class-description">Description (Optional):</label>
                 <textarea
@@ -922,7 +929,6 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                   placeholder="Add any additional notes about this class..."
                 />
               </div>
-              
               <div className="modal-actions">
                 <button 
                   onClick={handleUpdateClassInfo}

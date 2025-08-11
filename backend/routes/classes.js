@@ -97,17 +97,23 @@ router.post('/', verifyToken, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid level ID' });
     }
     
-    // Generate next classCode (SU-XXX)
-    const lastClass = await Class.findOne({}).sort({ createdAt: -1 });
+    // Generate next classCode (SU-XXX). Fill gaps first.
+    const allCodes = await Class.find({}, 'classCode').lean();
+    const taken = new Set(
+      allCodes
+        .map(c => (c.classCode || ''))
+        .map(code => {
+          const m = code.match(/SU-(\d{3})/);
+          return m ? parseInt(m[1], 10) : null;
+        })
+        .filter(n => n !== null)
+    );
     let nextNumber = 1;
-    if (lastClass && lastClass.classCode) {
-      const match = lastClass.classCode.match(/SU-(\d{3})/);
-      if (match) {
-        nextNumber = parseInt(match[1], 10) + 1;
-      }
+    while (taken.has(nextNumber)) {
+      nextNumber += 1;
     }
     const classCode = `SU-${String(nextNumber).padStart(3, '0')}`;
-    console.log('Generated classCode:', classCode);
+    console.log('Generated classCode (gap-aware):', classCode);
     
     const newClass = await Class.create({
       name: classCode, // Use classCode as name
@@ -281,6 +287,27 @@ router.delete('/:id', verifyToken, async (req, res) => {
       return res.status(403).json({ success: false, message: 'You can only delete classes you created' });
     }
     const before = { ...classObj.toObject() };
+
+    // Move all students back to waiting list and remove class reference
+    if (Array.isArray(classObj.studentIds) && classObj.studentIds.length > 0) {
+      await User.updateMany(
+        { _id: { $in: classObj.studentIds } },
+        { $set: { status: 'potential' }, $pull: { classIds: classObj._id } }
+      );
+      // Record to StudentRecord if needed
+      const affectedStudents = await User.find({ _id: { $in: classObj.studentIds } }, 'name');
+      for (const st of affectedStudents) {
+        await StudentRecord.createClassRemovalRecord(
+          st._id,
+          st.name,
+          req.user.id,
+          req.user.name,
+          classObj._id,
+          classObj.name
+        );
+      }
+    }
+
     classObj.isActive = false;
     await classObj.save();
     await ChangeLog.create({
