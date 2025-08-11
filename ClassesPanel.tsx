@@ -672,7 +672,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                     {studentCount} students
                   </td>
                   <td className="actions-cell">
-                    <div className={`action-buttons ${isSelected ? 'visible' : 'hidden'}`}>
+                    <div className={`action-buttons ${isSelected ? 'visible' : 'hidden'}`} style={{ display: 'flex' }}>
                       <button 
                         className="action-btn edit-btn"
                         onClick={(e) => { 
@@ -680,6 +680,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                           handleEditClassInfo(safeClassId); 
                         }}
                         title="Edit Class Code and Level"
+                        style={{ display: 'inline-flex' }}
                       >
                         Edit
                       </button>
@@ -690,6 +691,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                           handleDeleteClass(safeClassId); 
                         }}
                         title="Delete Class"
+                        style={{ display: 'inline-flex' }}
                       >
                         Delete
                       </button>
