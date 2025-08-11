@@ -181,155 +181,165 @@
   box-shadow: 0 2px 6px rgba(48, 118, 55, 0.1);
 }
 
-/* Professional Action Buttons with Premium Styling */
+/* COMPLETELY NEW ACTIONS COLUMN STYLING - FRESH START */
 .actions-cell {
-  vertical-align: middle;
-  text-align: center;
-  min-height: 40px;
-  padding: 4px;
+  width: 200px !important;
+  min-width: 200px !important;
+  max-width: 200px !important;
+  vertical-align: middle !important;
+  text-align: center !important;
+  padding: 8px !important;
+  background: transparent !important;
+  border: 1px solid #e0f7fa !important;
+  position: relative !important;
+  overflow: visible !important;
 }
 
 .action-buttons {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
+  display: flex !important;
+  gap: 8px !important;
+  justify-content: center !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  width: 100% !important;
+  min-height: 40px !important;
+  padding: 4px !important;
 }
 
 /* Unselected state - buttons are visible but subtle */
-.action-buttons.unselected .action-btn {
-  opacity: 0.4;
-  transform: scale(0.85);
-  filter: grayscale(30%);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+.action-buttons.unselected {
+  opacity: 0.3 !important;
+  transform: scale(0.9) !important;
+  filter: grayscale(50%) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 /* Selected state - buttons are fully prominent and animated */
-.action-buttons.selected .action-btn {
-  opacity: 1;
-  transform: scale(1);
-  filter: grayscale(0%);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+.action-buttons.selected {
+  opacity: 1 !important;
+  transform: scale(1) !important;
+  filter: grayscale(0%) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 .action-btn {
-  padding: 8px 18px;
-  border: none;
-  border-radius: 25px;
-  font-weight: 700;
-  font-size: 11px;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  min-width: 65px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  position: relative;
-  overflow: hidden;
-  outline: none;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  padding: 8px 16px !important;
+  border: none !important;
+  border-radius: 20px !important;
+  font-weight: 700 !important;
+  font-size: 11px !important;
+  cursor: pointer !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  min-width: 60px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  position: relative !important;
+  overflow: hidden !important;
+  outline: none !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  display: inline-block !important;
 }
 
 /* Premium Show Button - Success Theme */
 .show-btn {
-  background: linear-gradient(135deg, #00c853 0%, #4caf50 50%, #66bb6a 100%);
-  color: white;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #00c853 0%, #4caf50 50%, #66bb6a 100%) !important;
+  color: white !important;
+  border: 2px solid rgba(255, 255, 255, 0.3) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
 }
 
 .show-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s;
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: -100% !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent) !important;
+  transition: left 0.5s !important;
 }
 
 .show-btn:hover::before {
-  left: 100%;
+  left: 100% !important;
 }
 
 .show-btn:hover {
-  background: linear-gradient(135deg, #4caf50 0%, #66bb6a 50%, #00c853 100%);
-  box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4), 0 0 0 3px rgba(76, 175, 80, 0.2);
-  transform: translateY(-2px) scale(1.05);
-  border-color: rgba(255, 255, 255, 0.5);
+  background: linear-gradient(135deg, #4caf50 0%, #66bb6a 50%, #00c853 100%) !important;
+  box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4), 0 0 0 3px rgba(76, 175, 80, 0.2) !important;
+  transform: translateY(-2px) scale(1.05) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
 }
 
 /* Premium Edit Button - Info Theme */
 .edit-btn {
-  background: linear-gradient(135deg, #2196f3 0%, #42a5f5 50%, #64b5f6 100%);
-  color: white;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #2196f3 0%, #42a5f5 50%, #64b5f6 100%) !important;
+  color: white !important;
+  border: 2px solid rgba(255, 255, 255, 0.3) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
 }
 
 .edit-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s;
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: -100% !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent) !important;
+  transition: left 0.5s !important;
 }
 
 .edit-btn:hover::before {
-  left: 100%;
+  left: 100% !important;
 }
 
 .edit-btn:hover {
-  background: linear-gradient(135deg, #42a5f5 0%, #64b5f6 50%, #2196f3 100%);
-  box-shadow: 0 8px 25px rgba(33, 150, 243, 0.4), 0 0 0 3px rgba(33, 150, 243, 0.2);
-  transform: translateY(-2px) scale(1.05);
-  border-color: rgba(255, 255, 255, 0.5);
+  background: linear-gradient(135deg, #42a5f5 0%, #64b5f6 50%, #2196f3 100%) !important;
+  box-shadow: 0 8px 25px rgba(33, 150, 243, 0.4), 0 0 0 3px rgba(33, 150, 243, 0.2) !important;
+  transform: translateY(-2px) scale(1.05) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
 }
 
 /* Premium Delete Button - Danger Theme */
 .delete-btn {
-  background: linear-gradient(135deg, #f44336 0%, #ef5350 50%, #e57373 100%);
-  color: white;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #f44336 0%, #ef5350 50%, #e57373 100%) !important;
+  color: white !important;
+  border: 2px solid rgba(255, 255, 255, 0.3) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
 }
 
 .delete-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s;
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: -100% !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent) !important;
+  transition: left 0.5s !important;
 }
 
 .delete-btn:hover::before {
-  left: 100%;
+  left: 100% !important;
 }
 
 .delete-btn:hover {
-  background: linear-gradient(135deg, #ef5350 0%, #e57373 50%, #f44336 100%);
-  box-shadow: 0 8px 25px rgba(244, 67, 54, 0.4), 0 0 0 3px rgba(244, 67, 54, 0.2);
-  transform: translateY(-2px) scale(1.05);
-  border-color: rgba(255, 255, 255, 0.5);
+  background: linear-gradient(135deg, #ef5350 0%, #e57373 50%, #f44336 100%) !important;
+  box-shadow: 0 8px 25px rgba(244, 67, 54, 0.4), 0 0 0 3px rgba(244, 67, 54, 0.2) !important;
+  transform: translateY(-2px) scale(1.05) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
 }
 
 /* Focus states for accessibility */
 .action-btn:focus {
-  outline: none;
-  box-shadow: 0 0 0 4px rgba(33, 150, 243, 0.3);
+  outline: none !important;
+  box-shadow: 0 0 0 4px rgba(33, 150, 243, 0.3) !important;
 }
 
 /* Active state for better interaction feedback */
 .action-btn:active {
-  transform: translateY(0) scale(0.98);
-  transition: all 0.1s ease;
+  transform: translateY(0) scale(0.98) !important;
+  transition: all 0.1s ease !important;
 }
 
 .report-btn {
@@ -1090,8 +1100,6 @@
   accent-color: #ff8c42;
   cursor: pointer;
 }
-
-
 
 .bulk-actions-section {
   margin-top: 2rem;
