@@ -197,7 +197,7 @@
 }
 
 .action-buttons {
-  display: flex;
+  display: none;
   gap: 0.5rem;
   justify-content: center;
   align-items: center;
@@ -964,6 +964,11 @@
 
 .selected-row .actions-cell {
   background: transparent !important;
+}
+
+/* Reveal action buttons only for the selected row */
+.selected-row .action-buttons {
+  display: flex !important;
 }
 
 @keyframes fadeIn {
