@@ -148,8 +148,14 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
 
   // Handle single click to show action buttons
   const handleClassClick = (classId: string) => {
+    console.log('handleClassClick called with classId:', classId);
+    console.log('Current selectedClassId:', selectedClassId);
     // Toggle selection: if same class is clicked, deselect it; otherwise select the new one
-    setSelectedClassId(prevId => prevId === classId ? null : classId);
+    setSelectedClassId(prevId => {
+      const newId = prevId === classId ? null : classId;
+      console.log('Setting selectedClassId to:', newId);
+      return newId;
+    });
   };
 
   // Handle keyboard events for accessibility
@@ -634,6 +640,8 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
               const studentCount = cls.studentIds?.length || 0;
               const isSelected = selectedClassId === safeClassId;
               
+              console.log('Rendering row for classId:', safeClassId, 'isSelected:', isSelected, 'selectedClassId:', selectedClassId);
+              
               return (
                 <tr 
                   key={safeClassId} 
@@ -657,28 +665,9 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                     {studentCount} students
                   </td>
                   <td className="actions-cell">
-                    {/* Temporary test - always show buttons */}
-                    <div className="action-buttons" style={{
-                      display: 'flex',
-                      gap: '12px',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      backgroundColor: 'yellow',
-                      border: '2px solid red',
-                      padding: '4px'
-                    }}>
+                    <div className={`action-buttons ${true ? 'selected' : 'unselected'}`}>
                       <button 
                         className="action-btn show-btn"
-                        style={{
-                          padding: '6px 18px',
-                          border: 'none',
-                          borderRadius: '999px',
-                          backgroundColor: 'green',
-                          color: 'white',
-                          fontSize: '12px',
-                          fontWeight: '600',
-                          cursor: 'pointer'
-                        }}
                         onClick={(e) => { 
                           e.stopPropagation(); 
                           handleEditClass(safeClassId); 
@@ -689,16 +678,6 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                       </button>
                       <button 
                         className="action-btn edit-btn"
-                        style={{
-                          padding: '6px 18px',
-                          border: 'none',
-                          borderRadius: '999px',
-                          backgroundColor: 'blue',
-                          color: 'white',
-                          fontSize: '12px',
-                          fontWeight: '600',
-                          cursor: 'pointer'
-                        }}
                         onClick={(e) => { 
                           e.stopPropagation(); 
                           const cls = classes.find(c => (c._id || c.id) === safeClassId);
@@ -718,16 +697,6 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                       </button>
                       <button 
                         className="action-btn delete-btn"
-                        style={{
-                          padding: '6px 18px',
-                          border: 'none',
-                          borderRadius: '999px',
-                          backgroundColor: 'red',
-                          color: 'white',
-                          fontSize: '12px',
-                          fontWeight: '600',
-                          cursor: 'pointer'
-                        }}
                         onClick={(e) => { 
                           e.stopPropagation(); 
                           handleDeleteClass(safeClassId); 
@@ -736,17 +705,6 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                       >
                         Delete
                       </button>
-                    </div>
-                    {/* Debug info */}
-                    <div style={{
-                      fontSize: '10px',
-                      color: 'red',
-                      backgroundColor: 'white',
-                      padding: '2px',
-                      marginTop: '2px',
-                      border: '1px solid red'
-                    }}>
-                      Debug: isSelected={isSelected ? 'YES' : 'NO'} | ID={safeClassId} | selectedClassId={selectedClassId}
                     </div>
                   </td>
                 </tr>
