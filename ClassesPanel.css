@@ -203,34 +203,15 @@
   align-items: center;
   height: 100%;
   transition: all 0.2s ease;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-5px);
-}
-
-.action-buttons.visible {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-}
-
-.action-buttons.hidden {
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-5px);
-}
-
-.selected-row .action-buttons {
-  display: flex !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  transform: translateY(0) !important;
   animation: fadeIn 0.2s ease;
+  border: 1px solid #ddd;
+  padding: 4px;
+  background: #f9f9f9;
 }
 
 .action-btn {
   padding: 0.28rem 0.6rem;
-  border: none;
+  border: 2px solid #307637;
   border-radius: 8px;
   font-weight: 700; /* make labels bold */
   cursor: pointer;

@@ -148,8 +148,13 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
 
   // Handle single click to show action buttons
   const handleClassClick = (classId: string) => {
+    console.log('Class clicked:', classId, 'Current selected:', selectedClassId);
     // Toggle selection: if same class is clicked, deselect it; otherwise select the new one
-    setSelectedClassId(prevId => prevId === classId ? null : classId);
+    setSelectedClassId(prevId => {
+      const newId = prevId === classId ? null : classId;
+      console.log('Setting selectedClassId to:', newId);
+      return newId;
+    });
   };
 
   // Handle keyboard events for accessibility
@@ -657,7 +662,8 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                     {studentCount} students
                   </td>
                   <td className="actions-cell">
-                    <div className={`action-buttons ${isSelected ? 'visible' : 'hidden'}`}>
+                    {/* Temporary: Always show buttons for testing */}
+                    <div className="action-buttons">
                         <button 
                           className="action-btn show-btn"
                           onClick={(e) => { 
@@ -699,11 +705,10 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                           Delete
                         </button>
                     </div>
-                    {!isSelected && (
-                      <div className="action-hint">
-                        <span className="hint-text">Click to reveal actions</span>
-                      </div>
-                    )}
+                    {/* Debug indicator */}
+                    <div style={{fontSize: '12px', color: 'red', backgroundColor: 'yellow', padding: '2px', marginTop: '4px'}}>
+                      Debug: isSelected={isSelected ? 'true' : 'false'}, selectedClassId={selectedClassId}, safeClassId={safeClassId}
+                    </div>
                   </td>
                 </tr>
               );
