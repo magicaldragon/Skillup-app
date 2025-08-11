@@ -152,6 +152,14 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
     setSelectedClassId(prevId => prevId === classId ? null : classId);
   };
 
+  // Handle keyboard events for accessibility
+  const handleKeyDown = (e: React.KeyboardEvent, classId: string) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleClassClick(classId);
+    }
+  };
+
   // Removed double click behavior; Show button will handle details view
 
   // Add new class
@@ -630,10 +638,12 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                 <tr 
                   key={safeClassId} 
                   onClick={() => handleClassClick(safeClassId)} 
+                  onKeyDown={(e) => handleKeyDown(e, safeClassId)}
                   className={`clickable-row ${isSelected ? 'selected-row' : ''}`}
                   title="Click this row to reveal actions"
                   tabIndex={0}
                   aria-selected={isSelected}
+                  role="button"
                 >
                   <td className="class-name-cell">
                     <div className="class-name">{displayName}</div>
@@ -647,8 +657,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                     {studentCount} students
                   </td>
                   <td className="actions-cell">
-                    {isSelected && (
-                    <div className="action-buttons">
+                    <div className={`action-buttons ${isSelected ? 'visible' : 'hidden'}`}>
                         <button 
                           className="action-btn show-btn"
                           onClick={(e) => { 
@@ -690,6 +699,10 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                           Delete
                         </button>
                     </div>
+                    {!isSelected && (
+                      <div className="action-hint">
+                        <span className="hint-text">Click to reveal actions</span>
+                      </div>
                     )}
                   </td>
                 </tr>
