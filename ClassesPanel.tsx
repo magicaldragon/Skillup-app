@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import type { Student, StudentClass } from './types';
 import type { Level } from './types';
 import './ClassesPanel.css';
+import { safeTrim } from './utils/stringUtils';
 
 // Interface for class editing modal
 interface ClassEditModal {
@@ -361,7 +362,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
 
   // Send report
   const handleSendReport = async () => {
-    if (!reportProblem.trim()) {
+    if (!safeTrim(reportProblem)) {
       alert('Please describe the problem');
       return;
     }
@@ -960,7 +961,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
               <div className="modal-actions">
                 <button 
                   onClick={handleSendReport}
-                  disabled={reportSending || !reportProblem.trim()}
+                  disabled={reportSending || !safeTrim(reportProblem)}
                   className="save-btn"
                 >
                   {reportSending ? 'Sending...' : 'Confirm'}
