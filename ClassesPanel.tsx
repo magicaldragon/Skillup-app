@@ -640,9 +640,6 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
               const studentCount = cls.studentIds?.length || 0;
               const isSelected = selectedClassId === safeClassId;
               
-              console.log('Rendering row for classId:', safeClassId, 'isSelected:', isSelected, 'selectedClassId:', selectedClassId);
-              console.log('About to render action buttons for classId:', safeClassId);
-              
               return (
                 <tr 
                   key={safeClassId} 
@@ -672,8 +669,6 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                     verticalAlign: 'middle',
                     textAlign: 'center',
                     padding: '8px',
-                    backgroundColor: 'red',
-                    border: '3px solid black',
                     position: 'relative',
                     overflow: 'visible'
                   }}>
