@@ -641,6 +641,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
               const isSelected = selectedClassId === safeClassId;
               
               console.log('Rendering row for classId:', safeClassId, 'isSelected:', isSelected, 'selectedClassId:', selectedClassId);
+              console.log('About to render action buttons for classId:', safeClassId);
               
               return (
                 <tr 
@@ -665,6 +666,17 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                     {studentCount} students
                   </td>
                   <td className="actions-cell">
+                    {/* Test element to see if this cell is rendering */}
+                    <div style={{ 
+                      backgroundColor: 'red', 
+                      color: 'white', 
+                      padding: '4px', 
+                      fontSize: '10px',
+                      marginBottom: '4px'
+                    }}>
+                      TEST: Cell is rendering
+                    </div>
+                    
                     <div className={`action-buttons ${true ? 'selected' : 'unselected'}`}>
                       <button 
                         className="action-btn show-btn"
