@@ -665,20 +665,92 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                   <td className="students-cell">
                     {studentCount} students
                   </td>
-                  <td className="actions-column-debug">
-                    <div className={`action-buttons ${isSelected ? 'selected' : 'unselected'}`}>
+                  <td style={{
+                    width: '200px',
+                    minWidth: '200px',
+                    maxWidth: '200px',
+                    verticalAlign: 'middle',
+                    textAlign: 'center',
+                    padding: '8px',
+                    backgroundColor: 'red',
+                    border: '3px solid black',
+                    position: 'relative',
+                    overflow: 'visible'
+                  }}>
+                    <div style={{
+                      display: 'flex',
+                      gap: '8px',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      flexWrap: 'wrap',
+                      width: '100%',
+                      minHeight: '40px',
+                      padding: '4px',
+                      opacity: isSelected ? 1 : 0.3,
+                      transform: isSelected ? 'scale(1)' : 'scale(0.9)',
+                      filter: isSelected ? 'grayscale(0%)' : 'grayscale(50%)',
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                    }}>
                       <button 
-                        className="action-btn show-btn"
+                        style={{
+                          padding: '8px 16px',
+                          border: '2px solid rgba(255, 255, 255, 0.3)',
+                          borderRadius: '20px',
+                          fontWeight: '700',
+                          fontSize: '11px',
+                          cursor: 'pointer',
+                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                          minWidth: '60px',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px',
+                          position: 'relative',
+                          overflow: 'hidden',
+                          outline: 'none',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                          display: 'inline-block',
+                          background: 'linear-gradient(135deg, #00c853 0%, #4caf50 50%, #66bb6a 100%)',
+                          color: 'white',
+                          textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)'
+                        }}
                         onClick={(e) => { 
                           e.stopPropagation(); 
                           handleEditClass(safeClassId); 
                         }}
                         title="Show class details"
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'linear-gradient(135deg, #4caf50 0%, #66bb6a 50%, #00c853 100%)';
+                          e.currentTarget.style.boxShadow = '0 8px 25px rgba(76, 175, 80, 0.4), 0 0 0 3px rgba(76, 175, 80, 0.2)';
+                          e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'linear-gradient(135deg, #00c853 0%, #4caf50 50%, #66bb6a 100%)';
+                          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+                          e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                        }}
                       >
                         Show
                       </button>
                       <button 
-                        className="action-btn edit-btn"
+                        style={{
+                          padding: '8px 16px',
+                          border: '2px solid rgba(255, 255, 255, 0.3)',
+                          borderRadius: '20px',
+                          fontWeight: '700',
+                          fontSize: '11px',
+                          cursor: 'pointer',
+                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                          minWidth: '60px',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px',
+                          position: 'relative',
+                          overflow: 'hidden',
+                          outline: 'none',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                          display: 'inline-block',
+                          background: 'linear-gradient(135deg, #2196f3 0%, #42a5f5 50%, #64b5f6 100%)',
+                          color: 'white',
+                          textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)'
+                        }}
                         onClick={(e) => { 
                           e.stopPropagation(); 
                           const cls = classes.find(c => (c._id || c.id) === safeClassId);
@@ -693,16 +765,55 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                           });
                         }}
                         title="Edit Level"
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'linear-gradient(135deg, #42a5f5 0%, #64b5f6 50%, #2196f3 100%)';
+                          e.currentTarget.style.boxShadow = '0 8px 25px rgba(33, 150, 243, 0.4), 0 0 0 3px rgba(33, 150, 243, 0.2)';
+                          e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'linear-gradient(135deg, #2196f3 0%, #42a5f5 50%, #64b5f6 100%)';
+                          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+                          e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                        }}
                       >
                         Edit
                       </button>
                       <button 
-                        className="action-btn delete-btn"
+                        style={{
+                          padding: '8px 16px',
+                          border: '2px solid rgba(255, 255, 255, 0.3)',
+                          borderRadius: '20px',
+                          fontWeight: '700',
+                          fontSize: '11px',
+                          cursor: 'pointer',
+                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                          minWidth: '60px',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px',
+                          position: 'relative',
+                          overflow: 'hidden',
+                          outline: 'none',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                          display: 'inline-block',
+                          background: 'linear-gradient(135deg, #f44336 0%, #ef5350 50%, #e57373 100%)',
+                          color: 'white',
+                          textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)'
+                        }}
                         onClick={(e) => { 
                           e.stopPropagation(); 
                           handleDeleteClass(safeClassId); 
                         }}
                         title="Delete Class"
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'linear-gradient(135deg, #ef5350 0%, #e57373 50%, #f44336 100%)';
+                          e.currentTarget.style.boxShadow = '0 8px 25px rgba(244, 67, 54, 0.4), 0 0 0 3px rgba(244, 67, 54, 0.2)';
+                          e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'linear-gradient(135deg, #f44336 0%, #ef5350 50%, #e57373 100%)';
+                          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+                          e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                        }}
                       >
                         Delete
                       </button>
