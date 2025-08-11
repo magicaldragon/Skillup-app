@@ -84,11 +84,6 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
   // Add state for showing action buttons
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
 
-  // Debug: Monitor selectedClassId changes
-  useEffect(() => {
-    console.log('selectedClassId changed to:', selectedClassId);
-  }, [selectedClassId]);
-
   // Fetch levels from backend
   const fetchLevels = async () => {
     setLevelsLoading(true);
@@ -609,25 +604,8 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
             {levelFilter && ` in ${levels.find(l => l._id === levelFilter)?.name}`}
           </span>
         )}
-        <span className="debug-info">Selected: {selectedClassId || 'None'}</span>
       </div>
       
-      <div className="classes-actions">
-        <button
-          className="test-select-btn"
-          onClick={() => setSelectedClassId('test-id')}
-          style={{ marginRight: '1rem' }}
-        >
-          Test Select
-        </button>
-        <button
-          className="test-clear-btn"
-          onClick={() => setSelectedClassId(null)}
-        >
-          Test Clear
-        </button>
-      </div>
-
       <div className="classes-table-container">
         <table className="classes-table">
           <thead>
@@ -717,12 +695,6 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                         </button>
                       </div>
                     )}
-                    {/* Debug info */}
-                    <div className="debug-cell-info">
-                      Selected: {selectedClassId}<br/>
-                      This: {safeClassId}<br/>
-                      Match: {selectedClassId === safeClassId ? 'YES' : 'NO'}
-                    </div>
                   </td>
                 </tr>
               );
