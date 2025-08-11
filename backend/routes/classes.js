@@ -116,14 +116,67 @@ router.post('/', verifyToken, async (req, res) => {
     const classCode = `SU-${String(nextNumber).padStart(3, '0')}`;
     console.log('Generated classCode (gap-aware):', classCode);
     
-    const newClass = await Class.create({
-      name: classCode, // Use classCode as name
-      classCode,
-      levelId,
-      description: description || '',
-      teacherId: req.user.userId,
-      studentIds: studentIds || [],
-    });
+    let newClass;
+    try {
+      newClass = await Class.create({
+        name: classCode, // Use classCode as name
+        classCode,
+        levelId,
+        description: description || '',
+        teacherId: req.user.userId,
+        studentIds: studentIds || [],
+      });
+    } catch (err) {
+      // If duplicate key on classCode, attempt to reuse/reactivate existing inactive record
+      if (err && err.code === 11000 && err.keyPattern && err.keyPattern.classCode) {
+        const existing = await Class.findOne({ classCode });
+        if (existing && existing.isActive === false) {
+          const before = { ...existing.toObject() };
+          existing.isActive = true;
+          existing.levelId = levelId;
+          existing.description = description || '';
+          existing.teacherId = req.user.userId;
+          existing.studentIds = studentIds || [];
+          existing.name = classCode;
+          await existing.save();
+          await ChangeLog.create({
+            userId: req.user.id,
+            userName: req.user.name,
+            userRole: req.user.role,
+            action: 'reactivate',
+            entityType: 'class',
+            entityId: existing._id,
+            details: { before, after: existing },
+            ip: req.ip
+          });
+          return res.status(200).json({ success: true, message: 'Class reactivated successfully', class: existing });
+        }
+        // Otherwise, compute a brand-new code that does not exist at all (active or inactive)
+        const allCodesAny = await Class.find({}, 'classCode').lean();
+        const allTaken = new Set(
+          allCodesAny
+            .map(c => (c.classCode || ''))
+            .map(code => {
+              const m = code.match(/SU-(\d{3})/);
+              return m ? parseInt(m[1], 10) : null;
+            })
+            .filter(n => n !== null)
+        );
+        let fallbackNumber = 1;
+        while (allTaken.has(fallbackNumber)) fallbackNumber += 1;
+        const fallbackCode = `SU-${String(fallbackNumber).padStart(3, '0')}`;
+        newClass = await Class.create({
+          name: fallbackCode,
+          classCode: fallbackCode,
+          levelId,
+          description: description || '',
+          teacherId: req.user.userId,
+          studentIds: studentIds || [],
+        });
+      } else {
+        throw err;
+      }
+    }
     
     console.log('Created class:', { id: newClass._id, name: newClass.name, levelId: newClass.levelId });
     await ChangeLog.create({
@@ -309,8 +362,8 @@ router.delete('/:id', verifyToken, async (req, res) => {
       }
     }
 
-    classObj.isActive = false;
-    await classObj.save();
+    // Permanently remove the class document to free up its code for reuse
+    await Class.deleteOne({ _id: classObj._id });
     await ChangeLog.create({
       userId: req.user.id,
       userName: req.user.name,
@@ -318,7 +371,7 @@ router.delete('/:id', verifyToken, async (req, res) => {
       action: 'delete',
       entityType: 'class',
       entityId: classObj._id,
-      details: { before },
+      details: { before, hardDelete: true },
       ip: req.ip
     });
     res.json({ success: true, message: 'Class deleted successfully' });
