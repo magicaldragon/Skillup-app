@@ -190,24 +190,22 @@
 }
 
 .actions-cell {
-  /* center content without affecting table row height */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
+  /* Remove flex, use default table cell display */
   vertical-align: middle;
+  text-align: center;
+  /* height is set by td, no need for flex here */
 }
 
 .action-buttons {
-  /* remove absolute centering; keep as inline flex */
-  position: static;
-  top: auto;
-  left: auto;
-  transform: none;
   display: flex;
   gap: 0.5rem;
   justify-content: center;
   align-items: center;
+  height: 100%;
+}
+
+.action-buttons.hidden {
+  display: none !important;
 }
 
 .action-btn {
