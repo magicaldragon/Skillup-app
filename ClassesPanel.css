@@ -179,91 +179,39 @@
 }
 
 .classes-table td {
-  padding: 0.6rem 0.7rem; /* increased from 0.35rem for more height */
+  padding: 0.6rem 0.7rem;
   border-bottom: 1px solid #e0f7fa;
   vertical-align: middle;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  line-height: 1.5; /* slightly increased for more height */
-  height: 48px; /* enforce min row height */
-}
-
-/* merged into single definition below to avoid conflicts */
-
-.classes-table tbody tr {
-  transition: all 0.3s ease;
-  background: white;
-  position: relative;
-}
-
-.classes-table tbody tr:nth-child(even) {
-  background: #f8fafc;
-}
-
-.classes-table tbody tr:hover {
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-}
-
-.clickable-row {
-  cursor: pointer;
-}
-
-.class-name-cell {
-  font-weight: 600;
-  color: #307637;
-}
-
-.level-badge {
-  background: linear-gradient(135deg, #307637 0%, #4caf50 100%);
-  color: white;
-  padding: 0.2rem 0.6rem;
-  border-radius: 10px;
-  font-size: 0.72rem;
-  font-weight: 600;
-  display: inline-block;
-  line-height: 1.2;
-}
-
-.students-cell {
-  color: #475569;
-  font-weight: 500;
+  line-height: 1.5;
+  height: 48px;
 }
 
 .actions-cell {
+  position: relative; /* allow absolute centering of children */
   text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 48px; /* match row height */
+  vertical-align: middle;
+  height: 48px;
 }
 
 .action-buttons {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* center within cell */
   display: flex;
   gap: 0.5rem;
   justify-content: center;
   align-items: center;
-  width: 100%;
-  height: 100%;
-}
-
-.action-buttons.hidden {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
-
-.action-buttons.visible {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
 }
 
 .action-btn {
   padding: 0.28rem 0.6rem;
   border: none;
   border-radius: 8px;
-  font-weight: 600;
+  font-weight: 700; /* make labels bold */
   cursor: pointer;
   transition: all 0.2s ease;
   margin: 0 0.25rem;
@@ -279,14 +227,14 @@
   flex-shrink: 0;
 }
 
-.view-btn {
-  background: linear-gradient(135deg, #307637 0%, #4caf50 100%);
-  color: white;
+/* Brand green for Show button */
+.show-btn {
+  background: linear-gradient(135deg, #307637 0%, #4caf50 100%) !important;
+  color: #fff !important;
 }
 
-.view-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(48, 118, 55, 0.3);
+.show-btn:hover {
+  filter: brightness(1.05);
 }
 
 .remove-btn {
@@ -307,19 +255,6 @@
 .report-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
-}
-
-.show-btn {
-  background: #f5b802 !important;
-  color: #fff !important;
-  font-weight: 700;
-  border: none;
-  box-shadow: 0 1px 3px rgba(245, 184, 2, 0.15);
-}
-
-.show-btn:hover {
-  background: #e6a800 !important;
-  color: #fff !important;
 }
 
 /* Class Details Expansion */
