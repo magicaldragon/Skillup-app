@@ -665,21 +665,24 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                   <td className="students-cell">
                     {studentCount} students
                   </td>
-                  <td className="actions-cell">
-                    {/* Test element to see if this cell is rendering */}
+                  <td className="actions-cell" style={{ border: '3px solid red', backgroundColor: 'yellow' }}>
+                    {/* Very prominent test element */}
                     <div style={{ 
                       backgroundColor: 'red', 
                       color: 'white', 
-                      padding: '4px', 
-                      fontSize: '10px',
-                      marginBottom: '4px'
+                      padding: '8px', 
+                      fontSize: '12px',
+                      fontWeight: 'bold',
+                      marginBottom: '8px',
+                      border: '2px solid black'
                     }}>
-                      TEST: Cell is rendering
+                      🔴 TEST: Actions Cell is Rendering for {displayName}
                     </div>
                     
-                    <div className={`action-buttons ${true ? 'selected' : 'unselected'}`}>
+                    <div className={`action-buttons ${true ? 'selected' : 'unselected'}`} style={{ border: '2px solid blue', backgroundColor: 'lightblue', padding: '4px' }}>
                       <button 
                         className="action-btn show-btn"
+                        style={{ backgroundColor: 'green', color: 'white', padding: '8px 16px', margin: '2px', border: 'none', borderRadius: '4px' }}
                         onClick={(e) => { 
                           e.stopPropagation(); 
                           handleEditClass(safeClassId); 
@@ -690,6 +693,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                       </button>
                       <button 
                         className="action-btn edit-btn"
+                        style={{ backgroundColor: 'blue', color: 'white', padding: '8px 16px', margin: '2px', border: 'none', borderRadius: '4px' }}
                         onClick={(e) => { 
                           e.stopPropagation(); 
                           const cls = classes.find(c => (c._id || c.id) === safeClassId);
@@ -709,6 +713,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                       </button>
                       <button 
                         className="action-btn delete-btn"
+                        style={{ backgroundColor: 'red', color: 'white', padding: '8px 16px', margin: '2px', border: 'none', borderRadius: '4px' }}
                         onClick={(e) => { 
                           e.stopPropagation(); 
                           handleDeleteClass(safeClassId); 
