@@ -181,6 +181,13 @@
   box-shadow: 0 2px 6px rgba(48, 118, 55, 0.1);
 }
 
+.actions-cell {
+  vertical-align: middle;
+  text-align: center;
+  min-height: 40px;
+  padding: 4px;
+}
+
 /* Action Buttons - Matching ClassesPanel */
 .action-buttons {
   display: flex;
