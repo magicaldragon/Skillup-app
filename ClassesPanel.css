@@ -179,13 +179,14 @@
 }
 
 .classes-table td {
-  padding: 0.35rem 0.7rem;
+  padding: 0.6rem 0.7rem; /* increased from 0.35rem for more height */
   border-bottom: 1px solid #e0f7fa;
   vertical-align: middle;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  line-height: 1.2;
+  line-height: 1.5; /* slightly increased for more height */
+  height: 48px; /* enforce min row height */
 }
 
 /* merged into single definition below to avoid conflicts */
@@ -234,26 +235,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.2rem 0.3rem;
-  height: 34px;
+  height: 48px; /* match row height */
 }
 
 .action-buttons {
-  display: inline-flex;
+  display: flex;
   gap: 0.5rem;
   justify-content: center;
   align-items: center;
-  padding: 0;
-  background: transparent;
-  border-radius: 0;
-  border: none;
-  box-shadow: none;
-  transition: opacity 0.2s ease;
-  position: static;
-  z-index: 1;
-  min-width: 0;
-  width: auto;
-  max-width: none;
+  width: 100%;
+  height: 100%;
 }
 
 .action-buttons.hidden {
@@ -316,6 +307,19 @@
 .report-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+}
+
+.show-btn {
+  background: #f5b802 !important;
+  color: #fff !important;
+  font-weight: 700;
+  border: none;
+  box-shadow: 0 1px 3px rgba(245, 184, 2, 0.15);
+}
+
+.show-btn:hover {
+  background: #e6a800 !important;
+  color: #fff !important;
 }
 
 /* Class Details Expansion */

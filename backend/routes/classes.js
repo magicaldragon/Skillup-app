@@ -99,15 +99,15 @@ router.post('/', verifyToken, async (req, res) => {
     
     // Generate next classCode (SU-XXX). Fill gaps first.
     const allCodes = await Class.find({}, 'classCode').lean();
-    const taken = new Set(
-      allCodes
-        .map(c => (c.classCode || ''))
-        .map(code => {
-          const m = code.match(/SU-(\d{3})/);
-          return m ? parseInt(m[1], 10) : null;
-        })
-        .filter(n => n !== null)
-    );
+    const takenNumbers = allCodes
+      .map(c => (c.classCode || ''))
+      .map(code => {
+        const m = code.match(/SU-(\d{3})/);
+        return m ? parseInt(m[1], 10) : null;
+      })
+      .filter(n => n !== null)
+      .sort((a, b) => a - b); // Ensure sorted order
+    const taken = new Set(takenNumbers);
     let nextNumber = 1;
     while (taken.has(nextNumber)) {
       nextNumber += 1;
