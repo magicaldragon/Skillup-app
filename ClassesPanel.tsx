@@ -405,23 +405,6 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
     }
   };
 
-  // Edit class information
-  const handleEditClassInfo = async (classId: string) => {
-    const classObj = classes.find(c => (c._id || c.id) === classId);
-    if (!classObj) return;
-
-    // Extract levelId properly, handling both populated object and string
-    const levelId = classObj.levelId ? (typeof classObj.levelId === 'object' ? classObj.levelId._id : classObj.levelId) : null;
-
-    setClassInfoEditModal({
-      isOpen: true,
-      classId: classId,
-      className: classObj.classCode || classObj.name || '',
-      levelId: levelId,
-      description: (classObj as any).description || ''
-    });
-  };
-
   // Close class info edit modal
   const handleCloseClassInfoEditModal = () => {
     setClassInfoEditModal({
