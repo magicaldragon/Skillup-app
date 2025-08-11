@@ -664,6 +664,96 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                   </td>
                   <td className="students-cell">
                     {studentCount} students
+                    
+                    {/* Temporary test - add buttons to Students column */}
+                    <div style={{ 
+                      border: '3px solid purple !important', 
+                      backgroundColor: 'pink !important',
+                      padding: '8px !important',
+                      marginTop: '4px !important'
+                    }}>
+                      <div style={{ 
+                        backgroundColor: 'purple !important', 
+                        color: 'white !important', 
+                        padding: '8px !important', 
+                        fontSize: '12px !important',
+                        fontWeight: 'bold !important',
+                        marginBottom: '6px !important',
+                        textAlign: 'center'
+                      }}>
+                        🟣 TEST: Buttons in Students Column for {displayName} 🟣
+                      </div>
+                      
+                      <div style={{ 
+                        display: 'flex !important',
+                        gap: '6px !important',
+                        justifyContent: 'center !important'
+                      }}>
+                        <button 
+                          style={{ 
+                            backgroundColor: 'green !important', 
+                            color: 'white !important', 
+                            padding: '6px 12px !important', 
+                            border: '2px solid black !important', 
+                            borderRadius: '4px !important',
+                            fontSize: '10px !important',
+                            fontWeight: 'bold !important',
+                            cursor: 'pointer !important'
+                          }}
+                          onClick={(e) => { 
+                            e.stopPropagation(); 
+                            handleEditClass(safeClassId); 
+                          }}
+                        >
+                          Show
+                        </button>
+                        <button 
+                          style={{ 
+                            backgroundColor: 'blue !important', 
+                            color: 'white !important', 
+                            padding: '6px 12px !important', 
+                            border: '2px solid black !important', 
+                            borderRadius: '4px !important',
+                            fontSize: '10px !important',
+                            fontWeight: 'bold !important',
+                            cursor: 'pointer !important'
+                          }}
+                          onClick={(e) => { 
+                            e.stopPropagation(); 
+                            const cls = classes.find(c => (c._id || c.id) === safeClassId);
+                            if (!cls) return;
+                            const displayNameLocal = cls.classCode || cls.name || 'Unnamed Class';
+                            setClassInfoEditModal({
+                              isOpen: true,
+                              classId: safeClassId,
+                              className: displayNameLocal,
+                              levelId: (typeof cls.levelId === 'object' ? (cls.levelId?._id || null) : (cls.levelId || null)),
+                              description: cls.description || ''
+                            });
+                          }}
+                        >
+                          Edit
+                        </button>
+                        <button 
+                          style={{ 
+                            backgroundColor: 'red !important', 
+                            color: 'white !important', 
+                            padding: '6px 12px !important', 
+                            border: '2px solid black !important', 
+                            borderRadius: '4px !important',
+                            fontSize: '10px !important',
+                            fontWeight: 'bold !important',
+                            cursor: 'pointer !important'
+                          }}
+                          onClick={(e) => { 
+                            e.stopPropagation(); 
+                            handleDeleteClass(safeClassId); 
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
                   </td>
                   <td className="actions-cell" style={{ 
                     border: '5px solid red !important', 
