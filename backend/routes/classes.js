@@ -98,7 +98,8 @@ router.post('/', verifyToken, async (req, res) => {
     }
     
     // Generate next classCode (SU-XXX). Fill gaps first.
-    const allCodes = await Class.find({}, 'classCode').lean();
+    // Only consider active classes for code assignment
+    const allCodes = await Class.find({ isActive: true }, 'classCode').lean();
     const takenNumbers = allCodes
       .map(c => (c.classCode || ''))
       .map(code => {
