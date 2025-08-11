@@ -140,13 +140,13 @@
 
 .classes-table {
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
+  border-collapse: collapse;
   background: white;
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(48, 118, 55, 0.1);
   border: 2px solid #ffd700;
+  table-layout: fixed;
 }
 
 .classes-table th {
@@ -161,35 +161,35 @@
   border-bottom: 2px solid #e0f7fa;
 }
 
-.classes-table th:first-child {
+.classes-table th:nth-child(1) {
   width: 25%;
-  min-width: 150px;
 }
 
 .classes-table th:nth-child(2) {
   width: 25%;
-  min-width: 150px;
 }
 
 .classes-table th:nth-child(3) {
   width: 25%;
-  min-width: 150px;
 }
 
-.classes-table th:last-child {
+.classes-table th:nth-child(4) {
   width: 25%;
-  min-width: 200px;
 }
 
 .classes-table td {
   padding: 1rem;
   border-bottom: 1px solid #e0f7fa;
   vertical-align: middle;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .classes-table tbody tr {
   transition: all 0.3s ease;
   background: white;
+  position: relative;
 }
 
 .classes-table tbody tr:nth-child(even) {
@@ -202,13 +202,8 @@
   box-shadow: 0 4px 12px rgba(48, 118, 55, 0.1);
 }
 
-.classes-table tbody tr:hover .actions-cell {
-  background: transparent;
-}
-
 .clickable-row {
   cursor: pointer;
-  position: relative;
 }
 
 .class-name-cell {
@@ -233,9 +228,11 @@
 
 .actions-cell {
   text-align: center;
-  width: 200px;
-  min-width: 200px;
   position: relative;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .action-btn {
@@ -254,18 +251,25 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  white-space: nowrap;
 }
 
 .action-buttons {
   display: flex;
   gap: 0.5rem;
   justify-content: center;
+  align-items: center;
   padding: 0.5rem;
   background: rgba(255, 255, 255, 0.95);
   border-radius: 8px;
   border: 1px solid #e0f7fa;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   animation: fadeIn 0.3s ease-in;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
 }
 
 .view-btn {
@@ -998,6 +1002,7 @@
   width: 4px;
   background: #307637;
   border-radius: 0 2px 2px 0;
+  z-index: 1;
 }
 
 .selected-row:hover {
@@ -1008,14 +1013,10 @@
   background: transparent !important;
 }
 
-.selected-row:hover .actions-cell {
-  background: linear-gradient(135deg, #d4edda 0%, #e8f5e8 100%) !important;
-}
-
-/* Make action buttons more prominent when visible */
 .selected-row .action-buttons {
   opacity: 1;
-  transform: scale(1);
+  transform: translate(-50%, -50%) scale(1);
+  z-index: 10;
 }
 
 @keyframes fadeIn {

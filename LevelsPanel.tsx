@@ -32,8 +32,9 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
       try {
         // Get token from localStorage
         const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+        const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
         
-        const res = await fetch('/api/levels', { 
+        const res = await fetch(`${apiUrl}/levels`, { 
           credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
@@ -61,8 +62,9 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
       try {
         // Get token from localStorage
         const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+        const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
         
-        const res = await fetch('/api/classes', { 
+        const res = await fetch(`${apiUrl}/classes`, { 
           credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
@@ -76,11 +78,13 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
         // Group classes by level
         const classesByLevelMap: { [level: string]: StudentClass[] } = {};
         (data.classes || []).forEach((cls: any) => {
-          if (cls.levelId) {
-            if (!classesByLevelMap[cls.levelId]) {
-              classesByLevelMap[cls.levelId] = [];
+          // Handle both populated levelId object and string levelId
+          const levelId = cls.levelId ? (typeof cls.levelId === 'object' ? cls.levelId._id : cls.levelId) : null;
+          if (levelId) {
+            if (!classesByLevelMap[levelId]) {
+              classesByLevelMap[levelId] = [];
             }
-            classesByLevelMap[cls.levelId].push(cls);
+            classesByLevelMap[levelId].push(cls);
           }
         });
         setClassesByLevel(classesByLevelMap);
@@ -111,8 +115,9 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
     setLoading(true);
     try {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
       
-      const res = await fetch('/api/levels', {
+      const res = await fetch(`${apiUrl}/levels`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
