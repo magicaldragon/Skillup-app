@@ -190,17 +190,20 @@
 }
 
 .actions-cell {
-  position: relative; /* allow absolute centering of children */
+  /* center content without affecting table row height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   vertical-align: middle;
-  height: 48px;
 }
 
 .action-buttons {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%); /* center within cell */
+  /* remove absolute centering; keep as inline flex */
+  position: static;
+  top: auto;
+  left: auto;
+  transform: none;
   display: flex;
   gap: 0.5rem;
   justify-content: center;
