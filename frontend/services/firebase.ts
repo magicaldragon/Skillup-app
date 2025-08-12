@@ -1,6 +1,9 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 
+// Version timestamp for cache busting
+const VERSION = Date.now();
+
 // Firebase configuration with fallback values
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyBXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
@@ -13,7 +16,7 @@ const firebaseConfig = {
 };
 
 // Log configuration status (without exposing sensitive data)
-console.log('Firebase configuration status:', {
+console.log(`Firebase configuration loaded (v${VERSION}):`, {
   apiKey: firebaseConfig.apiKey ? 'CONFIGURED' : 'MISSING',
   authDomain: firebaseConfig.authDomain ? 'CONFIGURED' : 'MISSING',
   projectId: firebaseConfig.projectId ? 'CONFIGURED' : 'MISSING',
@@ -22,7 +25,16 @@ console.log('Firebase configuration status:', {
   appId: firebaseConfig.appId ? 'CONFIGURED' : 'MISSING'
 });
 
-// Only initialize if not already initialized
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+// Initialize Firebase with error handling
+let app;
+try {
+  app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+  console.log('Firebase initialized successfully');
+} catch (error) {
+  console.error('Firebase initialization failed:', error);
+  // Create a minimal app for fallback
+  app = initializeApp(firebaseConfig, 'fallback');
+}
+
 export const auth = getAuth(app);
 export default app; 
