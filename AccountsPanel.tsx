@@ -43,7 +43,7 @@ const AccountsPanel = () => {
         return;
       }
 
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
       console.log('🔍 DEBUG: API URL:', apiUrl);
       
       // First, test authentication
@@ -138,7 +138,7 @@ const AccountsPanel = () => {
         return;
       }
 
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
       const res = await fetch(`${apiUrl}/users/${editingId}`, {
         method: 'PUT',
         headers: {
@@ -173,7 +173,7 @@ const AccountsPanel = () => {
         return;
       }
 
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
       const res = await fetch(`${apiUrl}/users/${id}`, {
         method: 'DELETE',
         headers: {

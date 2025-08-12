@@ -63,7 +63,6 @@ export default defineConfig({
   // Optimize dependencies
   optimizeDeps: {
     include: ['react', 'react-dom', 'react-router-dom', 'firebase/app', 'firebase/auth'],
-    exclude: ['@google/genai']
   },
   // Enable compression
   preview: {
