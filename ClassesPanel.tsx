@@ -686,7 +686,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                       filter: isSelected ? 'grayscale(0%)' : 'grayscale(50%)',
                       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
                     }}>
-                      <button 
+                        <button 
                         style={{
                           padding: '8px 16px',
                           border: '2px solid rgba(255, 255, 255, 0.3)',
@@ -707,11 +707,11 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                           color: 'white',
                           textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)'
                         }}
-                        onClick={(e) => { 
-                          e.stopPropagation(); 
-                          handleEditClass(safeClassId); 
-                        }}
-                        title="Show class details"
+                          onClick={(e) => { 
+                            e.stopPropagation(); 
+                            handleEditClass(safeClassId); 
+                          }}
+                          title="Show class details"
                         onMouseEnter={(e) => {
                           e.currentTarget.style.background = 'linear-gradient(135deg, #4caf50 0%, #66bb6a 50%, #00c853 100%)';
                           e.currentTarget.style.boxShadow = '0 8px 25px rgba(76, 175, 80, 0.4), 0 0 0 3px rgba(76, 175, 80, 0.2)';
@@ -722,10 +722,10 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                           e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
                           e.currentTarget.style.transform = 'translateY(0) scale(1)';
                         }}
-                      >
-                        Show
-                      </button>
-                      <button 
+                        >
+                          Show
+                        </button>
+                        <button 
                         style={{
                           padding: '8px 16px',
                           border: '2px solid rgba(255, 255, 255, 0.3)',
@@ -746,20 +746,20 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                           color: 'white',
                           textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)'
                         }}
-                        onClick={(e) => { 
-                          e.stopPropagation(); 
-                          const cls = classes.find(c => (c._id || c.id) === safeClassId);
-                          if (!cls) return;
-                          const displayNameLocal = cls.classCode || cls.name || 'Unnamed Class';
-                          setClassInfoEditModal({
-                            isOpen: true,
-                            classId: safeClassId,
-                            className: displayNameLocal,
-                            levelId: (typeof cls.levelId === 'object' ? (cls.levelId?._id || null) : (cls.levelId || null)),
-                            description: cls.description || ''
-                          });
-                        }}
-                        title="Edit Level"
+                          onClick={(e) => { 
+                            e.stopPropagation(); 
+                            const cls = classes.find(c => (c._id || c.id) === safeClassId);
+                            if (!cls) return;
+                            const displayNameLocal = cls.classCode || cls.name || 'Unnamed Class';
+                            setClassInfoEditModal({
+                              isOpen: true,
+                              classId: safeClassId,
+                              className: displayNameLocal,
+                              levelId: (typeof cls.levelId === 'object' ? (cls.levelId?._id || null) : (cls.levelId || null)),
+                              description: cls.description || ''
+                            });
+                          }}
+                          title="Edit Level"
                         onMouseEnter={(e) => {
                           e.currentTarget.style.background = 'linear-gradient(135deg, #42a5f5 0%, #64b5f6 50%, #2196f3 100%)';
                           e.currentTarget.style.boxShadow = '0 8px 25px rgba(33, 150, 243, 0.4), 0 0 0 3px rgba(33, 150, 243, 0.2)';
@@ -770,10 +770,10 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                           e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
                           e.currentTarget.style.transform = 'translateY(0) scale(1)';
                         }}
-                      >
-                        Edit
-                      </button>
-                      <button 
+                        >
+                          Edit
+                        </button>
+                        <button 
                         style={{
                           padding: '8px 16px',
                           border: '2px solid rgba(255, 255, 255, 0.3)',
@@ -794,11 +794,11 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                           color: 'white',
                           textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)'
                         }}
-                        onClick={(e) => { 
-                          e.stopPropagation(); 
-                          handleDeleteClass(safeClassId); 
-                        }}
-                        title="Delete Class"
+                          onClick={(e) => { 
+                            e.stopPropagation(); 
+                            handleDeleteClass(safeClassId); 
+                          }}
+                          title="Delete Class"
                         onMouseEnter={(e) => {
                           e.currentTarget.style.background = 'linear-gradient(135deg, #ef5350 0%, #e57373 50%, #f44336 100%)';
                           e.currentTarget.style.boxShadow = '0 8px 25px rgba(244, 67, 54, 0.4), 0 0 0 3px rgba(244, 67, 54, 0.2)';
@@ -809,9 +809,9 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                           e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
                           e.currentTarget.style.transform = 'translateY(0) scale(1)';
                         }}
-                      >
-                        Delete
-                      </button>
+                        >
+                          Delete
+                        </button>
                     </div>
                   </td>
                 </tr>

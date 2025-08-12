@@ -7,7 +7,14 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "firebase:deploy": "node scripts/deployFirebase.js deploy",
+    "firebase:status": "node scripts/deployFirebase.js status",
+    "firebase:build": "node scripts/deployFirebase.js build",
+    "migrate:firestore": "node scripts/migrateToFirestore.js",
+    "migrate:validate": "node -e \"require('./scripts/migrateToFirestore.js').validateMigration()\"",
+    "deploy:all": "npm run build && npm run firebase:deploy",
+    "setup:firebase": "npm install -g firebase-tools && firebase login"
   },
   "dependencies": {
     "@types/node": "^20.11.30",
