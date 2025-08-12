@@ -24,6 +24,61 @@
         "region": "us-central1"
       },
       {
+        "source": "/auth/**",
+        "function": "api",
+        "region": "us-central1"
+      },
+      {
+        "source": "/users/**",
+        "function": "api",
+        "region": "us-central1"
+      },
+      {
+        "source": "/classes/**",
+        "function": "api",
+        "region": "us-central1"
+      },
+      {
+        "source": "/levels/**",
+        "function": "api",
+        "region": "us-central1"
+      },
+      {
+        "source": "/assignments/**",
+        "function": "api",
+        "region": "us-central1"
+      },
+      {
+        "source": "/submissions/**",
+        "function": "api",
+        "region": "us-central1"
+      },
+      {
+        "source": "/potential-students/**",
+        "function": "api",
+        "region": "us-central1"
+      },
+      {
+        "source": "/student-records/**",
+        "function": "api",
+        "region": "us-central1"
+      },
+      {
+        "source": "/change-logs/**",
+        "function": "api",
+        "region": "us-central1"
+      },
+      {
+        "source": "/health",
+        "function": "api",
+        "region": "us-central1"
+      },
+      {
+        "source": "/test",
+        "function": "api",
+        "region": "us-central1"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }
