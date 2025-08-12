@@ -31,4 +31,12 @@ jobs:
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       env:
         FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-      run: firebase deploy --token "$FIREBASE_TOKEN" 
+      run: |
+        echo "🔐 Checking Firebase token..."
+        if [ -z "$FIREBASE_TOKEN" ]; then
+          echo "❌ FIREBASE_TOKEN is not set"
+          exit 1
+        else
+          echo "✅ FIREBASE_TOKEN is set (length: ${#FIREBASE_TOKEN})"
+          firebase deploy --token "$FIREBASE_TOKEN"
+        fi 
