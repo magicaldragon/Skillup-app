@@ -8,7 +8,6 @@ import {
   getDownloadURL, 
   deleteObject, 
   listAll,
-  StorageReference,
   UploadResult
 } from 'firebase/storage';
 import { app } from './firebase';

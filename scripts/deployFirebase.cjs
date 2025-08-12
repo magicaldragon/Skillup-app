@@ -1,4 +1,4 @@
-// deployFirebase.js - Firebase deployment script
+// deployFirebase.cjs - Firebase deployment script
 const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
@@ -258,7 +258,7 @@ if (require.main === module) {
       break;
       
     default:
-      console.log('Usage: node deployFirebase.js [command]');
+      console.log('Usage: node deployFirebase.cjs [command]');
       console.log('Commands:');
       console.log('  deploy  - Deploy to Firebase');
       console.log('  status  - Show deployment status');

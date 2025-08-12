@@ -146,19 +146,20 @@ router.post('/refresh', verifyToken, async (req: AuthenticatedRequest, res: Resp
 });
 
 // Logout (client-side token invalidation)
-router.post('/logout', verifyToken, async (req: AuthenticatedRequest, res: Response) => {
+router.post('/logout', verifyToken, async (_req: AuthenticatedRequest, res: Response) => {
   try {
-    // In a real implementation, you might want to track logout events
-    // For now, we'll just return a success response
-    // The actual token invalidation happens on the client side
-    
-    return res.json({
-      success: true,
-      message: 'Logged out successfully'
+    // Client-side logout - just return success
+    // The actual token invalidation should be handled client-side
+    res.json({ 
+      success: true, 
+      message: 'Logout successful. Please clear your local storage.' 
     });
   } catch (error) {
-    console.error('Error during logout:', error);
-    return res.status(500).json({ message: 'Failed to logout' });
+    console.error('Logout error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Logout failed' 
+    });
   }
 });
 
@@ -224,17 +225,20 @@ router.get('/permissions', verifyToken, async (req: AuthenticatedRequest, res: R
 });
 
 // Change password (requires Firebase Auth)
-router.post('/change-password', verifyToken, async (req: AuthenticatedRequest, res: Response) => {
+router.post('/change-password', verifyToken, async (_req: AuthenticatedRequest, res: Response) => {
   try {
-    // Note: Password changes should be handled through Firebase Auth on the client side
-    // This endpoint is for logging the change request
-    return res.json({
-      success: true,
-      message: 'Password change request logged. Please use Firebase Auth to change your password.'
+    // Password change should be handled client-side via Firebase Auth
+    // This endpoint is a placeholder for future server-side password validation
+    res.json({ 
+      success: true, 
+      message: 'Password change should be handled via Firebase Auth client SDK' 
     });
   } catch (error) {
-    console.error('Error processing password change:', error);
-    return res.status(500).json({ message: 'Failed to process password change' });
+    console.error('Password change error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Password change failed' 
+    });
   }
 });
 

@@ -1,7 +1,7 @@
 // functions/src/routes/submissions.ts - Submissions API Routes
 import { Router, Response } from 'express';
 import * as admin from 'firebase-admin';
-import { AuthenticatedRequest, verifyToken, requireAdmin } from '../middleware/auth';
+import { AuthenticatedRequest, verifyToken } from '../middleware/auth';
 
 const router = Router();
 

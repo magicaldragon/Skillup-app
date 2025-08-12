@@ -1,4 +1,4 @@
-// migrateToFirestore.js - Migration script from MongoDB to Firestore
+// migrateToFirestore.cjs - Migration script from MongoDB to Firestore
 const admin = require('firebase-admin');
 const { MongoClient } = require('mongodb');
 
@@ -127,7 +127,7 @@ async function migrateCollection(collectionName, mongoCollection) {
       processedCount += batch.length;
       batchCount++;
       
-      console.log(`📦 Batch ${batchCount}: Processed ${batch.length} documents (${processedCount}/${totalCount})`);
+      console.log(`�� Batch ${batchCount}: Processed ${batch.length} documents (${processedCount}/${totalCount})`);
       
       // Add delay between batches to avoid rate limiting
       if (await cursor.hasNext()) {
