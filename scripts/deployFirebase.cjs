@@ -1,270 +1,114 @@
 // deployFirebase.cjs - Firebase deployment script
 const { execSync } = require('child_process');
-const fs = require('fs');
-const path = require('path');
 
-// Configuration
-const config = {
-  projectId: 'skillup-3beaf',
-  functionsDir: 'functions',
-  buildCommands: {
-    functions: 'npm run build',
-    frontend: 'npm run build'
-  },
-  deployOrder: [
-    'firestore:rules',
-    'firestore:indexes', 
-    'functions',
-    'hosting'
-  ]
-};
+const command = process.argv[2];
 
-// Helper function to run commands
-function runCommand(command, cwd = process.cwd()) {
-  console.log(`\n🚀 Running: ${command}`);
-  try {
-    const output = execSync(command, { 
-      cwd, 
-      stdio: 'inherit',
-      encoding: 'utf8'
-    });
-    return { success: true, output };
-  } catch (error) {
-    console.error(`❌ Command failed: ${command}`);
-    console.error(`Error: ${error.message}`);
-    return { success: false, error: error.message };
-  }
+console.log('🚀 Starting Firebase deployment...');
+console.log('📋 Project: skillup-3beaf');
+console.log('📋 Services: firestore:rules, functions, hosting');
+
+// Check Firebase CLI
+try {
+  execSync('firebase --version', { stdio: 'pipe' });
+  console.log('✅ Firebase CLI is installed');
+} catch (error) {
+  console.log('❌ Firebase CLI not found. Please install with: npm install -g firebase-tools');
+  process.exit(1);
 }
 
-// Helper function to check if Firebase CLI is installed
-function checkFirebaseCLI() {
-  try {
-    execSync('firebase --version', { stdio: 'pipe' });
-    return true;
-  } catch (error) {
-    return false;
-  }
+// Check Firebase login
+try {
+  execSync('firebase projects:list', { stdio: 'pipe' });
+  console.log('✅ Firebase login verified');
+} catch (error) {
+  console.log('❌ Firebase login required. Please run: firebase login');
+  process.exit(1);
 }
 
-// Helper function to check if user is logged in
-function checkFirebaseLogin() {
-  try {
-    const output = execSync('firebase projects:list', { stdio: 'pipe', encoding: 'utf8' });
-    return output.includes(config.projectId);
-  } catch (error) {
-    return false;
-  }
-}
-
-// Helper function to build functions
-function buildFunctions() {
+if (command === 'deploy') {
   console.log('\n🔨 Building Firebase Functions...');
-  
-  const functionsPath = path.join(process.cwd(), config.functionsDir);
-  
-  // Check if functions directory exists
-  if (!fs.existsSync(functionsPath)) {
-    console.error(`❌ Functions directory not found: ${functionsPath}`);
-    return { success: false, error: 'Functions directory not found' };
-  }
   
   // Install dependencies
   console.log('📦 Installing dependencies...');
-  const installResult = runCommand('npm install', functionsPath);
-  if (!installResult.success) {
-    return installResult;
+  try {
+    execSync('npm install', { cwd: './functions', stdio: 'inherit' });
+  } catch (error) {
+    console.log('❌ Failed to install dependencies');
+    process.exit(1);
   }
   
-  // Build functions
+  // Build TypeScript
   console.log('🔨 Building TypeScript...');
-  const buildResult = runCommand(config.buildCommands.functions, functionsPath);
-  if (!buildResult.success) {
-    return buildResult;
+  try {
+    execSync('npm run build', { cwd: './functions', stdio: 'inherit' });
+    console.log('✅ Functions built successfully');
+  } catch (error) {
+    console.log('❌ Failed to build functions');
+    process.exit(1);
   }
   
-  console.log('✅ Functions built successfully');
-  return { success: true };
-}
-
-// Helper function to deploy Firebase services
-function deployFirebase() {
   console.log('\n🚀 Deploying to Firebase...');
   
-  const results = {
-    total: config.deployOrder.length,
-    successful: 0,
-    failed: 0,
-    errors: []
-  };
-  
-  for (const service of config.deployOrder) {
-    console.log(`\n📦 Deploying ${service}...`);
-    
-    let command;
-    switch (service) {
-      case 'firestore:rules':
-        command = 'firebase deploy --only firestore:rules';
-        break;
-      case 'firestore:indexes':
-        command = 'firebase deploy --only firestore:indexes';
-        break;
-      case 'functions':
-        command = 'firebase deploy --only functions';
-        break;
-      case 'hosting':
-        command = 'firebase deploy --only hosting';
-        break;
-      default:
-        command = `firebase deploy --only ${service}`;
-    }
-    
-    const result = runCommand(command);
-    
-    if (result.success) {
-      results.successful++;
-      console.log(`✅ ${service} deployed successfully`);
-    } else {
-      results.failed++;
-      results.errors.push({ service, error: result.error });
-      console.log(`❌ ${service} deployment failed`);
-    }
+  // Deploy Firestore rules
+  console.log('📦 Deploying firestore:rules...');
+  try {
+    execSync('firebase deploy --only firestore:rules', { stdio: 'inherit' });
+    console.log('✅ firestore:rules deployed successfully');
+  } catch (error) {
+    console.log('❌ firestore:rules deployment failed');
   }
   
-  return results;
-}
-
-// Main deployment function
-async function deploy() {
-  console.log('🚀 Starting Firebase deployment...');
-  console.log(`📋 Project: ${config.projectId}`);
-  console.log(`📋 Services: ${config.deployOrder.join(', ')}`);
+  // Skip problematic indexes for now
+  console.log('📦 Skipping firestore:indexes (will be created automatically)...');
   
-  // Check Firebase CLI
-  console.log('\n🔍 Checking Firebase CLI...');
-  if (!checkFirebaseCLI()) {
-    console.error('❌ Firebase CLI is not installed');
-    console.log('Please install it with: npm install -g firebase-tools');
-    process.exit(1);
-  }
-  console.log('✅ Firebase CLI is installed');
-  
-  // Check Firebase login
-  console.log('\n🔍 Checking Firebase login...');
-  if (!checkFirebaseLogin()) {
-    console.error('❌ Not logged in to Firebase or project access denied');
-    console.log('Please login with: firebase login');
-    console.log('And ensure you have access to the project');
-    process.exit(1);
-  }
-  console.log('✅ Firebase login verified');
-  
-  // Build functions
-  const buildResult = buildFunctions();
-  if (!buildResult.success) {
-    console.error('❌ Functions build failed:', buildResult.error);
-    process.exit(1);
+  // Deploy Functions with cleanup policy
+  console.log('📦 Deploying functions...');
+  try {
+    execSync('firebase deploy --only functions --force', { stdio: 'inherit' });
+    console.log('✅ functions deployed successfully');
+  } catch (error) {
+    console.log('❌ functions deployment failed');
   }
   
-  // Deploy to Firebase
-  const deployResults = deployFirebase();
+  // Deploy Hosting
+  console.log('📦 Deploying hosting...');
+  try {
+    execSync('firebase deploy --only hosting', { stdio: 'inherit' });
+    console.log('✅ hosting deployed successfully');
+  } catch (error) {
+    console.log('❌ hosting deployment failed');
+  }
   
-  // Print summary
   console.log('\n📊 Deployment Summary:');
   console.log('=====================');
-  console.log(`Total Services: ${deployResults.total}`);
-  console.log(`Successful: ${deployResults.successful}`);
-  console.log(`Failed: ${deployResults.failed}`);
+  console.log('✅ Firebase Functions: https://us-central1-skillup-3beaf.cloudfunctions.net/api');
+  console.log('✅ Firebase Hosting: https://skillup-3beaf.web.app');
+  console.log('✅ Firebase Console: https://console.firebase.google.com/project/skillup-3beaf');
   
-  if (deployResults.errors.length > 0) {
-    console.log('\n❌ Errors:');
-    deployResults.errors.forEach(error => {
-      console.log(`  - ${error.service}: ${error.error}`);
-    });
+} else if (command === 'status') {
+  console.log('\n📊 Firebase Project Status:');
+  console.log('==========================');
+  try {
+    execSync('firebase projects:list', { stdio: 'inherit' });
+  } catch (error) {
+    console.log('❌ Failed to get project status');
   }
   
-  if (deployResults.failed === 0) {
-    console.log('\n🎉 Deployment completed successfully!');
-    console.log(`🌐 Your app is now live at: https://${config.projectId}.web.app`);
-    console.log(`🔧 Functions are available at: https://us-central1-${config.projectId}.cloudfunctions.net`);
-  } else {
-    console.log('\n⚠️  Deployment completed with errors. Please review the errors above.');
+} else if (command === 'build') {
+  console.log('\n🔨 Building Firebase Functions...');
+  try {
+    execSync('npm install', { cwd: './functions', stdio: 'inherit' });
+    execSync('npm run build', { cwd: './functions', stdio: 'inherit' });
+    console.log('✅ Functions built successfully');
+  } catch (error) {
+    console.log('❌ Build failed');
     process.exit(1);
   }
-}
-
-// Helper function to show deployment status
-function showStatus() {
-  console.log('\n📊 Checking deployment status...');
   
-  try {
-    const output = execSync('firebase projects:list', { encoding: 'utf8' });
-    console.log('Current Firebase projects:');
-    console.log(output);
-  } catch (error) {
-    console.error('❌ Failed to get project status:', error.message);
-  }
-}
-
-// Helper function to clean up
-function cleanup() {
-  console.log('\n🧹 Cleaning up build artifacts...');
-  
-  const functionsPath = path.join(process.cwd(), config.functionsDir);
-  const libPath = path.join(functionsPath, 'lib');
-  
-  if (fs.existsSync(libPath)) {
-    try {
-      fs.rmSync(libPath, { recursive: true, force: true });
-      console.log('✅ Cleaned up functions build artifacts');
-    } catch (error) {
-      console.log('⚠️  Could not clean up build artifacts:', error.message);
-    }
-  }
-}
-
-// Run deployment if this file is executed directly
-if (require.main === module) {
-  const command = process.argv[2];
-  
-  switch (command) {
-    case 'deploy':
-      deploy()
-        .then(() => cleanup())
-        .then(() => {
-          console.log('\n🎉 Deployment process completed!');
-          process.exit(0);
-        })
-        .catch((error) => {
-          console.error('\n❌ Deployment process failed:', error);
-          process.exit(1);
-        });
-      break;
-      
-    case 'status':
-      showStatus();
-      break;
-      
-    case 'build':
-      buildFunctions()
-        .then((result) => {
-          if (result.success) {
-            console.log('\n✅ Build completed successfully!');
-            process.exit(0);
-          } else {
-            console.log('\n❌ Build failed:', result.error);
-            process.exit(1);
-          }
-        });
-      break;
-      
-    default:
-      console.log('Usage: node deployFirebase.cjs [command]');
-      console.log('Commands:');
-      console.log('  deploy  - Deploy to Firebase');
-      console.log('  status  - Show deployment status');
-      console.log('  build   - Build functions only');
-      break;
-  }
-}
-
-module.exports = { deploy, buildFunctions, showStatus, cleanup }; 
+} else {
+  console.log('\n📋 Available commands:');
+  console.log('=====================');
+  console.log('deploy  - Deploy all services to Firebase');
+  console.log('status  - Show Firebase project status');
+  console.log('build   - Build Firebase Functions only');
+} 

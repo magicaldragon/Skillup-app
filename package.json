@@ -11,6 +11,7 @@
     "firebase:deploy": "node scripts/deployFirebase.cjs deploy",
     "firebase:status": "node scripts/deployFirebase.cjs status",
     "firebase:build": "node scripts/deployFirebase.cjs build",
+    "firebase:env": "node scripts/setupFirebaseEnv.cjs",
     "migrate:firestore": "node scripts/migrateToFirestore.cjs",
     "migrate:validate": "node -e \"require('./scripts/migrateToFirestore.cjs').validateMigration()\"",
     "migrate:test": "node scripts/testMigration.cjs",

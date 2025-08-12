@@ -6,6 +6,7 @@
 ✅ **Firebase Hosting**: Deployed and live  
 ✅ **MongoDB Data**: Analyzed and ready for migration
 ✅ **VStorage**: Configured (keeping your cost-effective solution)
+✅ **Environment Variables**: MongoDB URI configured
 
 ## 🔧 Required Setup
 
@@ -17,14 +18,34 @@
 4. **Save as**: `serviceAccountKey.json` in your project root
 5. **⚠️ Important**: Never commit this file to Git (it's already in .gitignore)
 
-### 2. Set VStorage Credentials (Optional)
+### 2. Set VStorage Credentials in Firebase Functions
 
-If you want to use VStorage for file uploads, add these to your `.env` file:
+You have two options:
 
-```env
-VITE_VSTORAGE_ACCESS_KEY=your_vng_cloud_access_key
-VITE_VSTORAGE_SECRET_KEY=your_vng_cloud_secret_key
-VITE_VSTORAGE_BUCKET=skillup
+#### Option A: Get from Render and Set in Firebase Console
+1. **Get credentials from Render**:
+   - Go to your Render dashboard
+   - Find your service
+   - Go to Environment tab
+   - Copy `VITE_VSTORAGE_ACCESS_KEY` and `VITE_VSTORAGE_SECRET_KEY`
+
+2. **Set in Firebase Console**:
+   - Go to: https://console.firebase.google.com/project/skillup-3beaf/functions/config
+   - Add these environment variables:
+     - `VITE_VSTORAGE_ACCESS_KEY` = your_access_key
+     - `VITE_VSTORAGE_SECRET_KEY` = your_secret_key
+     - `VITE_VSTORAGE_BUCKET` = skillup
+     - `VITE_VSTORAGE_ENDPOINT` = https://s3.vngcloud.vn
+     - `VITE_VSTORAGE_REGION` = sgn
+
+#### Option B: Use Firebase CLI Commands
+```bash
+# After getting credentials from Render
+firebase functions:config:set vstorage.access_key="YOUR_ACCESS_KEY"
+firebase functions:config:set vstorage.secret_key="YOUR_SECRET_KEY"
+firebase functions:config:set vstorage.bucket="skillup"
+firebase functions:config:set vstorage.endpoint="https://s3.vngcloud.vn"
+firebase functions:config:set vstorage.region="sgn"
 ```
 
 ## 🗑️ Clean Up Orphaned Users
@@ -45,7 +66,7 @@ The student that was created but failed to save to MongoDB should be cleaned up:
 
 ### Step 1: Prepare Migration
 ```bash
-# Ensure MongoDB URI is set
+# Ensure MongoDB URI is set (already done)
 $env:MONGODB_URI="mongodb+srv://skillup-user:Skillup123@cluster0.yuts8hn.mongodb.net/skillup?retryWrites=true&w=majority&appName=Cluster0"
 ```
 
@@ -101,6 +122,7 @@ npm run migrate:validate
 2. **Orphaned Users**: Clean up any Firebase Auth users that don't exist in MongoDB
 3. **Backup**: Your MongoDB data will remain intact during migration
 4. **Rollback**: You can always switch back to MongoDB if needed
+5. **Environment Variables**: Updated to use modern Firebase Functions v2 format
 
 ## 📞 Support
 
@@ -110,6 +132,21 @@ If you encounter any issues:
 3. Verify service account permissions
 4. Test with Firebase Emulator locally
 
+## 🚀 Quick Setup Commands
+
+```bash
+# 1. Set up environment variables
+npm run firebase:env
+
+# 2. Get VStorage credentials from Render and set them in Firebase Console
+
+# 3. Deploy updated functions
+npm run firebase:deploy
+
+# 4. Run data migration (after adding serviceAccountKey.json)
+npm run migrate:firestore
+```
+
 ---
 
-**Ready to migrate?** Download the service account key and run `npm run migrate:firestore`! 
+**Ready to migrate?** Get your VStorage credentials from Render and set them in Firebase Console! 

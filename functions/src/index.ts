@@ -1,10 +1,8 @@
 // functions/src/index.ts - Firebase Functions Main Entry Point
-import { onRequest } from 'firebase-functions/v2/https';
-import * as admin from 'firebase-admin';
 import express from 'express';
 import cors from 'cors';
-import helmet from 'helmet';
-import compression from 'compression';
+import { onRequest } from 'firebase-functions/v2/https';
+import * as admin from 'firebase-admin';
 
 // Initialize Firebase Admin
 admin.initializeApp();
@@ -20,44 +18,30 @@ import { potentialStudentsRouter } from './routes/potentialStudents';
 import { studentRecordsRouter } from './routes/studentRecords';
 import { changeLogsRouter } from './routes/changeLogs';
 
-// Create Express app
 const app = express();
 
-// Security middleware
-app.use(helmet({
-  crossOriginEmbedderPolicy: false,
-  contentSecurityPolicy: false
-}));
-
-// CORS configuration
-app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'http://localhost:3000',
-    'https://skillup-frontend-uvt6.onrender.com',
-    'https://skillup-frontend.onrender.com',
-    'https://skillup-3beaf.web.app',
-    'https://skillup-3beaf.firebaseapp.com'
-  ],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
-
-// Compression middleware
-app.use(compression());
-
-// Body parsing middleware
+// Middleware
+app.use(cors({ origin: true }));
 app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.urlencoded({ extended: true }));
 
 // Health check endpoint
-app.get('/health', (_req, res) => {
+app.get('/health', (req, res) => {
   res.json({
-    success: true,
-    message: 'Firebase Functions API is running!',
+    status: 'healthy',
     timestamp: new Date().toISOString(),
-    uptime: process.uptime()
+    environment: process.env.NODE_ENV || 'development',
+    firebase: {
+      projectId: admin.app().options.projectId,
+      database: 'firestore'
+    },
+    mongodb: {
+      uri: process.env.MONGODB_URI ? 'configured' : 'not configured'
+    },
+    vstorage: {
+      accessKey: process.env.VITE_VSTORAGE_ACCESS_KEY ? 'configured' : 'not configured',
+      bucket: process.env.VITE_VSTORAGE_BUCKET || 'skillup'
+    }
   });
 });
 
@@ -73,24 +57,19 @@ app.use('/student-records', studentRecordsRouter);
 app.use('/change-logs', changeLogsRouter);
 
 // Error handling middleware
-app.use((err: any, _req: any, res: any, _next: any) => {
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error('Error:', err);
   res.status(500).json({
-    success: false,
-    message: 'Internal server error',
     error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
   });
 });
 
 // 404 handler
-app.use('*', (_req, res) => {
-  res.status(404).json({
-    success: false,
-    message: 'Endpoint not found'
-  });
+app.use('*', (req, res) => {
+  res.status(404).json({ error: 'Route not found' });
 });
 
-// Export the Express app as a Firebase Function v2
+// Export the Express app as a Firebase Function
 export const api = onRequest({
   region: 'us-central1',
   timeoutSeconds: 540,
