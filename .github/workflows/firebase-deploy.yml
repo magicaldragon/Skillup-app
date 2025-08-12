@@ -26,14 +26,14 @@ jobs:
     - name: Install Firebase CLI
       run: npm install -g firebase-tools
     
-    - name: Check Firebase Token
+    - name: Deploy to Firebase
+      env:
+        FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
       run: |
-        if [ -z "${{ secrets.FIREBASE_TOKEN }}" ]; then
+        if [ -z "$FIREBASE_TOKEN" ]; then
           echo "❌ FIREBASE_TOKEN is not set"
           exit 1
         else
           echo "✅ FIREBASE_TOKEN is set"
-        fi
-    
-    - name: Deploy to Firebase
-      run: firebase deploy --token "${{ secrets.FIREBASE_TOKEN }}" 
+          firebase deploy --token "$FIREBASE_TOKEN"
+        fi 
