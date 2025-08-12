@@ -28,15 +28,7 @@ jobs:
     
     # Deploy to Firebase using environment variable for secure token access
     - name: Deploy to Firebase
-      if: github.ref == 'refs/heads/main'
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       env:
         FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-      run: |
-        echo "🔐 Checking Firebase token..."
-        if [ -z "$FIREBASE_TOKEN" ]; then
-          echo "❌ FIREBASE_TOKEN is not set"
-          exit 1
-        else
-          echo "✅ FIREBASE_TOKEN is set"
-          firebase deploy --token "$FIREBASE_TOKEN"
-        fi 
+      run: firebase deploy --token "$FIREBASE_TOKEN" 
