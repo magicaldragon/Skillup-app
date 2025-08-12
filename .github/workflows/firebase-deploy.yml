@@ -28,9 +28,7 @@ jobs:
     
     # Deploy to Firebase using service account for permanent access
     - name: Deploy to Firebase
-      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-      env:
-        GOOGLE_APPLICATION_CREDENTIALS: /tmp/firebase-service-account.json
       run: |
         echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > /tmp/firebase-service-account.json
+        export GOOGLE_APPLICATION_CREDENTIALS=/tmp/firebase-service-account.json
         firebase deploy 
