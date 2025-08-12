@@ -123,14 +123,61 @@ router.post('/verify', async (req, res) => {
             success: true,
             message: 'Token verified successfully',
             user: Object.assign({ id: userDoc.id }, userData),
-            customToken
+            token: customToken
         });
     }
     catch (error) {
         console.error('Error verifying token:', error);
-        return res.status(401).json({
+        return res.status(500).json({
             success: false,
-            message: 'Invalid token'
+            message: 'Failed to verify token'
+        });
+    }
+});
+// Firebase login route - exchange Firebase token for JWT
+router.post('/firebase-login', async (req, res) => {
+    try {
+        const { firebaseToken, email } = req.body;
+        if (!firebaseToken || !email) {
+            return res.status(400).json({
+                success: false,
+                message: 'Firebase token and email are required'
+            });
+        }
+        // Verify the Firebase token
+        const decodedToken = await admin.auth().verifyIdToken(firebaseToken);
+        // Get user from Firestore
+        const userQuery = await admin.firestore()
+            .collection('users')
+            .where('firebaseUid', '==', decodedToken.uid)
+            .limit(1)
+            .get();
+        if (userQuery.empty) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found in database'
+            });
+        }
+        const userDoc = userQuery.docs[0];
+        const userData = userDoc.data();
+        // Create a custom JWT token for the user
+        const customToken = await admin.auth().createCustomToken(decodedToken.uid, {
+            userId: userDoc.id,
+            role: userData.role,
+            email: userData.email
+        });
+        return res.json({
+            success: true,
+            message: 'Login successful',
+            user: Object.assign({ id: userDoc.id }, userData),
+            token: customToken
+        });
+    }
+    catch (error) {
+        console.error('Error in firebase-login:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Login failed'
         });
     }
 });

@@ -78,6 +78,14 @@ app.get('/health', (_req, res) => {
         }
     });
 });
+// Test endpoint for connectivity
+app.get('/test', (_req, res) => {
+    res.json({
+        status: 'connected',
+        timestamp: new Date().toISOString(),
+        message: 'Backend is reachable'
+    });
+});
 // API routes
 app.use('/auth', auth_1.authRouter);
 app.use('/users', users_1.usersRouter);
