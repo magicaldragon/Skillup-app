@@ -17,11 +17,11 @@ console.log('\n');
 console.log('🚀 Setting up Firebase environment variables...\n');
 
 try {
-  // Set MongoDB URI
-  console.log('📊 Setting MONGODB_URI...');
-  execSync('firebase functions:config:set mongodb.uri="mongodb+srv://skillup-user:Skillup123@cluster0.yuts8hn.mongodb.net/skillup?retryWrites=true&w=majority&appName=Cluster0"', { stdio: 'inherit' });
-  
-  console.log('\n✅ MONGODB_URI set successfully!');
+  // MongoDB deprecated: SkillUp now uses Firebase/Firestore only
+  console.log('ℹ️ Skipping MONGODB_URI setup - migration completed to Firebase/Firestore.');
+  console.log('   If you still need to set it for legacy scripts, run:');
+  console.log('   firebase functions:config:set mongodb.uri="<YOUR_MONGODB_URI>"');
+  console.log('\n✅ Environment step completed (MongoDB skipped).');
   
   console.log('\n📝 Next steps:');
   console.log('==============');

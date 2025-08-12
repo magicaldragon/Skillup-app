@@ -19,10 +19,25 @@ jobs:
     
     # Install root dependencies and build frontend
     - name: Install Dependencies and Build Frontend
+      env:
+        VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
       run: |
         npm ci
         npm run build
-    
+
+    # Authenticate to Google Cloud with the service account
+    - uses: google-github-actions/auth@v2
+      with:
+        credentials_json: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+        project_id: skillup-3beaf
+
+    - uses: google-github-actions/setup-gcloud@v2
+
+    - name: Who am I
+      run: |
+        gcloud auth list --filter=status:ACTIVE --format="value(account)"
+        gcloud config get-value project
+
     - name: Install Firebase CLI
       run: npm install -g firebase-tools
     
@@ -35,8 +50,4 @@ jobs:
     
     # Deploy to Firebase using service account for production deployment
     - name: Deploy to Firebase
-      env:
-        GOOGLE_APPLICATION_CREDENTIALS: /tmp/firebase-service-account.json
-      run: |
-        echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > /tmp/firebase-service-account.json
-        firebase deploy --project skillup-3beaf 
+      run: firebase deploy --project skillup-3beaf --non-interactive 

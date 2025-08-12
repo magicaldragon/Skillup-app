@@ -2,7 +2,7 @@ import { initializeApp, getApps } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBfKDCo7PrTevI1XUCY3FvH6bED8AWSnnw",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || '',
   authDomain: "skillup-3beaf.firebaseapp.com",
   projectId: "skillup-3beaf",
   storageBucket: "skillup-3beaf.appspot.com",
