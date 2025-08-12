@@ -14,10 +14,6 @@ function generateUsername(fullName: string): string {
     .replace(/\s+/g, '');
 }
 
-function generateEmail(username: string, role: string): string {
-  return `${username}@${role}.skillup`;
-}
-
 export interface RegistrationData {
   name: string;
   email: string;
@@ -50,16 +46,20 @@ export interface RegistrationResponse {
 export const userRegistrationService = {
   async registerNewUser(data: RegistrationData): Promise<RegistrationResponse> {
     try {
-      // 1. Generate username and email
+      // 1. Use provided email directly - no more automatic generation
       const username = generateUsername(data.name);
-      const email = generateEmail(username, data.role);
+      const email = data.email; // Use the email provided by the user
       const password = data.password || (data.role === 'student' ? 'Skillup123' : 'Skillup@123');
+
+      if (!email) {
+        throw new Error('Email address is required');
+      }
 
       // 2. Create user in Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const firebaseUid = userCredential.user.uid;
 
-      // 3. Send registration data to backend, including firebaseUid, username, and generated email
+      // 3. Send registration data to backend, including firebaseUid, username, and email
       const response = await fetch(`${apiUrl}/users`, {
         method: 'POST',
         headers: {
