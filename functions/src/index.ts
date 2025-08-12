@@ -121,6 +121,6 @@ app.use('*', (_req, res) => {
 // Export the Express app as a Firebase Function
 export const api = onRequest({
   region: 'us-central1',
-    timeoutSeconds: 540,
+  timeoutSeconds: 540,
   memory: '256MiB'
 }, app); 
