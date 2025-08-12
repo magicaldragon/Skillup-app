@@ -27,13 +27,13 @@ jobs:
       run: npm install -g firebase-tools
     
     - name: Deploy to Firebase
-      env:
-        FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+      if: github.ref == 'refs/heads/main'
       run: |
-        if [ -z "$FIREBASE_TOKEN" ]; then
+        echo "🔐 Checking Firebase token..."
+        if [ -z "${{ secrets.FIREBASE_TOKEN }}" ]; then
           echo "❌ FIREBASE_TOKEN is not set"
           exit 1
         else
           echo "✅ FIREBASE_TOKEN is set"
-          firebase deploy --token "$FIREBASE_TOKEN"
+          firebase deploy --token "${{ secrets.FIREBASE_TOKEN }}"
         fi 
