@@ -39,8 +39,8 @@ app.get('/health', (req, res) => {
       uri: process.env.MONGODB_URI ? 'configured' : 'not configured'
     },
     vstorage: {
-      accessKey: process.env.VITE_VSTORAGE_ACCESS_KEY ? 'configured' : 'not configured',
-      bucket: process.env.VITE_VSTORAGE_BUCKET || 'skillup'
+      accessKey: process.env.VSTORAGE_ACCESS_KEY || process.env.VITE_VSTORAGE_ACCESS_KEY || 'cb1d2453d51a5936b5eee3be7685d1dc' ? 'configured' : 'not configured',
+      bucket: process.env.VSTORAGE_BUCKET || process.env.VITE_VSTORAGE_BUCKET || 'skillup'
     }
   });
 });
@@ -72,6 +72,6 @@ app.use('*', (req, res) => {
 // Export the Express app as a Firebase Function
 export const api = onRequest({
   region: 'us-central1',
-  timeoutSeconds: 540,
+    timeoutSeconds: 540,
   memory: '256MiB'
 }, app); 
