@@ -84,7 +84,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
   return (
     <div className="login-bg">
-      {/* Backend status indicators - positioned outside the panel */}
+      {/* Backend status indicators and error messages - positioned outside the panel */}
       {backendStatus === 'checking' && (
         <div className="login-status checking">
           Checking server connection...
@@ -101,6 +101,13 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
           >
             Retry Connection
           </button>
+        </div>
+      )}
+      
+      {/* Error message positioned outside the panel */}
+      {error && (
+        <div className="login-error login-error-outside" role="alert">
+          {error}
         </div>
       )}
       
@@ -133,7 +140,6 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          {error && <div className="login-error" role="alert">{error}</div>}
           {failedAttempts >= MAX_ATTEMPTS ? (
             <div className="login-error login-lockout">
               Too many failed login attempts.<br />Please contact the administrator.<br />

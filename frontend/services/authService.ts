@@ -3,7 +3,7 @@ import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { safeTrim } from '../../utils/stringUtils';
 import { performanceMonitor } from '../../utils/performanceMonitor';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 const FUNCTIONS_BASE = 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
 
 export interface LoginCredentials {
@@ -49,14 +49,14 @@ class AuthService {
     }
 
     try {
-      console.log('Testing backend connectivity to:', `${API_BASE_URL}/health`);
+      console.log('Testing backend connectivity to:', `/health`);
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 8000); // Increased timeout to 8 seconds
       
       // Prefer health endpoint if available
       let response: Response | null = null;
       try {
-        response = await fetch(`${API_BASE_URL}/health`, {
+        response = await fetch(`/health`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
           signal: controller.signal,
@@ -71,7 +71,7 @@ class AuthService {
       if (!response || response.status === 404 || response.status === 502) {
         console.warn(`Primary health check returned ${response ? response.status : 'no response'}, trying /test`);
         try {
-          response = await fetch(`${API_BASE_URL}/test`, {
+          response = await fetch(`/test`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
             signal: controller.signal,
@@ -179,7 +179,7 @@ class AuthService {
 
       // Step 3: Exchange Firebase token for JWT (with timeout)
       console.log('Step 3: Exchanging Firebase token for JWT...');
-      console.log('Making request to:', `${API_BASE_URL}/auth/firebase-login`);
+      console.log('Making request to:', `/auth/firebase-login`);
       
       const requestBody = {
         firebaseToken: idToken,
@@ -187,7 +187,7 @@ class AuthService {
       };
       console.log('Request body:', { ...requestBody, firebaseToken: '***' });
 
-      const backendPromise = fetch(`${API_BASE_URL}/auth/firebase-login`, {
+      const backendPromise = fetch(`/auth/firebase-login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -346,7 +346,7 @@ class AuthService {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
       
-      const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+      const response = await fetch(`/auth/profile`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
