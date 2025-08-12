@@ -1,5 +1,9 @@
-// User Registration Service for Hybrid Auth System
-import { auth } from './firebase';
+// services/userRegistrationService.ts - User Registration Service
+// This service handles user registration in the Firebase-only architecture:
+// - Firebase Authentication for user accounts
+// - Firestore for user data storage
+// - VStorage only for assignment files (not user data)
+import { auth } from '../frontend/services/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { safeTrim } from '../utils/stringUtils';
 

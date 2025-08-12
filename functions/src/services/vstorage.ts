@@ -1,4 +1,6 @@
 // functions/src/services/vstorage.ts - VStorage service for Firebase Functions
+// This service handles file storage for assignments (MS Word, PDF, audio, video, etc.)
+// User data and configuration are stored in Firestore, not in VStorage
 import { S3Client, PutObjectCommand, GetObjectCommand, ListObjectsV2Command, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 

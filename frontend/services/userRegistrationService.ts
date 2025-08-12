@@ -1,8 +1,11 @@
-// userRegistrationService.ts
-// Handles user registration with Firebase Authentication and MongoDB synchronization
-
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "./firebase";
+// frontend/services/userRegistrationService.ts - User Registration Service
+// This service handles user registration in the Firebase-only architecture:
+// - Firebase Authentication for user accounts  
+// - Firestore for user data storage
+// - VStorage only for assignment files (not user data)
+// - Username format: fullName + @role.skillup (e.g., "john-doe@student.skillup")
+import { auth } from './firebase';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 
 const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
 
