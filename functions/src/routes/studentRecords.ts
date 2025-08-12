@@ -54,10 +54,10 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
     }));
 
     console.log(`Fetched ${studentRecords.length} student records for role: ${role}`);
-    res.json(studentRecords);
+    return res.json(studentRecords);
   } catch (error) {
     console.error('Error fetching student records:', error);
-    res.status(500).json({ message: 'Failed to fetch student records' });
+    return res.status(500).json({ message: 'Failed to fetch student records' });
   }
 });
 
@@ -127,7 +127,7 @@ router.post('/', verifyToken, requireAdmin, async (req: AuthenticatedRequest, re
     const docRef = await admin.firestore().collection('studentRecords').add(studentRecordData);
     const newStudentRecord = { id: docRef.id, ...studentRecordData };
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: 'Student record created successfully',
       studentRecord: newStudentRecord
@@ -227,10 +227,10 @@ router.delete('/:id', verifyToken, requireAdmin, async (req: AuthenticatedReques
 
     await admin.firestore().collection('studentRecords').doc(id).delete();
 
-    res.json({ success: true, message: 'Student record deleted successfully' });
+    return res.json({ success: true, message: 'Student record deleted successfully' });
   } catch (error) {
     console.error('Error deleting student record:', error);
-    res.status(500).json({ message: 'Failed to delete student record' });
+    return res.status(500).json({ message: 'Failed to delete student record' });
   }
 });
 
@@ -279,10 +279,10 @@ router.get('/student/:studentId', verifyToken, async (req: AuthenticatedRequest,
       ...doc.data()
     }));
 
-    res.json(studentRecords);
+    return res.json(studentRecords);
   } catch (error) {
     console.error('Error fetching student records:', error);
-    res.status(500).json({ message: 'Failed to fetch student records' });
+    return res.status(500).json({ message: 'Failed to fetch student records' });
   }
 });
 
@@ -319,10 +319,10 @@ router.get('/class/:classId', verifyToken, async (req: AuthenticatedRequest, res
       ...doc.data()
     }));
 
-    res.json(studentRecords);
+    return res.json(studentRecords);
   } catch (error) {
     console.error('Error fetching class student records:', error);
-    res.status(500).json({ message: 'Failed to fetch class student records' });
+    return res.status(500).json({ message: 'Failed to fetch class student records' });
   }
 });
 

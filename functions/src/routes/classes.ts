@@ -47,10 +47,10 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
     }));
 
     console.log(`Fetched ${classes.length} classes for role: ${role}`);
-    res.json(classes);
+    return res.json(classes);
   } catch (error) {
     console.error('Error fetching classes:', error);
-    res.status(500).json({ message: 'Failed to fetch classes' });
+    return res.status(500).json({ message: 'Failed to fetch classes' });
   }
 });
 
@@ -112,7 +112,7 @@ router.post('/', verifyToken, requireAdmin, async (req: AuthenticatedRequest, re
       await batch.commit();
     }
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: 'Class created successfully',
       class: newClass
@@ -241,10 +241,10 @@ router.delete('/:id', verifyToken, requireAdmin, async (req: AuthenticatedReques
 
     await admin.firestore().collection('classes').doc(id).delete();
 
-    res.json({ success: true, message: 'Class deleted successfully' });
+    return res.json({ success: true, message: 'Class deleted successfully' });
   } catch (error) {
     console.error('Error deleting class:', error);
-    res.status(500).json({ message: 'Failed to delete class' });
+    return res.status(500).json({ message: 'Failed to delete class' });
   }
 });
 
@@ -265,10 +265,10 @@ router.post('/:id/students/:studentId', verifyToken, requireAdmin, async (req: A
       updatedAt: admin.firestore.FieldValue.serverTimestamp()
     });
 
-    res.json({ success: true, message: 'Student added to class successfully' });
+    return res.json({ success: true, message: 'Student added to class successfully' });
   } catch (error) {
     console.error('Error adding student to class:', error);
-    res.status(500).json({ message: 'Failed to add student to class' });
+    return res.status(500).json({ message: 'Failed to add student to class' });
   }
 });
 
@@ -289,10 +289,10 @@ router.delete('/:id/students/:studentId', verifyToken, requireAdmin, async (req:
       updatedAt: admin.firestore.FieldValue.serverTimestamp()
     });
 
-    res.json({ success: true, message: 'Student removed from class successfully' });
+    return res.json({ success: true, message: 'Student removed from class successfully' });
   } catch (error) {
     console.error('Error removing student from class:', error);
-    res.status(500).json({ message: 'Failed to remove student from class' });
+    return res.status(500).json({ message: 'Failed to remove student from class' });
   }
 });
 

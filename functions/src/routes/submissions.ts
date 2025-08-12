@@ -59,10 +59,10 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
     }));
 
     console.log(`Fetched ${submissions.length} submissions for role: ${role}`);
-    res.json(submissions);
+    return res.json(submissions);
   } catch (error) {
     console.error('Error fetching submissions:', error);
-    res.status(500).json({ message: 'Failed to fetch submissions' });
+    return res.status(500).json({ message: 'Failed to fetch submissions' });
   }
 });
 
@@ -144,7 +144,7 @@ router.post('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =
     const docRef = await admin.firestore().collection('submissions').add(submissionData);
     const newSubmission = { id: docRef.id, ...submissionData };
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: 'Submission created successfully',
       submission: newSubmission
@@ -288,10 +288,10 @@ router.delete('/:id', verifyToken, async (req: AuthenticatedRequest, res: Respon
 
     await admin.firestore().collection('submissions').doc(id).delete();
 
-    res.json({ success: true, message: 'Submission deleted successfully' });
+    return res.json({ success: true, message: 'Submission deleted successfully' });
   } catch (error) {
     console.error('Error deleting submission:', error);
-    res.status(500).json({ message: 'Failed to delete submission' });
+    return res.status(500).json({ message: 'Failed to delete submission' });
   }
 });
 
@@ -335,10 +335,10 @@ router.get('/assignment/:assignmentId', verifyToken, async (req: AuthenticatedRe
       ...doc.data()
     }));
 
-    res.json(submissions);
+    return res.json(submissions);
   } catch (error) {
     console.error('Error fetching assignment submissions:', error);
-    res.status(500).json({ message: 'Failed to fetch assignment submissions' });
+    return res.status(500).json({ message: 'Failed to fetch assignment submissions' });
   }
 });
 

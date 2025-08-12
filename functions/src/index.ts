@@ -1,5 +1,5 @@
 // functions/src/index.ts - Firebase Functions Main Entry Point
-import * as functions from 'firebase-functions';
+import { onRequest } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 import express from 'express';
 import cors from 'cors';
@@ -90,11 +90,9 @@ app.use('*', (_req, res) => {
   });
 });
 
-// Export the Express app as a Firebase Function
-export const api = functions
-  .region('us-central1')
-  .runWith({
-    timeoutSeconds: 540,
-    memory: '256MB'
-  })
-  .https.onRequest(app); 
+// Export the Express app as a Firebase Function v2
+export const api = onRequest({
+  region: 'us-central1',
+  timeoutSeconds: 540,
+  memory: '256MiB'
+}, app); 

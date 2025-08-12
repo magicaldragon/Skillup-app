@@ -60,13 +60,13 @@ router.get('/', auth_1.verifyToken, async (req, res) => {
             query = query.where('status', 'in', statusArray);
         }
         const snapshot = await query.orderBy('createdAt', 'desc').get();
-        const users = snapshot.docs.map(doc => (Object.assign({ id: doc.id }, doc.data())));
+        const users = snapshot.docs.map((doc) => (Object.assign({ id: doc.id }, doc.data())));
         console.log(`Fetched ${users.length} users for role: ${role}${status ? ` with status: ${status}` : ''}`);
-        res.json(users);
+        return res.json(users);
     }
     catch (error) {
         console.error('Error fetching users:', error);
-        res.status(500).json({ message: 'Failed to fetch users' });
+        return res.status(500).json({ message: 'Failed to fetch users' });
     }
 });
 // Register new user
@@ -159,7 +159,7 @@ router.post('/', async (req, res) => {
                 // Don't fail the user creation if PotentialStudent creation fails
             }
         }
-        res.status(201).json({
+        return res.status(201).json({
             success: true,
             message: 'User created successfully',
             user
@@ -167,7 +167,7 @@ router.post('/', async (req, res) => {
     }
     catch (error) {
         console.error('Error creating user:', error);
-        res.status(500).json({
+        return res.status(500).json({
             success: false,
             message: 'Failed to create user'
         });
@@ -186,11 +186,11 @@ router.get('/:id', auth_1.verifyToken, async (req, res) => {
         if (!doc.exists) {
             return res.status(404).json({ message: 'User not found' });
         }
-        res.json(Object.assign({ id: doc.id }, doc.data()));
+        return res.json(Object.assign({ id: doc.id }, doc.data()));
     }
     catch (error) {
         console.error('Error fetching user:', error);
-        res.status(500).json({ message: 'Failed to fetch user' });
+        return res.status(500).json({ message: 'Failed to fetch user' });
     }
 });
 // Update user
@@ -208,11 +208,11 @@ router.put('/:id', auth_1.verifyToken, async (req, res) => {
         delete updateData.createdAt;
         updateData.updatedAt = admin.firestore.FieldValue.serverTimestamp();
         await admin.firestore().collection('users').doc(id).update(updateData);
-        res.json({ success: true, message: 'User updated successfully' });
+        return res.json({ success: true, message: 'User updated successfully' });
     }
     catch (error) {
         console.error('Error updating user:', error);
-        res.status(500).json({ message: 'Failed to update user' });
+        return res.status(500).json({ message: 'Failed to update user' });
     }
 });
 // Delete user
@@ -220,11 +220,11 @@ router.delete('/:id', auth_1.verifyToken, auth_1.requireAdmin, async (req, res) 
     try {
         const { id } = req.params;
         await admin.firestore().collection('users').doc(id).delete();
-        res.json({ success: true, message: 'User deleted successfully' });
+        return res.json({ success: true, message: 'User deleted successfully' });
     }
     catch (error) {
         console.error('Error deleting user:', error);
-        res.status(500).json({ message: 'Failed to delete user' });
+        return res.status(500).json({ message: 'Failed to delete user' });
     }
 });
 // Check if email exists
@@ -236,11 +236,11 @@ router.get('/check-email/:email', async (req, res) => {
             .where('email', '==', email)
             .limit(1)
             .get();
-        res.json({ exists: !snapshot.empty });
+        return res.json({ exists: !snapshot.empty });
     }
     catch (error) {
         console.error('Error checking email:', error);
-        res.status(500).json({ exists: false });
+        return res.status(500).json({ exists: false });
     }
 });
 // Check if username exists
@@ -252,11 +252,11 @@ router.get('/check-username/:username', async (req, res) => {
             .where('username', '==', username)
             .limit(1)
             .get();
-        res.json({ exists: !snapshot.empty });
+        return res.json({ exists: !snapshot.empty });
     }
     catch (error) {
         console.error('Error checking username:', error);
-        res.status(500).json({ exists: false });
+        return res.status(500).json({ exists: false });
     }
 });
 // Update user avatar
@@ -264,12 +264,12 @@ router.post('/:id/avatar', auth_1.verifyToken, async (req, res) => {
     try {
         const { id } = req.params;
         // This would typically handle file upload to Firebase Storage
-        // For now, we'll just return a success message
-        res.json({ message: 'Avatar updated successfully', avatarUrl: 'placeholder-url' });
+        // For now, we'll just return a success message with the user ID
+        return res.json({ message: 'Avatar updated successfully', avatarUrl: 'placeholder-url', userId: id });
     }
     catch (error) {
         console.error('Error updating avatar:', error);
-        res.status(500).json({ message: 'Failed to update avatar' });
+        return res.status(500).json({ message: 'Failed to update avatar' });
     }
 });
 // Remove user avatar
@@ -277,11 +277,11 @@ router.delete('/:id/avatar', auth_1.verifyToken, async (req, res) => {
     try {
         const { id } = req.params;
         await admin.firestore().collection('users').doc(id).update({ avatarUrl: null });
-        res.json({ message: 'Avatar removed successfully' });
+        return res.json({ message: 'Avatar removed successfully' });
     }
     catch (error) {
         console.error('Error removing avatar:', error);
-        res.status(500).json({ message: 'Failed to remove avatar' });
+        return res.status(500).json({ message: 'Failed to remove avatar' });
     }
 });
 // Helper function to generate student code

@@ -37,10 +37,10 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
     }));
 
     console.log(`Fetched ${potentialStudents.length} potential students for role: ${role}`);
-    res.json(potentialStudents);
+    return res.json(potentialStudents);
   } catch (error) {
     console.error('Error fetching potential students:', error);
-    res.status(500).json({ message: 'Failed to fetch potential students' });
+    return res.status(500).json({ message: 'Failed to fetch potential students' });
   }
 });
 
@@ -99,7 +99,7 @@ router.post('/', verifyToken, requireAdmin, async (req: AuthenticatedRequest, re
     const docRef = await admin.firestore().collection('potentialStudents').add(potentialStudentData);
     const newPotentialStudent = { id: docRef.id, ...potentialStudentData };
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: 'Potential student created successfully',
       potentialStudent: newPotentialStudent
@@ -179,10 +179,10 @@ router.delete('/:id', verifyToken, requireAdmin, async (req: AuthenticatedReques
 
     await admin.firestore().collection('potentialStudents').doc(id).delete();
 
-    res.json({ success: true, message: 'Potential student deleted successfully' });
+    return res.json({ success: true, message: 'Potential student deleted successfully' });
   } catch (error) {
     console.error('Error deleting potential student:', error);
-    res.status(500).json({ message: 'Failed to delete potential student' });
+    return res.status(500).json({ message: 'Failed to delete potential student' });
   }
 });
 
@@ -206,10 +206,10 @@ router.post('/:id/assign', verifyToken, requireAdmin, async (req: AuthenticatedR
       updatedAt: admin.firestore.FieldValue.serverTimestamp()
     });
 
-    res.json({ success: true, message: 'Potential student assigned successfully' });
+    return res.json({ success: true, message: 'Potential student assigned successfully' });
   } catch (error) {
     console.error('Error assigning potential student:', error);
-    res.status(500).json({ message: 'Failed to assign potential student' });
+    return res.status(500).json({ message: 'Failed to assign potential student' });
   }
 });
 
@@ -282,14 +282,14 @@ router.post('/:id/convert', verifyToken, requireAdmin, async (req: Authenticated
       updatedAt: admin.firestore.FieldValue.serverTimestamp()
     });
 
-    res.json({ 
+    return res.json({ 
       success: true, 
       message: 'Potential student converted successfully',
       userId: userRef.id
     });
   } catch (error) {
     console.error('Error converting potential student:', error);
-    res.status(500).json({ message: 'Failed to convert potential student' });
+    return res.status(500).json({ message: 'Failed to convert potential student' });
   }
 });
 

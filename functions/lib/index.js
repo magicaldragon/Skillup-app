@@ -36,9 +36,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.changeLogs = exports.studentRecords = exports.potentialStudents = exports.submissions = exports.assignments = exports.levels = exports.classes = exports.users = exports.auth = exports.api = void 0;
+exports.api = void 0;
 // functions/src/index.ts - Firebase Functions Main Entry Point
-const functions = __importStar(require("firebase-functions"));
+const https_1 = require("firebase-functions/v2/https");
 const admin = __importStar(require("firebase-admin"));
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
@@ -117,22 +117,10 @@ app.use('*', (_req, res) => {
         message: 'Endpoint not found'
     });
 });
-// Export the Express app as a Firebase Function
-exports.api = functions
-    .region('us-central1')
-    .runWith({
+// Export the Express app as a Firebase Function v2
+exports.api = (0, https_1.onRequest)({
+    region: 'us-central1',
     timeoutSeconds: 540,
-    memory: '256MB'
-})
-    .https.onRequest(app);
-// Export individual functions for better performance
-exports.auth = functions.region('us-central1').https.onRequest(auth_1.authRouter);
-exports.users = functions.region('us-central1').https.onRequest(users_1.usersRouter);
-exports.classes = functions.region('us-central1').https.onRequest(classes_1.classesRouter);
-exports.levels = functions.region('us-central1').https.onRequest(levels_1.levelsRouter);
-exports.assignments = functions.region('us-central1').https.onRequest(assignments_1.assignmentsRouter);
-exports.submissions = functions.region('us-central1').https.onRequest(submissions_1.submissionsRouter);
-exports.potentialStudents = functions.region('us-central1').https.onRequest(potentialStudents_1.potentialStudentsRouter);
-exports.studentRecords = functions.region('us-central1').https.onRequest(studentRecords_1.studentRecordsRouter);
-exports.changeLogs = functions.region('us-central1').https.onRequest(changeLogs_1.changeLogsRouter);
+    memory: '256MiB'
+}, app);
 //# sourceMappingURL=index.js.map

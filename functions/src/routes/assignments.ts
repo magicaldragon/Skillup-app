@@ -58,10 +58,10 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
     }));
 
     console.log(`Fetched ${assignments.length} assignments for role: ${role}`);
-    res.json(assignments);
+    return res.json(assignments);
   } catch (error) {
     console.error('Error fetching assignments:', error);
-    res.status(500).json({ message: 'Failed to fetch assignments' });
+    return res.status(500).json({ message: 'Failed to fetch assignments' });
   }
 });
 
@@ -101,19 +101,18 @@ router.post('/', verifyToken, requireAdmin, async (req: AuthenticatedRequest, re
     };
 
     const docRef = await admin.firestore().collection('assignments').add(assignmentData);
-    const newAssignment = { id: docRef.id, ...assignmentData };
-
-    res.status(201).json({
+    
+    console.log(`Created assignment: ${docRef.id}`);
+    return res.status(201).json({
       success: true,
-      message: 'Assignment created successfully',
-      assignment: newAssignment
+      id: docRef.id,
+      message: 'Assignment created successfully'
     });
-
   } catch (error) {
     console.error('Error creating assignment:', error);
-    return res.status(500).json({
+    return res.status(500).json({ 
       success: false,
-      message: 'Failed to create assignment'
+      message: 'Failed to create assignment' 
     });
   }
 });
@@ -200,10 +199,10 @@ router.delete('/:id', verifyToken, requireAdmin, async (req: AuthenticatedReques
 
     await admin.firestore().collection('assignments').doc(id).delete();
 
-    res.json({ success: true, message: 'Assignment deleted successfully' });
+    return res.json({ success: true, message: 'Assignment deleted successfully' });
   } catch (error) {
     console.error('Error deleting assignment:', error);
-    res.status(500).json({ message: 'Failed to delete assignment' });
+    return res.status(500).json({ message: 'Failed to delete assignment' });
   }
 });
 
@@ -244,10 +243,10 @@ router.get('/class/:classId', verifyToken, async (req: AuthenticatedRequest, res
       ...doc.data()
     }));
 
-    res.json(assignments);
+    return res.json(assignments);
   } catch (error) {
     console.error('Error fetching class assignments:', error);
-    res.status(500).json({ message: 'Failed to fetch class assignments' });
+    return res.status(500).json({ message: 'Failed to fetch class assignments' });
   }
 });
 

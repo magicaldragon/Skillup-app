@@ -1,23 +1,16 @@
-// vstorage.ts - Firebase Storage integration for SKILLUP
-// Uses Firebase Storage for file uploads and management
+// vstorage.ts - VNG Cloud VStorage integration for SKILLUP
+// Uses AWS SDK v3 for S3 compatibility with VNG Cloud
 
-import { 
-  getStorage, 
-  ref, 
-  uploadBytes, 
-  getDownloadURL, 
-  deleteObject, 
-  listAll,
-  UploadResult
-} from 'firebase/storage';
-import { app } from './firebase';
+import { S3Client, PutObjectCommand, GetObjectCommand, ListObjectsV2Command, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
-// Initialize Firebase Storage
-const storage = getStorage(app);
-
-// --- Firebase Storage Configuration ---
-export const storageConfig = {
-  bucket: 'skillup-3beaf.appspot.com', // Your Firebase Storage bucket
+// --- VNG Cloud VStorage Configuration ---
+export const vstorageConfig = {
+  accessKeyId: import.meta.env.VITE_VSTORAGE_ACCESS_KEY || '',
+  secretAccessKey: import.meta.env.VITE_VSTORAGE_SECRET_KEY || '',
+  endpoint: import.meta.env.VITE_VSTORAGE_ENDPOINT || 'https://s3.vngcloud.vn',
+  region: import.meta.env.VITE_VSTORAGE_REGION || 'sgn',
+  bucket: import.meta.env.VITE_VSTORAGE_BUCKET || 'skillup',
   maxFileSize: 10 * 1024 * 1024, // 10MB max file size
   allowedTypes: [
     'image/jpeg',
@@ -35,35 +28,61 @@ export const storageConfig = {
   ]
 };
 
+// Validate configuration
+if (!vstorageConfig.accessKeyId || !vstorageConfig.secretAccessKey) {
+  console.warn('VStorage credentials not configured. Please set VITE_VSTORAGE_ACCESS_KEY and VITE_VSTORAGE_SECRET_KEY environment variables.');
+}
+
+// --- S3 Client for VNG Cloud ---
+export const s3 = new S3Client({
+  region: vstorageConfig.region,
+  endpoint: vstorageConfig.endpoint,
+  credentials: {
+    accessKeyId: vstorageConfig.accessKeyId,
+    secretAccessKey: vstorageConfig.secretAccessKey,
+  },
+  forcePathStyle: true, // Required for VNG Cloud S3 compatibility
+});
+
 // --- Helper: Upload File ---
 export async function uploadFile(
-  path: string, 
+  key: string, 
   file: File | Blob, 
-  metadata?: { contentType?: string; customMetadata?: Record<string, string> }
-): Promise<{ url: string; path: string }> {
+  contentType = 'application/octet-stream',
+  metadata?: Record<string, string>
+): Promise<{ url: string; key: string }> {
   try {
     // Validate file size
-    if (file.size > storageConfig.maxFileSize) {
-      throw new Error(`File size exceeds maximum allowed size of ${storageConfig.maxFileSize / (1024 * 1024)}MB`);
+    if (file.size > vstorageConfig.maxFileSize) {
+      throw new Error(`File size exceeds maximum allowed size of ${vstorageConfig.maxFileSize / (1024 * 1024)}MB`);
     }
 
     // Validate file type if provided
-    if (file instanceof File && !storageConfig.allowedTypes.includes(file.type)) {
+    if (file instanceof File && !vstorageConfig.allowedTypes.includes(file.type)) {
       throw new Error(`File type ${file.type} is not allowed`);
     }
 
-    // Create storage reference
-    const storageRef = ref(storage, path);
+    const command = new PutObjectCommand({
+      Bucket: vstorageConfig.bucket,
+      Key: key,
+      Body: file,
+      ContentType: contentType,
+      Metadata: metadata,
+    });
+
+    await s3.send(command);
     
-    // Upload file
-    const uploadResult: UploadResult = await uploadBytes(storageRef, file, metadata);
+    // Generate presigned URL for immediate access
+    const getCommand = new GetObjectCommand({
+      Bucket: vstorageConfig.bucket,
+      Key: key,
+    });
     
-    // Get download URL
-    const downloadURL = await getDownloadURL(uploadResult.ref);
+    const url = await getSignedUrl(s3, getCommand, { expiresIn: 3600 }); // 1 hour
     
     return {
-      url: downloadURL,
-      path: uploadResult.ref.fullPath
+      url,
+      key
     };
   } catch (error) {
     console.error('Error uploading file:', error);
@@ -72,10 +91,14 @@ export async function uploadFile(
 }
 
 // --- Helper: Get File URL ---
-export async function getFileURL(path: string): Promise<string> {
+export async function getFileURL(key: string, expiresIn = 3600): Promise<string> {
   try {
-    const storageRef = ref(storage, path);
-    return await getDownloadURL(storageRef);
+    const command = new GetObjectCommand({
+      Bucket: vstorageConfig.bucket,
+      Key: key,
+    });
+    
+    return await getSignedUrl(s3, command, { expiresIn });
   } catch (error) {
     console.error('Error getting file URL:', error);
     throw error;
@@ -83,10 +106,14 @@ export async function getFileURL(path: string): Promise<string> {
 }
 
 // --- Helper: Delete File ---
-export async function deleteFile(path: string): Promise<void> {
+export async function deleteFile(key: string): Promise<void> {
   try {
-    const storageRef = ref(storage, path);
-    await deleteObject(storageRef);
+    const command = new DeleteObjectCommand({
+      Bucket: vstorageConfig.bucket,
+      Key: key,
+    });
+    
+    await s3.send(command);
   } catch (error) {
     console.error('Error deleting file:', error);
     throw error;
@@ -94,21 +121,29 @@ export async function deleteFile(path: string): Promise<void> {
 }
 
 // --- Helper: List Files ---
-export async function listFiles(prefix: string = ''): Promise<{ name: string; url: string; size: number; lastModified: Date }[]> {
+export async function listFiles(prefix: string = ''): Promise<{ key: string; url: string; size: number; lastModified: Date }[]> {
   try {
-    const storageRef = ref(storage, prefix);
-    const result = await listAll(storageRef);
+    const command = new ListObjectsV2Command({
+      Bucket: vstorageConfig.bucket,
+      Prefix: prefix,
+    });
+    
+    const result = await s3.send(command);
+    
+    if (!result.Contents) {
+      return [];
+    }
     
     const files = await Promise.all(
-      result.items.map(async (item) => {
-        const url = await getDownloadURL(item);
-        // Note: Firebase Storage doesn't provide file metadata in listAll
-        // You might need to store metadata in Firestore for better file management
+      result.Contents.map(async (object: any) => {
+        const key = object.Key!;
+        const url = await getFileURL(key);
+        
         return {
-          name: item.name,
+          key,
           url,
-          size: 0, // Would need custom metadata storage
-          lastModified: new Date() // Would need custom metadata storage
+          size: object.Size || 0,
+          lastModified: object.LastModified || new Date()
         };
       })
     );
@@ -122,14 +157,11 @@ export async function listFiles(prefix: string = ''): Promise<{ name: string; ur
 
 // --- Helper: Upload User Avatar ---
 export async function uploadUserAvatar(userId: string, file: File): Promise<string> {
-  const path = `avatars/${userId}/${Date.now()}_${file.name}`;
-  const result = await uploadFile(path, file, {
-    contentType: file.type,
-    customMetadata: {
-      userId,
-      type: 'avatar',
-      originalName: file.name
-    }
+  const key = `avatars/${userId}/${Date.now()}_${file.name}`;
+  const result = await uploadFile(key, file, file.type, {
+    userId,
+    type: 'avatar',
+    originalName: file.name
   });
   return result.url;
 }
@@ -140,15 +172,12 @@ export async function uploadAssignmentFile(
   studentId: string, 
   file: File
 ): Promise<string> {
-  const path = `assignments/${assignmentId}/${studentId}/${Date.now()}_${file.name}`;
-  const result = await uploadFile(path, file, {
-    contentType: file.type,
-    customMetadata: {
-      assignmentId,
-      studentId,
-      type: 'assignment',
-      originalName: file.name
-    }
+  const key = `assignments/${assignmentId}/${studentId}/${Date.now()}_${file.name}`;
+  const result = await uploadFile(key, file, file.type, {
+    assignmentId,
+    studentId,
+    type: 'assignment',
+    originalName: file.name
   });
   return result.url;
 }
@@ -159,15 +188,28 @@ export async function uploadClassMaterial(
   file: File, 
   materialType: string = 'general'
 ): Promise<string> {
-  const path = `classes/${classId}/materials/${materialType}/${Date.now()}_${file.name}`;
-  const result = await uploadFile(path, file, {
-    contentType: file.type,
-    customMetadata: {
-      classId,
-      type: 'material',
-      materialType,
-      originalName: file.name
-    }
+  const key = `classes/${classId}/materials/${materialType}/${Date.now()}_${file.name}`;
+  const result = await uploadFile(key, file, file.type, {
+    classId,
+    type: 'material',
+    materialType,
+    originalName: file.name
+  });
+  return result.url;
+}
+
+// --- Helper: Upload Feedback File ---
+export async function uploadFeedbackFile(
+  submissionId: string, 
+  teacherId: string, 
+  file: File
+): Promise<string> {
+  const key = `feedback/${submissionId}/${teacherId}/${Date.now()}_${file.name}`;
+  const result = await uploadFile(key, file, file.type, {
+    submissionId,
+    teacherId,
+    type: 'feedback',
+    originalName: file.name
   });
   return result.url;
 }
@@ -181,7 +223,7 @@ export async function cleanupOldFiles(prefix: string, daysOld: number = 30): Pro
     
     for (const file of files) {
       if (file.lastModified < cutoffDate) {
-        await deleteFile(file.name);
+        await deleteFile(file.key);
       }
     }
   } catch (error) {
@@ -203,13 +245,12 @@ export function formatFileSize(bytes: number): string {
 
 // --- Helper: Validate file type ---
 export function isValidFileType(file: File): boolean {
-  return storageConfig.allowedTypes.includes(file.type);
+  return vstorageConfig.allowedTypes.includes(file.type);
 }
 
 // --- Helper: Validate file size ---
 export function isValidFileSize(file: File): boolean {
-  return file.size <= storageConfig.maxFileSize;
+  return file.size <= vstorageConfig.maxFileSize;
 }
 
-// Export storage instance for direct access if needed
-export { storage };
+// Export S3 client for direct access if needed

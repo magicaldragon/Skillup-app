@@ -13,13 +13,18 @@
     "firebase:build": "node scripts/deployFirebase.cjs build",
     "migrate:firestore": "node scripts/migrateToFirestore.cjs",
     "migrate:validate": "node -e \"require('./scripts/migrateToFirestore.cjs').validateMigration()\"",
+    "migrate:test": "node scripts/testMigration.cjs",
     "deploy:all": "npm run build && npm run firebase:deploy",
     "setup:firebase": "npm install -g firebase-tools && firebase login",
     "find:mongodb": "node scripts/findMongoDB.cjs"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.540.0",
+    "@aws-sdk/s3-request-presigner": "^3.540.0",
     "@types/node": "^20.11.30",
     "firebase": "^12.0.0",
+    "firebase-admin": "^12.0.0",
+    "mongodb": "^6.3.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^5.5.0",

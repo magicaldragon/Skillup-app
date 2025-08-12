@@ -34,10 +34,10 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
     }));
 
     console.log(`Fetched ${users.length} users for role: ${role}${status ? ` with status: ${status}` : ''}`);
-    res.json(users);
+    return res.json(users);
   } catch (error) {
     console.error('Error fetching users:', error);
-    res.status(500).json({ message: 'Failed to fetch users' });
+    return res.status(500).json({ message: 'Failed to fetch users' });
   }
 });
 
@@ -156,7 +156,7 @@ router.post('/', async (req: AuthenticatedRequest, res: Response) => {
       }
     }
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: 'User created successfully',
       user
@@ -228,10 +228,10 @@ router.delete('/:id', verifyToken, requireAdmin, async (req: AuthenticatedReques
 
     await admin.firestore().collection('users').doc(id).delete();
 
-    res.json({ success: true, message: 'User deleted successfully' });
+    return res.json({ success: true, message: 'User deleted successfully' });
   } catch (error) {
     console.error('Error deleting user:', error);
-    res.status(500).json({ message: 'Failed to delete user' });
+    return res.status(500).json({ message: 'Failed to delete user' });
   }
 });
 
@@ -245,10 +245,10 @@ router.get('/check-email/:email', async (req: AuthenticatedRequest, res: Respons
       .limit(1)
       .get();
     
-    res.json({ exists: !snapshot.empty });
+    return res.json({ exists: !snapshot.empty });
   } catch (error) {
     console.error('Error checking email:', error);
-    res.status(500).json({ exists: false });
+    return res.status(500).json({ exists: false });
   }
 });
 
@@ -262,10 +262,10 @@ router.get('/check-username/:username', async (req: AuthenticatedRequest, res: R
       .limit(1)
       .get();
     
-    res.json({ exists: !snapshot.empty });
+    return res.json({ exists: !snapshot.empty });
   } catch (error) {
     console.error('Error checking username:', error);
-    res.status(500).json({ exists: false });
+    return res.status(500).json({ exists: false });
   }
 });
 
@@ -275,10 +275,10 @@ router.post('/:id/avatar', verifyToken, async (req: AuthenticatedRequest, res: R
     const { id } = req.params;
     // This would typically handle file upload to Firebase Storage
     // For now, we'll just return a success message with the user ID
-    res.json({ message: 'Avatar updated successfully', avatarUrl: 'placeholder-url', userId: id });
+    return res.json({ message: 'Avatar updated successfully', avatarUrl: 'placeholder-url', userId: id });
   } catch (error) {
     console.error('Error updating avatar:', error);
-    res.status(500).json({ message: 'Failed to update avatar' });
+    return res.status(500).json({ message: 'Failed to update avatar' });
   }
 });
 
@@ -287,10 +287,10 @@ router.delete('/:id/avatar', verifyToken, async (req: AuthenticatedRequest, res:
   try {
     const { id } = req.params;
     await admin.firestore().collection('users').doc(id).update({ avatarUrl: null });
-    res.json({ message: 'Avatar removed successfully' });
+    return res.json({ message: 'Avatar removed successfully' });
   } catch (error) {
     console.error('Error removing avatar:', error);
-    res.status(500).json({ message: 'Failed to remove avatar' });
+    return res.status(500).json({ message: 'Failed to remove avatar' });
   }
 });
 

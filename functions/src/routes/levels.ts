@@ -24,10 +24,10 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
     }));
 
     console.log(`Fetched ${levels.length} levels`);
-    res.json(levels);
+    return res.json(levels);
   } catch (error) {
     console.error('Error fetching levels:', error);
-    res.status(500).json({ message: 'Failed to fetch levels' });
+    return res.status(500).json({ message: 'Failed to fetch levels' });
   }
 });
 
@@ -75,7 +75,7 @@ router.post('/', verifyToken, requireAdmin, async (req: AuthenticatedRequest, re
     const docRef = await admin.firestore().collection('levels').add(levelData);
     const newLevel = { id: docRef.id, ...levelData };
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: 'Level created successfully',
       level: newLevel
@@ -165,10 +165,10 @@ router.delete('/:id', verifyToken, requireAdmin, async (req: AuthenticatedReques
 
     await admin.firestore().collection('levels').doc(id).delete();
 
-    res.json({ success: true, message: 'Level deleted successfully' });
+    return res.json({ success: true, message: 'Level deleted successfully' });
   } catch (error) {
     console.error('Error deleting level:', error);
-    res.status(500).json({ message: 'Failed to delete level' });
+    return res.status(500).json({ message: 'Failed to delete level' });
   }
 });
 
@@ -196,10 +196,10 @@ router.post('/reorder', verifyToken, requireAdmin, async (req: AuthenticatedRequ
 
     await batch.commit();
 
-    res.json({ success: true, message: 'Levels reordered successfully' });
+    return res.json({ success: true, message: 'Levels reordered successfully' });
   } catch (error) {
     console.error('Error reordering levels:', error);
-    res.status(500).json({ message: 'Failed to reorder levels' });
+    return res.status(500).json({ message: 'Failed to reorder levels' });
   }
 });
 

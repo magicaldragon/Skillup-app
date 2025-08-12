@@ -77,10 +77,10 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
     }));
 
     console.log(`Fetched ${changeLogs.length} change logs for role: ${role}`);
-    res.json(changeLogs);
+    return res.json(changeLogs);
   } catch (error) {
     console.error('Error fetching change logs:', error);
-    res.status(500).json({ message: 'Failed to fetch change logs' });
+    return res.status(500).json({ message: 'Failed to fetch change logs' });
   }
 });
 
@@ -114,7 +114,7 @@ router.post('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =
     const docRef = await admin.firestore().collection('changeLogs').add(changeLogData);
     const newChangeLog = { id: docRef.id, ...changeLogData };
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: 'Change log created successfully',
       changeLog: newChangeLog
@@ -232,10 +232,10 @@ router.get('/entity/:entityType/:entityId', verifyToken, async (req: Authenticat
       ...doc.data()
     }));
 
-    res.json(changeLogs);
+    return res.json(changeLogs);
   } catch (error) {
     console.error('Error fetching entity change logs:', error);
-    res.status(500).json({ message: 'Failed to fetch entity change logs' });
+    return res.status(500).json({ message: 'Failed to fetch entity change logs' });
   }
 });
 
@@ -246,10 +246,10 @@ router.delete('/:id', verifyToken, requireAdmin, async (req: AuthenticatedReques
 
     await admin.firestore().collection('changeLogs').doc(id).delete();
 
-    res.json({ success: true, message: 'Change log deleted successfully' });
+    return res.json({ success: true, message: 'Change log deleted successfully' });
   } catch (error) {
     console.error('Error deleting change log:', error);
-    res.status(500).json({ message: 'Failed to delete change log' });
+    return res.status(500).json({ message: 'Failed to delete change log' });
   }
 });
 
@@ -314,7 +314,7 @@ router.get('/summary/dashboard', verifyToken, async (req: AuthenticatedRequest, 
 
     const recentChanges = changeLogs.slice(0, 10); // Last 10 changes
 
-    res.json({
+    return res.json({
       totalChanges: changeLogs.length,
       changesByAction,
       changesByEntityType,
@@ -322,7 +322,7 @@ router.get('/summary/dashboard', verifyToken, async (req: AuthenticatedRequest, 
     });
   } catch (error) {
     console.error('Error fetching change logs summary:', error);
-    res.status(500).json({ message: 'Failed to fetch change logs summary' });
+    return res.status(500).json({ message: 'Failed to fetch change logs summary' });
   }
 });
 
