@@ -139,11 +139,11 @@ const AddNewMembers = () => {
   };
 
   return (
-    <div className="add-student-container">
-      <div className="add-student-content">
+    <div className="panel-container">
+      <div className="panel-content">
         <div className="registration-form-section">
-          <div className="form-container">
-            <h2 className="form-title">REGISTRATION FORM</h2>
+          <div className="panel-card">
+            <h2 className="panel-title">REGISTRATION FORM</h2>
             
             {error && (
               <div className="error-message">
