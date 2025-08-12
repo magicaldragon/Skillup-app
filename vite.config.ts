@@ -7,6 +7,14 @@ export default defineConfig({
     headers: {
       'Cache-Control': 'public, max-age=31536000',
     },
+    // Added proxy to route /api calls to Firebase Functions during dev
+    proxy: {
+      '/api': {
+        target: 'https://us-central1-skillup-3beaf.cloudfunctions.net',
+        changeOrigin: true,
+        secure: true,
+      },
+    },
   },
   build: {
     outDir: 'dist',

@@ -4,6 +4,7 @@ import { safeTrim } from '../../utils/stringUtils';
 import { performanceMonitor } from '../../utils/performanceMonitor';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+const FUNCTIONS_BASE = 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
 
 export interface LoginCredentials {
   email: string;
@@ -66,16 +67,42 @@ class AuthService {
         console.warn('Health endpoint failed, falling back to /test');
       }
 
-      if (!response) {
-        response = await fetch(`${API_BASE_URL}/test`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
-          signal: controller.signal,
-          mode: 'cors',
-        });
+      // If no response or 404/502, try fallback routes
+      if (!response || response.status === 404 || response.status === 502) {
+        console.warn(`Primary health check returned ${response ? response.status : 'no response'}, trying /test`);
+        try {
+          response = await fetch(`${API_BASE_URL}/test`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+            signal: controller.signal,
+            mode: 'cors',
+          });
+        } catch (e) {
+          console.warn('Primary /test failed, trying Cloud Functions fallback');
+        }
+      }
+
+      // Final fallback to Cloud Functions direct URL
+      if (!response || response.status === 404 || response.status === 502) {
+        try {
+          console.warn('Attempting Cloud Functions fallback health check...');
+          response = await fetch(`${FUNCTIONS_BASE}/health`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+            signal: controller.signal,
+            mode: 'cors',
+          });
+        } catch (e) {
+          console.error('Cloud Functions fallback health check failed');
+        }
       }
       
       clearTimeout(timeoutId);
+      if (!response) {
+        console.error('No response from any health check endpoint');
+        this.connectionCache = { status: false, timestamp: Date.now() - 25000 };
+        return false;
+      }
       console.log('Connectivity response status:', response.status);
       
       const isConnected = response.ok;
