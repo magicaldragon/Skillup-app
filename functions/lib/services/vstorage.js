@@ -14,6 +14,8 @@ exports.formatFileSize = formatFileSize;
 exports.isValidFileType = isValidFileType;
 exports.isValidFileSize = isValidFileSize;
 // functions/src/services/vstorage.ts - VStorage service for Firebase Functions
+// This service handles file storage for assignments (MS Word, PDF, audio, video, etc.)
+// User data and configuration are stored in Firestore, not in VStorage
 const client_s3_1 = require("@aws-sdk/client-s3");
 const s3_request_presigner_1 = require("@aws-sdk/s3-request-presigner");
 // VStorage Configuration for Firebase Functions

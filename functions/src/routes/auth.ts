@@ -112,9 +112,16 @@ router.post('/verify', async (req: AuthenticatedRequest, res: Response) => {
 // Firebase login route - exchange Firebase token for JWT
 router.post('/firebase-login', async (req: AuthenticatedRequest, res: Response) => {
   try {
+    console.log('Firebase login request received:', { 
+      hasToken: !!req.body.firebaseToken, 
+      hasEmail: !!req.body.email,
+      email: req.body.email 
+    });
+
     const { firebaseToken, email } = req.body;
 
     if (!firebaseToken || !email) {
+      console.error('Missing required fields:', { hasToken: !!firebaseToken, hasEmail: !!email });
       return res.status(400).json({ 
         success: false,
         message: 'Firebase token and email are required' 
@@ -124,6 +131,7 @@ router.post('/firebase-login', async (req: AuthenticatedRequest, res: Response) 
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
+      console.error('Invalid email format:', email);
       return res.status(400).json({
         success: false,
         message: 'Invalid email format'
@@ -133,7 +141,9 @@ router.post('/firebase-login', async (req: AuthenticatedRequest, res: Response) 
     // Verify the Firebase token
     let decodedToken;
     try {
+      console.log('Verifying Firebase token...');
       decodedToken = await admin.auth().verifyIdToken(firebaseToken);
+      console.log('Firebase token verified successfully, UID:', decodedToken.uid);
     } catch (tokenError) {
       console.error('Firebase token verification failed:', tokenError);
       return res.status(401).json({
@@ -233,28 +243,16 @@ router.post('/firebase-login', async (req: AuthenticatedRequest, res: Response) 
       });
     }
 
-    // Create a custom JWT token for the user
-    let customToken;
-    try {
-      customToken = await admin.auth().createCustomToken(decodedToken.uid, {
-        userId: userDoc.id,
-        role: userData.role,
-        email: userData.email
-      });
-    } catch (tokenError) {
-      console.error('Failed to create custom token:', tokenError);
-      return res.status(500).json({
-        success: false,
-        message: 'Failed to create authentication token'
-      });
-    }
-
-    if (!customToken) {
-      return res.status(500).json({
-        success: false,
-        message: 'Failed to generate authentication token'
-      });
-    }
+    // Instead of creating a custom token (which requires special permissions),
+    // we'll return the user data and let the frontend handle authentication state
+    // The Firebase ID token is already verified, so we can trust the user is authenticated
+    
+    console.log('Login successful for user:', { 
+      uid: decodedToken.uid, 
+      userId: userDoc.id, 
+      role: userData.role, 
+      email: userData.email 
+    });
 
     return res.json({
       success: true,
@@ -263,10 +261,16 @@ router.post('/firebase-login', async (req: AuthenticatedRequest, res: Response) 
         id: userDoc.id,
         ...userData
       },
-      token: customToken
+      // Return the original Firebase ID token instead of a custom token
+      token: firebaseToken
     });
   } catch (error) {
     console.error('Error in firebase-login:', error);
+    console.error('Error details:', {
+      name: error instanceof Error ? error.name : 'Unknown',
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : 'No stack trace'
+    });
     return res.status(500).json({ 
       success: false,
       message: 'Login failed: ' + (error instanceof Error ? error.message : 'Unknown error')
