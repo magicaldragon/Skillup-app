@@ -21,6 +21,8 @@ const initialQuestion: Partial<AssignmentQuestion> = {
 };
 
 export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({ classes, currentUser, onCreated, onDataRefresh }) => {
+  const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+  
   const [form, setForm] = useState<Partial<Assignment>>({
     title: '',
     level: 'IELTS',
@@ -87,7 +89,7 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({ 
     const formData = new FormData();
     formData.append('file', file);
     try {
-      const res = await fetch('https://skillup-backend-v6vm.onrender.com/upload', {
+      const res = await fetch(`${apiUrl}/upload`, {
         method: 'POST',
         body: formData,
       });

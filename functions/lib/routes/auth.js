@@ -144,28 +144,130 @@ router.post('/firebase-login', async (req, res) => {
                 message: 'Firebase token and email are required'
             });
         }
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid email format'
+            });
+        }
         // Verify the Firebase token
-        const decodedToken = await admin.auth().verifyIdToken(firebaseToken);
-        // Get user from Firestore
-        const userQuery = await admin.firestore()
+        let decodedToken;
+        try {
+            decodedToken = await admin.auth().verifyIdToken(firebaseToken);
+        }
+        catch (tokenError) {
+            console.error('Firebase token verification failed:', tokenError);
+            return res.status(401).json({
+                success: false,
+                message: 'Invalid Firebase token'
+            });
+        }
+        // First try to find user by firebaseUid
+        let userQuery = await admin.firestore()
             .collection('users')
             .where('firebaseUid', '==', decodedToken.uid)
             .limit(1)
             .get();
+        // If not found by firebaseUid, try to find by email
         if (userQuery.empty) {
-            return res.status(404).json({
+            userQuery = await admin.firestore()
+                .collection('users')
+                .where('email', '==', email)
+                .limit(1)
+                .get();
+        }
+        let userDoc;
+        let userData;
+        if (userQuery.empty) {
+            // User doesn't exist in Firestore, sync from Firebase Auth
+            console.log(`Syncing user from Firebase Auth to Firestore for email: ${email}`);
+            try {
+                // Get user details from Firebase Auth
+                const firebaseUser = await admin.auth().getUser(decodedToken.uid);
+                // Determine role based on email domain or existing logic
+                let role = 'student'; // default
+                if (email.includes('@teacher.skillup')) {
+                    role = 'teacher';
+                }
+                else if (email.includes('@admin.skillup') || email.includes('skillup-admin')) {
+                    role = 'admin';
+                }
+                const newUserData = {
+                    email: firebaseUser.email || email,
+                    firebaseUid: decodedToken.uid,
+                    name: firebaseUser.displayName || email.split('@')[0],
+                    role: role,
+                    status: 'active',
+                    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                };
+                // Create user document in Firestore
+                userDoc = await admin.firestore().collection('users').add(newUserData);
+                userData = newUserData;
+                console.log(`Synced user from Firebase Auth with ID: ${userDoc.id}, role: ${role}`);
+            }
+            catch (syncError) {
+                console.error('Error syncing user from Firebase Auth:', syncError);
+                // Fallback to basic user creation
+                const fallbackUserData = {
+                    email: email,
+                    firebaseUid: decodedToken.uid,
+                    name: email.split('@')[0],
+                    role: 'student',
+                    status: 'active',
+                    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                };
+                userDoc = await admin.firestore().collection('users').add(fallbackUserData);
+                userData = fallbackUserData;
+                console.log(`Created fallback user with ID: ${userDoc.id}`);
+            }
+        }
+        else {
+            // User exists, update firebaseUid if needed
+            userDoc = userQuery.docs[0];
+            userData = userDoc.data();
+            // If user doesn't have firebaseUid, update it
+            if (!userData.firebaseUid) {
+                await userDoc.ref.update({
+                    firebaseUid: decodedToken.uid,
+                    updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                });
+                userData.firebaseUid = decodedToken.uid;
+            }
+        }
+        // Validate user data before creating token
+        if (!userData || !userData.role || !userData.email) {
+            console.error('Invalid user data after creation/retrieval:', userData);
+            return res.status(500).json({
                 success: false,
-                message: 'User not found in database'
+                message: 'User data validation failed'
             });
         }
-        const userDoc = userQuery.docs[0];
-        const userData = userDoc.data();
         // Create a custom JWT token for the user
-        const customToken = await admin.auth().createCustomToken(decodedToken.uid, {
-            userId: userDoc.id,
-            role: userData.role,
-            email: userData.email
-        });
+        let customToken;
+        try {
+            customToken = await admin.auth().createCustomToken(decodedToken.uid, {
+                userId: userDoc.id,
+                role: userData.role,
+                email: userData.email
+            });
+        }
+        catch (tokenError) {
+            console.error('Failed to create custom token:', tokenError);
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to create authentication token'
+            });
+        }
+        if (!customToken) {
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to generate authentication token'
+            });
+        }
         return res.json({
             success: true,
             message: 'Login successful',
@@ -177,7 +279,7 @@ router.post('/firebase-login', async (req, res) => {
         console.error('Error in firebase-login:', error);
         return res.status(500).json({
             success: false,
-            message: 'Login failed'
+            message: 'Login failed: ' + (error instanceof Error ? error.message : 'Unknown error')
         });
     }
 });
@@ -301,6 +403,101 @@ router.post('/change-password', auth_1.verifyToken, async (_req, res) => {
         res.status(500).json({
             success: false,
             message: 'Password change failed'
+        });
+    }
+});
+// Admin route to sync all Firebase Auth users to Firestore
+router.post('/sync-users', async (req, res) => {
+    var _a, _b, _c, _d;
+    try {
+        // This should be protected by admin role, but for now allowing it
+        console.log('Starting Firebase Auth to Firestore user sync...');
+        // Get all users from Firebase Auth
+        const listUsersResult = await admin.auth().listUsers();
+        const firebaseUsers = listUsersResult.users;
+        console.log(`Found ${firebaseUsers.length} users in Firebase Auth`);
+        const syncResults = [];
+        for (const firebaseUser of firebaseUsers) {
+            try {
+                // Check if user already exists in Firestore
+                const existingUserQuery = await admin.firestore()
+                    .collection('users')
+                    .where('firebaseUid', '==', firebaseUser.uid)
+                    .limit(1)
+                    .get();
+                if (existingUserQuery.empty) {
+                    // User doesn't exist in Firestore, create them
+                    let role = 'student'; // default
+                    if ((_a = firebaseUser.email) === null || _a === void 0 ? void 0 : _a.includes('@teacher.skillup')) {
+                        role = 'teacher';
+                    }
+                    else if (((_b = firebaseUser.email) === null || _b === void 0 ? void 0 : _b.includes('@admin.skillup')) || ((_c = firebaseUser.email) === null || _c === void 0 ? void 0 : _c.includes('skillup-admin'))) {
+                        role = 'admin';
+                    }
+                    const newUserData = {
+                        email: firebaseUser.email || '',
+                        firebaseUid: firebaseUser.uid,
+                        name: firebaseUser.displayName || ((_d = firebaseUser.email) === null || _d === void 0 ? void 0 : _d.split('@')[0]) || 'Unknown',
+                        role: role,
+                        status: 'active',
+                        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                    };
+                    const userDoc = await admin.firestore().collection('users').add(newUserData);
+                    syncResults.push({
+                        email: firebaseUser.email,
+                        action: 'created',
+                        userId: userDoc.id,
+                        role: role
+                    });
+                    console.log(`Created user in Firestore: ${firebaseUser.email} (${role})`);
+                }
+                else {
+                    // User exists, update if needed
+                    const existingUser = existingUserQuery.docs[0];
+                    const existingData = existingUser.data();
+                    if (!existingData.firebaseUid) {
+                        await existingUser.ref.update({
+                            firebaseUid: firebaseUser.uid,
+                            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                        });
+                        syncResults.push({
+                            email: firebaseUser.email,
+                            action: 'updated',
+                            userId: existingUser.id
+                        });
+                        console.log(`Updated existing user: ${firebaseUser.email}`);
+                    }
+                    else {
+                        syncResults.push({
+                            email: firebaseUser.email,
+                            action: 'already_synced',
+                            userId: existingUser.id
+                        });
+                    }
+                }
+            }
+            catch (userError) {
+                console.error(`Error syncing user ${firebaseUser.email}:`, userError);
+                syncResults.push({
+                    email: firebaseUser.email,
+                    action: 'error',
+                    error: userError instanceof Error ? userError.message : 'Unknown error'
+                });
+            }
+        }
+        console.log('User sync completed');
+        return res.json({
+            success: true,
+            message: `Synced ${firebaseUsers.length} users from Firebase Auth`,
+            results: syncResults
+        });
+    }
+    catch (error) {
+        console.error('Error in user sync:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'User sync failed: ' + (error instanceof Error ? error.message : 'Unknown error')
         });
     }
 });

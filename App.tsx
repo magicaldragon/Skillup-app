@@ -54,8 +54,25 @@ const App: React.FC = () => {
       setLoading(true);
       try {
         console.log('Initializing authentication...');
+        
+        // Check if we have both token and user data in localStorage
+        const token = localStorage.getItem('skillup_token');
+        const storedUser = localStorage.getItem('skillup_user');
+        
+        console.log('Stored token exists:', !!token);
+        console.log('Stored user exists:', !!storedUser);
+        
+        if (!token || !storedUser) {
+          console.log('No stored authentication data, user not authenticated');
+          setUser(null);
+          setAuthError(null);
+          return;
+        }
+        
+        // Verify the token is still valid by getting profile
         const profile = await authService.getProfile();
         console.log('Auth profile received:', profile);
+        
         if (profile && typeof profile === 'object' && profile.email && profile.role) {
           // Ensure profile has all required fields with safe defaults
           const safeProfile = {
@@ -78,11 +95,15 @@ const App: React.FC = () => {
           console.log('Profile validation failed:', { profile, hasEmail: !!profile?.email, hasRole: !!profile?.role });
           await authService.logout();
           setUser(null);
+          setAuthError('Authentication expired. Please log in again.');
         }
       } catch (error) {
         console.error('Auth initialization error:', error);
         setAuthError("Error initializing authentication. Please try again.");
         setUser(null);
+        // Clear invalid authentication data
+        localStorage.removeItem('skillup_token');
+        localStorage.removeItem('skillup_user');
       } finally {
         setLoading(false);
       }

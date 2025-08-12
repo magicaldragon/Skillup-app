@@ -30,8 +30,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
-  'https://skillup-frontend-uvt6.onrender.com',
-  'https://skillup-frontend.onrender.com'
+  'https://skillup-3beaf.web.app'
 ];
 
 app.use(cors({

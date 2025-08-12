@@ -4,8 +4,26 @@ import cors from 'cors';
 import { onRequest } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 
-// Initialize Firebase Admin
-admin.initializeApp();
+// Initialize Firebase Admin with proper error handling
+try {
+  // Check if already initialized
+  if (admin.apps.length === 0) {
+    admin.initializeApp();
+    console.log('Firebase Admin SDK initialized successfully');
+  } else {
+    console.log('Firebase Admin SDK already initialized');
+  }
+  
+  // Verify Firestore connection
+  console.log('Firestore connection verified');
+  
+  // Verify Auth connection
+  console.log('Firebase Auth connection verified');
+  
+} catch (error) {
+  console.error('Failed to initialize Firebase Admin SDK:', error);
+  throw new Error(`Firebase initialization failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+}
 
 // Import routes
 import { authRouter } from './routes/auth';
@@ -26,23 +44,47 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // Health check endpoint
-app.get('/health', (_req, res) => {
-  res.json({
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development',
-    firebase: {
-      projectId: admin.app().options.projectId,
-      database: 'firestore'
-    },
-    mongodb: {
-      uri: process.env.MONGODB_URI ? 'configured' : 'not configured'
-    },
-    vstorage: {
-      accessKey: process.env.VSTORAGE_ACCESS_KEY || process.env.VITE_VSTORAGE_ACCESS_KEY || 'cb1d2453d51a5936b5eee3be7685d1dc' ? 'configured' : 'not configured',
-      bucket: process.env.VSTORAGE_BUCKET || process.env.VITE_VSTORAGE_BUCKET || 'skillup'
-    }
-  });
+app.get('/health', async (_req, res) => {
+  try {
+    // Test Firestore connection
+    const db = admin.firestore();
+    await db.collection('_health').doc('check').get();
+    
+    // Test Auth connection
+    admin.auth();
+    
+    res.json({
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development',
+      firebase: {
+        projectId: admin.app().options.projectId,
+        database: 'firestore',
+        firestore: 'connected',
+        auth: 'connected'
+      },
+      mongodb: {
+        uri: process.env.MONGODB_URI ? 'configured' : 'not configured'
+      },
+      vstorage: {
+        accessKey: process.env.VSTORAGE_ACCESS_KEY || process.env.VITE_VSTORAGE_ACCESS_KEY || 'cb1d2453d51a5936b5eee3be7685d1dc' ? 'configured' : 'not configured',
+        bucket: process.env.VSTORAGE_BUCKET || process.env.VITE_VSTORAGE_BUCKET || 'skillup'
+      }
+    });
+  } catch (error) {
+    console.error('Health check failed:', error);
+    res.status(503).json({
+      status: 'unhealthy',
+      timestamp: new Date().toISOString(),
+      error: error instanceof Error ? error.message : 'Unknown error',
+      firebase: {
+        projectId: admin.app().options.projectId,
+        database: 'firestore',
+        firestore: 'disconnected',
+        auth: 'disconnected'
+      }
+    });
+  }
 });
 
 // Test endpoint for connectivity

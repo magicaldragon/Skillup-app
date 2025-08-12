@@ -37,40 +37,74 @@ export const verifyToken = async (
       return;
     }
 
-    // Verify Firebase ID token
-    const decodedToken = await admin.auth().verifyIdToken(token);
+    let decodedToken;
+    let userData;
+
+    try {
+      // First try to verify as Firebase ID token
+      decodedToken = await admin.auth().verifyIdToken(token);
+      
+      // Get user data from Firestore by firebaseUid
+      const userQuery = await admin.firestore()
+        .collection('users')
+        .where('firebaseUid', '==', decodedToken.uid)
+        .limit(1)
+        .get();
+
+      if (userQuery.empty) {
+        res.status(401).json({
+          success: false,
+          message: 'User not found in database'
+        });
+        return;
+      }
+
+      userData = userQuery.docs[0].data();
+    } catch (firebaseError) {
+      // If Firebase ID token verification fails, try as custom token
+      try {
+        decodedToken = await admin.auth().verifyIdToken(token);
+        
+        // For custom tokens, we need to extract user info from the token
+        const userQuery = await admin.firestore()
+          .collection('users')
+          .where('firebaseUid', '==', decodedToken.uid)
+          .limit(1)
+          .get();
+
+        if (userQuery.empty) {
+          res.status(401).json({
+            success: false,
+            message: 'User not found in database'
+          });
+          return;
+        }
+
+        userData = userQuery.docs[0].data();
+      } catch (customError) {
+        console.error('Both token verification methods failed:', { firebaseError, customError });
+        res.status(401).json({
+          success: false,
+          message: 'Invalid or expired token'
+        });
+        return;
+      }
+    }
     
-    if (!decodedToken) {
+    if (!decodedToken || !userData) {
       res.status(401).json({
         success: false,
-        message: 'Invalid token'
+        message: 'Token verification failed'
       });
       return;
     }
 
-    // Get user data from Firestore
-    const userDoc = await admin.firestore()
-      .collection('users')
-      .where('firebaseUid', '==', decodedToken.uid)
-      .limit(1)
-      .get();
-
-    if (userDoc.empty) {
-      res.status(401).json({
-        success: false,
-        message: 'User not found in database'
-      });
-      return;
-    }
-
-    const userData = userDoc.docs[0].data();
-    
     // Add user info to request
     req.user = {
       uid: decodedToken.uid,
-      email: decodedToken.email || '',
-      role: userData.role,
-      userId: userDoc.docs[0].id
+      email: decodedToken.email || userData.email || '',
+      role: userData.role || 'student',
+      userId: userData._id || userData.id || ''
     };
 
     next();

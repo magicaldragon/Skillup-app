@@ -211,9 +211,13 @@ class AuthService {
         if (data.token) {
           console.log('Token preview:', data.token.substring(0, 20) + '...');
         }
+        
+        // Store both the JWT token and user data consistently
         localStorage.setItem('skillup_token', data.token);
-        console.log('Token stored in localStorage');
+        localStorage.setItem('skillup_user', JSON.stringify(data.user));
+        console.log('Token and user data stored in localStorage');
         console.log('Token verification - stored token:', localStorage.getItem('skillup_token') ? 'Present' : 'Missing');
+        console.log('User data verification - stored user:', localStorage.getItem('skillup_user') ? 'Present' : 'Missing');
         
         // Update connection cache on successful login
         this.connectionCache = { status: true, timestamp: Date.now() };
@@ -259,6 +263,10 @@ class AuthService {
     } catch (error: any) {
       console.error('Login error details:', error);
       
+      // Clean up any partial state on error
+      localStorage.removeItem('skillup_token');
+      localStorage.removeItem('skillup_user');
+      
       // Provide more specific error messages
       if (error.code === 'auth/user-not-found') {
         return {
@@ -298,13 +306,29 @@ class AuthService {
 
   async logout(): Promise<void> {
     try {
-      await signOut(auth);
+      console.log('Starting logout process...');
+      
+      // Clear connection cache
+      this.connectionCache = null;
+      
+      // Clear localStorage
       localStorage.removeItem('skillup_token');
       localStorage.removeItem('skillup_user');
-      // Clear connection cache on logout
-      this.connectionCache = null;
+      
+      // Sign out from Firebase
+      await signOut(auth);
+      
+      console.log('Logout completed successfully');
     } catch (error) {
       console.error('Logout error:', error);
+      
+      // Even if Firebase logout fails, clear local state
+      localStorage.removeItem('skillup_token');
+      localStorage.removeItem('skillup_user');
+      this.connectionCache = null;
+      
+      // Re-throw error for caller to handle
+      throw error;
     }
   }
 
@@ -362,8 +386,46 @@ class AuthService {
     }
   }
 
+  async validateAuthState(): Promise<{ isValid: boolean; user?: any; error?: string }> {
+    try {
+      if (!this.isAuthenticated()) {
+        return { isValid: false, error: 'Not authenticated' };
+      }
+
+      // Verify token is still valid by making a profile request
+      const profile = await this.getProfile();
+      if (profile) {
+        return { isValid: true, user: profile };
+      } else {
+        // Token is invalid, clear state
+        await this.logout();
+        return { isValid: false, error: 'Token validation failed' };
+      }
+    } catch (error) {
+      console.error('Auth state validation error:', error);
+      // Clear invalid state
+      await this.logout();
+      return { 
+        isValid: false, 
+        error: error instanceof Error ? error.message : 'Validation failed' 
+      };
+    }
+  }
+
   isAuthenticated(): boolean {
-    return auth.currentUser !== null && localStorage.getItem('skillup_token') !== null;
+    const hasToken = localStorage.getItem('skillup_token') !== null;
+    const hasUser = localStorage.getItem('skillup_user') !== null;
+    const hasFirebaseUser = auth.currentUser !== null;
+    
+    console.log('Authentication state check:', {
+      hasToken,
+      hasUser,
+      hasFirebaseUser,
+      firebaseUser: auth.currentUser?.email
+    });
+    
+    // All three must be present for valid authentication
+    return hasToken && hasUser && hasFirebaseUser;
   }
 
   getCurrentUser() {
