@@ -38,7 +38,7 @@ const ReportsPanel = ({ isAdmin: _isAdmin, onDataRefresh: _onDataRefresh }: { is
         return;
       }
 
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
       console.log('Fetching reports from:', `${apiUrl}/student-records/reports`);
       
       const response = await fetch(`${apiUrl}/student-records/reports`, {
@@ -81,7 +81,7 @@ const ReportsPanel = ({ isAdmin: _isAdmin, onDataRefresh: _onDataRefresh }: { is
         return;
       }
 
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
       const response = await fetch(`${apiUrl}/student-records/${reportId}`, {
         method: 'PUT',
         headers: {

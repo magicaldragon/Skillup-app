@@ -32,7 +32,7 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
       try {
         // Get token from localStorage
         const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-        const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+        const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
         
         const res = await fetch(`${apiUrl}/levels`, { 
           credentials: 'include',
@@ -63,7 +63,7 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
         console.log('Fetching classes for levels...');
         // Get token from localStorage
         const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-        const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+        const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
         
         const res = await fetch(`${apiUrl}/classes`, { 
           credentials: 'include',
@@ -111,7 +111,7 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
       setLoading(true);
       // Fetch levels first, then classes will be fetched automatically
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
       
       const res = await fetch(`${apiUrl}/levels`, { 
         credentials: 'include',
@@ -153,7 +153,7 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
     setLoading(true);
     try {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
       
       const res = await fetch(`${apiUrl}/levels`, {
         method: 'POST',
@@ -208,7 +208,7 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
     setLoading(true);
     try {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
       
       const res = await fetch(`${apiUrl}/levels/${editingLevel._id}`, {
         method: 'PUT',
@@ -251,7 +251,7 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
     setLoading(true);
     try {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
       
       const res = await fetch(`${apiUrl}/levels/${levelId}`, {
         method: 'DELETE',

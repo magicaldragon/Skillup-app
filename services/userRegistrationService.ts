@@ -3,7 +3,7 @@ import { auth } from './firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { safeTrim } from '../utils/stringUtils';
 
-const API_BASE_URL = 'https://skillup-backend-v6vm.onrender.com/api';
+const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL || '/api';
 
 export interface NewUserData {
   name: string; // Change from fullname to name

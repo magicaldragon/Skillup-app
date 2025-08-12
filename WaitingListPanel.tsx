@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import type { StudentClass } from './types';
 import './WaitingListPanel.css';
 
-const API_BASE_URL = 'https://skillup-backend-v6vm.onrender.com/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 interface User {
   _id: string;

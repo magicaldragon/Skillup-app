@@ -4,7 +4,7 @@
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "./firebase";
 
-const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
 
 function generateUsername(fullName: string): string {
   // Lowercase, remove spaces and special characters

@@ -64,7 +64,7 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
     const formData = new FormData();
     formData.append('avatar', file);
     try {
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
       const res = await fetch(`${apiUrl}/users/${currentUser.id}/avatar`, {
         method: 'POST',
         body: formData,
@@ -90,7 +90,7 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
     setSuccess(null);
     setError(null);
     try {
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api';
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
       const res = await fetch(`${apiUrl}/users/${currentUser.id}`, {
         method: 'PUT',
         headers: { 

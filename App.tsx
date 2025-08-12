@@ -34,7 +34,7 @@ const App: React.FC = () => {
 
   // Memoize API URL to avoid recalculation
   const apiUrl = useMemo(() => 
-    import.meta.env.VITE_API_BASE_URL || 'https://skillup-backend-v6vm.onrender.com/api', 
+    import.meta.env.VITE_API_BASE_URL || '/api', 
     []
   );
 

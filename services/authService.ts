@@ -1,5 +1,5 @@
-// Authentication service for MongoDB backend
-const API_BASE_URL = 'https://skillup-backend-v6vm.onrender.com/api';
+// Authentication service for Firebase Functions backend
+const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL || '/api';
 
 export interface LoginResponse {
   success: boolean;

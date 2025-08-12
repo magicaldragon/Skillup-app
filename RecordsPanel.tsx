@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import './RecordsPanel.css';
 
-const API_BASE_URL = 'https://skillup-backend-v6vm.onrender.com/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 interface StudentRecord {
   _id: string;
