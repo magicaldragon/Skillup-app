@@ -67,7 +67,7 @@ The student that was created but failed to save to MongoDB should be cleaned up:
 ### Step 1: Prepare Migration
 ```bash
 # Ensure MongoDB URI is set (already done)
-$env:MONGODB_URI="mongodb+srv://skillup-user:Skillup123@cluster0.yuts8hn.mongodb.net/skillup?retryWrites=true&w=majority&appName=Cluster0"
+$env:MONGODB_URI="mongodb+srv://<USERNAME>:<PASSWORD>@<CLUSTER_HOST>/<DB_NAME>?retryWrites=true&w=majority&appName=<APP_NAME>"
 ```
 
 ### Step 2: Run Migration

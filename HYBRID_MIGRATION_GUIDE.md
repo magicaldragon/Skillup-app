@@ -36,12 +36,12 @@ Frontend → Firebase Auth (Login/Logout) → MongoDB Atlas (User Data)
 Your Firebase config is already set up. Keep using it for authentication:
 
 ```typescript
-// services/firebase.ts (keep as is)
+// services/firebase.ts (example)
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBfKDCo7PrTevI1XUCY3FvH6bED8AWSnnw",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: "skillup-3beaf.firebaseapp.com",
   projectId: "skillup-3beaf",
   // ... other config
@@ -59,7 +59,7 @@ export const auth = getAuth(app);
 4. **Create `.env` file**:
 
 ```env
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/skillup?retryWrites=true&w=majority
+MONGODB_URI=mongodb+srv://<USERNAME>:<PASSWORD>@<CLUSTER_HOST>/<DB_NAME>?retryWrites=true&w=majority
 JWT_SECRET=your_jwt_secret_key
 PORT=3000
 ```

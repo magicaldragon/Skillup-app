@@ -12,7 +12,7 @@
 
 Create `.env` file in **backend** directory:
 ```env
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/skillup?retryWrites=true&w=majority
+MONGODB_URI=mongodb+srv://<USERNAME>:<PASSWORD>@<CLUSTER_HOST>/<DB_NAME>?retryWrites=true&w=majority
 JWT_SECRET=your_jwt_secret_key_here
 PORT=3000
 ```
