@@ -31,5 +31,8 @@ git push origin main
 - Reports & Analytics
 - Settings
 
+## 🔐 **Firebase Token Test**
+Testing automatic deployment with GitHub Secrets...
+
 ---
-*Last updated: Automatic deployment setup complete*
+*Last updated: Testing Firebase token configuration*
