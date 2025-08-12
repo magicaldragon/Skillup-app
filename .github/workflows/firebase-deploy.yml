@@ -17,11 +17,12 @@ jobs:
         node-version: '20'
         cache: 'npm'
     
-    - name: Install Dependencies
-      run: npm ci
-    
-    - name: Build Frontend
-      run: npm run build
+    # Install and build Firebase Functions
+    - name: Install Functions Dependencies and Build
+      run: |
+        cd functions
+        npm ci
+        npm run build
     
     - name: Install Firebase CLI
       run: npm install -g firebase-tools
