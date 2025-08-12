@@ -52,6 +52,15 @@ const App: React.FC = () => {
   useEffect(() => {
     const initializeAuth = async () => {
       setLoading(true);
+      
+      // Add timeout to prevent infinite loading
+      const timeoutId = setTimeout(() => {
+        console.warn('Authentication initialization timeout, showing login screen');
+        setLoading(false);
+        setUser(null);
+        setAuthError(null);
+      }, 10000); // 10 second timeout
+      
       try {
         console.log('Initializing authentication...');
         
@@ -66,6 +75,7 @@ const App: React.FC = () => {
           console.log('No stored authentication data, user not authenticated');
           setUser(null);
           setAuthError(null);
+          clearTimeout(timeoutId);
           return;
         }
         
@@ -105,6 +115,7 @@ const App: React.FC = () => {
         localStorage.removeItem('skillup_token');
         localStorage.removeItem('skillup_user');
       } finally {
+        clearTimeout(timeoutId);
         setLoading(false);
       }
     };
