@@ -60,7 +60,7 @@ app.use((0, cors_1.default)({ origin: true }));
 app.use(express_1.default.json({ limit: '10mb' }));
 app.use(express_1.default.urlencoded({ extended: true }));
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
     res.json({
         status: 'healthy',
         timestamp: new Date().toISOString(),
@@ -89,14 +89,14 @@ app.use('/potential-students', potentialStudents_1.potentialStudentsRouter);
 app.use('/student-records', studentRecords_1.studentRecordsRouter);
 app.use('/change-logs', changeLogs_1.changeLogsRouter);
 // Error handling middleware
-app.use((err, req, res, next) => {
+app.use((err, _req, res, _next) => {
     console.error('Error:', err);
     res.status(500).json({
         error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
     });
 });
 // 404 handler
-app.use('*', (req, res) => {
+app.use('*', (_req, res) => {
     res.status(404).json({ error: 'Route not found' });
 });
 // Export the Express app as a Firebase Function

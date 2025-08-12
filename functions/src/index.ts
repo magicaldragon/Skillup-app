@@ -26,7 +26,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
   res.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
@@ -57,7 +57,7 @@ app.use('/student-records', studentRecordsRouter);
 app.use('/change-logs', changeLogsRouter);
 
 // Error handling middleware
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error('Error:', err);
   res.status(500).json({
     error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
@@ -65,7 +65,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 });
 
 // 404 handler
-app.use('*', (req, res) => {
+app.use('*', (_req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
 
