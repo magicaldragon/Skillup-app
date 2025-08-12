@@ -30,6 +30,6 @@ jobs:
     
     - name: Deploy to Firebase
       if: github.ref == 'refs/heads/main'
-      run: firebase deploy --token "${{ secrets.FIREBASE_TOKEN }}"
       env:
-        FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }} 
+        FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+      run: firebase deploy --token "$FIREBASE_TOKEN" 
