@@ -56,6 +56,30 @@ class UserRegistrationService {
     return username;
   }
 
+  // Generate email based on username and role
+  private generateEmail(username: string, role: string): string {
+    let domain = 'teacher.skillup'; // default
+    
+    switch (role) {
+      case 'student':
+        domain = 'student.skillup';
+        break;
+      case 'teacher':
+        domain = 'teacher.skillup';
+        break;
+      case 'staff':
+        domain = 'staff.skillup';
+        break;
+      case 'admin':
+        domain = 'admin.skillup';
+        break;
+      default:
+        domain = 'teacher.skillup';
+    }
+    
+    return `${username}@${domain}`;
+  }
+
   // Generate default password based on role
   private generatePassword(role: string): string {
     return role === 'student' ? 'Skillup123' : 'Skillup@123';
@@ -270,13 +294,9 @@ class UserRegistrationService {
   async registerNewUser(userData: NewUserData): Promise<RegistrationResponse> {
     try {
       
-      // Step 1: Use provided username or generate one, use provided email directly
+      // Step 1: Use provided username or generate one, then generate email from username and role
       const username = userData.username || await this.generateUsername(userData.name);
-      const email = userData.email; // Use the email provided by the user directly
-      
-      if (!email) {
-        throw new Error('Email address is required');
-      }
+      const email = userData.email || this.generateEmail(username, userData.role);
       const password = this.generatePassword(userData.role);
 
       // Step 2: Create Firebase Auth user using frontend SDK
@@ -396,9 +416,9 @@ class UserRegistrationService {
   }
 
   // Check if username or email exists
-  async checkUsernameOrEmailExists(username: string, _role: string): Promise<boolean> {
-    // Since users now enter full email addresses, username should already be the email
-    const email = username.includes('@') ? username : username; // No more domain generation
+  async checkUsernameOrEmailExists(username: string, role: string): Promise<boolean> {
+    // Generate email from username and role for checking
+    const email = username.includes('@') ? username : this.generateEmail(username, role);
     
     // Check both username in MongoDB and email in Firebase
     const [usernameExists, emailExists] = await Promise.all([
