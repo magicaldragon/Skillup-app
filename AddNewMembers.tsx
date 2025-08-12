@@ -207,13 +207,7 @@ const AddNewMembers = () => {
                   <option value="staff">Staff</option>
                   <option value="admin">Admin</option>
                 </select>
-                {/* Password preview based on role */}
-                <div className="password-preview">
-                  <small className="preview-label">Default Password:</small>
-                  <span className="preview-password">
-                    {form.role === 'student' ? 'Skillup123' : 'Skillup@123'}
-                  </span>
-                </div>
+                {/* Password will be shown in success box after registration */}
               </div>
 
               {/* Left Column */}
@@ -347,7 +341,7 @@ const AddNewMembers = () => {
                   value={form.notes}
                   onChange={handleChange}
                   className="form-textarea"
-                  rows={3}
+                  rows={2}
                   placeholder="Any additional notes or information..."
                 />
               </div>

@@ -22,8 +22,10 @@ const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onD
   activeKey: string,
   onDataRefresh?: () => void
 }) => {
-  const totalStudents = students.length;
-  const activeAssignments = assignments.filter(a => a.level === 'IELTS').length;
+  const totalStudents = students.filter(s => s.role === 'student').length;
+  const activeAssignments = assignments.filter(a => a.status === 'active').length;
+  const totalClasses = classes.length;
+  const userRole = user.role;
   
   return (
     <div className="teacher-dashboard">
@@ -102,8 +104,14 @@ const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onD
         // Default dashboard view
         <div className="teacher-dashboard-content">
           <div className="teacher-dashboard-welcome">
-            <h1 className="teacher-dashboard-title">Welcome back, {user.displayName || user.name}!</h1>
-            <p className="teacher-dashboard-subtitle">Here's your IELTS teaching dashboard overview</p>
+            <h1 className="teacher-dashboard-title">
+              Welcome back, {user.displayName || user.name}!
+            </h1>
+            <p className="teacher-dashboard-subtitle">
+              {user.role === 'teacher' ? 'Here\'s your IELTS teaching dashboard overview' : 
+               user.role === 'staff' ? 'Here\'s your staff management dashboard overview' : 
+               'Here\'s your dashboard overview'}
+            </p>
           </div>
           
           {/* Summary Cards */}
@@ -117,18 +125,18 @@ const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onD
             </div>
             
             <div className="teacher-dashboard-card">
-              <div className="teacher-dashboard-card-icon">📝</div>
+              <div className="teacher-dashboard-card-icon">📚</div>
               <div className="teacher-dashboard-card-content">
-                <h3 className="teacher-dashboard-card-title">Active Assignments</h3>
-                <p className="teacher-dashboard-card-value">{activeAssignments}</p>
+                <h3 className="teacher-dashboard-card-title">Total Classes</h3>
+                <p className="teacher-dashboard-card-value">{totalClasses}</p>
               </div>
             </div>
             
             <div className="teacher-dashboard-card">
-              <div className="teacher-dashboard-card-icon">🎯</div>
+              <div className="teacher-dashboard-card-icon">📝</div>
               <div className="teacher-dashboard-card-content">
-                <h3 className="teacher-dashboard-card-title">IELTS Focus</h3>
-                <p className="teacher-dashboard-card-value">Primary</p>
+                <h3 className="teacher-dashboard-card-title">Active Assignments</h3>
+                <p className="teacher-dashboard-card-value">{activeAssignments}</p>
               </div>
             </div>
             

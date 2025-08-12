@@ -75,12 +75,12 @@
 /* ===== MAIN CONTAINER ===== */
 .add-student-container {
   width: 100%;
-  height: 100%;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
-  padding: var(--space-6);
+  padding: var(--space-4);
   margin: 0;
   background: linear-gradient(135deg, var(--neutral-50) 0%, var(--primary-50) 100%);
   overflow-y: auto;
@@ -116,7 +116,7 @@
   background: linear-gradient(135deg, #ffffff 0%, var(--primary-50) 50%, var(--primary-100) 100%);
   border-radius: var(--radius-3xl);
   box-shadow: var(--shadow-2xl), 0 0 0 1px var(--primary-200);
-  padding: var(--space-16);
+  padding: var(--space-8);
   width: 100%;
   box-sizing: border-box;
   border: 1px solid var(--primary-200);
@@ -136,10 +136,10 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: 800;
   text-align: center;
-  margin-bottom: var(--space-12);
+  margin-bottom: var(--space-6);
   letter-spacing: -0.025em;
   font-family: var(--font-sans);
   position: relative;
@@ -161,7 +161,7 @@
 .registration-form {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--space-8);
+  gap: var(--space-4);
   width: 100%;
 }
 
@@ -169,8 +169,8 @@
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
-  margin-bottom: 0;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
 }
 
 .form-group.full-width {
@@ -253,9 +253,8 @@
   transform: translateY(-2px);
 }
 
-/* ===== USERNAME & PASSWORD PREVIEWS ===== */
-.username-preview,
-.password-preview {
+/* ===== USERNAME PREVIEW ===== */
+.username-preview {
   background: linear-gradient(135deg, var(--accent-green) 0%, #059669 100%);
   border: 2px solid var(--accent-green);
   border-radius: var(--radius-xl);
@@ -266,8 +265,7 @@
   overflow: hidden;
 }
 
-.username-preview::before,
-.password-preview::before {
+.username-preview::before {
   content: '';
   position: absolute;
   top: 0;
@@ -278,8 +276,7 @@
   transition: left var(--transition-slow);
 }
 
-.username-preview:hover::before,
-.password-preview:hover::before {
+.username-preview:hover::before {
   left: 100%;
 }
 
@@ -294,8 +291,7 @@
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-.preview-username,
-.preview-password {
+.preview-username {
   display: block;
   color: #ffffff;
   font-weight: 800;
@@ -327,7 +323,7 @@
   grid-column: 1 / -1;
   display: flex;
   gap: var(--space-4);
-  margin-top: var(--space-8);
+  margin-top: var(--space-4);
   justify-content: center;
 }
 
@@ -389,7 +385,7 @@
 .success-info-box {
   background: linear-gradient(135deg, var(--accent-green) 0%, #059669 50%, #047857 100%);
   border-radius: var(--radius-3xl);
-  padding: var(--space-12);
+  padding: var(--space-8);
   box-shadow: var(--shadow-2xl);
   border: 1px solid var(--accent-green);
   position: relative;
@@ -415,10 +411,10 @@
 
 .success-title {
   color: #ffffff;
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   font-weight: 800;
   text-align: center;
-  margin-bottom: var(--space-8);
+  margin-bottom: var(--space-6);
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -429,8 +425,8 @@
 .account-details {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
-  margin-bottom: var(--space-8);
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
   position: relative;
   z-index: 1;
 }
@@ -657,7 +653,8 @@
 /* ===== FORM TEXTAREA ===== */
 .form-textarea {
   resize: vertical;
-  min-height: 100px;
+  min-height: 60px;
+  max-height: 120px;
   font-family: var(--font-sans);
   line-height: 1.5;
 }

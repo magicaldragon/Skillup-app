@@ -180,7 +180,12 @@ const Sidebar = ({ role, activeKey, onNavigate, onLogout, user, className }: { r
           )}
         </div>
         <div className="sidebar-profile-name">{user?.name || 'User'}</div>
-        <div className="sidebar-profile-role">{role}</div>
+        <div className="sidebar-profile-role">
+          {role === 'admin' ? 'Administrator' : 
+           role === 'teacher' ? 'Teacher' : 
+           role === 'staff' ? 'Staff' : 
+           role === 'student' ? 'Student' : role}
+        </div>
       </div>
       {/* Main menu */}
       <div className="sidebar-menu">

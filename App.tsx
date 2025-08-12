@@ -7,6 +7,7 @@ const Login = lazy(() => import('./Login'));
 const TeacherDashboard = lazy(() => import('./TeacherDashboard'));
 const StudentDashboard = lazy(() => import('./StudentDashboard'));
 const Sidebar = lazy(() => import('./Sidebar'));
+const AdminDashboard = lazy(() => import('./AdminDashboard')); // Added AdminDashboard
 
 import type { Assignment, Submission, Student, StudentClass } from "./types";
 
@@ -392,12 +393,23 @@ const App: React.FC = () => {
     }
 
     // Determine which dashboard to show based on user role
-    // Show StudentDashboard only for explicit student role; everyone else (teacher/admin/staff) gets TeacherDashboard
+    // Show StudentDashboard only for explicit student role; admin gets AdminDashboard, others get TeacherDashboard
     console.log('Dashboard selection - User role:', user.role);
     console.log('Dashboard selection - User object:', user);
     console.log('Dashboard selection - Role comparison:', user.role === 'student');
-    const DashboardComponent = user.role === 'student' ? StudentDashboard : TeacherDashboard;
-    console.log('Dashboard selection - Selected component:', DashboardComponent === StudentDashboard ? 'StudentDashboard' : 'TeacherDashboard');
+    
+    let DashboardComponent;
+    if (user.role === 'student') {
+      DashboardComponent = StudentDashboard;
+    } else if (user.role === 'admin') {
+      DashboardComponent = AdminDashboard; // Admin gets dedicated dashboard
+    } else {
+      DashboardComponent = TeacherDashboard; // Teachers and staff get teacher dashboard
+    }
+    
+    console.log('Dashboard selection - Selected component:', 
+      DashboardComponent === StudentDashboard ? 'StudentDashboard' : 
+      DashboardComponent === AdminDashboard ? 'AdminDashboard' : 'TeacherDashboard');
     
     return (
       <div className="app-container">
