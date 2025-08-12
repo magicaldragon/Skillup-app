@@ -1,8 +1,9 @@
 // AddNewMembers.tsx
-// Professional panel to add new members (students, teachers, staff, admins), with Hybrid Auth (Firebase + MongoDB) integration
-// [NOTE] Updated for hybrid authentication system and proper layout
-import React, { useState } from 'react';
+// Professional panel to add new members (students, teachers, staff, admins), with Firebase-only architecture
+// Enhanced with Vietnamese name handling and real-time username preview
+import React, { useState, useEffect, useCallback } from 'react';
 import { userRegistrationService } from './frontend/services/userRegistrationService';
+import { generateVietnameseUsername, debounce } from './utils/stringUtils';
 import './AddNewMembers.css';
 
 const AddNewMembers = () => {
@@ -26,6 +27,29 @@ const AddNewMembers = () => {
   const [success, setSuccess] = useState<string | null>(null);
   const [generatedStudentCode, setGeneratedStudentCode] = useState<string | null>(null);
   const [createdUser, setCreatedUser] = useState<any>(null);
+  const [previewUsername, setPreviewUsername] = useState<string>('');
+  const [previewEmail, setPreviewEmail] = useState<string>('');
+
+  // Debounced username generation for performance
+  const debouncedUsernameGeneration = useCallback(
+    debounce((fullName: string, role: string) => {
+      if (fullName.trim()) {
+        const username = generateVietnameseUsername(fullName);
+        const email = `${username}@${role}.skillup`;
+        setPreviewUsername(username);
+        setPreviewEmail(email);
+      } else {
+        setPreviewUsername('');
+        setPreviewEmail('');
+      }
+    }, 300),
+    []
+  );
+
+  // Update preview when name or role changes
+  useEffect(() => {
+    debouncedUsernameGeneration(form.name, form.role);
+  }, [form.name, form.role, debouncedUsernameGeneration]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -98,11 +122,6 @@ const AddNewMembers = () => {
     }
   };
 
-  // Helper function to get display name
-  const getDisplayName = (user: any) => {
-    return user.englishName || user.name || 'N/A';
-  };
-
   // Helper function to get student ID format
   const getStudentId = (user: any) => {
     if (user.role === 'student' && user.studentCode) {
@@ -158,27 +177,19 @@ const AddNewMembers = () => {
                   onChange={handleChange}
                   className="form-input"
                   required
+                  placeholder="Enter Vietnamese full name (e.g., Nguyễn Văn A)"
                 />
+                {/* Real-time username preview */}
+                {previewUsername && (
+                  <div className="username-preview">
+                    <small className="preview-label">Generated Username:</small>
+                    <span className="preview-username">{previewUsername}</span>
+                    <small className="preview-email">{previewEmail}</small>
+                  </div>
+                )}
               </div>
 
               {/* Right Column */}
-              {/* Username */}
-              <div className="form-group">
-                <label className="form-label">
-                  Username <span className="required">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="username"
-                  value={form.username}
-                  onChange={handleChange}
-                  className="form-input"
-                  required
-                  placeholder="Enter unique username"
-                />
-              </div>
-
-              {/* Left Column */}
               {/* Role */}
               <div className="form-group">
                 <label className="form-label">
@@ -196,6 +207,13 @@ const AddNewMembers = () => {
                   <option value="staff">Staff</option>
                   <option value="admin">Admin</option>
                 </select>
+                {/* Password preview based on role */}
+                <div className="password-preview">
+                  <small className="preview-label">Default Password:</small>
+                  <span className="preview-password">
+                    {form.role === 'student' ? 'Skillup123' : 'Skillup@123'}
+                  </span>
+                </div>
               </div>
 
               {/* Left Column */}
@@ -366,8 +384,12 @@ const AddNewMembers = () => {
                   <span className="detail-value">{getStudentId(createdUser)}</span>
                 </div>
                 <div className="account-detail">
-                  <span className="detail-label">NAME:</span>
-                  <span className="detail-value">{getDisplayName(createdUser)}</span>
+                  <span className="detail-label">FULL NAME:</span>
+                  <span className="detail-value">{createdUser.name || 'N/A'}</span>
+                </div>
+                <div className="account-detail">
+                  <span className="detail-label">ENGLISH NAME:</span>
+                  <span className="detail-value">{createdUser.englishName || 'N/A'}</span>
                 </div>
                 <div className="account-detail">
                   <span className="detail-label">ROLE:</span>
@@ -375,16 +397,28 @@ const AddNewMembers = () => {
                 </div>
                 <div className="account-detail">
                   <span className="detail-label">USERNAME:</span>
+                  <span className="detail-value">{createdUser.username || createdUser.email || 'N/A'}</span>
+                </div>
+                <div className="account-detail">
                   <span className="detail-value">{createdUser.email || 'N/A'}</span>
                 </div>
                 <div className="account-detail">
                   <span className="detail-label">PASSWORD:</span>
-                  <span className="detail-value">{getPassword(createdUser)}</span>
+                  <span className="detail-value password-display">
+                    {createdUser.generatedPassword || getPassword(createdUser)}
+                  </span>
                 </div>
+                {createdUser.role === 'student' && createdUser.studentCode && (
+                  <div className="account-detail">
+                    <span className="detail-label">STUDENT CODE:</span>
+                    <span className="detail-value student-code">{createdUser.studentCode}</span>
+                  </div>
+                )}
               </div>
               <div className="success-instructions">
                 <p>📋 Please copy or take a screenshot of this information and send it to the new member.</p>
                 <p>🔐 They can use these credentials to log in to their account.</p>
+                <p>💡 The username is automatically generated from their Vietnamese name for easy memorization.</p>
               </div>
             </div>
           </div>

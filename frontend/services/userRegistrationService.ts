@@ -6,19 +6,22 @@
 // - Username format: fullName + @role.skillup (e.g., "john-doe@student.skillup")
 import { auth } from './firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { generateVietnameseUsername } from '../../utils/stringUtils';
 
 const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
 
 function generateUsername(fullName: string): string {
-  // Lowercase, remove spaces and special characters
-  return fullName
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, '')
-    .replace(/\s+/g, '');
+  // Use enhanced Vietnamese name handling
+  return generateVietnameseUsername(fullName);
 }
 
 function generateEmail(username: string, role: string): string {
   return `${username}@${role}.skillup`;
+}
+
+// Enhanced password generation based on role
+function generatePassword(role: string): string {
+  return role === 'student' ? 'Skillup123' : 'Skillup@123';
 }
 
 export interface RegistrationData {
@@ -56,7 +59,9 @@ export const userRegistrationService = {
       // 1. Generate username and email based on full name and role
       const username = generateUsername(data.name);
       const email = generateEmail(username, data.role);
-      const password = data.password || (data.role === 'student' ? 'Skillup123' : 'Skillup@123');
+      const password = data.password || generatePassword(data.role);
+
+      console.log('Generated credentials:', { username, email, role: data.role, hasPassword: !!password });
 
       // 2. Create user in Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -82,7 +87,18 @@ export const userRegistrationService = {
         throw new Error(errorData.message || 'Registration failed');
       }
 
-      return await response.json();
+      const result = await response.json();
+      
+      // 4. Return enhanced response with generated credentials
+      return {
+        ...result,
+        user: {
+          ...result.user,
+          username,
+          email,
+          generatedPassword: password
+        }
+      };
     } catch (error) {
       console.error('Registration error:', error);
       throw error;
