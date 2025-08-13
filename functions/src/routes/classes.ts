@@ -16,7 +16,10 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
     // Role-based filtering
     if (role === 'student') {
       // Students see only classes they're enrolled in
-      const userDoc = await admin.firestore().collection('users').doc(req.user?.userId).get();
+      if (!req.user?.userId) {
+        return res.status(401).json({ message: 'User ID not found' });
+      }
+      const userDoc = await admin.firestore().collection('users').doc(req.user.userId).get();
       const userData = userDoc.data();
       const classIds = userData?.classIds || [];
 
@@ -135,7 +138,10 @@ router.get('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response)
 
     // Check if user has access to this class
     if (role === 'student') {
-      const userDoc = await admin.firestore().collection('users').doc(req.user?.userId).get();
+      if (!req.user?.userId) {
+        return res.status(401).json({ message: 'User ID not found' });
+      }
+      const userDoc = await admin.firestore().collection('users').doc(req.user.userId).get();
       const userData = userDoc.data();
       const classIds = userData?.classIds || [];
 

@@ -299,7 +299,10 @@ router.get('/class/:classId', auth_1.verifyToken, async (req, res) => {
         const { role } = req.user;
         // Check if user has access to this class
         if (role === 'student') {
-            const userDoc = await admin.firestore().collection('users').doc((_a = req.user) === null || _a === void 0 ? void 0 : _a.userId).get();
+            if (!((_a = req.user) === null || _a === void 0 ? void 0 : _a.userId)) {
+                return res.status(401).json({ message: 'User ID not found' });
+            }
+            const userDoc = await admin.firestore().collection('users').doc(req.user.userId).get();
             const userData = userDoc.data();
             const classIds = (userData === null || userData === void 0 ? void 0 : userData.classIds) || [];
             if (!classIds.includes(classId)) {

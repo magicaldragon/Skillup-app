@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { usersAPI } from './services/apiService';
+import { UserUpdateData } from './types';
 import './AccountsPanel.css';
 
 interface User {
@@ -99,7 +100,19 @@ const AccountsPanel = () => {
     if (!editingId) return;
 
     try {
-      await usersAPI.updateUser(editingId, editForm);
+      const updateData: UserUpdateData = {
+        id: editingId,
+        ...(editForm.name && { name: editForm.name }),
+        ...(editForm.email && { email: editForm.email }),
+        ...(editForm.role && { role: editForm.role as 'admin' | 'teacher' | 'student' }),
+        ...(editForm.gender && { gender: editForm.gender }),
+        ...(editForm.englishName && { englishName: editForm.englishName }),
+        ...(editForm.dob && { dob: editForm.dob }),
+        ...(editForm.phone && { phone: editForm.phone }),
+        ...(editForm.notes && { note: editForm.notes }),
+        ...(editForm.status && { status: editForm.status }),
+      };
+      await usersAPI.updateUser(editingId, updateData);
 
       setAccounts((prev) =>
         prev.map((acc) => (acc._id === editingId ? { ...acc, ...editForm } : acc))

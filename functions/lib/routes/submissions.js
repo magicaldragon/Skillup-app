@@ -33,56 +33,43 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.submissionsRouter = void 0;
 // functions/src/routes/submissions.ts - Submissions API Routes
 const express_1 = require("express");
 const admin = __importStar(require("firebase-admin"));
 const auth_1 = require("../middleware/auth");
 const router = (0, express_1.Router)();
-exports.submissionsRouter = router;
 // Get all submissions (with role-based filtering)
 router.get('/', auth_1.verifyToken, async (req, res) => {
-    var _a, _b;
     try {
+        if (!req.user) {
+            return res.status(401).json({ message: 'User not authenticated' });
+        }
         const { role } = req.user;
-        const { assignmentId, classId, studentId, status } = req.query;
+        const { classId, studentId, assignmentId } = req.query;
         let query = admin.firestore().collection('submissions');
         // Role-based filtering
-        if (role === 'student') {
+        if (role === 'admin' || role === 'teacher' || role === 'staff') {
+            // Admin, teachers, and staff see all submissions
+        }
+        else if (role === 'student') {
             // Students see only their own submissions
-            query = query.where('studentId', '==', (_a = req.user) === null || _a === void 0 ? void 0 : _a.userId);
+            query = query.where('studentId', '==', req.user.userId);
         }
-        else if (role === 'teacher') {
-            // Teachers see submissions for classes they teach
-            const teacherClasses = await admin
-                .firestore()
-                .collection('classes')
-                .where('teacherId', '==', (_b = req.user) === null || _b === void 0 ? void 0 : _b.userId)
-                .get();
-            const classIds = teacherClasses.docs.map((doc) => doc.id);
-            if (classIds.length === 0) {
-                return res.json([]);
-            }
-            query = query.where('classId', 'in', classIds);
-        }
-        // Admin and staff see all submissions
-        // Add filters if provided
-        if (assignmentId) {
-            query = query.where('assignmentId', '==', assignmentId);
-        }
+        // Add class filtering if provided
         if (classId && role !== 'student') {
             query = query.where('classId', '==', classId);
         }
+        // Add student filtering if provided
         if (studentId && role !== 'student') {
             query = query.where('studentId', '==', studentId);
         }
-        if (status) {
-            const statusArray = Array.isArray(status) ? status : [status];
-            query = query.where('status', 'in', statusArray);
+        // Add assignment filtering if provided
+        if (assignmentId) {
+            query = query.where('assignmentId', '==', assignmentId);
         }
         const snapshot = await query.orderBy('submittedAt', 'desc').get();
         const submissions = snapshot.docs.map((doc) => (Object.assign({ id: doc.id }, doc.data())));
-        console.log(`Fetched ${submissions.length} submissions for role: ${role}`);
+        console.log(`Fetched ${submissions.length} submissions for role: ${role}${classId ? ` with classId: ${classId}` : ''}${studentId ? ` with studentId: ${studentId}` : ''}${assignmentId ? ` with assignmentId: ${assignmentId}` : ''}`);
         return res.json(submissions);
     }
     catch (error) {
@@ -94,32 +81,41 @@ router.get('/', auth_1.verifyToken, async (req, res) => {
 router.post('/', auth_1.verifyToken, async (req, res) => {
     var _a;
     try {
+        if (!req.user) {
+            return res.status(401).json({ message: 'User not authenticated' });
+        }
         const { assignmentId, classId, content, fileUrl } = req.body;
-        const studentId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.userId;
-        // Validate that assignment exists
+        const studentId = req.user.userId;
+        // Validate required fields
+        if (!assignmentId || !classId || !content) {
+            return res.status(400).json({
+                success: false,
+                message: 'Assignment ID, class ID, and content are required',
+            });
+        }
+        // Verify assignment exists and belongs to the class
         const assignmentDoc = await admin.firestore().collection('assignments').doc(assignmentId).get();
         if (!assignmentDoc.exists) {
-            return res.status(400).json({
-                success: false,
-                message: 'Assignment not found',
-            });
+            return res.status(404).json({ message: 'Assignment not found' });
         }
         const assignmentData = assignmentDoc.data();
-        // Check if student is enrolled in the class
-        if (assignmentData.classId !== classId) {
-            return res.status(400).json({
-                success: false,
-                message: 'Assignment does not belong to the specified class',
-            });
+        if (!assignmentData) {
+            return res.status(404).json({ message: 'Assignment data not found' });
         }
-        const userDoc = await admin.firestore().collection('users').doc(studentId).get();
-        const userData = userDoc.data();
-        const classIds = (userData === null || userData === void 0 ? void 0 : userData.classIds) || [];
-        if (!classIds.includes(classId)) {
-            return res.status(403).json({
-                success: false,
-                message: 'You are not enrolled in this class',
-            });
+        if (assignmentData.classId !== classId) {
+            return res.status(400).json({ message: 'Assignment does not belong to the specified class' });
+        }
+        // Verify student is enrolled in the class
+        const classDoc = await admin.firestore().collection('classes').doc(classId).get();
+        if (!classDoc.exists) {
+            return res.status(404).json({ message: 'Class not found' });
+        }
+        const classData = classDoc.data();
+        if (!classData) {
+            return res.status(404).json({ message: 'Class data not found' });
+        }
+        if (!((_a = classData.studentIds) === null || _a === void 0 ? void 0 : _a.includes(studentId))) {
+            return res.status(403).json({ message: 'Student not enrolled in this class' });
         }
         // Check if submission already exists
         const existingSubmission = await admin
@@ -132,31 +128,25 @@ router.post('/', auth_1.verifyToken, async (req, res) => {
         if (!existingSubmission.empty) {
             return res.status(400).json({
                 success: false,
-                message: 'You have already submitted this assignment',
+                message: 'Submission already exists for this assignment',
             });
         }
-        // Determine if submission is late
-        const now = admin.firestore.Timestamp.now();
-        const isLate = assignmentData.dueDate && now.toDate() > assignmentData.dueDate.toDate();
-        const status = isLate ? 'late' : 'submitted';
-        // Create submission in Firestore
+        // Create submission
         const submissionData = {
             assignmentId,
             studentId,
             classId,
             content,
-            fileUrl,
-            status,
+            fileUrl: fileUrl || null,
             submittedAt: admin.firestore.FieldValue.serverTimestamp(),
-            createdAt: admin.firestore.FieldValue.serverTimestamp(),
-            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            status: 'submitted',
         };
         const docRef = await admin.firestore().collection('submissions').add(submissionData);
-        const newSubmission = Object.assign({ id: docRef.id }, submissionData);
-        return res.status(201).json({
+        console.log(`Created submission ${docRef.id} for assignment ${assignmentId} by student ${studentId}`);
+        return res.json({
             success: true,
             message: 'Submission created successfully',
-            submission: newSubmission,
+            id: docRef.id,
         });
     }
     catch (error) {
@@ -169,8 +159,11 @@ router.post('/', auth_1.verifyToken, async (req, res) => {
 });
 // Get submission by ID
 router.get('/:id', auth_1.verifyToken, async (req, res) => {
-    var _a, _b, _c;
+    var _a;
     try {
+        if (!req.user) {
+            return res.status(401).json({ message: 'User not authenticated' });
+        }
         const { id } = req.params;
         const { role } = req.user;
         const doc = await admin.firestore().collection('submissions').doc(id).get();
@@ -178,17 +171,17 @@ router.get('/:id', auth_1.verifyToken, async (req, res) => {
             return res.status(404).json({ message: 'Submission not found' });
         }
         const submissionData = doc.data();
-        // Check if user has access to this submission
-        if (role === 'student' && submissionData.studentId !== ((_a = req.user) === null || _a === void 0 ? void 0 : _a.userId)) {
+        if (!submissionData) {
+            return res.status(404).json({ message: 'Submission data not found' });
+        }
+        // Check access permissions
+        if (role === 'student' && submissionData.studentId !== req.user.userId) {
             return res.status(403).json({ message: 'Access denied' });
         }
-        else if (role === 'teacher') {
-            const classDoc = await admin
-                .firestore()
-                .collection('classes')
-                .doc(submissionData.classId)
-                .get();
-            if (!classDoc.exists || ((_b = classDoc.data()) === null || _b === void 0 ? void 0 : _b.teacherId) !== ((_c = req.user) === null || _c === void 0 ? void 0 : _c.userId)) {
+        // For teachers, check if they teach the class
+        if (role === 'teacher') {
+            const classDoc = await admin.firestore().collection('classes').doc(submissionData.classId).get();
+            if (!classDoc.exists || ((_a = classDoc.data()) === null || _a === void 0 ? void 0 : _a.teacherId) !== req.user.userId) {
                 return res.status(403).json({ message: 'Access denied' });
             }
         }
@@ -199,10 +192,13 @@ router.get('/:id', auth_1.verifyToken, async (req, res) => {
         return res.status(500).json({ message: 'Failed to fetch submission' });
     }
 });
-// Update submission (for grading)
+// Update submission
 router.put('/:id', auth_1.verifyToken, async (req, res) => {
-    var _a, _b, _c;
+    var _a;
     try {
+        if (!req.user) {
+            return res.status(401).json({ message: 'User not authenticated' });
+        }
         const { id } = req.params;
         const { role } = req.user;
         const updateData = req.body;
@@ -211,62 +207,63 @@ router.put('/:id', auth_1.verifyToken, async (req, res) => {
             return res.status(404).json({ message: 'Submission not found' });
         }
         const submissionData = doc.data();
-        // Check if user has access to update this submission
-        if (role === 'student') {
-            // Students can only update their own submissions before grading
-            if (submissionData.studentId !== ((_a = req.user) === null || _a === void 0 ? void 0 : _a.userId)) {
-                return res.status(403).json({ message: 'Access denied' });
-            }
-            if (submissionData.status === 'graded') {
-                return res.status(400).json({ message: 'Cannot update graded submission' });
-            }
-            // Students can only update content and fileUrl
-            const allowedFields = ['content', 'fileUrl'];
-            Object.keys(updateData).forEach((key) => {
-                if (!allowedFields.includes(key)) {
-                    delete updateData[key];
-                }
-            });
+        if (!submissionData) {
+            return res.status(404).json({ message: 'Submission data not found' });
         }
-        else if (role === 'teacher') {
-            // Teachers can grade submissions for their classes
-            const classDoc = await admin
-                .firestore()
-                .collection('classes')
-                .doc(submissionData.classId)
-                .get();
-            if (!classDoc.exists || ((_b = classDoc.data()) === null || _b === void 0 ? void 0 : _b.teacherId) !== ((_c = req.user) === null || _c === void 0 ? void 0 : _c.userId)) {
-                return res.status(403).json({ message: 'Access denied' });
-            }
-            // Teachers can update score, feedback, and status
-            const allowedFields = ['score', 'feedback', 'status'];
-            Object.keys(updateData).forEach((key) => {
-                if (!allowedFields.includes(key)) {
-                    delete updateData[key];
-                }
-            });
-            // If grading, set gradedAt timestamp
-            if (updateData.score !== undefined || updateData.feedback !== undefined) {
-                updateData.status = 'graded';
-                updateData.gradedAt = admin.firestore.FieldValue.serverTimestamp();
-            }
-        }
-        else if (role !== 'admin' && role !== 'staff') {
+        // Check access permissions
+        if (role === 'student' && submissionData.studentId !== req.user.userId) {
             return res.status(403).json({ message: 'Access denied' });
         }
-        updateData.updatedAt = admin.firestore.FieldValue.serverTimestamp();
-        await admin.firestore().collection('submissions').doc(id).update(updateData);
-        return res.json({ success: true, message: 'Submission updated successfully' });
+        // For teachers, check if they teach the class
+        if (role === 'teacher') {
+            const classDoc = await admin.firestore().collection('classes').doc(submissionData.classId).get();
+            if (!classDoc.exists || ((_a = classDoc.data()) === null || _a === void 0 ? void 0 : _a.teacherId) !== req.user.userId) {
+                return res.status(403).json({ message: 'Access denied' });
+            }
+        }
+        // Define allowed fields for updates
+        const allowedFields = ['content', 'fileUrl', 'score', 'feedback', 'status'];
+        const filteredData = {};
+        // Filter out non-allowed fields
+        Object.keys(updateData).forEach((key) => {
+            if (!allowedFields.includes(key)) {
+                return;
+            }
+            filteredData[key] = updateData[key];
+        });
+        // Add timestamp for grading
+        if (updateData.score !== undefined || updateData.feedback !== undefined) {
+            filteredData.gradedAt = admin.firestore.FieldValue.serverTimestamp();
+        }
+        else if (role !== 'admin' && role !== 'staff') {
+            // Only allow content updates for non-admin users
+            delete filteredData.score;
+            delete filteredData.feedback;
+            delete filteredData.status;
+        }
+        // Update submission
+        await admin.firestore().collection('submissions').doc(id).update(filteredData);
+        console.log(`Updated submission ${id} by ${role} ${req.user.userId}`);
+        return res.json({
+            success: true,
+            message: 'Submission updated successfully',
+        });
     }
     catch (error) {
         console.error('Error updating submission:', error);
-        return res.status(500).json({ message: 'Failed to update submission' });
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to update submission',
+        });
     }
 });
 // Delete submission
 router.delete('/:id', auth_1.verifyToken, async (req, res) => {
-    var _a, _b, _c;
+    var _a;
     try {
+        if (!req.user) {
+            return res.status(401).json({ message: 'User not authenticated' });
+        }
         const { id } = req.params;
         const { role } = req.user;
         const doc = await admin.firestore().collection('submissions').doc(id).get();
@@ -274,82 +271,84 @@ router.delete('/:id', auth_1.verifyToken, async (req, res) => {
             return res.status(404).json({ message: 'Submission not found' });
         }
         const submissionData = doc.data();
-        // Check if user has access to delete this submission
-        if (role === 'student') {
-            if (submissionData.studentId !== ((_a = req.user) === null || _a === void 0 ? void 0 : _a.userId)) {
-                return res.status(403).json({ message: 'Access denied' });
-            }
-            if (submissionData.status === 'graded') {
-                return res.status(400).json({ message: 'Cannot delete graded submission' });
-            }
+        if (!submissionData) {
+            return res.status(404).json({ message: 'Submission data not found' });
         }
-        else if (role === 'teacher') {
-            const classDoc = await admin
-                .firestore()
-                .collection('classes')
-                .doc(submissionData.classId)
-                .get();
-            if (!classDoc.exists || ((_b = classDoc.data()) === null || _b === void 0 ? void 0 : _b.teacherId) !== ((_c = req.user) === null || _c === void 0 ? void 0 : _c.userId)) {
+        // Check access permissions
+        if (role === 'student' && submissionData.studentId !== req.user.userId) {
+            return res.status(403).json({ message: 'Access denied' });
+        }
+        // For teachers, check if they teach the class
+        if (role === 'teacher') {
+            const classDoc = await admin.firestore().collection('classes').doc(submissionData.classId).get();
+            if (!classDoc.exists || ((_a = classDoc.data()) === null || _a === void 0 ? void 0 : _a.teacherId) !== req.user.userId) {
                 return res.status(403).json({ message: 'Access denied' });
             }
         }
         else if (role !== 'admin' && role !== 'staff') {
             return res.status(403).json({ message: 'Access denied' });
         }
+        // Delete submission
         await admin.firestore().collection('submissions').doc(id).delete();
-        return res.json({ success: true, message: 'Submission deleted successfully' });
+        console.log(`Deleted submission ${id} by ${role} ${req.user.userId}`);
+        return res.json({
+            success: true,
+            message: 'Submission deleted successfully',
+        });
     }
     catch (error) {
         console.error('Error deleting submission:', error);
-        return res.status(500).json({ message: 'Failed to delete submission' });
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to delete submission',
+        });
     }
 });
-// Get submissions for a specific assignment
+// Get submissions by assignment
 router.get('/assignment/:assignmentId', auth_1.verifyToken, async (req, res) => {
-    var _a, _b, _c;
+    var _a;
     try {
+        if (!req.user) {
+            return res.status(401).json({ message: 'User not authenticated' });
+        }
         const { assignmentId } = req.params;
         const { role } = req.user;
-        // Check if user has access to this assignment
-        const assignmentDoc = await admin
-            .firestore()
-            .collection('assignments')
-            .doc(assignmentId)
-            .get();
+        // Verify assignment exists
+        const assignmentDoc = await admin.firestore().collection('assignments').doc(assignmentId).get();
         if (!assignmentDoc.exists) {
             return res.status(404).json({ message: 'Assignment not found' });
         }
         const assignmentData = assignmentDoc.data();
+        if (!assignmentData) {
+            return res.status(404).json({ message: 'Assignment data not found' });
+        }
+        // Check if user has access to this assignment
+        const classIds = assignmentData.classIds || [];
+        if (!classIds.includes(assignmentData.classId)) {
+            return res.status(403).json({ message: 'Access denied' });
+        }
+        // For teachers, check if they teach any of the classes
+        if (role === 'teacher') {
+            const classDoc = await admin.firestore().collection('classes').doc(assignmentData.classId).get();
+            if (!classDoc.exists || ((_a = classDoc.data()) === null || _a === void 0 ? void 0 : _a.teacherId) !== req.user.userId) {
+                return res.status(403).json({ message: 'Access denied' });
+            }
+        }
+        // Get submissions for this assignment
+        let query = admin.firestore().collection('submissions').where('assignmentId', '==', assignmentId);
+        // Students can only see their own submissions
         if (role === 'student') {
-            const userDoc = await admin.firestore().collection('users').doc((_a = req.user) === null || _a === void 0 ? void 0 : _a.userId).get();
-            const userData = userDoc.data();
-            const classIds = (userData === null || userData === void 0 ? void 0 : userData.classIds) || [];
-            if (!classIds.includes(assignmentData.classId)) {
-                return res.status(403).json({ message: 'Access denied' });
-            }
+            query = query.where('studentId', '==', req.user.userId);
         }
-        else if (role === 'teacher') {
-            const classDoc = await admin
-                .firestore()
-                .collection('classes')
-                .doc(assignmentData.classId)
-                .get();
-            if (!classDoc.exists || ((_b = classDoc.data()) === null || _b === void 0 ? void 0 : _b.teacherId) !== ((_c = req.user) === null || _c === void 0 ? void 0 : _c.userId)) {
-                return res.status(403).json({ message: 'Access denied' });
-            }
-        }
-        const snapshot = await admin
-            .firestore()
-            .collection('submissions')
-            .where('assignmentId', '==', assignmentId)
-            .orderBy('submittedAt', 'desc')
-            .get();
+        const snapshot = await query.orderBy('submittedAt', 'desc').get();
         const submissions = snapshot.docs.map((doc) => (Object.assign({ id: doc.id }, doc.data())));
+        console.log(`Fetched ${submissions.length} submissions for assignment ${assignmentId}`);
         return res.json(submissions);
     }
     catch (error) {
-        console.error('Error fetching assignment submissions:', error);
-        return res.status(500).json({ message: 'Failed to fetch assignment submissions' });
+        console.error('Error fetching submissions by assignment:', error);
+        return res.status(500).json({ message: 'Failed to fetch submissions' });
     }
 });
+exports.default = router;
 //# sourceMappingURL=submissions.js.map

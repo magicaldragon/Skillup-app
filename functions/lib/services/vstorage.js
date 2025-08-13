@@ -126,6 +126,9 @@ async function listFiles(prefix = '') {
             return [];
         }
         const files = await Promise.all(result.Contents.map(async (object) => {
+            if (!object.Key) {
+                throw new Error('Object key is missing');
+            }
             const key = object.Key;
             const url = await getFileURL(key);
             return {

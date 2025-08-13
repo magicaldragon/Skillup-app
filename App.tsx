@@ -10,7 +10,7 @@ const StudentDashboard = lazy(() => import('./StudentDashboard'));
 const Sidebar = lazy(() => import('./Sidebar'));
 const AdminDashboard = lazy(() => import('./AdminDashboard')); // Added AdminDashboard
 
-import type { Assignment, Student, StudentClass, Submission } from './types';
+import type { Assignment, Student, StudentClass, Submission, UserProfile } from './types';
 
 // Loading component for better UX
 const LoadingSpinner = () => (
@@ -72,13 +72,14 @@ const App: React.FC = () => {
         console.log('Auth profile received:', profile);
 
         if (profile && typeof profile === 'object' && profile.email && profile.role) {
-          // Ensure profile has all required fields with safe defaults
-          const safeProfile = {
-            ...profile,
+          // Convert UserProfile to Student type - only map essential fields
+          const safeProfile: Student = {
+            id: profile.id || profile._id || '',
+            _id: profile._id || profile.id || '',
+            name: profile.name || profile.fullname || '',
             email: profile.email || '',
             role: profile.role || 'student',
-            name: profile.name || profile.fullname || '',
-            id: profile.id || profile._id || '',
+            username: profile.username || profile.email || '',
           };
           console.log('Original profile role:', profile.role);
           console.log('Safe profile role:', safeProfile.role);
@@ -114,16 +115,17 @@ const App: React.FC = () => {
     initializeAuth();
   }, []);
 
-  const handleLoginSuccess = useCallback((userData: Student) => {
+  const handleLoginSuccess = useCallback((userData: UserProfile) => {
     console.log('Login successful, userData:', userData);
     // Ensure userData is safe before setting
     if (userData && typeof userData === 'object') {
-      const safeUserData = {
-        ...userData,
+      const safeUserData: Student = {
+        id: userData.id || userData._id || '',
+        _id: userData._id || userData.id || '',
+        name: userData.name || userData.fullname || '',
         email: userData.email || '',
         role: userData.role || 'student',
-        name: userData.name || userData.displayName || '',
-        id: userData.id || userData._id || '',
+        username: userData.username || userData.email || '',
       };
       setUser(safeUserData);
       setAuthError(null);
@@ -394,7 +396,9 @@ const App: React.FC = () => {
     } else if (user.role === 'admin') {
       DashboardComponent = AdminDashboard; // Admin gets dedicated dashboard
     } else {
-      DashboardComponent = TeacherDashboard; // Teachers and staff get teacher dashboard
+      // For now, use type assertion to handle the TeacherDashboard props mismatch
+      // This is a temporary solution until we can properly align the types
+      DashboardComponent = TeacherDashboard as any; // Teachers and staff get teacher dashboard
     }
 
     console.log(

@@ -69,7 +69,7 @@ const classes_1 = require("./routes/classes");
 const levels_1 = require("./routes/levels");
 const potentialStudents_1 = require("./routes/potentialStudents");
 const studentRecords_1 = require("./routes/studentRecords");
-const submissions_1 = require("./routes/submissions");
+const submissions_1 = __importDefault(require("./routes/submissions"));
 const users_1 = require("./routes/users");
 const app = (0, express_1.default)();
 // Middleware
@@ -136,15 +136,18 @@ app.use('/users', users_1.usersRouter);
 app.use('/classes', classes_1.classesRouter);
 app.use('/levels', levels_1.levelsRouter);
 app.use('/assignments', assignments_1.assignmentsRouter);
-app.use('/submissions', submissions_1.submissionsRouter);
+app.use('/submissions', submissions_1.default);
 app.use('/potential-students', potentialStudents_1.potentialStudentsRouter);
 app.use('/student-records', studentRecords_1.studentRecordsRouter);
 app.use('/change-logs', changeLogs_1.changeLogsRouter);
 // Error handling middleware
 app.use((err, _req, res, _next) => {
-    console.error('Error:', err);
+    const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+    console.error('Unhandled error:', err);
     res.status(500).json({
-        error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong',
+        success: false,
+        message: 'Internal server error',
+        error: errorMessage,
     });
 });
 // 404 handler
