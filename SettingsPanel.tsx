@@ -88,8 +88,8 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
       setAvatarUrl(data.avatarUrl);
       setSuccess('Avatar updated!');
       onDataRefresh?.();
-    } catch (err: any) {
-      setAvatarError(err.message || 'Failed to upload avatar');
+    } catch (err: unknown) {
+      setAvatarError(err instanceof Error ? err.message : 'Failed to upload avatar');
     } finally {
       setAvatarUploading(false);
     }
@@ -132,9 +132,9 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
       setSuccess('Profile updated successfully!');
       setEditMode(false);
       onDataRefresh?.();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Update error:', err);
-      setError(`Failed to update profile: ${err.message || ''}`);
+      setError(`Failed to update profile: ${err instanceof Error ? err.message : ''}`);
     } finally {
       setLoading(false);
     }
@@ -224,7 +224,7 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
           {/* Action Buttons */}
           <div className="action-buttons">
             {canEdit && (
-              <button className="btn btn-primary" onClick={() => setEditMode(true)}>
+              <button type="button" className="btn btn-primary" onClick={() => setEditMode(true)}>
                 Edit Profile
               </button>
             )}
@@ -350,8 +350,11 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
 
             {/* Upload Section */}
             <div className="upload-section">
-              <label className="upload-label">Upload your own avatar:</label>
+              <label htmlFor="avatarUpload" className="upload-label">
+                Upload your own avatar:
+              </label>
               <input
+                id="avatarUpload"
                 type="file"
                 accept="image/*"
                 onChange={handleAvatarUpload}
@@ -366,8 +369,11 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
           {/* Form Fields */}
           <div className="form-fields">
             <div className="form-group">
-              <label className="form-label">Full Name</label>
+              <label htmlFor="name" className="form-label">
+                Full Name
+              </label>
               <input
+                id="name"
                 type="text"
                 name="name"
                 value={form.name}
@@ -380,8 +386,11 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
             {/* Username and Email fields removed - not editable by users */}
 
             <div className="form-group">
-              <label className="form-label">English Name</label>
+              <label htmlFor="englishName" className="form-label">
+                English Name
+              </label>
               <input
+                id="englishName"
                 type="text"
                 name="englishName"
                 value={form.englishName}
@@ -391,8 +400,11 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
             </div>
 
             <div className="form-group">
-              <label className="form-label">Gender</label>
+              <label htmlFor="gender" className="form-label">
+                Gender
+              </label>
               <select
+                id="gender"
                 name="gender"
                 value={form.gender}
                 onChange={handleChange}
@@ -406,8 +418,11 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
             </div>
 
             <div className="form-group">
-              <label className="form-label">Phone Number</label>
+              <label htmlFor="phone" className="form-label">
+                Phone Number
+              </label>
               <input
+                id="phone"
                 type="tel"
                 name="phone"
                 value={form.phone}
@@ -417,8 +432,11 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
             </div>
 
             <div className="form-group">
-              <label className="form-label">Date of Birth</label>
+              <label htmlFor="dob" className="form-label">
+                Date of Birth
+              </label>
               <input
+                id="dob"
                 type="date"
                 name="dob"
                 value={form.dob}
@@ -430,8 +448,11 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
             {currentUser.role === 'student' && (
               <>
                 <div className="form-group">
-                  <label className="form-label">Parent's Name</label>
+                  <label htmlFor="parentName" className="form-label">
+                    Parent's Name
+                  </label>
                   <input
+                    id="parentName"
                     type="text"
                     name="parentName"
                     value={form.parentName}
@@ -441,8 +462,11 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Parent's Phone</label>
+                  <label htmlFor="parentPhone" className="form-label">
+                    Parent's Phone
+                  </label>
                   <input
+                    id="parentPhone"
                     type="tel"
                     name="parentPhone"
                     value={form.parentPhone}
@@ -452,8 +476,11 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Notes</label>
+                  <label htmlFor="notes" className="form-label">
+                    Notes
+                  </label>
                   <textarea
+                    id="notes"
                     name="notes"
                     value={form.notes}
                     onChange={handleChange}
