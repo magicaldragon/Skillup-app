@@ -79,9 +79,10 @@ app.use(express_1.default.urlencoded({ extended: true }));
 // Health check endpoint
 app.get('/health', async (_req, res) => {
     try {
-        // Test Firestore connection
+        // Test Firestore connection by checking if we can access the database
         const db = admin.firestore();
-        await db.collection('_health').doc('check').get();
+        // Use a simple query to test connection instead of accessing a specific collection
+        await db.collection('users').limit(1).get();
         // Test Auth connection
         admin.auth();
         res.json({

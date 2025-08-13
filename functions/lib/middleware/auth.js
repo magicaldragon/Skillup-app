@@ -56,29 +56,37 @@ const verifyToken = async (req, res, next) => {
         let decodedToken;
         let userData;
         try {
-            // First try to verify as Firebase ID token
-            decodedToken = await admin.auth().verifyIdToken(token);
-            // Get user data from Firestore by firebaseUid
-            const userQuery = await admin
-                .firestore()
-                .collection('users')
-                .where('firebaseUid', '==', decodedToken.uid)
-                .limit(1)
-                .get();
-            if (userQuery.empty) {
-                res.status(401).json({
-                    success: false,
-                    message: 'User not found in database',
-                });
-                return;
-            }
-            userData = userQuery.docs[0].data();
-        }
-        catch (firebaseError) {
-            // If Firebase ID token verification fails, try as custom token
+            // First try to decode as session token
             try {
+                const sessionData = JSON.parse(Buffer.from(token, 'base64').toString());
+                // Check if token is expired
+                if (sessionData.exp && sessionData.exp < Math.floor(Date.now() / 1000)) {
+                    res.status(401).json({
+                        success: false,
+                        message: 'Token has expired. Please log in again.',
+                    });
+                    return;
+                }
+                // Get user data from Firestore by userId
+                const userDoc = await admin
+                    .firestore()
+                    .collection('users')
+                    .doc(sessionData.userId)
+                    .get();
+                if (!userDoc.exists) {
+                    res.status(401).json({
+                        success: false,
+                        message: 'User not found in database',
+                    });
+                    return;
+                }
+                userData = userDoc.data();
+                decodedToken = { uid: sessionData.uid, email: sessionData.email };
+            }
+            catch (sessionError) {
+                // If session token fails, try Firebase ID token
                 decodedToken = await admin.auth().verifyIdToken(token);
-                // For custom tokens, we need to extract user info from the token
+                // Get user data from Firestore by firebaseUid
                 const userQuery = await admin
                     .firestore()
                     .collection('users')
@@ -94,14 +102,37 @@ const verifyToken = async (req, res, next) => {
                 }
                 userData = userQuery.docs[0].data();
             }
-            catch (customError) {
-                console.error('Both token verification methods failed:', { firebaseError, customError });
+        }
+        catch (tokenError) {
+            console.error('Token verification failed:', tokenError);
+            // Provide more specific error messages
+            if (tokenError instanceof Error) {
+                if (tokenError.message.includes('Token used too late')) {
+                    res.status(401).json({
+                        success: false,
+                        message: 'Token has expired. Please log in again.',
+                    });
+                }
+                else if (tokenError.message.includes('Invalid token')) {
+                    res.status(401).json({
+                        success: false,
+                        message: 'Invalid authentication token. Please log in again.',
+                    });
+                }
+                else {
+                    res.status(401).json({
+                        success: false,
+                        message: 'Authentication failed. Please log in again.',
+                    });
+                }
+            }
+            else {
                 res.status(401).json({
                     success: false,
                     message: 'Invalid or expired token',
                 });
-                return;
             }
+            return;
         }
         if (!decodedToken || !userData) {
             res.status(401).json({
@@ -115,7 +146,7 @@ const verifyToken = async (req, res, next) => {
             uid: decodedToken.uid,
             email: decodedToken.email || userData.email || '',
             role: userData.role || 'student',
-            userId: userData._id || userData.id || '',
+            userId: userData._id || userData.id || userData.firebaseUid || '',
         };
         next();
     }

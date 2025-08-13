@@ -246,9 +246,14 @@ router.post('/firebase-login', async (req: AuthenticatedRequest, res: Response) 
       });
     }
 
-    // Instead of creating a custom token (which requires special permissions),
-    // we'll return the user data and let the frontend handle authentication state
-    // The Firebase ID token is already verified, so we can trust the user is authenticated
+    // Create a simple session token (in production, use proper JWT library)
+    const sessionToken = Buffer.from(JSON.stringify({
+      uid: decodedToken.uid,
+      userId: userDoc.id,
+      role: userData.role,
+      email: userData.email,
+      exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60), // 24 hours
+    })).toString('base64');
 
     console.log('Login successful for user:', {
       uid: decodedToken.uid,
@@ -264,8 +269,8 @@ router.post('/firebase-login', async (req: AuthenticatedRequest, res: Response) 
         id: userDoc.id,
         ...userData,
       },
-      // Return the original Firebase ID token instead of a custom token
-      token: firebaseToken,
+      // Return a session token for API authentication
+      token: sessionToken,
     });
   } catch (error) {
     console.error('Error in firebase-login:', error);

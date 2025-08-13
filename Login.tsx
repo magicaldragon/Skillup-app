@@ -57,6 +57,13 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
     setError(null);
 
     try {
+      // Validate input
+      if (!email.trim() || !password.trim()) {
+        setError('Please enter both email and password.');
+        setIsLoading(false);
+        return;
+      }
+
       // Only test backend if we don't have a cached connection status
       if (backendStatus === 'disconnected') {
         const isConnected = await authService.testBackendConnection();
@@ -70,7 +77,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         setBackendStatus('connected');
       }
 
-      const response = await authService.login({ email, password });
+      const response = await authService.login({ email: email.trim(), password });
       if (response.success && response.user) {
         setFailedAttempts(0);
         localStorage.setItem('skillup_user', JSON.stringify(response.user));
@@ -81,8 +88,18 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
       }
     } catch (err: unknown) {
       setFailedAttempts((prev) => prev + 1);
-      const errorMessage =
-        err instanceof Error ? err.message : 'An unexpected error occurred. Please try again.';
+      let errorMessage = 'An unexpected error occurred. Please try again.';
+      
+      if (err instanceof Error) {
+        if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+          errorMessage = 'Network error. Please check your internet connection and try again.';
+        } else if (err.message.includes('timeout')) {
+          errorMessage = 'Request timed out. Please try again.';
+        } else {
+          errorMessage = err.message;
+        }
+      }
+      
       setError(errorMessage);
       console.error('Login error:', err);
     } finally {
