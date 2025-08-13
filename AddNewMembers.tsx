@@ -17,7 +17,6 @@ const AddNewMembers = () => {
   const [form, setForm] = useState({
     name: '',
     email: '',
-    username: '', // Add username field
     role: 'student' as 'student' | 'teacher' | 'admin' | 'staff',
     gender: 'male' as 'male' | 'female' | 'other',
     englishName: '',
@@ -27,7 +26,6 @@ const AddNewMembers = () => {
     parentPhone: '',
     notes: '',
     status: 'potential',
-    password: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,6 +56,17 @@ const AddNewMembers = () => {
     debouncedUsernameGeneration(form.name, form.role);
   }, [form.name, form.role, debouncedUsernameGeneration]);
 
+  // Debug logging for form state changes
+  useEffect(() => {
+    console.log('Form state updated:', {
+      name: form.name,
+      role: form.role,
+      status: form.status,
+      previewUsername,
+      previewEmail
+    });
+  }, [form.name, form.role, form.status, previewUsername, previewEmail]);
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
@@ -72,7 +81,6 @@ const AddNewMembers = () => {
     setForm({
       name: '',
       email: '',
-      username: '', // Add username field
       role: 'student',
       gender: 'male',
       englishName: '',
@@ -82,44 +90,81 @@ const AddNewMembers = () => {
       parentPhone: '',
       notes: '',
       status: 'potential',
-      password: '',
     });
     setError(null);
     setSuccess(null);
     setGeneratedStudentCode(null);
     setCreatedUser(null);
+    setPreviewUsername('');
+    setPreviewEmail('');
+  };
+
+  const validateForm = (): string | null => {
+    if (!form.name.trim()) {
+      return 'Full name is required';
+    }
+    if (form.name.trim().length < 2) {
+      return 'Full name must be at least 2 characters long';
+    }
+    if (form.role === 'student' && !form.status) {
+      return 'Status is required for students';
+    }
+    if (form.role === 'student' && form.status === 'potential' && !form.parentName?.trim()) {
+      return 'Parent name is recommended for potential students';
+    }
+    if (form.phone && form.phone.trim().length < 10) {
+      return 'Phone number must be at least 10 digits';
+    }
+    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      return 'Please enter a valid email address';
+    }
+    return null;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate form
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setSuccess(null);
     setCreatedUser(null);
 
     try {
-      // Validate username is not empty
-      if (!form.username.trim()) {
-        setError('Username is required');
-        setLoading(false);
-        return;
-      }
-
       // Set appropriate status based on role
-      const userStatus = form.role === 'student' ? 'potential' : 'active';
+      const userStatus = form.role === 'student' ? form.status : 'active';
+
+      console.log('Submitting registration with data:', {
+        ...form,
+        status: userStatus,
+      });
 
       const result = await userRegistrationService.registerNewUser({
         ...form,
         status: userStatus,
-        password: form.password || (form.role === 'student' ? 'Skillup123' : 'Skillup@123'),
       });
-      setSuccess(
-        `User registered successfully! ${result.user.studentCode ? `Student Code: ${result.user.studentCode}` : ''}`
-      );
-      setGeneratedStudentCode(result.user.studentCode || null);
-      setCreatedUser(result.user);
-      handleReset();
+      
+      console.log('Registration result:', result);
+      
+      // Ensure we have the user data
+      if (result && result.user) {
+        setSuccess(
+          `User registered successfully! ${result.user.studentCode ? `Student Code: ${result.user.studentCode}` : ''}`
+        );
+        setGeneratedStudentCode(result.user.studentCode || null);
+        setCreatedUser(result.user);
+        handleReset();
+      } else {
+        throw new Error('Invalid response from server');
+      }
     } catch (err: unknown) {
+      console.error('Registration error:', err);
       // Improved error handling for Firebase errors
       const errorMessage = err instanceof Error ? err.message : 'Registration failed';
       if (err && typeof err === 'object' && 'code' in err) {
@@ -154,17 +199,46 @@ const AddNewMembers = () => {
     return 'Skillup@123';
   };
 
+  // Test function to verify registration flow (remove in production)
+  const testRegistration = () => {
+    console.log('Testing registration flow...');
+    console.log('Current form state:', form);
+    console.log('Preview username:', previewUsername);
+    console.log('Preview email:', previewEmail);
+    
+    // Simulate a successful registration for testing
+    const testUser: CreatedUser = {
+      id: 'test-123',
+      name: form.name || 'Test User',
+      email: previewEmail || 'test@student.skillup',
+      role: form.role,
+      username: previewUsername || 'testuser',
+      studentCode: form.role === 'student' ? 'STU25001' : undefined,
+      generatedPassword: getPassword({ role: form.role } as CreatedUser),
+      status: form.status,
+      gender: form.gender,
+      englishName: form.englishName,
+      dob: form.dob,
+      phone: form.phone,
+      parentName: form.parentName,
+      parentPhone: form.parentPhone,
+      notes: form.notes,
+    };
+    
+    setCreatedUser(testUser);
+    setGeneratedStudentCode(testUser.studentCode || null);
+    setSuccess('Test registration completed successfully!');
+  };
+
   return (
-    <div className="panel-container">
-      <div className="panel-content">
+    <div className="add-student-container">
+      <div className="add-student-content">
         <div className="registration-form-section">
-          <div className="panel-card">
-            <h2
-              className="panel-title"
-              style={{ fontSize: '2.5rem', color: '#2c5aa0', marginBottom: '20px' }}
-            >
+          <div className="form-container">
+            <h2 className="form-title">
               REGISTRATION FORM
             </h2>
+            <div className="title-decoration-line"></div>
 
             {error && <div className="error-message">{error}</div>}
 
@@ -177,6 +251,13 @@ const AddNewMembers = () => {
             )}
 
             <form onSubmit={handleSubmit} className="registration-form">
+              {/* Debug Info - Remove in production */}
+              {process.env.NODE_ENV === 'development' && (
+                <div className="debug-info" style={{ gridColumn: '1 / -1', marginBottom: '1rem', padding: '0.5rem', background: '#f0f0f0', borderRadius: '0.5rem', fontSize: '0.8rem' }}>
+                  <strong>Debug Info:</strong> Name: "{form.name}" | Role: {form.role} | Status: {form.status} | Username: {previewUsername} | Email: {previewEmail}
+                </div>
+              )}
+
               {/* Left Column */}
               {/* Full Name */}
               <div className="form-group">
@@ -193,14 +274,6 @@ const AddNewMembers = () => {
                   required
                   placeholder="Enter Vietnamese full name (e.g., Nguyễn Văn A)"
                 />
-                {/* Real-time username preview */}
-                {previewUsername && (
-                  <div className="username-preview">
-                    <small className="preview-label">Generated Username:</small>
-                    <span className="preview-username">{previewUsername}</span>
-                    <small className="preview-email">{previewEmail}</small>
-                  </div>
-                )}
               </div>
 
               {/* Right Column */}
@@ -222,7 +295,6 @@ const AddNewMembers = () => {
                   <option value="staff">Staff</option>
                   <option value="admin">Admin</option>
                 </select>
-                {/* Password will be shown in success box after registration */}
               </div>
 
               {/* Left Column */}
@@ -258,6 +330,7 @@ const AddNewMembers = () => {
                   value={form.englishName}
                   onChange={handleChange}
                   className="form-input"
+                  placeholder="Enter English name (optional)"
                 />
               </div>
 
@@ -290,6 +363,7 @@ const AddNewMembers = () => {
                   value={form.phone}
                   onChange={handleChange}
                   className="form-input"
+                  placeholder="Enter phone number"
                 />
               </div>
 
@@ -306,7 +380,13 @@ const AddNewMembers = () => {
                   value={form.email}
                   onChange={handleChange}
                   className="form-input"
+                  placeholder={previewEmail || "Enter email address (optional)"}
                 />
+                {!form.email && previewEmail && (
+                  <small className="email-hint">
+                    💡 A default email will be generated: {previewEmail}
+                  </small>
+                )}
               </div>
 
               {/* Right Column */}
@@ -347,6 +427,7 @@ const AddNewMembers = () => {
                     value={form.parentName}
                     onChange={handleChange}
                     className="form-input"
+                    placeholder="Enter parent's name"
                   />
                 </div>
               )}
@@ -364,6 +445,7 @@ const AddNewMembers = () => {
                     value={form.parentPhone}
                     onChange={handleChange}
                     className="form-input"
+                    placeholder="Enter parent's phone number"
                   />
                 </div>
               )}
@@ -395,6 +477,14 @@ const AddNewMembers = () => {
                   disabled={loading}
                 >
                   Reset
+                </button>
+                <button
+                  type="button"
+                  className="test-btn"
+                  onClick={testRegistration}
+                  disabled={loading}
+                >
+                  Test Registration
                 </button>
               </div>
             </form>
@@ -428,11 +518,12 @@ const AddNewMembers = () => {
                 <div className="account-detail">
                   <span className="detail-label">USERNAME:</span>
                   <span className="detail-value">
-                    {createdUser.username || createdUser.email || 'N/A'}
+                    {createdUser.username || previewUsername || 'N/A'}
                   </span>
                 </div>
                 <div className="account-detail">
-                  <span className="detail-value">{createdUser.email || 'N/A'}</span>
+                  <span className="detail-label">EMAIL:</span>
+                  <span className="detail-value">{createdUser.email || previewEmail || 'N/A'}</span>
                 </div>
                 <div className="account-detail">
                   <span className="detail-label">PASSWORD:</span>
@@ -456,6 +547,9 @@ const AddNewMembers = () => {
                 <p>
                   💡 The username is automatically generated from their Vietnamese name for easy
                   memorization.
+                </p>
+                <p>
+                  📧 The email format is: username@role.skillup (e.g., nguyenvana@student.skillup)
                 </p>
               </div>
             </div>

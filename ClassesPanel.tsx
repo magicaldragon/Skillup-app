@@ -610,6 +610,8 @@ const ClassesPanel = ({
                   (e.target as HTMLInputElement).focus();
                 }
               }}
+              aria-label="Search classes"
+              title="Search classes by name or code"
             />
             <button type="button" className="search-bar-button">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-label="Search">

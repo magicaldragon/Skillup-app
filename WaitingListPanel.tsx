@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import type { StudentClass } from './types';
 import './WaitingListPanel.css';
 
@@ -22,7 +22,7 @@ interface User {
 }
 
 const WaitingListPanel = ({
-  classes,
+  classes: propClasses,
   onDataRefresh,
 }: {
   classes: StudentClass[];
@@ -38,6 +38,8 @@ const WaitingListPanel = ({
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [bulkClassId, setBulkClassId] = useState<string>('');
   const [showBulkAssign, setShowBulkAssign] = useState(false);
+
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const fetchWaitingStudents = useCallback(async () => {
     setLoading(true);
@@ -240,11 +242,20 @@ const WaitingListPanel = ({
               onKeyPress={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
+                  // Search is already live, just focus the input
                   (e.target as HTMLInputElement).focus();
                 }
               }}
+              aria-label="Search waiting list students"
+              title="Search by name, phone, or student ID"
+              ref={searchInputRef}
             />
-            <button type="button" className="search-bar-button">
+            <button 
+              type="button" 
+              className="search-bar-button"
+              onClick={() => searchInputRef.current?.focus()}
+              aria-label="Focus search input"
+            >
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" role="img" aria-label="Search">
                 <title>Search</title>
                 <path
@@ -343,7 +354,7 @@ const WaitingListPanel = ({
                     className="assign-select"
                   >
                     <option value="">Select Class</option>
-                    {classes.map((cls) => (
+                    {propClasses.map((cls) => (
                       <option key={cls.id} value={cls.id}>
                         {cls.name}
                       </option>
@@ -448,7 +459,7 @@ const WaitingListPanel = ({
             onChange={(e) => setBulkClassId(e.target.value)}
           >
             <option value="">Select class...</option>
-            {classes.map((cls) => (
+            {propClasses.map((cls) => (
               <option key={cls.id} value={cls.id}>
                 {cls.name}
               </option>

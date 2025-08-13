@@ -201,9 +201,12 @@ const RecordsPanel = () => {
               onKeyPress={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
+                  // Search is already live, just focus the input
                   (e.target as HTMLInputElement).focus();
                 }
               }}
+              aria-label="Search records"
+              title="Search records by any field"
             />
             <button type="button" className="search-bar-button">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-label="Search">

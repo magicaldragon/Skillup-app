@@ -213,6 +213,8 @@ const AccountsPanel = () => {
                     placeholder="Search by name, email, or student code..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
+                    aria-label="Search accounts"
+                    title="Search by name, email, or student code"
                   />
                   <button type="button" className="search-bar-button">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-label="Search">

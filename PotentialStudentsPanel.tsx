@@ -251,9 +251,12 @@ const PotentialStudentsPanel = ({
               onKeyPress={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
+                  // Search is already live, just focus the input
                   (e.target as HTMLInputElement).focus();
                 }
               }}
+              aria-label="Search potential students"
+              title="Search by name, phone, or student ID"
             />
             <button type="button" className="search-bar-button">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-label="Search">

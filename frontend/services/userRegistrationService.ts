@@ -27,7 +27,7 @@ function generatePassword(role: string): string {
 
 export interface RegistrationData {
   name: string;
-  email: string;
+  email?: string; // Optional since we generate it
   role: 'student' | 'teacher' | 'admin' | 'staff';
   gender?: 'male' | 'female' | 'other';
   englishName?: string;
@@ -37,7 +37,6 @@ export interface RegistrationData {
   parentPhone?: string;
   notes?: string;
   status?: string;
-  password?: string; // Add password field for registration
 }
 
 export interface RegistrationResponse {
@@ -57,10 +56,12 @@ export interface RegistrationResponse {
 export const userRegistrationService = {
   async registerNewUser(data: RegistrationData): Promise<RegistrationResponse> {
     try {
+      console.log('userRegistrationService.registerNewUser called with:', data);
+      
       // 1. Generate username and email based on full name and role
       const username = generateUsername(data.name);
-      const email = generateEmail(username, data.role);
-      const password = data.password || generatePassword(data.role);
+      const email = data.email || generateEmail(username, data.role);
+      const password = generatePassword(data.role);
 
       console.log('Generated credentials:', {
         username,
@@ -70,33 +71,45 @@ export const userRegistrationService = {
       });
 
       // 2. Create user in Firebase Auth
+      console.log('Creating Firebase Auth user...');
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const firebaseUid = userCredential.user.uid;
+      console.log('Firebase Auth user created with UID:', firebaseUid);
 
       // 3. Send registration data to backend, including firebaseUid, username, and generated email
+      const backendData = {
+        ...data,
+        email,
+        username,
+        firebaseUid,
+        status: data.status || 'potential', // Pass status from form
+      };
+      
+      console.log('Sending data to backend:', backendData);
+      console.log('Backend URL:', `${apiUrl}/users`);
+      
       const response = await fetch(`${apiUrl}/users`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          ...data,
-          email,
-          username,
-          firebaseUid,
-          status: data.status || 'potential', // Pass status from form
-        }),
+        body: JSON.stringify(backendData),
       });
+
+      console.log('Backend response status:', response.status);
+      console.log('Backend response headers:', response.headers);
 
       if (!response.ok) {
         const errorData = await response.json();
+        console.error('Backend error response:', errorData);
         throw new Error(errorData.message || 'Registration failed');
       }
 
       const result = await response.json();
+      console.log('Backend success response:', result);
 
       // 4. Return enhanced response with generated credentials
-      return {
+      const finalResult = {
         ...result,
         user: {
           ...result.user,
@@ -105,8 +118,11 @@ export const userRegistrationService = {
           generatedPassword: password,
         },
       };
+      
+      console.log('Final result to return:', finalResult);
+      return finalResult;
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error('Registration error in userRegistrationService:', error);
       throw error;
     }
   },

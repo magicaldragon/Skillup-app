@@ -63,7 +63,8 @@
 .search-bar-container {
   position: relative;
   flex: 1;
-  max-width: 600px;
+  min-width: 300px;
+  max-width: 800px;
 }
 
 .search-bar-input {
@@ -76,12 +77,28 @@
   color: #307637;
   transition: all 0.3s ease;
   box-shadow: 0 2px 8px rgba(48, 118, 55, 0.05);
+  min-width: 300px;
+}
+
+.search-bar-input:hover {
+  border-color: #307637;
+  box-shadow: 0 4px 16px rgba(48, 118, 55, 0.1);
 }
 
 .search-bar-input:focus {
   outline: none;
   box-shadow: 0 8px 24px rgba(48, 118, 55, 0.2);
   transform: translateY(-2px);
+  border-color: #307637;
+}
+
+.search-bar-input::placeholder {
+  color: #307637;
+  opacity: 0.7;
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .search-bar-button {
@@ -718,58 +735,51 @@
   border: 1px solid #f5b802;
 }
 
-/* Responsive Design */
+/* ===== RESPONSIVE DESIGN ===== */
 @media (max-width: 1200px) {
-  .potential-students-table-container {
-    overflow-x: auto;
-  }
-
-  .potential-students-table {
-    min-width: 800px;
+  .search-bar-container {
+    max-width: 600px;
   }
 }
 
 @media (max-width: 900px) {
-  .potential-students-title {
-    font-size: 2rem;
+  .search-bar-container {
+    max-width: 500px;
+    min-width: 250px;
   }
-
-  .potential-students-actions {
+  
+  .search-bar-input {
+    min-width: 250px;
+    font-size: 0.9rem;
+    padding: 0.7rem 3rem 0.7rem 0.8rem;
+  }
+  
+  .search-controls {
     flex-direction: column;
-    align-items: center;
+    gap: 1rem;
+    align-items: stretch;
   }
-
-  .potential-students-btn {
-    width: 100%;
-    max-width: 300px;
-  }
-
-  .potential-students-bulk-section {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .student-details-grid {
-    grid-template-columns: 1fr;
+  
+  .status-filter-select {
+    min-width: 120px;
   }
 }
 
 @media (max-width: 600px) {
-  .potential-students-title {
-    font-size: 1.5rem;
+  .search-bar-container {
+    max-width: 100%;
+    min-width: 200px;
   }
-
-  .potential-students-subtitle {
-    font-size: 1rem;
+  
+  .search-bar-input {
+    min-width: 200px;
+    font-size: 0.85rem;
+    padding: 0.6rem 2.5rem 0.6rem 0.7rem;
   }
-
-  .modal-content {
-    padding: 20px;
-    margin: 20px;
-  }
-
-  .potential-students-modal-content {
-    padding: 20px;
-    margin: 20px;
+  
+  .status-filter-select {
+    min-width: 100px;
+    font-size: 0.9rem;
+    padding: 14px 16px;
   }
 }
