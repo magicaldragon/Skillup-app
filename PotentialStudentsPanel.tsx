@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { Student, StudentClass } from './types';
 import './PotentialStudentsPanel.css';
 
@@ -218,7 +218,11 @@ const PotentialStudentsPanel = ({
         <div className="potential-students-error">
           <h3>Error Loading Potential Students</h3>
           <p>{error}</p>
-          <button className="potential-students-retry-btn" onClick={fetchPotentialStudents}>
+          <button
+            type="button"
+            className="potential-students-retry-btn"
+            onClick={fetchPotentialStudents}
+          >
             Try Again
           </button>
         </div>
@@ -251,8 +255,9 @@ const PotentialStudentsPanel = ({
                 }
               }}
             />
-            <button className="search-bar-button">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button type="button" className="search-bar-button">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-label="Search">
+                <title>Search</title>
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -322,7 +327,16 @@ const PotentialStudentsPanel = ({
                 onClick={() => setSelectedStudent(student)}
                 className="clickable-row"
               >
-                <td onClick={(e) => e.stopPropagation()} className="checkbox-cell">
+                <td
+                  onClick={(e) => e.stopPropagation()}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }
+                  }}
+                  className="checkbox-cell"
+                >
                   <input
                     type="checkbox"
                     checked={selectedIds.includes(student._id)}
@@ -352,7 +366,7 @@ const PotentialStudentsPanel = ({
       {selectedStudent && (
         <div className="student-details-modal">
           <div className="modal-content">
-            <button className="close-btn" onClick={() => setSelectedStudent(null)}>
+            <button type="button" className="close-btn" onClick={() => setSelectedStudent(null)}>
               ×
             </button>
             <h3>Student Details</h3>
@@ -409,6 +423,7 @@ const PotentialStudentsPanel = ({
           <button
             className="potential-students-btn potential-students-btn-secondary"
             onClick={() => setShowBulkUpdate(true)}
+            type="button"
           >
             Update Status
           </button>
@@ -425,6 +440,7 @@ const PotentialStudentsPanel = ({
             }
           }}
           disabled={selectedIds.length !== 1}
+          type="button"
         >
           Move to Waiting List
         </button>
@@ -432,6 +448,7 @@ const PotentialStudentsPanel = ({
           className="potential-students-btn potential-students-btn-neutral"
           onClick={selectAll}
           disabled={selectedIds.length === potentialStudents.length}
+          type="button"
         >
           Select All
         </button>
@@ -439,12 +456,14 @@ const PotentialStudentsPanel = ({
           className="potential-students-btn potential-students-btn-neutral"
           onClick={clearAll}
           disabled={selectedIds.length === 0}
+          type="button"
         >
           Clear
         </button>
         <button
           className="potential-students-btn potential-students-btn-neutral"
           onClick={handleSyncExistingStudents}
+          type="button"
         >
           Sync Existing Students
         </button>
@@ -470,6 +489,7 @@ const PotentialStudentsPanel = ({
               className="potential-students-confirm-btn potential-students-confirm-btn-success"
               onClick={handleBulkUpdateStatus}
               disabled={!bulkStatus}
+              type="button"
             >
               Confirm
             </button>
@@ -479,6 +499,7 @@ const PotentialStudentsPanel = ({
                 setShowBulkUpdate(false);
                 setBulkStatus('');
               }}
+              type="button"
             >
               Cancel
             </button>
