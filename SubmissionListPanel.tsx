@@ -66,6 +66,7 @@ const SubmissionListPanel: React.FC<SubmissionListPanelProps> = ({
                   </td>
                   <td className="p-2">
                     <button
+                      type="button"
                       onClick={() => onSelectSubmission(s, student!)}
                       className="px-3 py-1 bg-green-600 text-white rounded"
                     >
