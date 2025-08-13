@@ -6,7 +6,7 @@ require('dotenv').config();
 const initialUsers = [
   {
     name: 'skillup-admin',
-    email: 'skillup-admin@teacher.skillup',
+    email: 'admin@admin.skillup',
     password: 'Skillup@123', // Will be hashed by the model
     role: 'admin',
     avatarUrl: 'https://picsum.photos/seed/admin/100/100',
@@ -83,7 +83,7 @@ async function seedUsers() {
     console.log('\n✅ User seeding completed!');
     console.log('Created users:', createdUsers);
     console.log('\nLogin credentials:');
-    console.log('Admin: skillup-admin@teacher.skillup / Skillup@123');
+    console.log('Admin: admin@admin.skillup / Skillup@123');
     console.log('Teacher: teacher-jenny@teacher.skillup / Skillup@123');
     console.log('Student 1: student-alice@student.skillup / Skillup123');
     console.log('Student 2: student-bob@student.skillup / Skillup123');

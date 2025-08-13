@@ -207,6 +207,47 @@ router.put('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response)
       return res.status(403).json({ message: 'Access denied' });
     }
 
+    // Get current user data to check for email changes
+    const currentUserDoc = await admin.firestore().collection('users').doc(id).get();
+    if (!currentUserDoc.exists) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    const currentUserData = currentUserDoc.data()!;
+    const newEmail = updateData.email;
+    const currentEmail = currentUserData.email;
+
+    // If email is being changed, update Firebase Auth as well
+    if (newEmail && newEmail !== currentEmail) {
+      try {
+        // Check if new email already exists
+        const emailCheck = await admin.firestore()
+          .collection('users')
+          .where('email', '==', newEmail)
+          .where('firebaseUid', '!=', currentUserData.firebaseUid)
+          .limit(1)
+          .get();
+        
+        if (!emailCheck.empty) {
+          return res.status(400).json({ message: 'Email already exists' });
+        }
+
+        // Update Firebase Auth user
+        if (currentUserData.firebaseUid) {
+          await admin.auth().updateUser(currentUserData.firebaseUid, {
+            email: newEmail
+          });
+          console.log(`Updated Firebase Auth email for user ${id}: ${currentEmail} → ${newEmail}`);
+        }
+      } catch (authError: any) {
+        console.error('Error updating Firebase Auth email:', authError);
+        return res.status(500).json({ 
+          message: 'Failed to update email in authentication system',
+          error: authError.message 
+        });
+      }
+    }
+
     // Remove sensitive fields that shouldn't be updated
     delete updateData.firebaseUid;
     delete updateData.createdAt;
@@ -214,6 +255,7 @@ router.put('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response)
 
     await admin.firestore().collection('users').doc(id).update(updateData);
 
+    console.log(`Updated user ${id} with data:`, updateData);
     return res.json({ success: true, message: 'User updated successfully' });
   } catch (error) {
     console.error('Error updating user:', error);

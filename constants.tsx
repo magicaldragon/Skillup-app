@@ -71,7 +71,7 @@ export const INITIAL_CLASSES: StudentClass[] = [
 
 export const INITIAL_USERS: Student[] = [
   // Admin
-  { id: 'user-admin-01', name: 'skillup-admin', role: 'admin', avatarUrl: 'https://picsum.photos/seed/admin/100/100', email: 'skillup-admin@teacher.skillup' },
+  { id: 'user-admin-01', name: 'skillup-admin', role: 'admin', avatarUrl: 'https://picsum.photos/seed/admin/100/100', email: 'admin@admin.skillup' },
   // Teacher
   { id: 'user-teacher-01', name: 'teacher-jenny', role: 'teacher', avatarUrl: 'https://picsum.photos/seed/jenny/100/100', email: 'teacher-jenny@teacher.skillup' },
 ];

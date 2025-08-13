@@ -91,7 +91,7 @@ async function setupUsers() {
       },
       {
         name: 'SkillUp Admin',
-        email: 'skillup-admin@teacher.skillup',
+        email: 'admin@admin.skillup',
         password: 'Skillup@123',
         role: 'admin',
         firebaseUid: 'qkHQ4gopbTgJdv9Pf0QSZkiGs222',

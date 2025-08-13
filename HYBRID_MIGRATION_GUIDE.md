@@ -68,7 +68,7 @@ PORT=3000
 
 Go to Firebase Console → Authentication → Users and create:
 
-1. **Admin**: `skillup-admin@teacher.skillup` / `Skillup@123`
+1. **Admin**: `admin@admin.skillup` / `Skillup@123`
 2. **Teacher**: `teacher-jenny@teacher.skillup` / `Skillup@123`
 3. **Student 1**: `student-alice@student.skillup` / `Skillup123`
 4. **Student 2**: `student-bob@student.skillup` / `Skillup123`
@@ -83,7 +83,7 @@ const initialUsers = [
   {
     firebaseUid: 'actual-firebase-uid-here', // Replace with real UID
     name: 'skillup-admin',
-    email: 'skillup-admin@teacher.skillup',
+          email: 'admin@admin.skillup',
     // ...
   }
 ];

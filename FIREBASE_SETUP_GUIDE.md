@@ -17,7 +17,7 @@
    - Create these accounts:
 
    **Admin Account:**
-   - Email: `skillup-admin@teacher.skillup`
+   - Email: `admin@admin.skillup`
    - Password: `Skillup@123`
    - Display Name: `SkillUp Admin`
 
@@ -70,7 +70,7 @@ After creating the accounts:
    ```
 
 2. **Test login with:**
-   - Admin: `skillup-admin@teacher.skillup` / `Skillup@123`
+   - Admin: `admin@admin.skillup` / `Skillup@123`
    - Teacher: `teacher-jenny@teacher.skillup` / `Skillup@123`
    - Students: `student-alice@student.skillup` / `Skillup123`
 

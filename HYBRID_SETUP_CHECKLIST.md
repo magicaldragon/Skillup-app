@@ -28,7 +28,7 @@ VITE_API_URL=http://localhost:3000/api
 2. **Create users in Firebase Auth Console**:
    - Go to Firebase Console → Authentication → Users
    - Add user manually for each:
-     - `skillup-admin@teacher.skillup` / `Skillup@123`
+     - `admin@admin.skillup` / `Skillup@123`
      - `teacher-jenny@teacher.skillup` / `Skillup@123`
      - `student-alice@student.skillup` / `Skillup123`
      - `student-bob@student.skillup` / `Skillup123`

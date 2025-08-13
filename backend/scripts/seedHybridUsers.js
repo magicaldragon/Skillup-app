@@ -9,7 +9,7 @@ const initialUsers = [
   {
     firebaseUid: 'admin-uid-123', // Replace with actual Firebase UID
     name: 'skillup-admin',
-    email: 'skillup-admin@teacher.skillup',
+    email: 'admin@admin.skillup',
     role: 'admin',
     avatarUrl: 'https://picsum.photos/seed/admin/100/100',
     status: 'active'

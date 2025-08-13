@@ -47,7 +47,7 @@
 
 ```javascript
 // Admin
-skillup-admin@teacher.skillup / Skillup@123
+admin@admin.skillup / Skillup@123
 Firebase UID: qkHQ4gopbTgJdv9Pf0QSZkiGs222
 
 // Teacher  

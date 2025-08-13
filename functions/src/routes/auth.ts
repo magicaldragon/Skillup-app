@@ -183,7 +183,7 @@ router.post('/firebase-login', async (req: AuthenticatedRequest, res: Response) 
         let role = 'student'; // default
         if (email.includes('@teacher.skillup')) {
           role = 'teacher';
-        } else if (email.includes('@admin.skillup') || email.includes('skillup-admin')) {
+        } else if (email.includes('@admin.skillup') || email.includes('admin@admin.skillup')) {
           role = 'admin';
         }
         
@@ -439,7 +439,7 @@ router.post('/sync-users', async (req: AuthenticatedRequest, res: Response) => {
           let role = 'student'; // default
           if (firebaseUser.email?.includes('@teacher.skillup')) {
             role = 'teacher';
-          } else if (firebaseUser.email?.includes('@admin.skillup') || firebaseUser.email?.includes('skillup-admin')) {
+          } else if (firebaseUser.email?.includes('@admin.skillup') || firebaseUser.email?.includes('admin@admin.skillup')) {
             role = 'admin';
           }
           

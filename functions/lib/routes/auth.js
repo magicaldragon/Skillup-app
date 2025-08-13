@@ -200,7 +200,7 @@ router.post('/firebase-login', async (req, res) => {
                 if (email.includes('@teacher.skillup')) {
                     role = 'teacher';
                 }
-                else if (email.includes('@admin.skillup') || email.includes('skillup-admin')) {
+                else if (email.includes('@admin.skillup') || email.includes('admin@admin.skillup')) {
                     role = 'admin';
                 }
                 const newUserData = {
@@ -433,7 +433,7 @@ router.post('/sync-users', async (req, res) => {
                     if ((_a = firebaseUser.email) === null || _a === void 0 ? void 0 : _a.includes('@teacher.skillup')) {
                         role = 'teacher';
                     }
-                    else if (((_b = firebaseUser.email) === null || _b === void 0 ? void 0 : _b.includes('@admin.skillup')) || ((_c = firebaseUser.email) === null || _c === void 0 ? void 0 : _c.includes('skillup-admin'))) {
+                    else if (((_b = firebaseUser.email) === null || _b === void 0 ? void 0 : _b.includes('@admin.skillup')) || ((_c = firebaseUser.email) === null || _c === void 0 ? void 0 : _c.includes('admin@admin.skillup'))) {
                         role = 'admin';
                     }
                     const newUserData = {

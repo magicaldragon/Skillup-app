@@ -1,8 +1,11 @@
 
 export interface Student {
   id: string;
+  _id?: string; // For Firestore compatibility
+  firebaseUid?: string; // For Firebase Auth compatibility
   name: string;
-  displayName?: string;
+  username?: string; // For authentication
+  displayName?: string; // Keep for backward compatibility
   email: string;
   role: string;
   gender?: string;

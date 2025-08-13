@@ -1,6 +1,6 @@
 // AdminDashboard.tsx
 // Professional admin dashboard with system overview, user management, and administrative controls
-import React from 'react';
+// React import removed as it's not needed
 import AddNewMembers from './AddNewMembers';
 import PotentialStudentsPanel from './PotentialStudentsPanel';
 import WaitingListPanel from './WaitingListPanel';
@@ -106,7 +106,7 @@ const AdminDashboard = ({ user, students, assignments, classes, activeKey, onDat
         <div className="admin-dashboard-content">
           <div className="admin-dashboard-welcome">
             <h1 className="admin-dashboard-title">
-              Welcome back, {user.displayName || user.name}!
+              Welcome back, {user.englishName || user.name}!
             </h1>
             <p className="admin-dashboard-subtitle">Here's your system administration dashboard overview</p>
           </div>

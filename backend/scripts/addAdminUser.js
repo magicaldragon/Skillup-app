@@ -81,7 +81,7 @@ async function addAdminUser() {
     console.log('Connected to MongoDB');
 
     // Check if Admin already exists
-    const existingUser = await User.findOne({ email: 'skillup-admin@teacher.skillup' });
+    const existingUser = await User.findOne({ email: 'admin@admin.skillup' });
     if (existingUser) {
       console.log('Admin user already exists in MongoDB');
       console.log('User ID:', existingUser._id);
@@ -94,7 +94,7 @@ async function addAdminUser() {
     
     const adminUser = new User({
       name: 'SkillUp Admin',
-      email: 'skillup-admin@teacher.skillup',
+              email: 'admin@admin.skillup',
       password: hashedPassword,
       role: 'admin',
       firebaseUid: 'qkHQ4gopbTgJdv9Pf0QSZkiGs222', // From hybridAuthService.ts

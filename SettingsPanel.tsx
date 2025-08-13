@@ -20,9 +20,13 @@ type SettingsPanelProps = {
 
 const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelProps) => {
   const [form, setForm] = useState({
+    name: currentUser.name || '',
+    englishName: currentUser.englishName || '',
+    username: currentUser.username || '',
+    email: currentUser.email || '',
+    gender: currentUser.gender || '',
     dob: currentUser.dob || '',
     phone: currentUser.phone || '',
-    englishName: currentUser.englishName || '',
     parentName: currentUser.parentName || '',
     parentPhone: currentUser.parentPhone || '',
     notes: currentUser.notes || '',
@@ -45,14 +49,14 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
     }).map(c => c.classCode || c.name || 'Unnamed Class');
   }, [currentUser.classIds, classes]);
 
-  // Check if user can edit their information
-  const canEdit = currentUser.role === 'admin' || currentUser.role === 'teacher' || currentUser.role === 'staff';
+  // Check if user can edit their information - allow all users to edit their own profile
+  const canEdit = true; // Allow all users to edit their own information
 
   const handleRandomize = () => {
     setAvatarSeed(Math.random().toString(36).substring(2, 10));
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setForm(f => ({ ...f, [e.target.name]: e.target.value }));
   };
 
@@ -65,7 +69,7 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
     formData.append('avatar', file);
     try {
       const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
-      const res = await fetch(`${apiUrl}/users/${currentUser.id}/avatar`, {
+      const res = await fetch(`${apiUrl}/users/${currentUser.id || currentUser._id}/avatar`, {
         method: 'POST',
         body: formData,
         headers: {
@@ -91,16 +95,20 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
     setError(null);
     try {
       const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
-      const res = await fetch(`${apiUrl}/users/${currentUser.id}`, {
+      const res = await fetch(`${apiUrl}/users/${currentUser.id || currentUser._id}`, {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('skillup_token')}`,
         },
         body: JSON.stringify({ 
+          name: form.name,
+          englishName: form.englishName,
+          username: form.username,
+          email: form.email,
+          gender: form.gender,
           dob: form.dob, 
           phone: form.phone,
-          englishName: form.englishName,
           parentName: form.parentName,
           parentPhone: form.parentPhone,
           notes: form.notes,
@@ -108,11 +116,19 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
           diceBearSeed: avatarSeed 
         }),
       });
-      if (!res.ok) throw new Error('Failed to update user');
+      if (!res.ok) {
+        const errorData = await res.text();
+        console.error('Update failed:', res.status, errorData);
+        throw new Error(`Failed to update user: ${res.status} - ${errorData}`);
+      }
+      
+      const result = await res.json();
+      console.log('Update successful:', result);
       setSuccess('Profile updated successfully!');
       setEditMode(false);
       onDataRefresh?.();
     } catch (err: any) {
+      console.error('Update error:', err);
       setError('Failed to update profile: ' + (err.message || ''));
     } finally {
       setLoading(false);
@@ -142,6 +158,7 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
           <div className="user-name-section">
             <div className="user-name">{currentUser.name}</div>
             {currentUser.englishName && <div className="user-english-name">{currentUser.englishName}</div>}
+            {!currentUser.englishName && <div className="user-english-name">{currentUser.name}</div>}
             {currentUser.studentCode && <div className="user-student-code">Student Code: {currentUser.studentCode}</div>}
           </div>
           
@@ -201,6 +218,28 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
               </button>
             )}
           </div>
+          
+          {/* Debug Info (only show in development) */}
+          {import.meta.env.DEV && (
+            <div className="debug-info" style={{ marginTop: '20px', padding: '10px', backgroundColor: '#f5f5f5', borderRadius: '5px', fontSize: '12px' }}>
+              <h4>Debug Info:</h4>
+              <p><strong>User ID:</strong> {currentUser.id || currentUser._id}</p>
+              <p><strong>Role:</strong> {currentUser.role}</p>
+              <p><strong>Can Edit:</strong> {canEdit ? 'Yes' : 'No'}</p>
+              <p><strong>API URL:</strong> {import.meta.env.VITE_API_BASE_URL || '/api'}</p>
+            </div>
+          )}
+          
+          {/* Admin Email Change Notice */}
+          {currentUser.role === 'admin' && currentUser.email?.includes('@teacher.skillup') && (
+            <div className="admin-notice" style={{ marginTop: '20px', padding: '15px', backgroundColor: '#fff3cd', border: '1px solid #ffeaa7', borderRadius: '5px', color: '#856404' }}>
+              <h4>⚠️ Important: Admin Email Update Needed</h4>
+              <p>Your admin account is currently using <code>@teacher.skillup</code> domain, which may cause role confusion. 
+              To fix this, please change your email to <code>admin@admin.skillup</code> in the edit form above.</p>
+              <p><strong>Current email:</strong> {currentUser.email}</p>
+              <p><strong>Recommended:</strong> admin@admin.skillup</p>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -276,6 +315,42 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
           {/* Form Fields */}
           <div className="form-fields">
             <div className="form-group">
+              <label className="form-label">Full Name</label>
+              <input
+                type="text"
+                name="name"
+                value={form.name}
+                onChange={handleChange}
+                className="form-input"
+                required
+              />
+            </div>
+            
+            <div className="form-group">
+              <label className="form-label">Username</label>
+              <input
+                type="text"
+                name="username"
+                value={form.username}
+                onChange={handleChange}
+                className="form-input"
+                placeholder="Enter username"
+              />
+            </div>
+            
+            <div className="form-group">
+              <label className="form-label">Email</label>
+              <input
+                type="email"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                className="form-input"
+                placeholder="Enter email address"
+              />
+            </div>
+            
+            <div className="form-group">
               <label className="form-label">English Name</label>
               <input
                 type="text"
@@ -284,6 +359,21 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
                 onChange={handleChange}
                 className="form-input"
               />
+            </div>
+            
+            <div className="form-group">
+              <label className="form-label">Gender</label>
+              <select
+                name="gender"
+                value={form.gender}
+                onChange={handleChange}
+                className="form-input"
+              >
+                <option value="">Select Gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
             </div>
             
             <div className="form-group">

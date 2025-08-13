@@ -10,10 +10,10 @@ async function fixRoles() {
 
   // Update admin
   await User.updateOne(
-    { email: 'skillup-admin@teacher.skillup' },
+    { email: 'admin@admin.skillup' },
     { $set: { role: 'admin' } }
   );
-  console.log('Updated skillup-admin@teacher.skillup to admin');
+  console.log('Updated admin@admin.skillup to admin');
 
   // Update teacher
   await User.updateOne(

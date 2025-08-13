@@ -73,7 +73,7 @@ npm run preview
 ### 1. Test Authentication
 - Visit the deployed URL
 - Try logging in with test credentials:
-  - Admin: `skillup-admin@teacher.skillup` / `Skillup@123`
+  - Admin: `admin@admin.skillup` / `Skillup@123`
   - Teacher: `teacher-jenny@teacher.skillup` / `Skillup@123`
   - Student: `student-alice@student.skillup` / `Skillup123`
 

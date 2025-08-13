@@ -5,7 +5,7 @@ require('dotenv').config();
 const initialUsers = [
   {
     name: 'SkillUp Admin',
-    email: 'skillup-admin@teacher.skillup',
+    email: 'admin@admin.skillup',
     password: 'Skillup@123',
     role: 'admin',
     username: 'skillup-admin'

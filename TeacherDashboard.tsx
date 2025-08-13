@@ -25,7 +25,7 @@ const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onD
   const totalStudents = students.filter(s => s.role === 'student').length;
   const activeAssignments = assignments.filter(a => a.status === 'active').length;
   const totalClasses = classes.length;
-  const userRole = user.role;
+  // userRole variable removed as it's not used
   
   return (
     <div className="teacher-dashboard">
@@ -105,7 +105,7 @@ const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onD
         <div className="teacher-dashboard-content">
           <div className="teacher-dashboard-welcome">
             <h1 className="teacher-dashboard-title">
-              Welcome back, {user.displayName || user.name}!
+              Welcome back, {user.englishName || user.name}!
             </h1>
             <p className="teacher-dashboard-subtitle">
               {user.role === 'teacher' ? 'Here\'s your IELTS teaching dashboard overview' : 

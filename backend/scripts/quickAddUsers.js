@@ -11,7 +11,7 @@ async function quickAddUsers() {
     // Add admin user
     const adminUser = new User({
       name: 'SkillUp Admin',
-      email: 'skillup-admin@teacher.skillup',
+      email: 'admin@admin.skillup',
       role: 'admin',
       username: 'skillup-admin',
       firebaseUid: 'qkHQ4gopbTgJdv9Pf0QSZkiGs222'

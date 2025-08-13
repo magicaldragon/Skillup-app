@@ -54,7 +54,7 @@ npm run seed
 ```
 
 This will create the following users:
-- **Admin**: skillup-admin@teacher.skillup / Skillup@123
+- **Admin**: admin@admin.skillup / Skillup@123
 - **Teacher**: teacher-jenny@teacher.skillup / Skillup@123
 - **Student 1**: student-alice@student.skillup / Skillup123
 - **Student 2**: student-bob@student.skillup / Skillup123
