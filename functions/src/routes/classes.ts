@@ -61,16 +61,54 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
 router.post('/', verifyToken, requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const {
-      name,
-      classCode,
       levelId,
-      description,
+      description = '',
       teacherId,
       studentIds = [],
       isActive = true,
     } = req.body;
 
-    // Check if class code already exists
+    if (!levelId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Level ID is required',
+      });
+    }
+
+    // Get level information to generate class code
+    const levelDoc = await admin.firestore().collection('levels').doc(levelId).get();
+    if (!levelDoc.exists) {
+      return res.status(400).json({
+        success: false,
+        message: 'Level not found',
+      });
+    }
+
+    const levelData = levelDoc.data();
+    const levelCode = levelData?.code || levelData?.name?.substring(0, 2).toUpperCase() || 'SU';
+
+    // Generate unique class code
+    const year = new Date().getFullYear().toString().slice(-2);
+    const classCodeSnapshot = await admin
+      .firestore()
+      .collection('classes')
+      .where('classCode', '>=', `${levelCode}-${year}001`)
+      .where('classCode', '<=', `${levelCode}-${year}999`)
+      .orderBy('classCode', 'desc')
+      .limit(1)
+      .get();
+
+    let nextNumber = 1;
+    if (!classCodeSnapshot.empty) {
+      const lastCode = classCodeSnapshot.docs[0].data().classCode;
+      const lastNumber = parseInt(lastCode.slice(-3));
+      nextNumber = lastNumber + 1;
+    }
+
+    const classCode = `${levelCode}-${year}${nextNumber.toString().padStart(3, '0')}`;
+    const className = `${levelData?.name || 'Unknown Level'} - Class ${nextNumber}`;
+
+    // Check if class code already exists (shouldn't happen with our generation, but safety check)
     const existingClass = await admin
       .firestore()
       .collection('classes')
@@ -87,7 +125,7 @@ router.post('/', verifyToken, requireAdmin, async (req: AuthenticatedRequest, re
 
     // Create class in Firestore
     const classData = {
-      name,
+      name: className,
       classCode,
       levelId,
       description,
@@ -99,7 +137,11 @@ router.post('/', verifyToken, requireAdmin, async (req: AuthenticatedRequest, re
     };
 
     const docRef = await admin.firestore().collection('classes').add(classData);
-    const newClass = { id: docRef.id, ...classData };
+    const newClass = { 
+      id: docRef.id, 
+      _id: docRef.id, // Add _id for frontend compatibility
+      ...classData 
+    };
 
     // Update students' classIds if provided
     if (studentIds.length > 0) {

@@ -176,7 +176,11 @@ const ClassesPanel = ({
 
       if (data.success && Array.isArray(data.levels)) {
         setLevels(data.levels);
+      } else if (Array.isArray(data)) {
+        // Handle legacy response format
+        setLevels(data);
       } else {
+        console.warn('Unexpected levels response format:', data);
         setLevels([]);
       }
     } catch (error) {
@@ -259,20 +263,22 @@ const ClassesPanel = ({
       });
 
       if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
+        const errorData = await res.json();
+        throw new Error(errorData.message || `HTTP error! status: ${res.status}`);
       }
 
       const data = await res.json();
 
       if (data.success) {
         setNewClassLevelId('');
+        alert(`Class created successfully! Class Code: ${data.class.classCode}`);
         onDataRefresh?.();
       } else {
         alert(data.message || 'Failed to create class');
       }
     } catch (error) {
       console.error('Error adding class:', error);
-      alert('Failed to add class. Please try again.');
+      alert(error instanceof Error ? error.message : 'Failed to add class. Please try again.');
     } finally {
       setAdding(false);
     }
@@ -286,12 +292,35 @@ const ClassesPanel = ({
         return;
       }
 
+      if (!classEditModal.classId) {
+        alert('No source class selected');
+        return;
+      }
+
       try {
         const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
         const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
 
+        // First, remove students from current class
         for (const studentId of selectedStudentIds) {
-          const res = await fetch(`${apiUrl}/classes/${targetClassId}/students`, {
+          const removeRes = await fetch(
+            `${apiUrl}/classes/${classEditModal.classId}/students/${studentId}`,
+            {
+              method: 'DELETE',
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          if (!removeRes.ok) {
+            throw new Error(`Failed to remove student ${studentId} from current class`);
+          }
+        }
+
+        // Then, add students to target class
+        for (const studentId of selectedStudentIds) {
+          const addRes = await fetch(`${apiUrl}/classes/${targetClassId}/students/${studentId}`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -300,8 +329,8 @@ const ClassesPanel = ({
             body: JSON.stringify({ studentId }),
           });
 
-          if (!res.ok) {
-            throw new Error(`Failed to assign student ${studentId}`);
+          if (!addRes.ok) {
+            throw new Error(`Failed to assign student ${studentId} to target class`);
           }
         }
 
@@ -313,13 +342,18 @@ const ClassesPanel = ({
         alert('Failed to assign students. Please try again.');
       }
     },
-    [selectedStudentIds, onDataRefresh, handleCloseClassEditModal]
+    [selectedStudentIds, classEditModal.classId, onDataRefresh, handleCloseClassEditModal]
   );
 
   // Bulk remove students to waiting list
   const handleBulkRemove = useCallback(async () => {
     if (selectedStudentIds.length === 0) {
       alert('Please select students to remove');
+      return;
+    }
+
+    if (!classEditModal.classId) {
+      alert('No class selected');
       return;
     }
 
@@ -347,7 +381,7 @@ const ClassesPanel = ({
         );
 
         if (!removeRes.ok) {
-          throw new Error(`Failed to remove student ${studentId}`);
+          throw new Error(`Failed to remove student ${studentId} from class`);
         }
 
         // Update student status to 'studying' (waiting list)
@@ -357,7 +391,9 @@ const ClassesPanel = ({
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ status: 'studying' }),
+          body: JSON.stringify({ 
+            status: 'studying'
+          }),
         });
 
         if (!updateRes.ok) {
@@ -1023,20 +1059,44 @@ const ClassesPanel = ({
                               />
                             </td>
                             <td>{student.studentCode || student.id}</td>
-                            <td>{student.name}</td>
+                            <td>
+                              <div className="student-name">
+                                <strong>{student.name}</strong>
+                                {student.englishName && (
+                                  <div className="english-name">({student.englishName})</div>
+                                )}
+                              </div>
+                            </td>
                             <td>{student.englishName || 'N/A'}</td>
                             <td>
                               {student.dob ? new Date(student.dob).toLocaleDateString() : 'N/A'}
                             </td>
                             <td>{student.gender || 'N/A'}</td>
                             <td className="student-actions">
-                              <button
-                                type="button"
-                                onClick={() => handleReportStudent(student.id, student.name)}
-                                className="action-btn report-btn"
-                              >
-                                Report
-                              </button>
+                              <div className="action-buttons">
+                                <button
+                                  type="button"
+                                  onClick={() => handleReportStudent(student.id, student.name)}
+                                  className="action-btn report-btn"
+                                  title="Report student issue"
+                                >
+                                  📝 Report
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    // Remove single student to waiting list
+                                    if (window.confirm(`Remove ${student.name} to waiting list?`)) {
+                                      setSelectedStudentIds([student.id]);
+                                      handleBulkRemove();
+                                    }
+                                  }}
+                                  className="action-btn remove-btn"
+                                  title="Remove student to waiting list"
+                                >
+                                  ➖ Remove
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         ))}
@@ -1057,8 +1117,15 @@ const ClassesPanel = ({
                         className="target-class-select"
                         onChange={(e) => {
                           if (e.target.value) {
-                            handleBulkAssign(e.target.value);
-                            e.target.value = '';
+                            const targetClass = classes.find(c => c.id === e.target.value);
+                            if (targetClass && window.confirm(
+                              `Assign ${selectedStudentIds.length} student(s) to ${targetClass.name || targetClass.classCode}?`
+                            )) {
+                              handleBulkAssign(e.target.value);
+                              e.target.value = '';
+                            } else {
+                              e.target.value = '';
+                            }
                           }
                         }}
                       >
@@ -1074,9 +1141,10 @@ const ClassesPanel = ({
                                   ? cls.levelId.name
                                   : levels.find((l) => l._id === cls.levelId)?.name || 'N/A'
                                 : 'N/A';
+                              const displayName = cls.classCode || cls.name || 'Unnamed Class';
                               return (
                                 <option key={cls.id} value={cls.id}>
-                                  {cls.name} ({levelName})
+                                  {displayName} ({levelName}) - {cls.studentIds?.length || 0} students
                                 </option>
                               );
                             })}
@@ -1087,7 +1155,7 @@ const ClassesPanel = ({
                       onClick={handleBulkRemove}
                       className="bulk-btn remove-btn"
                     >
-                      Remove to Waiting List
+                      ➖ Remove to Waiting List
                     </button>
                   </div>
                 </div>

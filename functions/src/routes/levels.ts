@@ -19,12 +19,16 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
 
     const snapshot = await query.orderBy('order', 'asc').get();
     const levels = snapshot.docs.map((doc: any) => ({
+      _id: doc.id, // Add _id for frontend compatibility
       id: doc.id,
       ...doc.data(),
     }));
 
     console.log(`Fetched ${levels.length} levels`);
-    return res.json(levels);
+    return res.json({
+      success: true,
+      levels: levels
+    });
   } catch (error) {
     console.error('Error fetching levels:', error);
     return res.status(500).json({ message: 'Failed to fetch levels' });
