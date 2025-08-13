@@ -91,7 +91,7 @@ const AccountsPanel = () => {
 
     try {
       await usersAPI.updateUser(editingId, editForm);
-      
+
       setAccounts(prev => prev.map(acc => 
         acc._id === editingId ? { ...acc, ...editForm } : acc
       ));

@@ -329,7 +329,7 @@ router.delete('/:id', verifyToken, requireAdmin, async (req: AuthenticatedReques
     
     // Delete from Firestore first
     await admin.firestore().collection('users').doc(id).delete();
-    
+
     // Delete from Firebase Auth if firebaseUid exists
     if (userData.firebaseUid) {
       try {
