@@ -139,7 +139,7 @@ const menuConfig = (role: string) => [
   },
 ];
 
-const Sidebar = ({ role, activeKey, onNavigate, onLogout, user, className }: { role: string, activeKey: string, onNavigate: (key: string) => void, onLogout?: () => void, user?: { name: string, avatarSeed?: string, avatarUrl?: string }, className?: string }) => {
+const Sidebar = ({ role, activeKey, onNavigate, onLogout, user, className }: { role: string, activeKey: string, onNavigate: (key: string) => void, onLogout?: () => void, user?: { name: string, avatarSeed?: string, avatarUrl?: string, diceBearSeed?: string, diceBearStyle?: string }, className?: string }) => {
   const menu = menuConfig(role);
   // By default, open the section containing the activeKey
   const getDefaultOpen = () => {
@@ -182,7 +182,7 @@ const Sidebar = ({ role, activeKey, onNavigate, onLogout, user, className }: { r
           {user?.avatarUrl ? (
             <img src={user.avatarUrl} alt="User Avatar" className="sidebar-profile-img" />
           ) : (
-            <DiceBearAvatar seed={user?.avatarSeed || user?.name || 'User'} size={56} style="avataaars" />
+            <DiceBearAvatar seed={user?.diceBearSeed || user?.name || 'User'} size={56} style={user?.diceBearStyle || "avataaars"} />
           )}
         </div>
         <div className="sidebar-profile-name">{user?.name || 'User'}</div>

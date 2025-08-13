@@ -1,7 +1,7 @@
 // apiService.ts - Firebase Functions API Service
 import { auth } from './firebase';
 
-const API_BASE_URL = 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
+const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL || '/api';
 
 // Helper function to get auth token
 async function getAuthToken(): Promise<string> {

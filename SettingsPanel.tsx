@@ -104,8 +104,6 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
         body: JSON.stringify({ 
           name: form.name,
           englishName: form.englishName,
-          username: form.username,
-          email: form.email,
           gender: form.gender,
           dob: form.dob, 
           phone: form.phone,
@@ -326,29 +324,7 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
               />
             </div>
             
-            <div className="form-group">
-              <label className="form-label">Username</label>
-              <input
-                type="text"
-                name="username"
-                value={form.username}
-                onChange={handleChange}
-                className="form-input"
-                placeholder="Enter username"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label className="form-label">Email</label>
-              <input
-                type="email"
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                className="form-input"
-                placeholder="Enter email address"
-              />
-            </div>
+            {/* Username and Email fields removed - not editable by users */}
             
             <div className="form-group">
               <label className="form-label">English Name</label>

@@ -46,24 +46,6 @@ const AccountsPanel = () => {
       const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
       console.log('🔍 DEBUG: API URL:', apiUrl);
       
-      // First, test authentication
-      console.log('🔍 DEBUG: Testing authentication...');
-      const authTest = await fetch(`${apiUrl}/auth/test`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      console.log('🔍 DEBUG: Auth test status:', authTest.status);
-      if (authTest.ok) {
-        const authData = await authTest.json();
-        console.log('🔍 DEBUG: Auth test response:', authData);
-      } else {
-        const authError = await authTest.text();
-        console.log('🔍 DEBUG: Auth test error:', authError);
-        setError('Authentication failed. Please log in again.');
-        return;
-      }
-      
       console.log('🔍 DEBUG: Fetching users...');
       const res = await fetch(`${apiUrl}/users`, {
         headers: {

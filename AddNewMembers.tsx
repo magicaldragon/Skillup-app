@@ -143,7 +143,7 @@ const AddNewMembers = () => {
       <div className="panel-content">
         <div className="registration-form-section">
           <div className="panel-card">
-            <h2 className="panel-title">REGISTRATION FORM</h2>
+            <h2 className="panel-title" style={{ fontSize: '2.5rem', color: '#2c5aa0', marginBottom: '20px' }}>REGISTRATION FORM</h2>
             
             {error && (
               <div className="error-message">
