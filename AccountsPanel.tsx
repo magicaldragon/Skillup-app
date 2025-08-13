@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { usersAPI } from './services/apiService';
 import './AccountsPanel.css';
 
 interface User {
@@ -33,37 +34,9 @@ const AccountsPanel = () => {
       setLoading(true);
       setError(null);
       
-      const token = localStorage.getItem('skillup_token');
-      console.log('🔍 DEBUG: Auth token found:', token ? 'YES' : 'NO');
-      console.log('🔍 DEBUG: Token preview:', token ? token.substring(0, 20) + '...' : 'NONE');
+      console.log('🔍 DEBUG: Fetching users via API service...');
+      const data = await usersAPI.getUsers();
       
-      if (!token) {
-        setError('No authentication token found. Please log in again.');
-        setAccounts([]);
-        return;
-      }
-
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
-      console.log('🔍 DEBUG: API URL:', apiUrl);
-      
-      console.log('🔍 DEBUG: Fetching users...');
-      const res = await fetch(`${apiUrl}/users`, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      console.log('🔍 DEBUG: Users response status:', res.status);
-      console.log('🔍 DEBUG: Users response headers:', Object.fromEntries(res.headers.entries()));
-
-      if (!res.ok) {
-        const errorText = await res.text();
-        console.log('🔍 DEBUG: Error response:', errorText);
-        throw new Error(`Failed to fetch accounts: ${res.status} ${errorText}`);
-      }
-
-      const data = await res.json();
       console.log('🔍 DEBUG: Users response data:', data);
       console.log('🔍 DEBUG: Data type:', typeof data);
       console.log('🔍 DEBUG: Is array:', Array.isArray(data));
@@ -72,9 +45,9 @@ const AccountsPanel = () => {
       if (Array.isArray(data)) {
         console.log('🔍 DEBUG: Setting accounts from array, count:', data.length);
         setAccounts(data);
-      } else if (data && Array.isArray(data.users)) {
-        console.log('🔍 DEBUG: Setting accounts from users object, count:', data.users.length);
-        setAccounts(data.users);
+      } else if (data && typeof data === 'object' && 'users' in data && Array.isArray((data as any).users)) {
+        console.log('🔍 DEBUG: Setting accounts from users object, count:', (data as any).users.length);
+        setAccounts((data as any).users);
       } else {
         console.log('🔍 DEBUG: No valid data found, setting empty array');
         setAccounts([]);
@@ -114,26 +87,8 @@ const AccountsPanel = () => {
     if (!editingId) return;
 
     try {
-      const token = localStorage.getItem('skillup_token');
-      if (!token) {
-        setError('No authentication token found');
-        return;
-      }
-
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
-      const res = await fetch(`${apiUrl}/users/${editingId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(editForm)
-      });
-
-      if (!res.ok) {
-        throw new Error('Failed to update user');
-      }
-
+      await usersAPI.updateUser(editingId, editForm);
+      
       setAccounts(prev => prev.map(acc => 
         acc._id === editingId ? { ...acc, ...editForm } : acc
       ));
@@ -149,24 +104,7 @@ const AccountsPanel = () => {
     if (!confirm('Are you sure you want to delete this user?')) return;
 
     try {
-      const token = localStorage.getItem('skillup_token');
-      if (!token) {
-        setError('No authentication token found');
-        return;
-      }
-
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
-      const res = await fetch(`${apiUrl}/users/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (!res.ok) {
-        throw new Error('Failed to delete user');
-      }
-
+      await usersAPI.deleteUser(id);
       setAccounts(prev => prev.filter(acc => acc._id !== id));
     } catch (err: any) {
       console.error('Error deleting user:', err);
