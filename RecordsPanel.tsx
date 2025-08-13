@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import './RecordsPanel.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
@@ -13,7 +13,7 @@ interface StudentRecord {
   studentName: string;
   action: string;
   category: string;
-  details: any;
+  details: string | Record<string, unknown>;
   relatedClass?: {
     _id: string;
     name: string;
@@ -174,7 +174,7 @@ const RecordsPanel = () => {
         <div className="records-error">
           <h3>Error Loading Records</h3>
           <p>{error}</p>
-          <button className="form-btn" onClick={fetchRecords}>
+          <button type="button" className="form-btn" onClick={fetchRecords}>
             Try Again
           </button>
         </div>
@@ -205,8 +205,9 @@ const RecordsPanel = () => {
                 }
               }}
             />
-            <button className="search-bar-button">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button type="button" className="search-bar-button">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-label="Search">
+                <title>Search</title>
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -221,7 +222,17 @@ const RecordsPanel = () => {
         <div className="records-filters">
           <select
             value={filter}
-            onChange={(e) => setFilter(e.target.value as any)}
+            onChange={(e) =>
+              setFilter(
+                e.target.value as
+                  | 'all'
+                  | 'academic'
+                  | 'administrative'
+                  | 'financial'
+                  | 'attendance'
+                  | 'assessment'
+              )
+            }
             className="form-select"
           >
             <option value="all">All Categories</option>
@@ -297,16 +308,18 @@ const RecordsPanel = () => {
       {pagination.pages > 1 && (
         <div className="records-pagination">
           <button
+            type="button"
             className="form-btn"
             onClick={() => handlePageChange(pagination.page - 1)}
             disabled={pagination.page <= 1}
           >
             Previous
           </button>
-          <span className="records-page-info">
+          <span className="pagination-info">
             Page {pagination.page} of {pagination.pages}
           </span>
           <button
+            type="button"
             className="form-btn"
             onClick={() => handlePageChange(pagination.page + 1)}
             disabled={pagination.page >= pagination.pages}
@@ -317,7 +330,7 @@ const RecordsPanel = () => {
       )}
 
       <div className="records-footer">
-        <button className="form-btn" onClick={fetchRecords}>
+        <button type="button" className="form-btn" onClick={fetchRecords}>
           Refresh Records
         </button>
       </div>
