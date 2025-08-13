@@ -36,6 +36,7 @@ const ManualToolsPanel = () => {
           <h3 className="font-semibold mb-2">Cache Management</h3>
           <div className="space-y-2">
             <button
+              type="button"
               onClick={handleClearCache}
               disabled={clearingCache}
               className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
@@ -55,6 +56,7 @@ const ManualToolsPanel = () => {
         <div className="bg-white p-4 rounded-lg shadow">
           <h3 className="font-semibold mb-2">Data Refresh</h3>
           <button
+            type="button"
             onClick={handleRefreshData}
             className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
           >

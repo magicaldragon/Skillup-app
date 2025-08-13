@@ -53,8 +53,9 @@ const SubmissionGradingPanel: React.FC<SubmissionGradingPanelProps> = ({
       if (onGraded) onGraded({ ...submission, score, feedback });
       onDataRefresh?.();
       setTimeout(() => setShowToast(false), 2500);
-    } catch (err: any) {
-      setError(`Failed to save: ${err.message || ''}`);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+      setError(`Failed to save: ${errorMessage}`);
     } finally {
       setSaving(false);
     }
@@ -81,7 +82,7 @@ const SubmissionGradingPanel: React.FC<SubmissionGradingPanelProps> = ({
             ) : q.type === 'match' && q.matchPairs ? (
               <ul className="ml-4 list-disc">
                 {q.matchPairs.map((pair, i) => (
-                  <li key={i}>
+                  <li key={`${q.id}_${pair.left}_${i}`}>
                     {pair.left} →{' '}
                     <b>{answers[`${q.id}_${i}`] || <i className="text-slate-400">No answer</i>}</b>{' '}
                     (Correct: {pair.right})
@@ -96,8 +97,11 @@ const SubmissionGradingPanel: React.FC<SubmissionGradingPanelProps> = ({
           </div>
           {q.type === 'essay' && (
             <div className="mt-2">
-              <label className="block text-sm font-medium mb-1">Feedback for Essay</label>
+              <label htmlFor={`feedback-${q.id}`} className="block text-sm font-medium mb-1">
+                Feedback for Essay
+              </label>
               <textarea
+                id={`feedback-${q.id}`}
                 value={feedback}
                 onChange={(e) => setFeedback(e.target.value)}
                 className="w-full p-2 border rounded"
@@ -109,8 +113,11 @@ const SubmissionGradingPanel: React.FC<SubmissionGradingPanelProps> = ({
         </div>
       ))}
       <div className="flex items-center gap-4">
-        <label className="block text-sm font-medium">Score</label>
+        <label htmlFor="score-input" className="block text-sm font-medium">
+          Score
+        </label>
         <input
+          id="score-input"
           type="number"
           value={score ?? ''}
           onChange={(e) => setScore(e.target.value === '' ? null : Number(e.target.value))}

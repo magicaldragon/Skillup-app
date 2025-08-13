@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 const ApiErrorLogsPanel = () => {
-  const [logs, setLogs] = useState<any[]>([]);
+  const [logs, setLogs] = useState<Array<{ level: string; message: string; timestamp: string }>>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,12 +28,12 @@ const ApiErrorLogsPanel = () => {
       {logs.length > 0 ? (
         <ul className="space-y-2">
           {logs.map((log, i) => (
-            <li key={i} className="bg-slate-100 rounded p-2 text-sm">
+            <li key={`${log.timestamp}_${i}`} className="bg-slate-100 rounded p-2 text-sm">
               <span className={log.level === 'error' ? 'text-red-600' : 'text-yellow-600'}>
                 [{log.level}]
               </span>{' '}
               {log.message}
-              <span className="ml-2 text-slate-500">({log.timestamp})</span>
+              <div className="text-xs text-gray-500 mt-1">{log.timestamp}</div>
             </li>
           ))}
         </ul>

@@ -1,7 +1,16 @@
 import { useEffect, useState } from 'react';
 
+interface SyncStatus {
+  mongoCount: number;
+  firebaseCount: number;
+  discrepancies: Array<{
+    userId: string;
+    issue: string;
+  }>;
+}
+
 const UserSyncStatusPanel = () => {
-  const [status, setStatus] = useState<any>(null);
+  const [status, setStatus] = useState<SyncStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

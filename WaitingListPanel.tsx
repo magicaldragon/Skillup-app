@@ -213,7 +213,7 @@ const WaitingListPanel = ({
         <div className="waiting-list-error">
           <h3>Error Loading Waiting Students</h3>
           <p>{error}</p>
-          <button className="waiting-list-retry-btn" onClick={fetchWaitingStudents}>
+          <button type="button" className="waiting-list-retry-btn" onClick={fetchWaitingStudents}>
             Try Again
           </button>
         </div>
@@ -244,8 +244,9 @@ const WaitingListPanel = ({
                 }
               }}
             />
-            <button className="search-bar-button">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button type="button" className="search-bar-button">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" role="img" aria-label="Search">
+                <title>Search</title>
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -298,7 +299,16 @@ const WaitingListPanel = ({
                 onClick={() => setSelectedStudent(student)}
                 className="clickable-row"
               >
-                <td onClick={(e) => e.stopPropagation()} className="checkbox-cell">
+                <td 
+                  onClick={(e) => e.stopPropagation()} 
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }
+                  }}
+                  className="checkbox-cell"
+                >
                   <input
                     type="checkbox"
                     checked={selectedIds.includes(student._id)}
@@ -350,51 +360,51 @@ const WaitingListPanel = ({
       {selectedStudent && (
         <div className="student-details-modal">
           <div className="modal-content">
-            <button className="close-btn" onClick={() => setSelectedStudent(null)}>
+            <button type="button" className="close-btn" onClick={() => setSelectedStudent(null)}>
               ×
             </button>
             <h3>Student Details</h3>
             <div className="student-details-grid">
               <div className="detail-item">
-                <label>Name:</label>
+                <strong>Name:</strong>
                 <span>{selectedStudent.name}</span>
               </div>
               <div className="detail-item">
-                <label>English Name:</label>
+                <strong>English Name:</strong>
                 <span>{selectedStudent.englishName || 'N/A'}</span>
               </div>
               <div className="detail-item">
-                <label>Email:</label>
+                <strong>Email:</strong>
                 <span>{selectedStudent.email}</span>
               </div>
               <div className="detail-item">
-                <label>Phone:</label>
+                <strong>Phone:</strong>
                 <span>{selectedStudent.phone || 'N/A'}</span>
               </div>
               <div className="detail-item">
-                <label>Gender:</label>
+                <strong>Gender:</strong>
                 <span>{selectedStudent.gender || 'N/A'}</span>
               </div>
               <div className="detail-item">
-                <label>Status:</label>
+                <strong>Status:</strong>
                 <span className={`status-badge status-${selectedStudent.status}`}>
                   {selectedStudent.status}
                 </span>
               </div>
               <div className="detail-item">
-                <label>Parent Name:</label>
+                <strong>Parent Name:</strong>
                 <span>{selectedStudent.parentName || 'N/A'}</span>
               </div>
               <div className="detail-item">
-                <label>Parent Phone:</label>
+                <strong>Parent Phone:</strong>
                 <span>{selectedStudent.parentPhone || 'N/A'}</span>
               </div>
               <div className="detail-item">
-                <label>Student Code:</label>
+                <strong>Student Code:</strong>
                 <span>{selectedStudent.studentCode || 'N/A'}</span>
               </div>
               <div className="detail-item full-width">
-                <label>Notes:</label>
+                <strong>Notes:</strong>
                 <span>{selectedStudent.notes || 'No notes'}</span>
               </div>
             </div>
@@ -405,6 +415,7 @@ const WaitingListPanel = ({
       <div className="waiting-list-actions">
         {selectedIds.length > 0 && (
           <button
+            type="button"
             className="waiting-list-btn waiting-list-btn-secondary"
             onClick={() => setShowBulkAssign(true)}
           >
@@ -412,6 +423,7 @@ const WaitingListPanel = ({
           </button>
         )}
         <button
+          type="button"
           className="waiting-list-btn waiting-list-btn-neutral"
           onClick={selectAll}
           disabled={selectedIds.length === waitingStudents.length}
@@ -419,6 +431,7 @@ const WaitingListPanel = ({
           Select All
         </button>
         <button
+          type="button"
           className="waiting-list-btn waiting-list-btn-neutral"
           onClick={clearAll}
           disabled={selectedIds.length === 0}
@@ -443,6 +456,7 @@ const WaitingListPanel = ({
           </select>
           <div className="waiting-list-confirm-buttons">
             <button
+              type="button"
               className="waiting-list-confirm-btn waiting-list-confirm-btn-success"
               onClick={handleBulkAssignToClass}
               disabled={!bulkClassId}
@@ -450,6 +464,7 @@ const WaitingListPanel = ({
               Confirm Assignment
             </button>
             <button
+              type="button"
               className="waiting-list-confirm-btn waiting-list-confirm-btn-cancel"
               onClick={() => {
                 setShowBulkAssign(false);

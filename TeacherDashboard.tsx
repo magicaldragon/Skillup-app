@@ -2,6 +2,7 @@
 // Professional dashboard layout for teachers/admins with sidebar, summary cards, and IELTS focus
 // [NOTE] Created as part of 2024-05-XX dashboard refactor
 
+import './TeacherDashboard.css';
 import AccountsPanel from './AccountsPanel';
 import AddNewMembers from './AddNewMembers';
 import ChangeLogPanel from './ChangeLogPanel';
@@ -13,7 +14,12 @@ import ReportsPanel from './ReportsPanel';
 import SettingsPanel from './SettingsPanel';
 import TeacherScoresFeedbackPanel from './TeacherScoresFeedbackPanel';
 import WaitingListPanel from './WaitingListPanel';
-import './TeacherDashboard.css';
+import type {
+  FirestoreAssignment,
+  FirestoreClass,
+  FirestoreUser,
+} from './services/firestoreService';
+import type { UserProfile } from './types';
 
 const TeacherDashboard = ({
   user,
@@ -23,15 +29,15 @@ const TeacherDashboard = ({
   activeKey,
   onDataRefresh,
 }: {
-  user: any;
-  students: any[];
-  assignments: any[];
-  classes: any[];
+  user: UserProfile;
+  students: FirestoreUser[];
+  assignments: FirestoreAssignment[];
+  classes: FirestoreClass[];
   activeKey: string;
   onDataRefresh?: () => void;
 }) => {
   const totalStudents = students.filter((s) => s.role === 'student').length;
-  const activeAssignments = assignments.filter((a) => a.status === 'active').length;
+  const activeAssignments = assignments.filter((a) => a.isActive === true).length;
   const totalClasses = classes.length;
   // userRole variable removed as it's not used
 
@@ -55,14 +61,18 @@ const TeacherDashboard = ({
         <AddNewMembers />
       ) : activeKey === 'potential-students' ? (
         <PotentialStudentsPanel
-          classes={classes}
-          currentUser={user}
+          classes={classes as any}
+          currentUser={user as any}
           onDataRefresh={onDataRefresh}
         />
       ) : activeKey === 'waiting-list' ? (
-        <WaitingListPanel classes={classes} onDataRefresh={onDataRefresh} />
+        <WaitingListPanel classes={classes as any} onDataRefresh={onDataRefresh} />
       ) : activeKey === 'classes' ? (
-        <ClassesPanel students={students} classes={classes} onDataRefresh={onDataRefresh} />
+        <ClassesPanel
+          students={students as any}
+          classes={classes as any}
+          onDataRefresh={onDataRefresh}
+        />
       ) : activeKey === 'scores' ? (
         <TeacherScoresFeedbackPanel />
       ) : activeKey === 'reports' ? (
@@ -102,7 +112,11 @@ const TeacherDashboard = ({
           </div>
         </div>
       ) : activeKey === 'settings' ? (
-        <SettingsPanel currentUser={user} classes={classes} onDataRefresh={onDataRefresh} />
+        <SettingsPanel
+          currentUser={user as any}
+          classes={classes as any}
+          onDataRefresh={onDataRefresh}
+        />
       ) : activeKey === 'admin-debug' ? (
         <div className="teacher-dashboard-content">
           <div className="teacher-dashboard-welcome">

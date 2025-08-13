@@ -1,4 +1,24 @@
 // apiService.ts - Firebase Functions API Service
+import type {
+  AssignmentCreateData,
+  AssignmentUpdateData,
+  AvatarUpdateData,
+  ChangeLogCreateData,
+  ClassCreateData,
+  ClassUpdateData,
+  ConversionData,
+  LevelCreateData,
+  LevelUpdateData,
+  PotentialStudentCreateData,
+  PotentialStudentUpdateData,
+  ProfileUpdateData,
+  StudentRecordCreateData,
+  StudentRecordUpdateData,
+  SubmissionCreateData,
+  SubmissionUpdateData,
+  UserCreateData,
+  UserUpdateData
+} from '../types';
 import { auth } from './firebase';
 
 const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL || '/api';
@@ -41,7 +61,7 @@ export const authAPI = {
   },
 
   // Update user profile
-  async updateProfile(profileData: any) {
+  async updateProfile(profileData: ProfileUpdateData) {
     return apiCall('/auth/profile', {
       method: 'PUT',
       body: JSON.stringify(profileData),
@@ -102,7 +122,7 @@ export const usersAPI = {
   },
 
   // Create new user
-  async createUser(userData: any) {
+  async createUser(userData: UserCreateData) {
     return apiCall('/users', {
       method: 'POST',
       body: JSON.stringify(userData),
@@ -110,7 +130,7 @@ export const usersAPI = {
   },
 
   // Update user
-  async updateUser(id: string, userData: any) {
+  async updateUser(id: string, userData: UserUpdateData) {
     return apiCall(`/users/${id}`, {
       method: 'PUT',
       body: JSON.stringify(userData),
@@ -135,7 +155,7 @@ export const usersAPI = {
   },
 
   // Update user avatar
-  async updateAvatar(id: string, avatarData: any) {
+  async updateAvatar(id: string, avatarData: AvatarUpdateData) {
     return apiCall(`/users/${id}/avatar`, {
       method: 'POST',
       body: JSON.stringify(avatarData),
@@ -179,7 +199,7 @@ export const classesAPI = {
   },
 
   // Create new class
-  async createClass(classData: any) {
+  async createClass(classData: ClassCreateData) {
     return apiCall('/classes', {
       method: 'POST',
       body: JSON.stringify(classData),
@@ -187,7 +207,7 @@ export const classesAPI = {
   },
 
   // Update class
-  async updateClass(id: string, classData: any) {
+  async updateClass(id: string, classData: ClassUpdateData) {
     return apiCall(`/classes/${id}`, {
       method: 'PUT',
       body: JSON.stringify(classData),
@@ -234,7 +254,7 @@ export const levelsAPI = {
   },
 
   // Create new level
-  async createLevel(levelData: any) {
+  async createLevel(levelData: LevelCreateData) {
     return apiCall('/levels', {
       method: 'POST',
       body: JSON.stringify(levelData),
@@ -242,7 +262,7 @@ export const levelsAPI = {
   },
 
   // Update level
-  async updateLevel(id: string, levelData: any) {
+  async updateLevel(id: string, levelData: LevelUpdateData) {
     return apiCall(`/levels/${id}`, {
       method: 'PUT',
       body: JSON.stringify(levelData),
@@ -286,7 +306,7 @@ export const assignmentsAPI = {
   },
 
   // Create new assignment
-  async createAssignment(assignmentData: any) {
+  async createAssignment(assignmentData: AssignmentCreateData) {
     return apiCall('/assignments', {
       method: 'POST',
       body: JSON.stringify(assignmentData),
@@ -294,7 +314,7 @@ export const assignmentsAPI = {
   },
 
   // Update assignment
-  async updateAssignment(id: string, assignmentData: any) {
+  async updateAssignment(id: string, assignmentData: AssignmentUpdateData) {
     return apiCall(`/assignments/${id}`, {
       method: 'PUT',
       body: JSON.stringify(assignmentData),
@@ -351,7 +371,7 @@ export const submissionsAPI = {
   },
 
   // Create new submission
-  async createSubmission(submissionData: any) {
+  async createSubmission(submissionData: SubmissionCreateData) {
     return apiCall('/submissions', {
       method: 'POST',
       body: JSON.stringify(submissionData),
@@ -359,7 +379,7 @@ export const submissionsAPI = {
   },
 
   // Update submission
-  async updateSubmission(id: string, submissionData: any) {
+  async updateSubmission(id: string, submissionData: SubmissionUpdateData) {
     return apiCall(`/submissions/${id}`, {
       method: 'PUT',
       body: JSON.stringify(submissionData),
@@ -400,7 +420,7 @@ export const potentialStudentsAPI = {
   },
 
   // Create new potential student
-  async createPotentialStudent(potentialStudentData: any) {
+  async createPotentialStudent(potentialStudentData: PotentialStudentCreateData) {
     return apiCall('/potential-students', {
       method: 'POST',
       body: JSON.stringify(potentialStudentData),
@@ -408,7 +428,7 @@ export const potentialStudentsAPI = {
   },
 
   // Update potential student
-  async updatePotentialStudent(id: string, potentialStudentData: any) {
+  async updatePotentialStudent(id: string, potentialStudentData: PotentialStudentUpdateData) {
     return apiCall(`/potential-students/${id}`, {
       method: 'PUT',
       body: JSON.stringify(potentialStudentData),
@@ -431,7 +451,7 @@ export const potentialStudentsAPI = {
   },
 
   // Convert potential student to regular student
-  async convertToStudent(id: string, conversionData: any) {
+  async convertToStudent(id: string, conversionData: ConversionData) {
     return apiCall(`/potential-students/${id}/convert`, {
       method: 'POST',
       body: JSON.stringify(conversionData),
@@ -463,7 +483,7 @@ export const studentRecordsAPI = {
   },
 
   // Create new student record
-  async createStudentRecord(studentRecordData: any) {
+  async createStudentRecord(studentRecordData: StudentRecordCreateData) {
     return apiCall('/student-records', {
       method: 'POST',
       body: JSON.stringify(studentRecordData),
@@ -471,7 +491,7 @@ export const studentRecordsAPI = {
   },
 
   // Update student record
-  async updateStudentRecord(id: string, studentRecordData: any) {
+  async updateStudentRecord(id: string, studentRecordData: StudentRecordUpdateData) {
     return apiCall(`/student-records/${id}`, {
       method: 'PUT',
       body: JSON.stringify(studentRecordData),
@@ -536,7 +556,7 @@ export const changeLogsAPI = {
   },
 
   // Create new change log
-  async createChangeLog(changeLogData: any) {
+  async createChangeLog(changeLogData: ChangeLogCreateData) {
     return apiCall('/change-logs', {
       method: 'POST',
       body: JSON.stringify(changeLogData),

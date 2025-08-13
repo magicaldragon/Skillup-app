@@ -146,7 +146,7 @@ export const generateVietnameseUsername = (fullName: string): string => {
 };
 
 // Debounced username generation for performance
-export const debounce = <T extends (...args: any[]) => any>(
+export const debounce = <T extends (...args: unknown[]) => unknown>(
   func: T,
   wait: number
 ): ((...args: Parameters<T>) => void) => {

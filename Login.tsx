@@ -2,9 +2,10 @@ import type React from 'react';
 import { useEffect, useState } from 'react';
 import './LoginPanel.css';
 import { authService } from './frontend/services/authService';
+import type { UserProfile } from './types';
 
 interface LoginProps {
-  onLoginSuccess: (user: any) => void;
+  onLoginSuccess: (user: UserProfile) => void;
 }
 
 const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
@@ -78,9 +79,11 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         setFailedAttempts((prev) => prev + 1);
         setError(response.message || 'Login failed. Please try again.');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setFailedAttempts((prev) => prev + 1);
-      setError(err.message || 'An unexpected error occurred. Please try again.');
+      const errorMessage =
+        err instanceof Error ? err.message : 'An unexpected error occurred. Please try again.';
+      setError(errorMessage);
       console.error('Login error:', err);
     } finally {
       setIsLoading(false);

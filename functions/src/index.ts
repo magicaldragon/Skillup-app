@@ -35,7 +35,7 @@ import { classesRouter } from './routes/classes';
 import { levelsRouter } from './routes/levels';
 import { potentialStudentsRouter } from './routes/potentialStudents';
 import { studentRecordsRouter } from './routes/studentRecords';
-import { submissionsRouter } from './routes/submissions';
+import submissionsRouter from './routes/submissions';
 import { usersRouter } from './routes/users';
 
 const app = express();
@@ -116,10 +116,13 @@ app.use('/student-records', studentRecordsRouter);
 app.use('/change-logs', changeLogsRouter);
 
 // Error handling middleware
-app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  console.error('Error:', err);
+app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+  console.error('Unhandled error:', err);
   res.status(500).json({
-    error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong',
+    success: false,
+    message: 'Internal server error',
+    error: errorMessage,
   });
 });
 

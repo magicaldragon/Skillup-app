@@ -1,5 +1,4 @@
 // setupFirebaseEnv.cjs - Setup Firebase environment variables
-const { execSync } = require('node:child_process');
 
 console.log('🔧 Firebase Environment Variables Setup');
 console.log('=======================================\n');

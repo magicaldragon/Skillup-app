@@ -1,6 +1,7 @@
 // functions/src/routes/users.ts - Users API Routes
 import { type Response, Router } from 'express';
 import * as admin from 'firebase-admin';
+import type { Query, QueryDocumentSnapshot, DocumentData } from 'firebase-admin/firestore';
 import { type AuthenticatedRequest, requireAdmin, verifyToken } from '../middleware/auth';
 
 const router = Router();
@@ -8,17 +9,21 @@ const router = Router();
 // Get all users (with role-based filtering)
 router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { role } = req.user!;
+    if (!req.user) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+    
+    const { role } = req.user;
     const { status } = req.query;
 
-    let query: any = admin.firestore().collection('users');
+    let query: Query<DocumentData> = admin.firestore().collection('users');
 
     // Role-based filtering
     if (role === 'admin' || role === 'teacher' || role === 'staff') {
       // Admin, teachers, and staff see all users
     } else if (role === 'student') {
       // Students see only themselves
-      query = query.where('firebaseUid', '==', req.user?.uid);
+      query = query.where('firebaseUid', '==', req.user.uid);
     }
 
     // Add status filtering if provided
@@ -28,7 +33,7 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
     }
 
     const snapshot = await query.orderBy('createdAt', 'desc').get();
-    const users = snapshot.docs.map((doc: any) => ({
+    const users = snapshot.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => ({
       id: doc.id,
       ...doc.data(),
     }));
@@ -177,11 +182,15 @@ router.post('/', async (req: AuthenticatedRequest, res: Response) => {
 // Get user by ID
 router.get('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+    
     const { id } = req.params;
-    const { role } = req.user!;
+    const { role } = req.user;
 
     // Students can only see themselves
-    if (role === 'student' && req.user?.userId !== id) {
+    if (role === 'student' && req.user.userId !== id) {
       return res.status(403).json({ message: 'Access denied' });
     }
 
@@ -201,12 +210,16 @@ router.get('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response)
 // Update user
 router.put('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+    
     const { id } = req.params;
-    const { role } = req.user!;
+    const { role } = req.user;
     const updateData = req.body;
 
     // Students can only update themselves
-    if (role === 'student' && req.user?.userId !== id) {
+    if (role === 'student' && req.user.userId !== id) {
       return res.status(403).json({ message: 'Access denied' });
     }
 
@@ -216,12 +229,16 @@ router.put('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response)
       return res.status(404).json({ message: 'User not found' });
     }
 
-    const currentUserData = currentUserDoc.data()!;
+    const currentUserData = currentUserDoc.data();
+    if (!currentUserData) {
+      return res.status(404).json({ message: 'User data not found' });
+    }
+    
     const newEmail = updateData.email;
     const currentEmail = currentUserData.email;
 
     // Prepare Firebase Auth update data
-    const authUpdateData: any = {};
+    const authUpdateData: Record<string, string> = {};
 
     // If email is being changed, update Firebase Auth as well
     if (newEmail && newEmail !== currentEmail) {
@@ -241,11 +258,12 @@ router.put('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response)
 
         authUpdateData.email = newEmail;
         console.log(`Email change detected for user ${id}: ${currentEmail} → ${newEmail}`);
-      } catch (authError: any) {
+      } catch (authError: unknown) {
+        const errorMessage = authError instanceof Error ? authError.message : 'Unknown error';
         console.error('Error checking email uniqueness:', authError);
         return res.status(500).json({
           message: 'Failed to verify email uniqueness',
-          error: authError.message,
+          error: errorMessage,
         });
       }
     }
@@ -285,11 +303,12 @@ router.put('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response)
             `Updated Firebase Auth custom claims for user ${id} with username: ${updateData.username}`
           );
         }
-      } catch (authError: any) {
+      } catch (authError: unknown) {
+        const errorMessage = authError instanceof Error ? authError.message : 'Unknown error';
         console.error('Error updating Firebase Auth custom claims:', authError);
         return res.status(500).json({
           message: 'Failed to update username in authentication system',
-          error: authError.message,
+          error: errorMessage,
         });
       }
     }
@@ -299,11 +318,12 @@ router.put('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response)
       try {
         await admin.auth().updateUser(currentUserData.firebaseUid, authUpdateData);
         console.log(`Updated Firebase Auth for user ${id}:`, authUpdateData);
-      } catch (authError: any) {
+      } catch (authError: unknown) {
+        const errorMessage = authError instanceof Error ? authError.message : 'Unknown error';
         console.error('Error updating Firebase Auth user:', authError);
         return res.status(500).json({
           message: 'Failed to update user in authentication system',
-          error: authError.message,
+          error: errorMessage,
         });
       }
     }
@@ -338,7 +358,10 @@ router.delete(
         return res.status(404).json({ message: 'User not found' });
       }
 
-      const userData = userDoc.data()!;
+      const userData = userDoc.data();
+      if (!userData) {
+        return res.status(404).json({ message: 'User data not found' });
+      }
 
       // Delete from Firestore first
       await admin.firestore().collection('users').doc(id).delete();
@@ -348,12 +371,13 @@ router.delete(
         try {
           await admin.auth().deleteUser(userData.firebaseUid);
           console.log(`Deleted Firebase Auth user: ${userData.firebaseUid}`);
-        } catch (authError: any) {
+        } catch (authError: unknown) {
+          const errorMessage = authError instanceof Error ? authError.message : 'Unknown error';
           console.error('Error deleting Firebase Auth user:', authError);
           // Don't fail the request if Auth deletion fails, but log it
           console.warn(
             `Firebase Auth user ${userData.firebaseUid} could not be deleted:`,
-            authError.message
+            errorMessage
           );
         }
       }
@@ -423,7 +447,10 @@ router.put(
         return res.status(404).json({ message: 'User not found' });
       }
 
-      const userData = userDoc.data()!;
+      const userData = userDoc.data();
+      if (!userData) {
+        return res.status(404).json({ message: 'User data not found' });
+      }
 
       if (!userData.firebaseUid) {
         return res.status(400).json({ message: 'User has no Firebase Auth account' });

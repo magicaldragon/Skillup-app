@@ -37,7 +37,11 @@ const FrontendStatusPanel: React.FC = () => {
   return (
     <div className="bg-white rounded-xl shadow p-6 max-w-3xl mx-auto mt-8">
       <h2 className="text-2xl font-bold mb-4">Frontend Logs</h2>
-      <button className="px-4 py-2 bg-blue-600 text-white rounded mb-4" onClick={handleClear}>
+      <button
+        type="button"
+        className="px-4 py-2 bg-blue-600 text-white rounded mb-4"
+        onClick={handleClear}
+      >
         Clear Logs
       </button>
       <pre

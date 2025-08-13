@@ -65,13 +65,15 @@ const SubmissionListPanel: React.FC<SubmissionListPanelProps> = ({
                     {s.score !== null && s.score !== undefined ? s.score : '-'}
                   </td>
                   <td className="p-2">
-                    <button
-                      type="button"
-                      onClick={() => onSelectSubmission(s, student!)}
-                      className="px-3 py-1 bg-green-600 text-white rounded"
-                    >
-                      Grade
-                    </button>
+                    {student && (
+                      <button
+                        type="button"
+                        onClick={() => onSelectSubmission(s, student)}
+                        className="px-3 py-1 bg-green-600 text-white rounded"
+                      >
+                        Grade
+                      </button>
+                    )}
                   </td>
                 </tr>
               );

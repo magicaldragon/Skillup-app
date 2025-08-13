@@ -142,8 +142,11 @@ export async function listFiles(
     }
 
     const files = await Promise.all(
-      result.Contents.map(async (object: any) => {
-        const key = object.Key!;
+      result.Contents.map(async (object) => {
+        if (!object.Key) {
+          throw new Error('Object key is missing');
+        }
+        const key = object.Key;
         const url = await getFileURL(key);
 
         return {

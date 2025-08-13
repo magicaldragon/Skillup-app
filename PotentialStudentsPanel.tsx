@@ -372,45 +372,45 @@ const PotentialStudentsPanel = ({
             <h3>Student Details</h3>
             <div className="student-details-grid">
               <div className="detail-item">
-                <label>Name:</label>
+                <strong>Name:</strong>
                 <span>{selectedStudent.name}</span>
               </div>
               <div className="detail-item">
-                <label>English Name:</label>
+                <strong>English Name:</strong>
                 <span>{selectedStudent.englishName || 'N/A'}</span>
               </div>
               <div className="detail-item">
-                <label>Email:</label>
+                <strong>Email:</strong>
                 <span>{selectedStudent.email}</span>
               </div>
               <div className="detail-item">
-                <label>Phone:</label>
+                <strong>Phone:</strong>
                 <span>{selectedStudent.phone || 'N/A'}</span>
               </div>
               <div className="detail-item">
-                <label>Gender:</label>
+                <strong>Gender:</strong>
                 <span>{selectedStudent.gender || 'N/A'}</span>
               </div>
               <div className="detail-item">
-                <label>Status:</label>
+                <strong>Status:</strong>
                 <span className={`status-badge status-${selectedStudent.status}`}>
                   {selectedStudent.status}
                 </span>
               </div>
               <div className="detail-item">
-                <label>Parent Name:</label>
+                <strong>Parent Name:</strong>
                 <span>{selectedStudent.parentName || 'N/A'}</span>
               </div>
               <div className="detail-item">
-                <label>Parent Phone:</label>
+                <strong>Parent Phone:</strong>
                 <span>{selectedStudent.parentPhone || 'N/A'}</span>
               </div>
               <div className="detail-item">
-                <label>Student Code:</label>
+                <strong>Student Code:</strong>
                 <span>{selectedStudent.studentCode || 'N/A'}</span>
               </div>
               <div className="detail-item full-width">
-                <label>Notes:</label>
+                <strong>Notes:</strong>
                 <span>{selectedStudent.notes || 'No notes'}</span>
               </div>
             </div>

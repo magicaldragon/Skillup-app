@@ -1,7 +1,15 @@
 import { useEffect, useState } from 'react';
 
+interface SystemStatus {
+  cors: string;
+  version: string;
+  users: string;
+  corsData: string;
+  versionData: string;
+}
+
 const SystemHealthPanel = () => {
-  const [status, setStatus] = useState<any>(null);
+  const [status, setStatus] = useState<SystemStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

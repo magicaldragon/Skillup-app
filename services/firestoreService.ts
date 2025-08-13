@@ -142,7 +142,7 @@ export interface FirestoreChangeLog {
   documentId: string;
   userId: string;
   userName: string;
-  changes?: any;
+  changes?: Record<string, unknown>;
   timestamp?: Timestamp;
 }
 
