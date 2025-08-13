@@ -92,7 +92,7 @@ const menuConfig = (role: string) => [
       {
         label: 'Change Log',
         icon: <FaClipboardList />,
-        key: 'change-log',
+        key: 'changelog',
         visible: role === 'staff' || role === 'teacher' || role === 'admin',
       },
       {

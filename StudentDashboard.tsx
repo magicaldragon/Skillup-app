@@ -3,6 +3,9 @@
 // [NOTE] Created as part of 2024-05-XX dashboard refactor
 
 import SettingsPanel from './SettingsPanel';
+import StudentMyClassesPanel from './StudentMyClassesPanel';
+import StudentMyProgressPanel from './StudentMyProgressPanel';
+import StudentScoresFeedbackPanel from './StudentScoresFeedbackPanel';
 import type { Student, StudentClass } from './types';
 
 const StudentDashboard = ({
@@ -18,6 +21,12 @@ const StudentDashboard = ({
     <div className="teacher-dashboard">
       {activeKey === 'settings' ? (
         <SettingsPanel currentUser={user} classes={classes || []} onDataRefresh={() => {}} />
+      ) : activeKey === 'my-classes' ? (
+        <StudentMyClassesPanel />
+      ) : activeKey === 'my-progress' ? (
+        <StudentMyProgressPanel />
+      ) : activeKey === 'my-scores' ? (
+        <StudentScoresFeedbackPanel user={user} />
       ) : (
         <>
           <h1 className="text-3xl font-bold mb-2">Student Dashboard</h1>

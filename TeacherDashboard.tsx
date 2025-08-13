@@ -61,6 +61,7 @@ const TeacherDashboard = ({
         <AddNewMembers />
       ) : activeKey === 'potential-students' ? (
         <PotentialStudentsPanel
+          // TODO: Fix type compatibility between FirestoreUser/FirestoreClass and Student/StudentClass
           classes={classes as any}
           currentUser={user as any}
           onDataRefresh={onDataRefresh}
