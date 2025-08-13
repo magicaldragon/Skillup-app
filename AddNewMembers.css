@@ -285,17 +285,24 @@
 
 /* ===== EMAIL HINT ===== */
 .email-hint {
-  color: var(--dark-green-600);
-  font-size: 0.85rem;
-  font-style: italic;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  margin-top: var(--space-1);
+  padding: var(--space-2);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--accent-blue);
+}
+
+.status-hint {
+  color: var(--text-muted);
+  font-size: 0.75rem;
   margin-top: var(--space-2);
-  padding: var(--space-2) var(--space-3);
-  background: rgba(5, 150, 105, 0.1);
-  border-radius: var(--radius-md);
-  border-left: 3px solid var(--dark-green-400);
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
+  padding: var(--space-2);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--accent-green);
+  line-height: 1.4;
 }
 
 /* ===== SEARCH BARS & LONG INPUTS ===== */

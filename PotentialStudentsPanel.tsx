@@ -235,7 +235,7 @@ const PotentialStudentsPanel = ({
       <div className="potential-students-header">
         <h2 className="potential-students-title">Potential Students</h2>
         <p className="potential-students-subtitle">
-          Students who need evaluation - move to Waiting List or Records
+          Students with "Potential" or "Contacted" status - they will move to Waiting List when status changes to "Studying"
         </p>
       </div>
 

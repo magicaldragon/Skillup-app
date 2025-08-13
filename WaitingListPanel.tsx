@@ -159,7 +159,7 @@ const WaitingListPanel = ({
     }
   };
 
-  // Update status (for moving to Records)
+  // Handle status change
   const handleStatusChange = async (studentId: string, newStatus: string) => {
     const token = localStorage.getItem('skillup_token');
     if (!token) {
@@ -169,20 +169,41 @@ const WaitingListPanel = ({
 
     try {
       const response = await fetch(`${API_BASE_URL}/users/${studentId}`, {
-        method: 'PUT',
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify({
+          status: newStatus,
+        }),
       });
 
       if (!response.ok) {
         throw new Error('Failed to update student status');
       }
 
-      fetchWaitingStudents();
-      onDataRefresh?.();
+      // Update local state
+      setWaitingStudents((prev) =>
+        prev.map((student) =>
+          student._id === studentId ? { ...student, status: newStatus } : student
+        )
+      );
+
+      // If status is 'off' or 'alumni', remove from waiting list (they go to Records tab)
+      if (newStatus === 'off' || newStatus === 'alumni') {
+        setWaitingStudents((prev) => prev.filter((student) => student._id !== studentId));
+        alert(`Student status changed to ${newStatus}. They have been moved to the Records tab.`);
+      } else if (newStatus === 'postponed') {
+        alert('Student status changed to Postponed. They will remain in the waiting list.');
+      } else {
+        alert(`Student status changed to ${newStatus}.`);
+      }
+
+      // Refresh data if callback provided
+      if (onDataRefresh) {
+        onDataRefresh();
+      }
     } catch (error) {
       console.error('Status change error:', error);
       alert('Failed to update student status. Please try again.');
@@ -227,7 +248,9 @@ const WaitingListPanel = ({
     <div className="waiting-list-panel">
       <div className="waiting-list-header">
         <h2 className="waiting-list-title">Waiting List</h2>
-        <p className="waiting-list-subtitle">Students ready for class assignment</p>
+        <p className="waiting-list-subtitle">
+          Students with "Studying" status ready for class assignment. Change status to "Postponed" to keep them here, or "Off"/"Alumni" to move them to Records.
+        </p>
       </div>
 
       <div className="waiting-list-search">

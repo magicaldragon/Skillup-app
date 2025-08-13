@@ -420,10 +420,11 @@ const AddNewMembers = () => {
                     <option value="potential">Potential</option>
                     <option value="contacted">Contacted</option>
                     <option value="studying">Studying</option>
-                    <option value="postponed">Postponed</option>
-                    <option value="off">Off</option>
-                    <option value="alumni">Alumni</option>
                   </select>
+                  <small className="status-hint">
+                    💡 <strong>Potential/Contacted:</strong> Will appear in Potential Students tab<br/>
+                    💡 <strong>Studying:</strong> Will appear in Waiting List for class assignment
+                  </small>
                 </div>
               )}
 

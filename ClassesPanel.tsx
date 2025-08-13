@@ -144,45 +144,45 @@ const ClassesPanel = ({
     setSelectedStudentIds([]);
   }, []);
 
-  // Fetch levels from backend
+  // Fetch levels for class creation
   const fetchLevels = useCallback(async () => {
     setLevelsLoading(true);
     try {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-
-      if (!token) {
-        console.error('No authentication token found');
-        setLevels([]);
-        setLevelsLoading(false);
-        return;
-      }
-
-      const headers = {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      };
-
       const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
-      const res = await fetch(`${apiUrl}/levels`, {
-        credentials: 'include',
-        headers,
+      const response = await fetch(`${apiUrl}/levels`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await res.json();
-
-      if (data.success && Array.isArray(data.levels)) {
-        setLevels(data.levels);
+      const data = await response.json();
+      
+      // Handle both new structured response and legacy array response
+      let levelsData: Level[] = [];
+      if (data && typeof data === 'object' && 'success' in data && data.success) {
+        // New structured response: { success: true, levels: [...] }
+        levelsData = data.levels || [];
       } else if (Array.isArray(data)) {
-        // Handle legacy response format
-        setLevels(data);
+        // Legacy array response
+        levelsData = data;
       } else {
         console.warn('Unexpected levels response format:', data);
-        setLevels([]);
+        levelsData = [];
       }
+
+      // Ensure all levels have _id property for consistency
+      levelsData = levelsData.map(level => ({
+        ...level,
+        _id: level._id || level.id || '',
+        id: level._id || level.id || ''
+      }));
+
+      setLevels(levelsData);
     } catch (error) {
       console.error('Error fetching levels:', error);
       setLevels([]);
@@ -196,7 +196,7 @@ const ClassesPanel = ({
   }, [fetchLevels]);
 
   // Filter classes based on search and level filter
-  const filteredClasses = (classes && Array.isArray(classes) ? classes : []).filter((c) => {
+  const filteredClasses = classes.filter((c) => {
     // Handle both populated levelId object and string levelId
     const levelId = c.levelId ? (typeof c.levelId === 'object' ? c.levelId._id : c.levelId) : null;
     const levelName = c.levelId
@@ -207,6 +207,7 @@ const ClassesPanel = ({
 
     const matchesSearch =
       c.name.toLowerCase().includes(classSearch.toLowerCase()) ||
+      c.classCode?.toLowerCase().includes(classSearch.toLowerCase()) ||
       levelName.toLowerCase().includes(classSearch.toLowerCase());
     const matchesLevel = !levelFilter || levelId === levelFilter;
 
@@ -665,15 +666,20 @@ const ClassesPanel = ({
             className="status-filter-select"
             value={levelFilter}
             onChange={(e) => setLevelFilter(e.target.value)}
+            disabled={levelsLoading}
           >
             <option value="">All Levels</option>
-            {levels &&
+            {levelsLoading ? (
+              <option value="" disabled>Loading levels...</option>
+            ) : (
+              levels &&
               Array.isArray(levels) &&
               levels.map((level) => (
                 <option key={level._id} value={level._id}>
                   {level.name}
                 </option>
-              ))}
+              ))
+            )}
           </select>
         </div>
       </div>
@@ -684,7 +690,7 @@ const ClassesPanel = ({
         {(classSearch || levelFilter) && (
           <span className="filter-info">
             {classSearch && ` matching "${classSearch}"`}
-            {levelFilter && ` in ${levels.find((l) => l._id === levelFilter)?.name}`}
+            {levelFilter && ` in ${levels.find((l) => l._id === levelFilter)?.name || 'Unknown Level'}`}
           </span>
         )}
       </div>
