@@ -269,14 +269,13 @@ router.get('/check-gaps/:levelId', verifyToken, requireAdmin, async (req: Authen
 
     const levelData = levelDoc.data();
     const levelCode = levelData?.code || levelData?.name?.substring(0, 2).toUpperCase() || 'SU';
-    const year = new Date().getFullYear().toString().slice(-2);
 
-    // Find all existing class codes for this level and year
+    // Find all existing class codes for this level (SU-001, SU-002, etc.)
     const existingClassesSnapshot = await admin
       .firestore()
       .collection('classes')
-      .where('classCode', '>=', `${levelCode}-${year}001`)
-      .where('classCode', '<=', `${levelCode}-${year}999`)
+      .where('classCode', '>=', `${levelCode}-001`)
+      .where('classCode', '<=', `${levelCode}-999`)
       .orderBy('classCode', 'asc')
       .get();
 
@@ -288,7 +287,7 @@ router.get('/check-gaps/:levelId', verifyToken, requireAdmin, async (req: Authen
     for (const existingCode of existingCodes) {
       const existingNumber = parseInt(existingCode.slice(-3));
       while (expectedNumber < existingNumber) {
-        const gapCode = `${levelCode}-${year}${expectedNumber.toString().padStart(3, '0')}`;
+        const gapCode = `${levelCode}-${expectedNumber.toString().padStart(3, '0')}`;
         gaps.push(gapCode);
         expectedNumber++;
       }
@@ -300,7 +299,7 @@ router.get('/check-gaps/:levelId', verifyToken, requireAdmin, async (req: Authen
       const lastNumber = parseInt(existingCodes[existingCodes.length - 1].slice(-3));
       const nextAvailable = lastNumber + 1;
       if (nextAvailable <= 999) {
-        const nextCode = `${levelCode}-${year}${nextAvailable.toString().padStart(3, '0')}`;
+        const nextCode = `${levelCode}-${nextAvailable.toString().padStart(3, '0')}`;
         gaps.push(nextCode);
       }
     }
@@ -308,10 +307,9 @@ router.get('/check-gaps/:levelId', verifyToken, requireAdmin, async (req: Authen
     return res.json({
       success: true,
       levelCode,
-      year,
       existingCodes,
       gaps,
-      nextAvailable: gaps.length > 0 ? gaps[0] : `${levelCode}-${year}001`
+      nextAvailable: gaps.length > 0 ? gaps[0] : `${levelCode}-001`
     });
   } catch (error) {
     console.error('Error checking class code gaps:', error);

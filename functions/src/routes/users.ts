@@ -499,26 +499,51 @@ router.delete('/:id/avatar', verifyToken, async (req: AuthenticatedRequest, res:
   }
 });
 
-// Helper function to generate student code
+// Helper function to generate student code with gap filling (ST-001, ST-002, etc.)
 async function generateStudentCode(): Promise<string> {
-  const year = new Date().getFullYear().toString().slice(-2);
+  // Find all existing student codes (ST-001, ST-002, etc.)
   const snapshot = await admin
     .firestore()
     .collection('users')
-    .where('studentCode', '>=', `STU${year}0001`)
-    .where('studentCode', '<=', `STU${year}9999`)
-    .orderBy('studentCode', 'desc')
-    .limit(1)
+    .where('studentCode', '>=', 'ST-001')
+    .where('studentCode', '<=', 'ST-999')
+    .orderBy('studentCode', 'asc')
     .get();
 
   let nextNumber = 1;
+  
   if (!snapshot.empty) {
-    const lastCode = snapshot.docs[0].data().studentCode;
-    const lastNumber = parseInt(lastCode.slice(-4));
-    nextNumber = lastNumber + 1;
+    const existingCodes = snapshot.docs.map(doc => doc.data().studentCode).sort();
+    console.log('Existing student codes:', existingCodes);
+    
+    // Find the first missing number in the sequence
+    let expectedNumber = 1;
+    for (const existingCode of existingCodes) {
+      const existingNumber = parseInt(existingCode.slice(-3));
+      if (existingNumber === expectedNumber) {
+        expectedNumber++;
+      } else {
+        // Found a gap, use this number
+        nextNumber = expectedNumber;
+        console.log(`Found gap in student code sequence, using number: ${nextNumber}`);
+        break;
+      }
+    }
+    
+    // If no gaps found, use the next number after the highest existing
+    if (nextNumber === 1) {
+      const highestCode = existingCodes[existingCodes.length - 1];
+      const highestNumber = parseInt(highestCode.slice(-3));
+      nextNumber = highestNumber + 1;
+      console.log(`No gaps found in student codes, incrementing from highest: ${highestNumber} -> ${nextNumber}`);
+    }
+  } else {
+    console.log('No existing student codes, starting with ST-001');
   }
 
-  return `STU${year}${nextNumber.toString().padStart(4, '0')}`;
+  const studentCode = `ST-${nextNumber.toString().padStart(3, '0')}`;
+  console.log(`Generated student code: ${studentCode}`);
+  return studentCode;
 }
 
 export { router as usersRouter };

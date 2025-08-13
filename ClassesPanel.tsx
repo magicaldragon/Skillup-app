@@ -79,11 +79,31 @@ const ClassesPanel = ({
   const [reportProblem, setReportProblem] = useState('');
   const [reportSending, setReportSending] = useState(false);
 
+  // Add report modal state
+  const [studentReportModal, setStudentReportModal] = useState<{
+    isOpen: boolean;
+    studentId: string | null;
+    studentName: string;
+    classId: string;
+    className: string;
+    caseNo: string;
+    problems: string;
+  }>({
+    isOpen: false,
+    studentId: null,
+    studentName: '',
+    classId: '',
+    className: '',
+    caseNo: '',
+    problems: '',
+  });
+
   // Bulk selection state
   const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
 
   // Add new class with level selection
   const [newClassLevelId, setNewClassLevelId] = useState<string>('');
+  const [newClassStartingDate, setNewClassStartingDate] = useState<string>('');
   const [availableClassCodes, setAvailableClassCodes] = useState<string[]>([]);
   const [checkingCodes, setCheckingCodes] = useState(false);
 
@@ -231,6 +251,220 @@ const ClassesPanel = ({
     [selectedClassId]
   );
 
+  // Report a student
+  const handleReportStudent = useCallback(
+    (studentId: string, studentName: string, classId: string, className: string) => {
+      // Generate case number (this should come from backend, but for now we'll generate it)
+      const timestamp = Date.now();
+      const caseNo = `Case ${timestamp.toString().slice(-6)}`;
+      
+      setStudentReportModal({
+        isOpen: true,
+        studentId,
+        studentName,
+        classId,
+        className,
+        caseNo,
+        problems: '',
+      });
+    },
+    []
+  );
+
+  // Submit student report
+  const handleSubmitReport = useCallback(async () => {
+    if (!studentReportModal.studentId || !studentReportModal.problems.trim()) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    setReportSending(true);
+    try {
+      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+      
+      const reportData = {
+        studentId: studentReportModal.studentId,
+        classId: studentReportModal.classId,
+        className: studentReportModal.className,
+        problems: studentReportModal.problems,
+        caseNo: studentReportModal.caseNo,
+      };
+
+      const response = await fetch(`${apiUrl}/student-reports`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(reportData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to submit report');
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        alert('Report submitted successfully!');
+        setStudentReportModal({
+          isOpen: false,
+          studentId: null,
+          studentName: '',
+          classId: '',
+          className: '',
+          caseNo: '',
+          problems: '',
+        });
+        // Refresh data if callback provided
+        onDataRefresh?.();
+      } else {
+        throw new Error(data.message || 'Failed to submit report');
+      }
+    } catch (error) {
+      console.error('Error submitting report:', error);
+      alert(error instanceof Error ? error.message : 'Failed to submit report. Please try again.');
+    } finally {
+      setReportSending(false);
+    }
+  }, [studentReportModal, onDataRefresh]);
+
+  // Close student report modal
+  const handleCloseStudentReportModal = useCallback(() => {
+    setStudentReportModal({
+      isOpen: false,
+      studentId: null,
+      studentName: '',
+      classId: '',
+      className: '',
+      caseNo: '',
+      problems: '',
+    });
+  }, []);
+
+  // Close class info edit modal
+  const handleCloseClassInfoEditModal = useCallback(() => {
+    setClassInfoEditModal({
+      isOpen: false,
+      classId: '',
+      className: '',
+      levelId: null,
+      description: '',
+    });
+  }, []);
+
+  // Update class information
+  const handleUpdateClassInfo = useCallback(async () => {
+    if (!classInfoEditModal.classId) return;
+
+    const confirmUpdate = window.confirm(
+      `Are you sure you want to update the level for class "${classInfoEditModal.className}"?\n\n` +
+        `• New Level: ${levels.find((l) => l._id === classInfoEditModal.levelId)?.name || 'Not specified'}\n` +
+        `• Description: ${classInfoEditModal.description || 'None'}\n\n` +
+        `Proceed with update?`
+    );
+
+    if (!confirmUpdate) return;
+
+    try {
+      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+      const res = await fetch(`${apiUrl}/classes/${classInfoEditModal.classId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          // Do not allow changing class code/name
+          levelId: classInfoEditModal.levelId || null,
+          description: classInfoEditModal.description,
+        }),
+      });
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      alert(`✅ Class "${classInfoEditModal.className}" has been successfully updated!`);
+      handleCloseClassInfoEditModal();
+      onDataRefresh?.();
+      setSelectedClassId(null);
+    } catch (error) {
+      console.error('Error updating class info:', error);
+      alert('❌ Failed to update class information. Please try again.');
+    }
+  }, [classInfoEditModal, levels, handleCloseClassInfoEditModal, onDataRefresh]);
+
+  // Delete class
+  const handleDeleteClass = useCallback(
+    async (classId: string) => {
+      const classObj = classes.find((c) => (c._id || c.id) === classId);
+      if (!classObj) return;
+
+      const displayName = classObj.classCode || classObj.name || 'this class';
+      const levelName = classObj.levelId
+        ? typeof classObj.levelId === 'object'
+          ? classObj.levelId.name
+          : levels.find((l) => l._id === classObj.levelId)?.name || 'N/A'
+        : 'N/A';
+
+      const confirmDelete = window.confirm(
+        `Are you sure you want to delete class "${displayName}" (Level: ${levelName})?\n\n` +
+          `⚠️  WARNING: This action cannot be undone!\n` +
+          `• All students will be removed from this class\n` +
+          `• Class assignments will be lost\n` +
+          `• This will affect student progress tracking\n\n` +
+          `Type "DELETE" to confirm:`
+      );
+
+      if (!confirmDelete) return;
+
+      // Additional confirmation step
+      const userInput = prompt('Please type "DELETE" to confirm deletion:');
+      if (userInput !== 'DELETE') {
+        alert('Deletion cancelled. Class was not deleted.');
+        return;
+      }
+
+      try {
+        const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+        const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+
+        const res = await fetch(`${apiUrl}/classes/${classId}`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+
+        alert(`✅ Class "${displayName}" has been successfully deleted.`);
+        onDataRefresh?.();
+        // Clear selection after deletion
+        setSelectedClassId(null);
+      } catch (error) {
+        console.error('Error deleting class:', error);
+        alert('❌ Failed to delete class. Please try again.');
+      }
+    },
+    [classes, levels, onDataRefresh]
+  );
+
+  // Close report modal
+  const handleCloseReportModal = useCallback(() => {
+    setReportModal({
+      isOpen: false,
+      studentId: null,
+      studentName: '',
+      classId: '',
+      className: '',
+    });
+    setReportProblem('');
+  }, []);
+
   // Handle keyboard events for accessibility
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent, classId: string) => {
@@ -249,11 +483,27 @@ const ClassesPanel = ({
       return;
     }
 
+    if (!newClassStartingDate) {
+      alert('Please select a starting date');
+      return;
+    }
+
+    // Validate starting date (must be in the future)
+    const startDate = new Date(newClassStartingDate);
+    const now = new Date();
+    if (startDate <= now) {
+      alert('Starting date must be in the future');
+      return;
+    }
+
     setAdding(true);
     try {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
 
-      const requestBody = { levelId: newClassLevelId };
+      const requestBody = { 
+        levelId: newClassLevelId,
+        startingDate: newClassStartingDate
+      };
 
       const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
       const res = await fetch(`${apiUrl}/classes`, {
@@ -274,6 +524,7 @@ const ClassesPanel = ({
 
       if (data.success) {
         setNewClassLevelId('');
+        setNewClassStartingDate('');
         alert(`Class created successfully! Class Code: ${data.class.classCode}`);
         onDataRefresh?.();
       } else {
@@ -285,7 +536,7 @@ const ClassesPanel = ({
     } finally {
       setAdding(false);
     }
-  }, [newClassLevelId, onDataRefresh]);
+  }, [newClassLevelId, newClassStartingDate, onDataRefresh]);
 
   // Bulk assign students to another class
   const handleBulkAssign = useCallback(
@@ -412,197 +663,6 @@ const ClassesPanel = ({
       alert('Failed to remove students. Please try again.');
     }
   }, [selectedStudentIds, classEditModal.classId, onDataRefresh, handleCloseClassEditModal]);
-
-  // Report a student
-  const handleReportStudent = useCallback(
-    (studentId: string, studentName: string) => {
-      if (!classEditModal.classId) return;
-
-      setReportModal({
-        isOpen: true,
-        studentId,
-        studentName,
-        classId: classEditModal.classId,
-        className: classEditModal.className,
-      });
-      setReportProblem('');
-    },
-    [classEditModal.classId, classEditModal.className]
-  );
-
-  // Close report modal
-  const handleCloseReportModal = useCallback(() => {
-    setReportModal({
-      isOpen: false,
-      studentId: null,
-      studentName: '',
-      classId: '',
-      className: '',
-    });
-    setReportProblem('');
-  }, []);
-
-  // Send report
-  const handleSendReport = useCallback(async () => {
-    if (!safeTrim(reportProblem)) {
-      alert('Please describe the problem');
-      return;
-    }
-
-    if (!reportModal.studentId || !reportModal.classId) {
-      alert('Missing student or class information');
-      return;
-    }
-
-    setReportSending(true);
-    try {
-      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
-
-      const res = await fetch(`${apiUrl}/student-records`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          studentId: reportModal.studentId,
-          classId: reportModal.classId,
-          problem: reportProblem,
-          type: 'report',
-        }),
-      });
-
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-
-      alert('Report sent successfully!');
-      handleCloseReportModal();
-      onDataRefresh?.();
-    } catch (error) {
-      console.error('Error sending report:', error);
-      alert('Failed to send report. Please try again.');
-    } finally {
-      setReportSending(false);
-    }
-  }, [
-    reportProblem,
-    reportModal.studentId,
-    reportModal.classId,
-    handleCloseReportModal,
-    onDataRefresh,
-  ]);
-
-  // Close class info edit modal
-  const handleCloseClassInfoEditModal = useCallback(() => {
-    setClassInfoEditModal({
-      isOpen: false,
-      classId: '',
-      className: '',
-      levelId: null,
-      description: '',
-    });
-  }, []);
-
-  // Update class information
-  const handleUpdateClassInfo = useCallback(async () => {
-    if (!classInfoEditModal.classId) return;
-
-    const confirmUpdate = window.confirm(
-      `Are you sure you want to update the level for class "${classInfoEditModal.className}"?\n\n` +
-        `• New Level: ${levels.find((l) => l._id === classInfoEditModal.levelId)?.name || 'Not specified'}\n` +
-        `• Description: ${classInfoEditModal.description || 'None'}\n\n` +
-        `Proceed with update?`
-    );
-
-    if (!confirmUpdate) return;
-
-    try {
-      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
-      const res = await fetch(`${apiUrl}/classes/${classInfoEditModal.classId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          // Do not allow changing class code/name
-          levelId: classInfoEditModal.levelId || null,
-          description: classInfoEditModal.description,
-        }),
-      });
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-      alert(`✅ Class "${classInfoEditModal.className}" has been successfully updated!`);
-      handleCloseClassInfoEditModal();
-      onDataRefresh?.();
-      setSelectedClassId(null);
-    } catch (error) {
-      console.error('Error updating class info:', error);
-      alert('❌ Failed to update class information. Please try again.');
-    }
-  }, [classInfoEditModal, levels, handleCloseClassInfoEditModal, onDataRefresh]);
-
-  // Delete class
-  const handleDeleteClass = useCallback(
-    async (classId: string) => {
-      const classObj = classes.find((c) => (c._id || c.id) === classId);
-      if (!classObj) return;
-
-      const displayName = classObj.classCode || classObj.name || 'this class';
-      const levelName = classObj.levelId
-        ? typeof classObj.levelId === 'object'
-          ? classObj.levelId.name
-          : levels.find((l) => l._id === classObj.levelId)?.name || 'N/A'
-        : 'N/A';
-
-      const confirmDelete = window.confirm(
-        `Are you sure you want to delete class "${displayName}" (Level: ${levelName})?\n\n` +
-          `⚠️  WARNING: This action cannot be undone!\n` +
-          `• All students will be removed from this class\n` +
-          `• Class assignments will be lost\n` +
-          `• This will affect student progress tracking\n\n` +
-          `Type "DELETE" to confirm:`
-      );
-
-      if (!confirmDelete) return;
-
-      // Additional confirmation step
-      const userInput = prompt('Please type "DELETE" to confirm deletion:');
-      if (userInput !== 'DELETE') {
-        alert('Deletion cancelled. Class was not deleted.');
-        return;
-      }
-
-      try {
-        const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-        const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
-
-        const res = await fetch(`${apiUrl}/classes/${classId}`, {
-          method: 'DELETE',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-
-        alert(`✅ Class "${displayName}" has been successfully deleted.`);
-        onDataRefresh?.();
-        // Clear selection after deletion
-        setSelectedClassId(null);
-      } catch (error) {
-        console.error('Error deleting class:', error);
-        alert('❌ Failed to delete class. Please try again.');
-      }
-    },
-    [classes, levels, onDataRefresh]
-  );
 
   // Handle ESC key to close modals
   useEffect(() => {
@@ -982,65 +1042,56 @@ const ClassesPanel = ({
 
       {/* Add Class Form */}
       <div className="add-class-section">
+        <h3>Add New Class</h3>
         <div className="add-class-form">
-          {levelsLoading ? (
-            <div className="levels-loading-message">
+          <select
+            value={newClassLevelId}
+            onChange={(e) => handleLevelChange(e.target.value)}
+            className="level-select"
+          >
+            <option value="">Select Level</option>
+            {levels &&
+              Array.isArray(levels) &&
+              levels.map((level) => (
+                <option key={level._id} value={level._id}>
+                  {level.name}
+                </option>
+              ))}
+          </select>
+          
+          <input
+            type="date"
+            value={newClassStartingDate}
+            onChange={(e) => setNewClassStartingDate(e.target.value)}
+            className="starting-date-input"
+            min={new Date().toISOString().split('T')[0]}
+            placeholder="Select starting date"
+          />
+          
+          {checkingCodes && (
+            <div className="checking-codes-message">
+              <p>Checking available class codes for {levels.find((l) => l._id === newClassLevelId)?.name || 'this level'}...</p>
               <div className="loading-spinner"></div>
-              <p>Loading levels...</p>
-            </div>
-          ) : levels && Array.isArray(levels) && levels.length > 0 ? (
-            <>
-              <select
-                value={newClassLevelId}
-                onChange={(e) => handleLevelChange(e.target.value)}
-                className="level-select"
-              >
-                <option value="">Select Level</option>
-                {levels.map((level) => (
-                  <option key={level._id} value={level._id}>
-                    {level.name}
-                  </option>
-                ))}
-              </select>
-              {checkingCodes && (
-                <div className="checking-codes-message">
-                  <p>Checking available class codes for {levels.find((l) => l._id === newClassLevelId)?.name || 'this level'}...</p>
-                  <div className="loading-spinner"></div>
-                </div>
-              )}
-              {availableClassCodes.length > 0 && (
-                <div className="available-codes-message">
-                  <p>Available class codes for this level:</p>
-                  <ul>
-                    {availableClassCodes.map((code) => (
-                      <li key={code}>{code}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              <button
-                type="button"
-                onClick={handleAddClass}
-                disabled={adding || !newClassLevelId}
-                className="add-class-btn"
-              >
-                {adding ? 'Creating...' : 'Create a new class'}
-              </button>
-            </>
-          ) : (
-            <div className="no-levels-message">
-              <p>No levels available. Please create levels first in the Levels tab.</p>
-              <button
-                type="button"
-                onClick={() => {
-                  window.location.hash = '#levels';
-                }}
-                className="go-to-levels-btn"
-              >
-                Go to Levels
-              </button>
             </div>
           )}
+          {availableClassCodes.length > 0 && (
+            <div className="available-codes-message">
+              <p>Available class codes for this level:</p>
+              <ul>
+                {availableClassCodes.map((code) => (
+                  <li key={code}>{code}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={handleAddClass}
+            disabled={adding || !newClassLevelId || !newClassStartingDate}
+            className="add-class-btn"
+          >
+            {adding ? 'Creating...' : 'Add Class'}
+          </button>
         </div>
       </div>
 
@@ -1138,7 +1189,7 @@ const ClassesPanel = ({
                               <div className="action-buttons">
                                 <button
                                   type="button"
-                                  onClick={() => handleReportStudent(student.id, student.name)}
+                                  onClick={() => handleReportStudent(student.id, student.name, classEditModal.classId || '', classEditModal.className)}
                                   className="action-btn report-btn"
                                   title="Report student issue"
                                 >
@@ -1297,49 +1348,68 @@ const ClassesPanel = ({
         </div>
       )}
 
-      {/* Report Modal */}
-      {reportModal.isOpen && (
-        <div className="report-modal">
-          <div className="report-modal-content">
+      {/* Student Report Modal */}
+      {studentReportModal.isOpen && (
+        <div className="student-report-modal">
+          <div className="modal-content">
             <div className="modal-header">
-              <h3>Report Student: {reportModal.studentName}</h3>
-              <button type="button" className="close-btn" onClick={handleCloseReportModal}>
+              <h3>Report Student: {studentReportModal.studentName}</h3>
+              <button type="button" className="close-btn" onClick={handleCloseStudentReportModal}>
                 ×
               </button>
             </div>
-
             <div className="modal-body">
-              <div className="report-info">
-                <p>
-                  <strong>Student:</strong> {reportModal.studentName}
-                </p>
-                <p>
-                  <strong>Class:</strong> {reportModal.className}
-                </p>
-              </div>
-
-              <div className="report-form">
-                <label htmlFor="problem">Problem Description:</label>
-                <textarea
-                  id="problem"
-                  value={reportProblem}
-                  onChange={(e) => setReportProblem(e.target.value)}
-                  placeholder="Describe the problem or misbehavior..."
-                  rows={4}
-                  className="report-textarea"
+              <div className="form-group">
+                <label htmlFor="case-no">Case Number:</label>
+                <input
+                  id="case-no"
+                  type="text"
+                  value={studentReportModal.caseNo}
+                  readOnly
+                  disabled
+                  className="form-input"
                 />
               </div>
-
+              <div className="form-group">
+                <label htmlFor="student-name">Student Name:</label>
+                <input
+                  id="student-name"
+                  type="text"
+                  value={studentReportModal.studentName}
+                  readOnly
+                  disabled
+                  className="form-input"
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="class-name">Class:</label>
+                <input
+                  id="class-name"
+                  type="text"
+                  value={studentReportModal.className}
+                  readOnly
+                  disabled
+                  className="form-input"
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="problems">Problem Description:</label>
+                <textarea
+                  id="problems"
+                  value={studentReportModal.problems}
+                  onChange={(e) =>
+                    setStudentReportModal((prev) => ({ ...prev, problems: e.target.value }))
+                  }
+                  placeholder="Describe the problem or misbehavior..."
+                  rows={4}
+                  className="form-textarea"
+                />
+              </div>
               <div className="modal-actions">
-                <button
-                  type="button"
-                  onClick={handleSendReport}
-                  disabled={reportSending || !safeTrim(reportProblem)}
-                  className="save-btn"
-                >
-                  {reportSending ? 'Sending...' : 'Confirm'}
+                <button type="button" onClick={handleSubmitReport} className="save-btn">
+                  Submit Report
                 </button>
-                <button type="button" onClick={handleCloseReportModal} className="cancel-btn">
+                <button type="button" onClick={handleCloseStudentReportModal} className="cancel-btn">
                   Cancel
                 </button>
               </div>
