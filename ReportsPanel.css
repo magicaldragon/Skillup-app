@@ -42,8 +42,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .reports-retry-btn {
@@ -283,23 +287,23 @@
   .reports-table {
     font-size: 12px;
   }
-  
+
   .reports-table th,
   .reports-table td {
     padding: 8px 4px;
   }
-  
+
   .modal-content {
     width: 95%;
     padding: 16px;
   }
-  
+
   .info-row {
     flex-direction: column;
   }
-  
+
   .info-row strong {
     min-width: auto;
     margin-bottom: 4px;
   }
-} 
+}

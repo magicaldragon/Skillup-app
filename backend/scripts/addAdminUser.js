@@ -7,68 +7,70 @@ const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   email: {
     type: String,
     required: true,
     unique: true,
     lowercase: true,
-    trim: true
+    trim: true,
   },
   password: {
     type: String,
-    required: true
+    required: true,
   },
   role: {
     type: String,
     enum: ['admin', 'teacher', 'student', 'staff'],
-    default: 'student'
+    default: 'student',
   },
   firebaseUid: {
     type: String,
     unique: true,
-    sparse: true
+    sparse: true,
   },
   username: {
     type: String,
     unique: true,
     lowercase: true,
-    trim: true
+    trim: true,
   },
   avatarUrl: {
     type: String,
-    default: ''
+    default: '',
   },
   status: {
     type: String,
     enum: ['active', 'inactive', 'suspended'],
-    default: 'active'
+    default: 'active',
   },
   phone: String,
   englishName: String,
   dob: String,
   gender: {
     type: String,
-    enum: ['male', 'female', 'other']
+    enum: ['male', 'female', 'other'],
   },
   note: String,
-  classIds: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Class'
-  }],
+  classIds: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Class',
+    },
+  ],
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   updatedAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
 // Password comparison method
-userSchema.methods.comparePassword = async function(candidatePassword) {
+userSchema.methods.comparePassword = async function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
@@ -91,24 +93,23 @@ async function addAdminUser() {
 
     // Create Admin user
     const hashedPassword = await bcrypt.hash('Skillup@123', 10);
-    
+
     const adminUser = new User({
       name: 'SkillUp Admin',
-              email: 'admin@admin.skillup',
+      email: 'admin@admin.skillup',
       password: hashedPassword,
       role: 'admin',
       firebaseUid: 'qkHQ4gopbTgJdv9Pf0QSZkiGs222', // From hybridAuthService.ts
       username: 'skillup-admin',
       status: 'active',
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     });
 
     await adminUser.save();
     console.log('Admin user added to MongoDB successfully!');
     console.log('User ID:', adminUser._id);
     console.log('Firebase UID:', adminUser.firebaseUid);
-
   } catch (error) {
     console.error('Error adding Admin user:', error);
   } finally {
@@ -118,4 +119,4 @@ async function addAdminUser() {
 }
 
 // Run the script
-addAdminUser(); 
+addAdminUser();

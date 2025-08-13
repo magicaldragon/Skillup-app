@@ -10,23 +10,23 @@ const SystemHealthPanel = () => {
     Promise.all([
       fetch('/api/cors-test').catch(() => null),
       fetch('/api/users/admin/version').catch(() => null),
-      fetch('/api/users').catch(() => null)
+      fetch('/api/users').catch(() => null),
     ])
-    .then(([corsRes, versionRes, usersRes]) => {
-      const healthStatus = {
-        cors: corsRes ? 'Online' : 'Offline',
-        version: versionRes ? 'Online' : 'Offline',
-        users: usersRes ? 'Online' : 'Offline',
-        corsData: corsRes ? 'Available' : 'Unavailable',
-        versionData: versionRes ? 'Available' : 'Unavailable'
-      };
-      setStatus(healthStatus);
-      setLoading(false);
-    })
-    .catch(() => {
-      setError('Failed to check system health');
-      setLoading(false);
-    });
+      .then(([corsRes, versionRes, usersRes]) => {
+        const healthStatus = {
+          cors: corsRes ? 'Online' : 'Offline',
+          version: versionRes ? 'Online' : 'Offline',
+          users: usersRes ? 'Online' : 'Offline',
+          corsData: corsRes ? 'Available' : 'Unavailable',
+          versionData: versionRes ? 'Available' : 'Unavailable',
+        };
+        setStatus(healthStatus);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError('Failed to check system health');
+        setLoading(false);
+      });
   }, []);
 
   return (
@@ -61,9 +61,20 @@ const SystemHealthPanel = () => {
             <div className="text-sm space-y-1">
               <div>• CORS Configuration: {status.corsData}</div>
               <div>• Version Information: {status.versionData}</div>
-              <div>• Overall Status: <span className={status.cors === 'Online' && status.version === 'Online' ? 'text-green-700' : 'text-red-600'}>
-                {status.cors === 'Online' && status.version === 'Online' ? 'Healthy' : 'Issues Detected'}
-              </span></div>
+              <div>
+                • Overall Status:{' '}
+                <span
+                  className={
+                    status.cors === 'Online' && status.version === 'Online'
+                      ? 'text-green-700'
+                      : 'text-red-600'
+                  }
+                >
+                  {status.cors === 'Online' && status.version === 'Online'
+                    ? 'Healthy'
+                    : 'Issues Detected'}
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -72,4 +83,4 @@ const SystemHealthPanel = () => {
   );
 };
 
-export default SystemHealthPanel; 
+export default SystemHealthPanel;

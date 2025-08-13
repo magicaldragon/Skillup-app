@@ -4,7 +4,9 @@
   padding: 1rem;
   background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
   border-radius: 12px;
-  box-shadow: 0 4px 16px 0 rgba(48, 118, 55, 0.08), 0 1px 4px 0 rgba(48, 118, 55, 0.06);
+  box-shadow:
+    0 4px 16px 0 rgba(48, 118, 55, 0.08),
+    0 1px 4px 0 rgba(48, 118, 55, 0.06);
   border: 2px solid #e0f7fa;
   margin: 0.5rem;
   min-height: calc(100vh - 2rem);
@@ -18,7 +20,9 @@
   font-weight: 900;
   margin-bottom: 6px;
   letter-spacing: 1px;
-  text-shadow: 0 2px 8px rgba(48, 118, 55, 0.13), 0 1px 0 #fffbe6;
+  text-shadow:
+    0 2px 8px rgba(48, 118, 55, 0.13),
+    0 1px 0 #fffbe6;
   text-transform: uppercase;
   text-align: center;
 }
@@ -190,11 +194,11 @@
   font-weight: 600;
   font-size: 12px;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(.4,0,.2,1);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   min-width: 60px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
   outline: none;
   margin: 0 1px;
   position: relative;
@@ -206,7 +210,8 @@
   border: none;
 }
 
-.edit-btn:hover, .edit-btn:focus {
+.edit-btn:hover,
+.edit-btn:focus {
   background: linear-gradient(135deg, #1976d2 0%, #2196f3 100%);
   box-shadow: 0 4px 12px rgba(33, 150, 243, 0.18);
   transform: translateY(-1px) scale(1.02);
@@ -226,7 +231,8 @@
   margin: 0 0.25rem;
 }
 
-.password-btn:hover, .password-btn:focus {
+.password-btn:hover,
+.password-btn:focus {
   background: linear-gradient(135deg, #ff9800 0%, #ffa726 100%);
   box-shadow: 0 4px 12px rgba(255, 167, 38, 0.18);
   transform: translateY(-1px) scale(1.02);
@@ -238,7 +244,8 @@
   border: none;
 }
 
-.delete-btn:hover, .delete-btn:focus {
+.delete-btn:hover,
+.delete-btn:focus {
   background: linear-gradient(135deg, #d32f2f 0%, #f44336 100%);
   box-shadow: 0 4px 12px rgba(244, 67, 54, 0.18);
   transform: translateY(-1px) scale(1.02);
@@ -249,7 +256,8 @@
   color: white;
 }
 
-.save-btn:hover, .save-btn:focus {
+.save-btn:hover,
+.save-btn:focus {
   background: linear-gradient(135deg, #4caf50 0%, #307637 100%);
   box-shadow: 0 4px 12px rgba(48, 118, 55, 0.18);
   transform: translateY(-1px) scale(1.02);
@@ -260,14 +268,16 @@
   color: white;
 }
 
-.cancel-btn:hover, .cancel-btn:focus {
+.cancel-btn:hover,
+.cancel-btn:focus {
   background: linear-gradient(135deg, #616161 0%, #757575 100%);
   box-shadow: 0 4px 12px rgba(117, 117, 117, 0.18);
   transform: translateY(-1px) scale(1.02);
 }
 
 /* Edit Input Styling */
-.edit-input, .edit-select {
+.edit-input,
+.edit-select {
   width: 100%;
   padding: 0.5rem;
   border: 1px solid #e0f7fa;
@@ -278,14 +288,17 @@
   transition: all 0.2s ease;
 }
 
-.edit-input:focus, .edit-select:focus {
+.edit-input:focus,
+.edit-select:focus {
   border-color: #307637;
   outline: none;
   box-shadow: 0 0 0 2px rgba(48, 118, 55, 0.1);
 }
 
 /* Loading and Error States */
-.accounts-loading, .accounts-error, .accounts-empty {
+.accounts-loading,
+.accounts-error,
+.accounts-empty {
   text-align: center;
   padding: 2rem;
   color: #666;
@@ -305,43 +318,43 @@
     padding: 1rem;
     margin: 0.5rem;
   }
-  
+
   .accounts-title {
     font-size: 2rem;
   }
-  
+
   .filters-section {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .search-box {
     max-width: none;
   }
-  
+
   .filter-controls {
     justify-content: center;
   }
-  
+
   .accounts-table {
     font-size: 0.8rem;
   }
-  
+
   .accounts-table th,
   .accounts-table td {
     padding: 0.6rem 0.4rem;
   }
-  
+
   .action-buttons {
     flex-direction: column;
     gap: 4px;
   }
-  
+
   .action-btn {
     width: 100%;
     min-width: auto;
   }
-} 
+}
 
 /* Modal Styles */
 .modal-overlay {

@@ -14,7 +14,7 @@ async function quickAddUsers() {
       email: 'admin@admin.skillup',
       role: 'admin',
       username: 'skillup-admin',
-      firebaseUid: 'qkHQ4gopbTgJdv9Pf0QSZkiGs222'
+      firebaseUid: 'qkHQ4gopbTgJdv9Pf0QSZkiGs222',
     });
     await adminUser.save();
     console.log('✅ Added admin user');
@@ -25,17 +25,16 @@ async function quickAddUsers() {
       email: 'teacher-jenny@teacher.skillup',
       role: 'teacher',
       username: 'teacher-jenny',
-      firebaseUid: 'YCqXqLV1JacLMsmkgOoCrJQORtE2'
+      firebaseUid: 'YCqXqLV1JacLMsmkgOoCrJQORtE2',
     });
     await teacherUser.save();
     console.log('✅ Added teacher user');
 
     console.log('\n📊 Current users in MongoDB:');
     const allUsers = await User.find().select('-password');
-    allUsers.forEach(user => {
+    allUsers.forEach((user) => {
       console.log(`- ${user.name} (${user.role}): ${user.email}`);
     });
-
   } catch (error) {
     console.error('❌ Error:', error.message);
   } finally {
@@ -44,4 +43,4 @@ async function quickAddUsers() {
   }
 }
 
-quickAddUsers(); 
+quickAddUsers();

@@ -1,5 +1,5 @@
-import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite';
 
 export default defineConfig({
   plugins: [react()],
@@ -46,8 +46,8 @@ export default defineConfig({
         // Optimize chunk naming
         chunkFileNames: 'assets/js/[name]-[hash].js',
         entryFileNames: 'assets/js/[name]-[hash].js',
-        assetFileNames: 'assets/[ext]/[name]-[hash].[ext]'
-      }
+        assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
+      },
     },
     // Enable minification
     minify: 'terser',
@@ -57,8 +57,8 @@ export default defineConfig({
     reportCompressedSize: true,
     // Optimize dependencies
     commonjsOptions: {
-      include: [/node_modules/]
-    }
+      include: [/node_modules/],
+    },
   },
   // Optimize dependencies
   optimizeDeps: {
@@ -67,6 +67,6 @@ export default defineConfig({
   // Enable compression
   preview: {
     port: 4173,
-    host: true
-  }
+    host: true,
+  },
 });

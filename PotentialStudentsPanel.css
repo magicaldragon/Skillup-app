@@ -28,7 +28,9 @@
   font-weight: 900;
   margin-bottom: 8px;
   letter-spacing: 1.5px;
-  text-shadow: 0 4px 12px rgba(48, 118, 55, 0.13), 0 1px 0 #fffbe6;
+  text-shadow:
+    0 4px 12px rgba(48, 118, 55, 0.13),
+    0 1px 0 #fffbe6;
   text-transform: uppercase;
 }
 
@@ -109,8 +111,6 @@
   width: 16px;
   height: 16px;
 }
-
-
 
 .status-filter-select {
   padding: 16px 20px;
@@ -222,7 +222,7 @@
 
 .email-cell {
   min-width: 250px;
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
   color: #374151;
 }
 
@@ -375,8 +375,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Error State */
@@ -719,7 +723,7 @@
   .potential-students-table-container {
     overflow-x: auto;
   }
-  
+
   .potential-students-table {
     min-width: 800px;
   }
@@ -729,22 +733,22 @@
   .potential-students-title {
     font-size: 2rem;
   }
-  
+
   .potential-students-actions {
     flex-direction: column;
     align-items: center;
   }
-  
+
   .potential-students-btn {
     width: 100%;
     max-width: 300px;
   }
-  
+
   .potential-students-bulk-section {
     flex-direction: column;
     align-items: center;
   }
-  
+
   .student-details-grid {
     grid-template-columns: 1fr;
   }
@@ -754,18 +758,16 @@
   .potential-students-title {
     font-size: 1.5rem;
   }
-  
+
   .potential-students-subtitle {
     font-size: 1rem;
   }
-  
 
-  
   .modal-content {
     padding: 20px;
     margin: 20px;
   }
-  
+
   .potential-students-modal-content {
     padding: 20px;
     margin: 20px;

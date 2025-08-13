@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import './RecordsPanel.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
@@ -36,23 +36,25 @@ const RecordsPanel = () => {
   const [records, setRecords] = useState<StudentRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<'all' | 'academic' | 'administrative' | 'financial' | 'attendance' | 'assessment'>('all');
+  const [filter, setFilter] = useState<
+    'all' | 'academic' | 'administrative' | 'financial' | 'attendance' | 'assessment'
+  >('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 20,
     total: 0,
-    pages: 0
+    pages: 0,
   });
 
   useEffect(() => {
     fetchRecords();
-  }, [pagination.page]);
+  }, [fetchRecords]);
 
   const fetchRecords = async () => {
     setLoading(true);
     setError(null);
-    
+
     const token = localStorage.getItem('skillup_token');
     if (!token) {
       setError('No authentication token found');
@@ -63,7 +65,7 @@ const RecordsPanel = () => {
     try {
       const params = new URLSearchParams({
         page: pagination.page.toString(),
-        limit: pagination.limit.toString()
+        limit: pagination.limit.toString(),
       });
 
       if (filter !== 'all') {
@@ -72,7 +74,7 @@ const RecordsPanel = () => {
 
       const response = await fetch(`${API_BASE_URL}/student-records?${params}`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -83,10 +85,10 @@ const RecordsPanel = () => {
       const data = await response.json();
       if (data.success) {
         setRecords(data.records || []);
-        setPagination(prev => ({
+        setPagination((prev) => ({
           ...prev,
           total: data.pagination.total,
-          pages: data.pagination.pages
+          pages: data.pagination.pages,
         }));
       } else {
         throw new Error(data.message || 'Failed to fetch records');
@@ -99,12 +101,15 @@ const RecordsPanel = () => {
     }
   };
 
-  const filteredRecords = records.filter(record => {
-    const matchesSearch = record.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         record.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         record.performedByName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (record.details && typeof record.details === 'string' && record.details.toLowerCase().includes(searchTerm.toLowerCase()));
-    
+  const filteredRecords = records.filter((record) => {
+    const matchesSearch =
+      record.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      record.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      record.performedByName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (record.details &&
+        typeof record.details === 'string' &&
+        record.details.toLowerCase().includes(searchTerm.toLowerCase()));
+
     return matchesSearch;
   });
 
@@ -121,35 +126,35 @@ const RecordsPanel = () => {
 
   const getActionDisplayName = (action: string) => {
     const actionMap: { [key: string]: string } = {
-      'enrollment': 'Enrollment',
-      'class_assignment': 'Class Assignment',
-      'class_removal': 'Class Removal',
-      'grade_update': 'Grade Update',
-      'attendance': 'Attendance',
-      'payment': 'Payment',
-      'withdrawal': 'Withdrawal',
-      're_enrollment': 'Re-enrollment',
-      'profile_update': 'Profile Update',
-      'status_change': 'Status Change',
-      'note_added': 'Note Added',
-      'test_result': 'Test Result'
+      enrollment: 'Enrollment',
+      class_assignment: 'Class Assignment',
+      class_removal: 'Class Removal',
+      grade_update: 'Grade Update',
+      attendance: 'Attendance',
+      payment: 'Payment',
+      withdrawal: 'Withdrawal',
+      re_enrollment: 'Re-enrollment',
+      profile_update: 'Profile Update',
+      status_change: 'Status Change',
+      note_added: 'Note Added',
+      test_result: 'Test Result',
     };
-    return actionMap[action] || action.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    return actionMap[action] || action.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
   };
 
   const getCategoryDisplayName = (category: string) => {
     const categoryMap: { [key: string]: string } = {
-      'academic': 'Academic',
-      'administrative': 'Administrative',
-      'financial': 'Financial',
-      'attendance': 'Attendance',
-      'assessment': 'Assessment'
+      academic: 'Academic',
+      administrative: 'Administrative',
+      financial: 'Financial',
+      attendance: 'Attendance',
+      assessment: 'Assessment',
     };
     return categoryMap[category] || category;
   };
 
   const handlePageChange = (newPage: number) => {
-    setPagination(prev => ({ ...prev, page: newPage }));
+    setPagination((prev) => ({ ...prev, page: newPage }));
   };
 
   if (loading) {
@@ -169,10 +174,7 @@ const RecordsPanel = () => {
         <div className="records-error">
           <h3>Error Loading Records</h3>
           <p>{error}</p>
-          <button 
-            className="form-btn"
-            onClick={fetchRecords}
-          >
+          <button className="form-btn" onClick={fetchRecords}>
             Try Again
           </button>
         </div>
@@ -196,7 +198,7 @@ const RecordsPanel = () => {
               placeholder="Search records..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyPress={e => {
+              onKeyPress={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
                   (e.target as HTMLInputElement).focus();
@@ -205,12 +207,17 @@ const RecordsPanel = () => {
             />
             <button className="search-bar-button">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
               </svg>
             </button>
           </div>
         </div>
-        
+
         <div className="records-filters">
           <select
             value={filter}
@@ -238,7 +245,9 @@ const RecordsPanel = () => {
         </div>
         <div className="records-stat">
           <span className="records-stat-label">Current Page</span>
-          <span className="records-stat-value">{pagination.page} / {pagination.pages}</span>
+          <span className="records-stat-value">
+            {pagination.page} / {pagination.pages}
+          </span>
         </div>
       </div>
 
@@ -257,13 +266,14 @@ const RecordsPanel = () => {
                 <span className="records-category">{getCategoryDisplayName(record.category)}</span>
                 <span className="records-date">{formatDate(record.timestamp)}</span>
               </div>
-              
+
               <div className="records-item-content">
                 <div className="records-student-info">
                   <strong>Student:</strong> {record.studentName}
                 </div>
                 <div className="records-details">
-                  <strong>Details:</strong> {record.details ? JSON.stringify(record.details) : 'No details available'}
+                  <strong>Details:</strong>{' '}
+                  {record.details ? JSON.stringify(record.details) : 'No details available'}
                 </div>
                 <div className="records-performed-by">
                   <strong>Performed by:</strong> {record.performedByName}
@@ -286,7 +296,7 @@ const RecordsPanel = () => {
 
       {pagination.pages > 1 && (
         <div className="records-pagination">
-          <button 
+          <button
             className="form-btn"
             onClick={() => handlePageChange(pagination.page - 1)}
             disabled={pagination.page <= 1}
@@ -296,7 +306,7 @@ const RecordsPanel = () => {
           <span className="records-page-info">
             Page {pagination.page} of {pagination.pages}
           </span>
-          <button 
+          <button
             className="form-btn"
             onClick={() => handlePageChange(pagination.page + 1)}
             disabled={pagination.page >= pagination.pages}
@@ -307,10 +317,7 @@ const RecordsPanel = () => {
       )}
 
       <div className="records-footer">
-        <button 
-          className="form-btn"
-          onClick={fetchRecords}
-        >
+        <button className="form-btn" onClick={fetchRecords}>
           Refresh Records
         </button>
       </div>

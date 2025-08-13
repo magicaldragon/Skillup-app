@@ -3,7 +3,7 @@
   padding: 24px;
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
   min-height: 100vh;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
 }
 
 .waiting-list-header {
@@ -94,8 +94,6 @@
   width: 16px;
   height: 16px;
 }
-
-
 
 .waiting-list-table-container {
   background: white;
@@ -275,8 +273,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Error state */
@@ -559,30 +561,30 @@
   .waiting-list-panel {
     padding: 16px;
   }
-  
+
   .waiting-list-title {
     font-size: 2rem;
   }
-  
+
   .waiting-list-table {
     font-size: 0.85rem;
   }
-  
+
   .waiting-list-table th,
   .waiting-list-table td {
     padding: 12px 8px;
   }
-  
+
   .waiting-list-actions {
     flex-direction: column;
     align-items: center;
   }
-  
+
   .waiting-list-bulk-section {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .student-details-grid {
     grid-template-columns: 1fr;
   }

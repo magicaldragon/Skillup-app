@@ -1,5 +1,9 @@
 const mongoose = require('mongoose');
-const { generateStudentCode, reassignAllStudentCodes, findStudentCodeGaps } = require('../utils/studentCodeGenerator');
+const {
+  generateStudentCode,
+  reassignAllStudentCodes,
+  findStudentCodeGaps,
+} = require('../utils/studentCodeGenerator');
 require('dotenv').config();
 
 // Connect to MongoDB
@@ -16,15 +20,16 @@ db.once('open', () => {
 
 async function main() {
   const command = process.argv[2];
-  
+
   try {
     switch (command) {
-      case 'generate':
+      case 'generate': {
         const newCode = await generateStudentCode();
         console.log(`Next available student code: ${newCode}`);
         break;
-        
-      case 'gaps':
+      }
+
+      case 'gaps': {
         const gaps = await findStudentCodeGaps();
         console.log('Student Code Analysis:');
         console.log(`Total students: ${gaps.totalStudents}`);
@@ -36,21 +41,23 @@ async function main() {
           console.log('No gaps found - codes are sequential');
         }
         break;
-        
-      case 'reassign':
+      }
+
+      case 'reassign': {
         console.log('Reassigning all student codes sequentially...');
         const result = await reassignAllStudentCodes();
         console.log(result.message);
         if (result.updates.length > 0) {
           console.log('Updated codes:');
-          result.updates.forEach(update => {
+          result.updates.forEach((update) => {
             console.log(`  ${update.name}: ${update.oldCode} → ${update.newCode}`);
           });
         } else {
           console.log('No codes needed reassignment');
         }
         break;
-        
+      }
+
       case 'test':
         console.log('Testing student code generation...');
         for (let i = 0; i < 5; i++) {
@@ -58,7 +65,7 @@ async function main() {
           console.log(`Generated code ${i + 1}: ${code}`);
         }
         break;
-        
+
       default:
         console.log('Student Code Management Script');
         console.log('Usage: node manageStudentCodes.js <command>');
@@ -78,4 +85,4 @@ async function main() {
   }
 }
 
-main(); 
+main();

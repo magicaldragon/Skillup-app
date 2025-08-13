@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import type { StudentClass } from './types';
 import './WaitingListPanel.css';
 
@@ -21,13 +21,19 @@ interface User {
   updatedAt: string;
 }
 
-const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[], onDataRefresh?: () => void }) => {
+const WaitingListPanel = ({
+  classes,
+  onDataRefresh,
+}: {
+  classes: StudentClass[];
+  onDataRefresh?: () => void;
+}) => {
   const [waitingStudents, setWaitingStudents] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [selectedStudent, setSelectedStudent] = useState<User | null>(null);
-  
+
   // Bulk selection state
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [bulkClassId, setBulkClassId] = useState<string>('');
@@ -35,12 +41,12 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
 
   useEffect(() => {
     fetchWaitingStudents();
-  }, []);
+  }, [fetchWaitingStudents]);
 
   const fetchWaitingStudents = async () => {
     setLoading(true);
     setError(null);
-    
+
     const token = localStorage.getItem('skillup_token');
     if (!token) {
       setError('No authentication token found');
@@ -52,7 +58,7 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
       // Fetch users with status 'studying'
       const response = await fetch(`${API_BASE_URL}/users?status=studying`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -72,11 +78,11 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
 
   // Individual select
   const toggleSelect = (id: string) => {
-    setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   };
 
   // Select all
-  const selectAll = () => setSelectedIds(waitingStudents.map(s => s._id));
+  const selectAll = () => setSelectedIds(waitingStudents.map((s) => s._id));
   const clearAll = () => setSelectedIds([]);
 
   // Bulk assign to class
@@ -91,16 +97,16 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
       for (const id of selectedIds) {
         const response = await fetch(`${API_BASE_URL}/users/${id}`, {
           method: 'PUT',
-          headers: { 
+          headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ 
+          body: JSON.stringify({
             classIds: [bulkClassId],
-            status: 'active' // Change status to active when assigned to class
+            status: 'active', // Change status to active when assigned to class
           }),
         });
-        
+
         if (!response.ok) {
           throw new Error(`Failed to assign user ${id} to class`);
         }
@@ -128,16 +134,16 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
     try {
       const response = await fetch(`${API_BASE_URL}/users/${studentId}`, {
         method: 'PUT',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           classIds: [classId],
-          status: 'active' // Change status to active when assigned to class
+          status: 'active', // Change status to active when assigned to class
         }),
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to assign student to class');
       }
@@ -162,13 +168,13 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
     try {
       const response = await fetch(`${API_BASE_URL}/users/${studentId}`, {
         method: 'PUT',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ status: newStatus }),
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to update student status');
       }
@@ -182,11 +188,12 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
   };
 
   // Filtered students
-  const filteredStudents = waitingStudents.filter(s =>
-    s.name.toLowerCase().includes(search.toLowerCase()) ||
-    (s.englishName && s.englishName.toLowerCase().includes(search.toLowerCase())) ||
-    (s.phone && s.phone.includes(search)) ||
-    (s.studentCode && s.studentCode.toLowerCase().includes(search.toLowerCase()))
+  const filteredStudents = waitingStudents.filter(
+    (s) =>
+      s.name.toLowerCase().includes(search.toLowerCase()) ||
+      s.englishName?.toLowerCase().includes(search.toLowerCase()) ||
+      s.phone?.includes(search) ||
+      s.studentCode?.toLowerCase().includes(search.toLowerCase())
   );
 
   if (loading) {
@@ -206,10 +213,7 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
         <div className="waiting-list-error">
           <h3>Error Loading Waiting Students</h3>
           <p>{error}</p>
-          <button 
-            className="waiting-list-retry-btn"
-            onClick={fetchWaitingStudents}
-          >
+          <button className="waiting-list-retry-btn" onClick={fetchWaitingStudents}>
             Try Again
           </button>
         </div>
@@ -220,29 +224,34 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
   return (
     <div className="waiting-list-panel">
       <div className="waiting-list-header">
-      <h2 className="waiting-list-title">Waiting List</h2>
+        <h2 className="waiting-list-title">Waiting List</h2>
         <p className="waiting-list-subtitle">Students ready for class assignment</p>
       </div>
-      
+
       <div className="waiting-list-search">
         <div className="search-controls">
           <div className="search-bar-container">
-        <input
-          type="text"
-          className="search-bar-input"
-          placeholder="Search by name, phone, or student ID..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          onKeyPress={e => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              (e.target as HTMLInputElement).focus();
-            }
-          }}
-        />
+            <input
+              type="text"
+              className="search-bar-input"
+              placeholder="Search by name, phone, or student ID..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  (e.target as HTMLInputElement).focus();
+                }
+              }}
+            />
             <button className="search-bar-button">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
               </svg>
             </button>
           </div>
@@ -250,25 +259,27 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
       </div>
 
       <div className="waiting-list-table-container">
-      <table className="waiting-list-table">
-        <thead>
-          <tr>
+        <table className="waiting-list-table">
+          <thead>
+            <tr>
               <th className="checkbox-header">
                 <input
                   type="checkbox"
-                  checked={selectedIds.length === waitingStudents.length && waitingStudents.length > 0}
+                  checked={
+                    selectedIds.length === waitingStudents.length && waitingStudents.length > 0
+                  }
                   onChange={selectedIds.length === waitingStudents.length ? clearAll : selectAll}
                   className="select-all-checkbox"
                 />
               </th>
-            <th>Name</th>
+              <th>Name</th>
               <th>Gender</th>
-            <th>Status</th>
+              <th>Status</th>
               <th>Assign</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredStudents.length === 0 && (
+            </tr>
+          </thead>
+          <tbody>
+            {filteredStudents.length === 0 && (
               <tr>
                 <td colSpan={5} className="empty-table">
                   <div className="empty-state">
@@ -280,10 +291,14 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
                   </div>
                 </td>
               </tr>
-          )}
-          {filteredStudents.map(student => (
-            <tr key={student._id} onClick={() => setSelectedStudent(student)} className="clickable-row">
-                <td onClick={e => e.stopPropagation()} className="checkbox-cell">
+            )}
+            {filteredStudents.map((student) => (
+              <tr
+                key={student._id}
+                onClick={() => setSelectedStudent(student)}
+                className="clickable-row"
+              >
+                <td onClick={(e) => e.stopPropagation()} className="checkbox-cell">
                   <input
                     type="checkbox"
                     checked={selectedIds.includes(student._id)}
@@ -299,41 +314,45 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
                 </td>
                 <td className="gender-cell">{student.gender || 'N/A'}</td>
                 <td className="status-cell">
-                <select
-                  value={student.status}
-                  onChange={e => handleStatusChange(student._id, e.target.value)}
-                  onClick={e => e.stopPropagation()}
+                  <select
+                    value={student.status}
+                    onChange={(e) => handleStatusChange(student._id, e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
                     className="status-select"
-                >
-                  <option value="studying">Studying</option>
-                  <option value="postponed">Postponed</option>
-                  <option value="off">Off</option>
-                  <option value="alumni">Alumni</option>
-                </select>
+                  >
+                    <option value="studying">Studying</option>
+                    <option value="postponed">Postponed</option>
+                    <option value="off">Off</option>
+                    <option value="alumni">Alumni</option>
+                  </select>
                 </td>
                 <td className="assign-cell">
                   <select
-                    onChange={e => handleAssignToClass(student._id, e.target.value)}
-                    onClick={e => e.stopPropagation()}
+                    onChange={(e) => handleAssignToClass(student._id, e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
                     className="assign-select"
                   >
                     <option value="">Select Class</option>
-                    {classes.map(cls => (
-                      <option key={cls.id} value={cls.id}>{cls.name}</option>
+                    {classes.map((cls) => (
+                      <option key={cls.id} value={cls.id}>
+                        {cls.name}
+                      </option>
                     ))}
                   </select>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
       {/* Details Modal/Panel */}
       {selectedStudent && (
         <div className="student-details-modal">
           <div className="modal-content">
-            <button className="close-btn" onClick={() => setSelectedStudent(null)}>×</button>
+            <button className="close-btn" onClick={() => setSelectedStudent(null)}>
+              ×
+            </button>
             <h3>Student Details</h3>
             <div className="student-details-grid">
               <div className="detail-item">
@@ -382,7 +401,7 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
           </div>
         </div>
       )}
-      
+
       <div className="waiting-list-actions">
         {selectedIds.length > 0 && (
           <button
@@ -407,17 +426,19 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
           Clear
         </button>
       </div>
-      
+
       {showBulkAssign && (
         <div className="waiting-list-bulk-section">
           <select
             className="waiting-list-select"
             value={bulkClassId}
-            onChange={e => setBulkClassId(e.target.value)}
+            onChange={(e) => setBulkClassId(e.target.value)}
           >
             <option value="">Select class...</option>
-            {classes.map(cls => (
-              <option key={cls.id} value={cls.id}>{cls.name}</option>
+            {classes.map((cls) => (
+              <option key={cls.id} value={cls.id}>
+                {cls.name}
+              </option>
             ))}
           </select>
           <div className="waiting-list-confirm-buttons">
@@ -430,7 +451,10 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
             </button>
             <button
               className="waiting-list-confirm-btn waiting-list-confirm-btn-cancel"
-              onClick={() => { setShowBulkAssign(false); setBulkClassId(''); }}
+              onClick={() => {
+                setShowBulkAssign(false);
+                setBulkClassId('');
+              }}
             >
               Cancel
             </button>
@@ -441,4 +465,4 @@ const WaitingListPanel = ({ classes, onDataRefresh }: { classes: StudentClass[],
   );
 };
 
-export default WaitingListPanel; 
+export default WaitingListPanel;

@@ -11,13 +11,13 @@ router.get('/', verifyToken, async (req, res) => {
     if (entityType) filter.entityType = entityType;
     if (userId) filter.userId = userId;
     if (action) filter.action = action;
-    const logs = await ChangeLog.find(filter)
-      .sort({ timestamp: -1 })
-      .limit(Number(limit));
+    const logs = await ChangeLog.find(filter).sort({ timestamp: -1 }).limit(Number(limit));
     res.json({ success: true, logs });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Failed to fetch change logs', error: error.message });
+    res
+      .status(500)
+      .json({ success: false, message: 'Failed to fetch change logs', error: error.message });
   }
 });
 
-module.exports = router; 
+module.exports = router;

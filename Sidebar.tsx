@@ -4,13 +4,35 @@
 // Modern design, clear icons, and role-based logic
 import { useState } from 'react';
 import './Sidebar.css';
-import DiceBearAvatar from './DiceBearAvatar';
 import {
-  FaHome, FaFolderOpen, FaUserPlus, FaGem, FaHourglassHalf, FaUsers, FaChartBar, FaClipboard, FaListAlt,
-  FaClipboardList, FaArchive, FaUserCog, FaBookOpen, FaMicrophone, FaPen, FaUser, FaChalkboardTeacher,
-  FaUserTie, FaUserShield, FaUserFriends, FaCheckCircle, FaTimesCircle, FaUserCheck, FaTasks, FaClipboardCheck,
-  FaSignOutAlt
+  FaArchive,
+  FaBookOpen,
+  FaChalkboardTeacher,
+  FaChartBar,
+  FaCheckCircle,
+  FaClipboard,
+  FaClipboardCheck,
+  FaClipboardList,
+  FaFolderOpen,
+  FaGem,
+  FaHome,
+  FaHourglassHalf,
+  FaListAlt,
+  FaMicrophone,
+  FaPen,
+  FaSignOutAlt,
+  FaTasks,
+  FaTimesCircle,
+  FaUser,
+  FaUserCheck,
+  FaUserCog,
+  FaUserFriends,
+  FaUserPlus,
+  FaUserShield,
+  FaUsers,
+  FaUserTie,
 } from 'react-icons/fa';
+import DiceBearAvatar from './DiceBearAvatar';
 
 const menuConfig = (role: string) => [
   {
@@ -25,21 +47,81 @@ const menuConfig = (role: string) => [
     key: 'management',
     visible: true,
     children: [
-      { label: 'Add New Members', icon: <FaUserPlus />, key: 'add-student', visible: role === 'staff' || role === 'teacher' || role === 'admin' },
-      { label: 'Potential Students', icon: <FaGem />, key: 'potential-students', visible: role === 'staff' || role === 'teacher' || role === 'admin' },
-      { label: 'Waiting List', icon: <FaHourglassHalf />, key: 'waiting-list', visible: role === 'staff' || role === 'teacher' || role === 'admin' },
-      { label: 'Classes', icon: <FaUsers />, key: 'classes', visible: role === 'staff' || role === 'teacher' || role === 'admin' },
-      { label: 'Scores & Feedback', icon: <FaChartBar />, key: 'scores', visible: role === 'staff' || role === 'teacher' || role === 'admin' },
-      { label: 'Reports', icon: <FaClipboard />, key: 'reports', visible: role === 'staff' || role === 'teacher' || role === 'admin' },
-      { label: 'Levels', icon: <FaListAlt />, key: 'levels', visible: role === 'staff' || role === 'teacher' || role === 'admin' },
-      { label: 'Change Log', icon: <FaClipboardList />, key: 'change-log', visible: role === 'staff' || role === 'teacher' || role === 'admin' },
-      { label: 'Records', icon: <FaArchive />, key: 'records', visible: role === 'staff' || role === 'teacher' || role === 'admin' },
+      {
+        label: 'Add New Members',
+        icon: <FaUserPlus />,
+        key: 'add-student',
+        visible: role === 'staff' || role === 'teacher' || role === 'admin',
+      },
+      {
+        label: 'Potential Students',
+        icon: <FaGem />,
+        key: 'potential-students',
+        visible: role === 'staff' || role === 'teacher' || role === 'admin',
+      },
+      {
+        label: 'Waiting List',
+        icon: <FaHourglassHalf />,
+        key: 'waiting-list',
+        visible: role === 'staff' || role === 'teacher' || role === 'admin',
+      },
+      {
+        label: 'Classes',
+        icon: <FaUsers />,
+        key: 'classes',
+        visible: role === 'staff' || role === 'teacher' || role === 'admin',
+      },
+      {
+        label: 'Scores & Feedback',
+        icon: <FaChartBar />,
+        key: 'scores',
+        visible: role === 'staff' || role === 'teacher' || role === 'admin',
+      },
+      {
+        label: 'Reports',
+        icon: <FaClipboard />,
+        key: 'reports',
+        visible: role === 'staff' || role === 'teacher' || role === 'admin',
+      },
+      {
+        label: 'Levels',
+        icon: <FaListAlt />,
+        key: 'levels',
+        visible: role === 'staff' || role === 'teacher' || role === 'admin',
+      },
+      {
+        label: 'Change Log',
+        icon: <FaClipboardList />,
+        key: 'change-log',
+        visible: role === 'staff' || role === 'teacher' || role === 'admin',
+      },
+      {
+        label: 'Records',
+        icon: <FaArchive />,
+        key: 'records',
+        visible: role === 'staff' || role === 'teacher' || role === 'admin',
+      },
       // Add Accounts submenu for admin, staff, and teachers
-      { label: 'Accounts', icon: <FaUserCog />, key: 'accounts', visible: role === 'admin' || role === 'staff' || role === 'teacher' },
+      {
+        label: 'Accounts',
+        icon: <FaUserCog />,
+        key: 'accounts',
+        visible: role === 'admin' || role === 'staff' || role === 'teacher',
+      },
       // Student-specific management submenu
       { label: 'My classes', icon: <FaUsers />, key: 'my-classes', visible: role === 'student' },
-      { label: 'My progress', icon: <FaChartBar />, key: 'my-progress', visible: role === 'student' },
-      { label: 'Scores and feedback', icon: <FaClipboardList />, key: 'my-scores', visible: role === 'student' },
+      {
+        label: 'My progress',
+        icon: <FaChartBar />,
+        key: 'my-progress',
+        visible: role === 'student',
+      },
+      {
+        label: 'Scores and feedback',
+        icon: <FaClipboardList />,
+        key: 'my-scores',
+        visible: role === 'student',
+      },
     ],
   },
   {
@@ -48,7 +130,12 @@ const menuConfig = (role: string) => [
     key: 'assignments',
     visible: true,
     children: [
-      { label: 'Full Practice Tests', icon: <FaClipboardCheck />, key: 'full-practice', visible: true },
+      {
+        label: 'Full Practice Tests',
+        icon: <FaClipboardCheck />,
+        key: 'full-practice',
+        visible: true,
+      },
       { label: 'Mini Tests', icon: <FaClipboard />, key: 'mini-tests', visible: true },
       { label: 'Reading', icon: <FaBookOpen />, key: 'reading', visible: true },
       { label: 'Listening', icon: <FaMicrophone />, key: 'listening', visible: true },
@@ -62,9 +149,24 @@ const menuConfig = (role: string) => [
     key: 'teachers',
     visible: role === 'staff' || role === 'teacher' || role === 'admin',
     children: [
-      { label: 'Create', icon: <FaUserTie />, key: 'teacher-create', visible: role === 'staff' || role === 'teacher' || role === 'admin' },
-      { label: 'Edit', icon: <FaUserShield />, key: 'teacher-edit', visible: role === 'staff' || role === 'teacher' || role === 'admin' },
-      { label: 'Assign', icon: <FaUserFriends />, key: 'teacher-assign', visible: role === 'staff' || role === 'teacher' || role === 'admin' },
+      {
+        label: 'Create',
+        icon: <FaUserTie />,
+        key: 'teacher-create',
+        visible: role === 'staff' || role === 'teacher' || role === 'admin',
+      },
+      {
+        label: 'Edit',
+        icon: <FaUserShield />,
+        key: 'teacher-edit',
+        visible: role === 'staff' || role === 'teacher' || role === 'admin',
+      },
+      {
+        label: 'Assign',
+        icon: <FaUserFriends />,
+        key: 'teacher-assign',
+        visible: role === 'staff' || role === 'teacher' || role === 'admin',
+      },
     ],
   },
   {
@@ -139,22 +241,44 @@ const menuConfig = (role: string) => [
   },
 ];
 
-const Sidebar = ({ role, activeKey, onNavigate, onLogout, user, className }: { role: string, activeKey: string, onNavigate: (key: string) => void, onLogout?: () => void, user?: { name: string, avatarSeed?: string, avatarUrl?: string, diceBearSeed?: string, diceBearStyle?: string }, className?: string }) => {
+const Sidebar = ({
+  role,
+  activeKey,
+  onNavigate,
+  onLogout,
+  user,
+  className,
+}: {
+  role: string;
+  activeKey: string;
+  onNavigate: (key: string) => void;
+  onLogout?: () => void;
+  user?: {
+    name: string;
+    avatarSeed?: string;
+    avatarUrl?: string;
+    diceBearSeed?: string;
+    diceBearStyle?: string;
+  };
+  className?: string;
+}) => {
   const menu = menuConfig(role);
   // By default, open the section containing the activeKey
   const getDefaultOpen = () => {
     for (const item of menu) {
-      if (item.children && item.children.some(child => child.key === activeKey)) {
+      if (item.children?.some((child) => child.key === activeKey)) {
         return item.key;
       }
     }
     return null;
   };
-  const [openSubmenus, setOpenSubmenus] = useState<Set<string>>(new Set([getDefaultOpen()].filter(Boolean) as string[]));
+  const [openSubmenus, setOpenSubmenus] = useState<Set<string>>(
+    new Set([getDefaultOpen()].filter(Boolean) as string[])
+  );
 
   const handleMenuClick = (itemKey: string, hasChildren: boolean) => {
     if (hasChildren) {
-      setOpenSubmenus(prev => {
+      setOpenSubmenus((prev) => {
         const newSet = new Set(prev);
         if (newSet.has(itemKey)) {
           newSet.delete(itemKey);
@@ -171,32 +295,39 @@ const Sidebar = ({ role, activeKey, onNavigate, onLogout, user, className }: { r
   };
 
   return (
-    <aside className={`sidebar${className ? ' ' + className : ''}`}>
+    <aside className={`sidebar${className ? ` ${className}` : ''}`}>
       {/* Logo section */}
-      <div className="sidebar-logo">
-        {/* You can place your logo image or text here */}
-      </div>
+      <div className="sidebar-logo">{/* You can place your logo image or text here */}</div>
       {/* User profile section */}
       <div className="sidebar-profile">
         <div className="sidebar-profile-avatar">
           {user?.avatarUrl ? (
             <img src={user.avatarUrl} alt="User Avatar" className="sidebar-profile-img" />
           ) : (
-            <DiceBearAvatar seed={user?.diceBearSeed || user?.name || 'User'} size={56} style={user?.diceBearStyle || "avataaars"} />
+            <DiceBearAvatar
+              seed={user?.diceBearSeed || user?.name || 'User'}
+              size={56}
+              style={user?.diceBearStyle || 'avataaars'}
+            />
           )}
         </div>
         <div className="sidebar-profile-name">{user?.name || 'User'}</div>
         <div className="sidebar-profile-role">
-          {role === 'admin' ? 'Administrator' : 
-           role === 'teacher' ? 'Teacher' : 
-           role === 'staff' ? 'Staff' : 
-           role === 'student' ? 'Student' : role}
+          {role === 'admin'
+            ? 'Administrator'
+            : role === 'teacher'
+              ? 'Teacher'
+              : role === 'staff'
+                ? 'Staff'
+                : role === 'student'
+                  ? 'Student'
+                  : role}
         </div>
       </div>
       {/* Main menu */}
       <div className="sidebar-menu">
-        {menu.map(item => {
-          const hasChildren = !!item.children && item.children.some(child => child.visible);
+        {menu.map((item) => {
+          const hasChildren = !!item.children && item.children.some((child) => child.visible);
           const isOpen = openSubmenus.has(item.key);
           if (!item.visible) return null;
           return (
@@ -212,36 +343,50 @@ const Sidebar = ({ role, activeKey, onNavigate, onLogout, user, className }: { r
               </button>
               {hasChildren && isOpen && (
                 <div className="sidebar-submenu">
-                  {item.children.filter(child => child.visible).map(child => {
-                    const hasGrandChildren = !!child.children && child.children.some(grandChild => grandChild.visible);
-                    const isChildOpen = openSubmenus.has(child.key);
-                    return (
-                      <div key={child.key}>
-                        <button
-                          className={`sidebar-submenu-btn${activeKey === child.key ? ' active' : ''}`}
-                          onClick={() => hasGrandChildren ? handleMenuClick(child.key, true) : onNavigate(child.key)}
-                        >
-                          <span className="sidebar-menu-icon">{child.icon}</span> {child.label}
-                          {hasGrandChildren && (
-                            <span className={`sidebar-submenu-arrow${isChildOpen ? ' open' : ''}`}>▶</span>
-                          )}
-                        </button>
-                        {hasGrandChildren && isChildOpen && (
-                          <div className="sidebar-submenu">
-                            {child.children.filter(grandChild => grandChild.visible).map(grandChild => (
-                              <button
-                                key={grandChild.key}
-                                className={`sidebar-submenu-btn${activeKey === grandChild.key ? ' active' : ''}`}
-                                onClick={() => onNavigate(grandChild.key)}
+                  {item.children
+                    .filter((child) => child.visible)
+                    .map((child) => {
+                      const hasGrandChildren =
+                        !!child.children && child.children.some((grandChild) => grandChild.visible);
+                      const isChildOpen = openSubmenus.has(child.key);
+                      return (
+                        <div key={child.key}>
+                          <button
+                            className={`sidebar-submenu-btn${activeKey === child.key ? ' active' : ''}`}
+                            onClick={() =>
+                              hasGrandChildren
+                                ? handleMenuClick(child.key, true)
+                                : onNavigate(child.key)
+                            }
+                          >
+                            <span className="sidebar-menu-icon">{child.icon}</span> {child.label}
+                            {hasGrandChildren && (
+                              <span
+                                className={`sidebar-submenu-arrow${isChildOpen ? ' open' : ''}`}
                               >
-                                <span className="sidebar-menu-icon">{grandChild.icon}</span> {grandChild.label}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
+                                ▶
+                              </span>
+                            )}
+                          </button>
+                          {hasGrandChildren && isChildOpen && (
+                            <div className="sidebar-submenu">
+                              {child.children
+                                .filter((grandChild) => grandChild.visible)
+                                .map((grandChild) => (
+                                  <button
+                                    key={grandChild.key}
+                                    className={`sidebar-submenu-btn${activeKey === grandChild.key ? ' active' : ''}`}
+                                    onClick={() => onNavigate(grandChild.key)}
+                                  >
+                                    <span className="sidebar-menu-icon">{grandChild.icon}</span>{' '}
+                                    {grandChild.label}
+                                  </button>
+                                ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                 </div>
               )}
             </div>
@@ -257,4 +402,4 @@ const Sidebar = ({ role, activeKey, onNavigate, onLogout, user, className }: { r
 };
 
 export default Sidebar;
-// [NOTE] Sidebar updated: vivid profile, icons, and color, 2024-06-XX 
+// [NOTE] Sidebar updated: vivid profile, icons, and color, 2024-06-XX

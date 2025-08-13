@@ -6,8 +6,8 @@
 // - onSelectSubmission: (submission: Submission, student: Student) => void
 // - loading?: boolean
 // - error?: string | null
-import React from 'react';
-import type { Assignment, Submission, Student } from './types';
+import type React from 'react';
+import type { Assignment, Student, Submission } from './types';
 
 interface SubmissionListPanelProps {
   assignment: Assignment;
@@ -18,9 +18,16 @@ interface SubmissionListPanelProps {
   error?: string | null;
 }
 
-const SubmissionListPanel: React.FC<SubmissionListPanelProps> = ({ assignment, submissions, students, onSelectSubmission, loading, error }) => {
-  const getStudent = (id: string) => students.find(s => s.id === id);
-  const filtered = submissions.filter(s => s.assignmentId === assignment.id);
+const SubmissionListPanel: React.FC<SubmissionListPanelProps> = ({
+  assignment,
+  submissions,
+  students,
+  onSelectSubmission,
+  loading,
+  error,
+}) => {
+  const getStudent = (id: string) => students.find((s) => s.id === id);
+  const filtered = submissions.filter((s) => s.assignmentId === assignment.id);
 
   if (loading) return <div className="p-8 text-center text-lg">Loading submissions...</div>;
   if (error) return <div className="p-8 text-center text-red-600 font-semibold">{error}</div>;
@@ -39,16 +46,31 @@ const SubmissionListPanel: React.FC<SubmissionListPanelProps> = ({ assignment, s
             </tr>
           </thead>
           <tbody>
-            {filtered.length === 0 && <tr><td colSpan={4} className="text-center text-slate-400">No submissions yet.</td></tr>}
-            {filtered.map(s => {
+            {filtered.length === 0 && (
+              <tr>
+                <td colSpan={4} className="text-center text-slate-400">
+                  No submissions yet.
+                </td>
+              </tr>
+            )}
+            {filtered.map((s) => {
               const student = getStudent(s.studentId);
               return (
                 <tr key={s.id}>
                   <td className="p-2">{student ? student.name : s.studentId}</td>
-                  <td className="p-2">{s.submittedAt ? new Date(s.submittedAt).toLocaleString() : '-'}</td>
-                  <td className="p-2">{s.score !== null && s.score !== undefined ? s.score : '-'}</td>
                   <td className="p-2">
-                    <button onClick={() => onSelectSubmission(s, student!)} className="px-3 py-1 bg-green-600 text-white rounded">Grade</button>
+                    {s.submittedAt ? new Date(s.submittedAt).toLocaleString() : '-'}
+                  </td>
+                  <td className="p-2">
+                    {s.score !== null && s.score !== undefined ? s.score : '-'}
+                  </td>
+                  <td className="p-2">
+                    <button
+                      onClick={() => onSelectSubmission(s, student!)}
+                      className="px-3 py-1 bg-green-600 text-white rounded"
+                    >
+                      Grade
+                    </button>
                   </td>
                 </tr>
               );
@@ -60,4 +82,4 @@ const SubmissionListPanel: React.FC<SubmissionListPanelProps> = ({ assignment, s
   );
 };
 
-export default SubmissionListPanel; 
+export default SubmissionListPanel;

@@ -1,10 +1,10 @@
 // setVStorageEnv.cjs - Set VStorage environment variables via Firebase CLI
-const { execSync } = require('child_process');
-const readline = require('readline');
+const { execSync } = require('node:child_process');
+const readline = require('node:readline');
 
 const rl = readline.createInterface({
   input: process.stdin,
-  output: process.stdout
+  output: process.stdout,
 });
 
 console.log('🔐 Setting VStorage Environment Variables');
@@ -24,28 +24,28 @@ function askQuestion(question) {
 async function setVStorageEnvironment() {
   try {
     console.log('🚀 Step 1: Setting VStorage credentials...\n');
-    
+
     // Get credentials from user
     const accessKey = await askQuestion('Enter your VStorage Access Key: ');
     const secretKey = await askQuestion('Enter your VStorage Secret Key: ');
-    
+
     if (!accessKey || !secretKey) {
       console.log('❌ Access key and secret key are required');
       rl.close();
       return;
     }
-    
+
     console.log('\n📦 Setting environment variables...');
-    
+
     // Set environment variables using Firebase CLI
     const commands = [
       `firebase functions:config:set vstorage.access_key="${accessKey}"`,
       `firebase functions:config:set vstorage.secret_key="${secretKey}"`,
       `firebase functions:config:set vstorage.bucket="skillup"`,
       `firebase functions:config:set vstorage.endpoint="https://s3.vngcloud.vn"`,
-      `firebase functions:config:set vstorage.region="sgn"`
+      `firebase functions:config:set vstorage.region="sgn"`,
     ];
-    
+
     for (const command of commands) {
       console.log(`\n🚀 Running: ${command}`);
       try {
@@ -55,13 +55,12 @@ async function setVStorageEnvironment() {
         console.log('❌ Failed:', error.message);
       }
     }
-    
+
     console.log('\n🎉 Environment variables set successfully!');
     console.log('\n📋 Next steps:');
     console.log('1. Deploy the updated functions: npm run firebase:deploy');
     console.log('2. Test the configuration: npm run test:vstorage');
     console.log('3. Run data migration: npm run migrate:firestore');
-    
   } catch (error) {
     console.log('❌ Error:', error.message);
   } finally {
@@ -74,4 +73,4 @@ if (require.main === module) {
   setVStorageEnvironment();
 }
 
-module.exports = { setVStorageEnvironment }; 
+module.exports = { setVStorageEnvironment };

@@ -1,8 +1,7 @@
 // ClassesPanel.tsx
 // Professional panel to show and manage classes with code names (SU-001, SU-002, ...)
-import { useState, useEffect } from 'react';
-import type { Student, StudentClass } from './types';
-import type { Level } from './types';
+import { useEffect, useState } from 'react';
+import type { Level, Student, StudentClass } from './types';
 import './ClassesPanel.css';
 import { safeTrim } from './utils/stringUtils';
 
@@ -33,10 +32,14 @@ interface ReportModal {
   className: string;
 }
 
-const ClassesPanel = ({ students, classes, onDataRefresh }: { 
-  students: Student[], 
-  classes: StudentClass[], 
-  onDataRefresh?: () => void
+const ClassesPanel = ({
+  students,
+  classes,
+  onDataRefresh,
+}: {
+  students: Student[];
+  classes: StudentClass[];
+  onDataRefresh?: () => void;
 }) => {
   const [adding, setAdding] = useState(false);
   const [levels, setLevels] = useState<Level[]>([]);
@@ -51,7 +54,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
     classId: null,
     className: '',
     levelName: '',
-    students: []
+    students: [],
   });
 
   // Class info editing modal state
@@ -60,7 +63,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
     classId: '',
     className: '',
     levelId: null,
-    description: ''
+    description: '',
   });
 
   // Report modal state
@@ -69,7 +72,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
     studentId: null,
     studentName: '',
     classId: '',
-    className: ''
+    className: '',
   });
 
   // Report form state
@@ -90,31 +93,31 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
     setLevelsLoading(true);
     try {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      
+
       if (!token) {
         console.error('No authentication token found');
         setLevels([]);
         setLevelsLoading(false);
         return;
       }
-      
+
       const headers = {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
       };
-      
+
       const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
-      const res = await fetch(`${apiUrl}/levels`, { 
+      const res = await fetch(`${apiUrl}/levels`, {
         credentials: 'include',
-        headers
+        headers,
       });
-      
+
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
-      
+
       const data = await res.json();
-      
+
       if (data.success && Array.isArray(data.levels)) {
         setLevels(data.levels);
       } else {
@@ -130,19 +133,23 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
 
   useEffect(() => {
     fetchLevels();
-  }, []);
+  }, [fetchLevels]);
 
   // Filter classes based on search and level filter
-  const filteredClasses = (classes && Array.isArray(classes) ? classes : []).filter(c => {
+  const filteredClasses = (classes && Array.isArray(classes) ? classes : []).filter((c) => {
     // Handle both populated levelId object and string levelId
     const levelId = c.levelId ? (typeof c.levelId === 'object' ? c.levelId._id : c.levelId) : null;
-    const levelName = c.levelId ? (typeof c.levelId === 'object' ? c.levelId.name : 
-                     levels.find(l => l._id === c.levelId)?.name || '') : 'N/A';
-    
-    const matchesSearch = c.name.toLowerCase().includes(classSearch.toLowerCase()) ||
+    const levelName = c.levelId
+      ? typeof c.levelId === 'object'
+        ? c.levelId.name
+        : levels.find((l) => l._id === c.levelId)?.name || ''
+      : 'N/A';
+
+    const matchesSearch =
+      c.name.toLowerCase().includes(classSearch.toLowerCase()) ||
       levelName.toLowerCase().includes(classSearch.toLowerCase());
     const matchesLevel = !levelFilter || levelId === levelFilter;
-    
+
     return matchesSearch && matchesLevel;
   });
 
@@ -151,7 +158,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
     console.log('handleClassClick called with classId:', classId);
     console.log('Current selectedClassId:', selectedClassId);
     // Toggle selection: if same class is clicked, deselect it; otherwise select the new one
-    setSelectedClassId(prevId => {
+    setSelectedClassId((prevId) => {
       const newId = prevId === classId ? null : classId;
       console.log('Setting selectedClassId to:', newId);
       return newId;
@@ -178,25 +185,25 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
     setAdding(true);
     try {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      
+
       const requestBody = { levelId: newClassLevelId };
-      
-            const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
-      const res = await fetch(`${apiUrl}/classes`, { 
+
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+      const res = await fetch(`${apiUrl}/classes`, {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(requestBody),
       });
-      
+
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
-      
+
       const data = await res.json();
-      
+
       if (data.success) {
         setNewClassLevelId('');
         onDataRefresh?.();
@@ -213,13 +220,16 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
 
   // Open class edit modal
   const handleEditClass = (classId: string) => {
-    const classObj = classes.find(c => (c._id || c.id) === classId);
+    const classObj = classes.find((c) => (c._id || c.id) === classId);
     if (!classObj) return;
 
     // Handle both populated levelId object and string levelId
-    const levelName = classObj.levelId ? (typeof classObj.levelId === 'object' ? classObj.levelId.name : 
-                     levels.find(l => l._id === classObj.levelId)?.name || 'N/A') : 'N/A';
-    const classStudents = students.filter(s => (s.classIds || []).includes(classId));
+    const levelName = classObj.levelId
+      ? typeof classObj.levelId === 'object'
+        ? classObj.levelId.name
+        : levels.find((l) => l._id === classObj.levelId)?.name || 'N/A'
+      : 'N/A';
+    const classStudents = students.filter((s) => (s.classIds || []).includes(classId));
     const displayName = classObj.classCode || classObj.name || 'Unnamed Class';
 
     setClassEditModal({
@@ -227,7 +237,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
       classId,
       className: displayName,
       levelName,
-      students: classStudents
+      students: classStudents,
     });
     setSelectedStudentIds([]);
   };
@@ -239,23 +249,21 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
       classId: null,
       className: '',
       levelName: '',
-      students: []
+      students: [],
     });
     setSelectedStudentIds([]);
   };
 
   // Toggle student selection for bulk actions
   const toggleStudentSelection = (studentId: string) => {
-    setSelectedStudentIds(prev => 
-      prev.includes(studentId) 
-        ? prev.filter(id => id !== studentId)
-        : [...prev, studentId]
+    setSelectedStudentIds((prev) =>
+      prev.includes(studentId) ? prev.filter((id) => id !== studentId) : [...prev, studentId]
     );
   };
 
   // Select all students
   const selectAllStudents = () => {
-    setSelectedStudentIds(classEditModal.students.map(s => s.id));
+    setSelectedStudentIds(classEditModal.students.map((s) => s.id));
   };
 
   // Clear all selections
@@ -277,13 +285,13 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
       for (const studentId of selectedStudentIds) {
         const res = await fetch(`${apiUrl}/classes/${targetClassId}/students`, {
           method: 'POST',
-          headers: { 
+          headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ studentId }),
         });
-        
+
         if (!res.ok) {
           throw new Error(`Failed to assign student ${studentId}`);
         }
@@ -305,7 +313,12 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
       return;
     }
 
-    if (!window.confirm(`Are you sure you want to remove ${selectedStudentIds.length} students to the waiting list?`)) return;
+    if (
+      !window.confirm(
+        `Are you sure you want to remove ${selectedStudentIds.length} students to the waiting list?`
+      )
+    )
+      return;
 
     try {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
@@ -313,13 +326,16 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
 
       for (const studentId of selectedStudentIds) {
         // Remove from current class
-        const removeRes = await fetch(`${apiUrl}/classes/${classEditModal.classId}/students/${studentId}`, {
-          method: 'DELETE',
-          headers: { 
-            'Authorization': `Bearer ${token}`
+        const removeRes = await fetch(
+          `${apiUrl}/classes/${classEditModal.classId}/students/${studentId}`,
+          {
+            method: 'DELETE',
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           }
-        });
-        
+        );
+
         if (!removeRes.ok) {
           throw new Error(`Failed to remove student ${studentId}`);
         }
@@ -327,13 +343,13 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
         // Update student status to "studying" (waiting list)
         const updateRes = await fetch(`${apiUrl}/users/${studentId}`, {
           method: 'PUT',
-          headers: { 
+          headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ status: 'studying' }),
         });
-        
+
         if (!updateRes.ok) {
           throw new Error(`Failed to update student ${studentId} status`);
         }
@@ -351,13 +367,13 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
   // Report a student
   const handleReportStudent = (studentId: string, studentName: string) => {
     if (!classEditModal.classId) return;
-    
+
     setReportModal({
       isOpen: true,
       studentId,
       studentName,
       classId: classEditModal.classId,
-      className: classEditModal.className
+      className: classEditModal.className,
     });
     setReportProblem('');
   };
@@ -369,7 +385,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
       studentId: null,
       studentName: '',
       classId: '',
-      className: ''
+      className: '',
     });
     setReportProblem('');
   };
@@ -389,19 +405,19 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
     setReportSending(true);
     try {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-            const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
-      
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+
       const res = await fetch(`${apiUrl}/student-records`, {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           studentId: reportModal.studentId,
           classId: reportModal.classId,
           problem: reportProblem,
-          type: 'report'
+          type: 'report',
         }),
       });
 
@@ -427,7 +443,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
       classId: '',
       className: '',
       levelId: null,
-      description: ''
+      description: '',
     });
   };
 
@@ -437,9 +453,9 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
 
     const confirmUpdate = window.confirm(
       `Are you sure you want to update the level for class "${classInfoEditModal.className}"?\n\n` +
-      `• New Level: ${levels.find(l => l._id === classInfoEditModal.levelId)?.name || 'Not specified'}\n` +
-      `• Description: ${classInfoEditModal.description || 'None'}\n\n` +
-      `Proceed with update?`
+        `• New Level: ${levels.find((l) => l._id === classInfoEditModal.levelId)?.name || 'Not specified'}\n` +
+        `• Description: ${classInfoEditModal.description || 'None'}\n\n` +
+        `Proceed with update?`
     );
 
     if (!confirmUpdate) return;
@@ -449,14 +465,14 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
       const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
       const res = await fetch(`${apiUrl}/classes/${classInfoEditModal.classId}`, {
         method: 'PUT',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           // Do not allow changing class code/name
           levelId: classInfoEditModal.levelId || null,
-          description: classInfoEditModal.description
+          description: classInfoEditModal.description,
         }),
       });
       if (!res.ok) {
@@ -474,20 +490,23 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
 
   // Delete class
   const handleDeleteClass = async (classId: string) => {
-    const classObj = classes.find(c => (c._id || c.id) === classId);
+    const classObj = classes.find((c) => (c._id || c.id) === classId);
     if (!classObj) return;
 
     const displayName = classObj.classCode || classObj.name || 'this class';
-    const levelName = classObj.levelId ? (typeof classObj.levelId === 'object' ? classObj.levelId.name : 
-                     levels.find(l => l._id === classObj.levelId)?.name || 'N/A') : 'N/A';
-    
+    const levelName = classObj.levelId
+      ? typeof classObj.levelId === 'object'
+        ? classObj.levelId.name
+        : levels.find((l) => l._id === classObj.levelId)?.name || 'N/A'
+      : 'N/A';
+
     const confirmDelete = window.confirm(
       `Are you sure you want to delete class "${displayName}" (Level: ${levelName})?\n\n` +
-      `⚠️  WARNING: This action cannot be undone!\n` +
-      `• All students will be removed from this class\n` +
-      `• Class assignments will be lost\n` +
-      `• This will affect student progress tracking\n\n` +
-      `Type "DELETE" to confirm:`
+        `⚠️  WARNING: This action cannot be undone!\n` +
+        `• All students will be removed from this class\n` +
+        `• Class assignments will be lost\n` +
+        `• This will affect student progress tracking\n\n` +
+        `Type "DELETE" to confirm:`
     );
 
     if (!confirmDelete) return;
@@ -502,18 +521,18 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
     try {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
       const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
-      
+
       const res = await fetch(`${apiUrl}/classes/${classId}`, {
         method: 'DELETE',
-        headers: { 
-          'Authorization': `Bearer ${token}`
-        }
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
-      
+
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
-      
+
       alert(`✅ Class "${displayName}" has been successfully deleted.`);
       onDataRefresh?.();
       // Clear selection after deletion
@@ -539,7 +558,12 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
 
     document.addEventListener('keydown', handleEscKey);
     return () => document.removeEventListener('keydown', handleEscKey);
-  }, [classEditModal.isOpen, reportModal.isOpen]);
+  }, [
+    classEditModal.isOpen,
+    reportModal.isOpen,
+    handleCloseClassEditModal,
+    handleCloseReportModal,
+  ]);
 
   return (
     <div className="classes-panel">
@@ -547,7 +571,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
         <h2 className="classes-title">Classes Management</h2>
         <p className="classes-subtitle">Manage all classes and student assignments</p>
       </div>
-      
+
       <div className="classes-search">
         <div className="search-controls">
           <div className="search-bar-container">
@@ -556,8 +580,8 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
               className="search-bar-input"
               placeholder="Search classes..."
               value={classSearch}
-              onChange={e => setClassSearch(e.target.value)}
-              onKeyPress={e => {
+              onChange={(e) => setClassSearch(e.target.value)}
+              onKeyPress={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
                   // Search is already live, just focus the input
@@ -567,33 +591,43 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
             />
             <button className="search-bar-button">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
               </svg>
             </button>
           </div>
-          <select 
+          <select
             className="status-filter-select"
-            value={levelFilter} 
-            onChange={e => setLevelFilter(e.target.value)}
+            value={levelFilter}
+            onChange={(e) => setLevelFilter(e.target.value)}
           >
             <option value="">All Levels</option>
-            {levels && Array.isArray(levels) && levels.map(level => (
-              <option key={level._id} value={level._id}>{level.name}</option>
-            ))}
+            {levels &&
+              Array.isArray(levels) &&
+              levels.map((level) => (
+                <option key={level._id} value={level._id}>
+                  {level.name}
+                </option>
+              ))}
           </select>
         </div>
       </div>
-      
+
       <div className="classes-info">
-        Showing {filteredClasses.length} of {(classes && Array.isArray(classes) ? classes.length : 0)} classes
+        Showing {filteredClasses.length} of {classes && Array.isArray(classes) ? classes.length : 0}{' '}
+        classes
         {(classSearch || levelFilter) && (
           <span className="filter-info">
             {classSearch && ` matching "${classSearch}"`}
-            {levelFilter && ` in ${levels.find(l => l._id === levelFilter)?.name}`}
+            {levelFilter && ` in ${levels.find((l) => l._id === levelFilter)?.name}`}
           </span>
         )}
       </div>
-      
+
       <div className="classes-table-container">
         <table className="classes-table">
           <thead>
@@ -612,38 +646,40 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                     <div className="empty-icon">📚</div>
                     <p>No classes found.</p>
                     <p className="empty-subtitle">
-                      {(!classes || !Array.isArray(classes) || classes.length === 0)
-                        ? "Create your first class by selecting a level below."
-                        : "No classes match your current search criteria."
-                      }
+                      {!classes || !Array.isArray(classes) || classes.length === 0
+                        ? 'Create your first class by selecting a level below.'
+                        : 'No classes match your current search criteria.'}
                     </p>
                   </div>
                 </td>
               </tr>
             )}
-            {filteredClasses.map(cls => {
+            {filteredClasses.map((cls) => {
               // Use classCode as the display name, fallback to name
               const displayName = cls.classCode || cls.name || 'Unnamed Class';
               const classId = cls._id || cls.id;
-              
+
               // Skip rendering if classId is undefined
               if (!classId) {
                 console.warn('Class without ID found:', cls);
                 return null;
               }
-              
+
               // TypeScript now knows classId is a string
               const safeClassId: string = classId;
               // Handle both populated levelId object and string levelId
-              const levelName = cls.levelId ? (typeof cls.levelId === 'object' ? cls.levelId.name : 
-                               levels.find(l => l._id === cls.levelId)?.name || 'N/A') : 'N/A';
+              const levelName = cls.levelId
+                ? typeof cls.levelId === 'object'
+                  ? cls.levelId.name
+                  : levels.find((l) => l._id === cls.levelId)?.name || 'N/A'
+                : 'N/A';
               const studentCount = cls.studentIds?.length || 0;
               const isSelected = selectedClassId === safeClassId;
-              
+
               return (
-                <tr 
-                  key={safeClassId} 
-                  onClick={() => handleClassClick(safeClassId)} 
+                <tr
+                  key={safeClassId}
+                  onClick={() => handleClassClick(safeClassId)}
                   onKeyDown={(e) => handleKeyDown(e, safeClassId)}
                   className={`clickable-row ${isSelected ? 'selected-row' : ''}`}
                   title="Click this row to reveal actions"
@@ -655,38 +691,38 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                     <div className="class-name">{displayName}</div>
                   </td>
                   <td className="level-cell">
-                    <span className="level-badge">
-                      {levelName}
-                    </span>
+                    <span className="level-badge">{levelName}</span>
                   </td>
-                  <td className="students-cell">
-                    {studentCount} students
-                  </td>
-                  <td style={{
-                    width: '200px',
-                    minWidth: '200px',
-                    maxWidth: '200px',
-                    verticalAlign: 'middle',
-                    textAlign: 'center',
-                    padding: '8px',
-                    position: 'relative',
-                    overflow: 'visible'
-                  }}>
-                    <div style={{
-                      display: 'flex',
-                      gap: '8px',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      flexWrap: 'wrap',
-                      width: '100%',
-                      minHeight: '40px',
-                      padding: '4px',
-                      opacity: isSelected ? 1 : 0.3,
-                      transform: isSelected ? 'scale(1)' : 'scale(0.9)',
-                      filter: isSelected ? 'grayscale(0%)' : 'grayscale(50%)',
-                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-                    }}>
-                        <button 
+                  <td className="students-cell">{studentCount} students</td>
+                  <td
+                    style={{
+                      width: '200px',
+                      minWidth: '200px',
+                      maxWidth: '200px',
+                      verticalAlign: 'middle',
+                      textAlign: 'center',
+                      padding: '8px',
+                      position: 'relative',
+                      overflow: 'visible',
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: 'flex',
+                        gap: '8px',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                        width: '100%',
+                        minHeight: '40px',
+                        padding: '4px',
+                        opacity: isSelected ? 1 : 0.3,
+                        transform: isSelected ? 'scale(1)' : 'scale(0.9)',
+                        filter: isSelected ? 'grayscale(0%)' : 'grayscale(50%)',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      }}
+                    >
+                      <button
                         style={{
                           padding: '8px 16px',
                           border: '2px solid rgba(255, 255, 255, 0.3)',
@@ -703,29 +739,33 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                           outline: 'none',
                           boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
                           display: 'inline-block',
-                          background: 'linear-gradient(135deg, #00c853 0%, #4caf50 50%, #66bb6a 100%)',
+                          background:
+                            'linear-gradient(135deg, #00c853 0%, #4caf50 50%, #66bb6a 100%)',
                           color: 'white',
-                          textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)'
+                          textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
                         }}
-                          onClick={(e) => { 
-                            e.stopPropagation(); 
-                            handleEditClass(safeClassId); 
-                          }}
-                          title="Show class details"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEditClass(safeClassId);
+                        }}
+                        title="Show class details"
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.background = 'linear-gradient(135deg, #4caf50 0%, #66bb6a 50%, #00c853 100%)';
-                          e.currentTarget.style.boxShadow = '0 8px 25px rgba(76, 175, 80, 0.4), 0 0 0 3px rgba(76, 175, 80, 0.2)';
+                          e.currentTarget.style.background =
+                            'linear-gradient(135deg, #4caf50 0%, #66bb6a 50%, #00c853 100%)';
+                          e.currentTarget.style.boxShadow =
+                            '0 8px 25px rgba(76, 175, 80, 0.4), 0 0 0 3px rgba(76, 175, 80, 0.2)';
                           e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'linear-gradient(135deg, #00c853 0%, #4caf50 50%, #66bb6a 100%)';
+                          e.currentTarget.style.background =
+                            'linear-gradient(135deg, #00c853 0%, #4caf50 50%, #66bb6a 100%)';
                           e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
                           e.currentTarget.style.transform = 'translateY(0) scale(1)';
                         }}
-                        >
-                          Show
-                        </button>
-                        <button 
+                      >
+                        Show
+                      </button>
+                      <button
                         style={{
                           padding: '8px 16px',
                           border: '2px solid rgba(255, 255, 255, 0.3)',
@@ -742,38 +782,45 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                           outline: 'none',
                           boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
                           display: 'inline-block',
-                          background: 'linear-gradient(135deg, #2196f3 0%, #42a5f5 50%, #64b5f6 100%)',
+                          background:
+                            'linear-gradient(135deg, #2196f3 0%, #42a5f5 50%, #64b5f6 100%)',
                           color: 'white',
-                          textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)'
+                          textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
                         }}
-                          onClick={(e) => { 
-                            e.stopPropagation(); 
-                            const cls = classes.find(c => (c._id || c.id) === safeClassId);
-                            if (!cls) return;
-                            const displayNameLocal = cls.classCode || cls.name || 'Unnamed Class';
-                            setClassInfoEditModal({
-                              isOpen: true,
-                              classId: safeClassId,
-                              className: displayNameLocal,
-                              levelId: (typeof cls.levelId === 'object' ? (cls.levelId?._id || null) : (cls.levelId || null)),
-                              description: cls.description || ''
-                            });
-                          }}
-                          title="Edit Level"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const cls = classes.find((c) => (c._id || c.id) === safeClassId);
+                          if (!cls) return;
+                          const displayNameLocal = cls.classCode || cls.name || 'Unnamed Class';
+                          setClassInfoEditModal({
+                            isOpen: true,
+                            classId: safeClassId,
+                            className: displayNameLocal,
+                            levelId:
+                              typeof cls.levelId === 'object'
+                                ? cls.levelId?._id || null
+                                : cls.levelId || null,
+                            description: cls.description || '',
+                          });
+                        }}
+                        title="Edit Level"
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.background = 'linear-gradient(135deg, #42a5f5 0%, #64b5f6 50%, #2196f3 100%)';
-                          e.currentTarget.style.boxShadow = '0 8px 25px rgba(33, 150, 243, 0.4), 0 0 0 3px rgba(33, 150, 243, 0.2)';
+                          e.currentTarget.style.background =
+                            'linear-gradient(135deg, #42a5f5 0%, #64b5f6 50%, #2196f3 100%)';
+                          e.currentTarget.style.boxShadow =
+                            '0 8px 25px rgba(33, 150, 243, 0.4), 0 0 0 3px rgba(33, 150, 243, 0.2)';
                           e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'linear-gradient(135deg, #2196f3 0%, #42a5f5 50%, #64b5f6 100%)';
+                          e.currentTarget.style.background =
+                            'linear-gradient(135deg, #2196f3 0%, #42a5f5 50%, #64b5f6 100%)';
                           e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
                           e.currentTarget.style.transform = 'translateY(0) scale(1)';
                         }}
-                        >
-                          Edit
-                        </button>
-                        <button 
+                      >
+                        Edit
+                      </button>
+                      <button
                         style={{
                           padding: '8px 16px',
                           border: '2px solid rgba(255, 255, 255, 0.3)',
@@ -790,28 +837,32 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                           outline: 'none',
                           boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
                           display: 'inline-block',
-                          background: 'linear-gradient(135deg, #f44336 0%, #ef5350 50%, #e57373 100%)',
+                          background:
+                            'linear-gradient(135deg, #f44336 0%, #ef5350 50%, #e57373 100%)',
                           color: 'white',
-                          textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)'
+                          textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
                         }}
-                          onClick={(e) => { 
-                            e.stopPropagation(); 
-                            handleDeleteClass(safeClassId); 
-                          }}
-                          title="Delete Class"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteClass(safeClassId);
+                        }}
+                        title="Delete Class"
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.background = 'linear-gradient(135deg, #ef5350 0%, #e57373 50%, #f44336 100%)';
-                          e.currentTarget.style.boxShadow = '0 8px 25px rgba(244, 67, 54, 0.4), 0 0 0 3px rgba(244, 67, 54, 0.2)';
+                          e.currentTarget.style.background =
+                            'linear-gradient(135deg, #ef5350 0%, #e57373 50%, #f44336 100%)';
+                          e.currentTarget.style.boxShadow =
+                            '0 8px 25px rgba(244, 67, 54, 0.4), 0 0 0 3px rgba(244, 67, 54, 0.2)';
                           e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'linear-gradient(135deg, #f44336 0%, #ef5350 50%, #e57373 100%)';
+                          e.currentTarget.style.background =
+                            'linear-gradient(135deg, #f44336 0%, #ef5350 50%, #e57373 100%)';
                           e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
                           e.currentTarget.style.transform = 'translateY(0) scale(1)';
                         }}
-                        >
-                          Delete
-                        </button>
+                      >
+                        Delete
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -831,19 +882,21 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
             </div>
           ) : levels && Array.isArray(levels) && levels.length > 0 ? (
             <>
-              <select 
-                value={newClassLevelId} 
-                onChange={e => setNewClassLevelId(e.target.value)}
+              <select
+                value={newClassLevelId}
+                onChange={(e) => setNewClassLevelId(e.target.value)}
                 className="level-select"
               >
                 <option value="">Select Level</option>
-                {levels.map(level => (
-                  <option key={level._id} value={level._id}>{level.name}</option>
+                {levels.map((level) => (
+                  <option key={level._id} value={level._id}>
+                    {level.name}
+                  </option>
                 ))}
               </select>
-              <button 
-                onClick={handleAddClass} 
-                disabled={adding || !newClassLevelId} 
+              <button
+                onClick={handleAddClass}
+                disabled={adding || !newClassLevelId}
                 className="add-class-btn"
               >
                 {adding ? 'Creating...' : 'Create a new class'}
@@ -852,8 +905,8 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
           ) : (
             <div className="no-levels-message">
               <p>No levels available. Please create levels first in the Levels tab.</p>
-              <button 
-                onClick={() => window.location.hash = '#levels'}
+              <button
+                onClick={() => (window.location.hash = '#levels')}
                 className="go-to-levels-btn"
               >
                 Go to Levels
@@ -868,30 +921,28 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
         <div className="class-edit-modal">
           <div className="modal-content">
             <div className="modal-header">
-              <h3 className="modal-title">CLASS: {classEditModal.className} / LEVEL: {classEditModal.levelName}</h3>
-              <button className="close-btn" onClick={handleCloseClassEditModal}>×</button>
+              <h3 className="modal-title">
+                CLASS: {classEditModal.className} / LEVEL: {classEditModal.levelName}
+              </h3>
+              <button className="close-btn" onClick={handleCloseClassEditModal}>
+                ×
+              </button>
             </div>
-            
+
             <div className="modal-body">
               <div className="students-section">
                 <div className="section-header">
                   <h4>List of Students ({classEditModal.students.length})</h4>
                   <div className="bulk-actions">
-                    <button 
-                      className="bulk-btn select-all-btn"
-                      onClick={selectAllStudents}
-                    >
+                    <button className="bulk-btn select-all-btn" onClick={selectAllStudents}>
                       Select All
                     </button>
-                    <button 
-                      className="bulk-btn clear-all-btn"
-                      onClick={clearAllSelections}
-                    >
+                    <button className="bulk-btn clear-all-btn" onClick={clearAllSelections}>
                       Clear All
                     </button>
                   </div>
                 </div>
-                
+
                 {classEditModal.students.length === 0 ? (
                   <p className="no-students">No students assigned to this class.</p>
                 ) : (
@@ -902,8 +953,15 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                           <th className="checkbox-header">
                             <input
                               type="checkbox"
-                              checked={selectedStudentIds.length === classEditModal.students.length && classEditModal.students.length > 0}
-                              onChange={selectedStudentIds.length === classEditModal.students.length ? clearAllSelections : selectAllStudents}
+                              checked={
+                                selectedStudentIds.length === classEditModal.students.length &&
+                                classEditModal.students.length > 0
+                              }
+                              onChange={
+                                selectedStudentIds.length === classEditModal.students.length
+                                  ? clearAllSelections
+                                  : selectAllStudents
+                              }
                               className="select-all-checkbox"
                             />
                           </th>
@@ -916,7 +974,7 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                         </tr>
                       </thead>
                       <tbody>
-                        {classEditModal.students.map(student => (
+                        {classEditModal.students.map((student) => (
                           <tr key={student.id} className="student-row">
                             <td className="checkbox-cell">
                               <input
@@ -929,10 +987,12 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                             <td>{student.studentCode || student.id}</td>
                             <td>{student.name}</td>
                             <td>{student.englishName || 'N/A'}</td>
-                            <td>{student.dob ? new Date(student.dob).toLocaleDateString() : 'N/A'}</td>
+                            <td>
+                              {student.dob ? new Date(student.dob).toLocaleDateString() : 'N/A'}
+                            </td>
                             <td>{student.gender || 'N/A'}</td>
                             <td className="student-actions">
-                              <button 
+                              <button
                                 onClick={() => handleReportStudent(student.id, student.name)}
                                 className="action-btn report-btn"
                               >
@@ -946,16 +1006,16 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                   </div>
                 )}
               </div>
-              
+
               {selectedStudentIds.length > 0 && (
                 <div className="bulk-actions-section">
                   <h4>Bulk Actions for {selectedStudentIds.length} selected student(s):</h4>
                   <div className="bulk-actions-buttons">
                     <div className="bulk-action-group">
                       <label>Assign to another class:</label>
-                      <select 
+                      <select
                         className="target-class-select"
-                        onChange={e => {
+                        onChange={(e) => {
                           if (e.target.value) {
                             handleBulkAssign(e.target.value);
                             e.target.value = '';
@@ -963,24 +1023,26 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                         }}
                       >
                         <option value="">Select target class...</option>
-                        {classes && Array.isArray(classes) && classes
-                          .filter(c => c.id !== classEditModal.classId)
-                          .map(cls => {
-                            // Handle both populated levelId object and string levelId
-                            const levelName = cls.levelId ? (typeof cls.levelId === 'object' ? cls.levelId.name : 
-                                             levels.find(l => l._id === cls.levelId)?.name || 'N/A') : 'N/A';
-                            return (
-                              <option key={cls.id} value={cls.id}>
-                                {cls.name} ({levelName})
-                              </option>
-                            );
-                          })}
+                        {classes &&
+                          Array.isArray(classes) &&
+                          classes
+                            .filter((c) => c.id !== classEditModal.classId)
+                            .map((cls) => {
+                              // Handle both populated levelId object and string levelId
+                              const levelName = cls.levelId
+                                ? typeof cls.levelId === 'object'
+                                  ? cls.levelId.name
+                                  : levels.find((l) => l._id === cls.levelId)?.name || 'N/A'
+                                : 'N/A';
+                              return (
+                                <option key={cls.id} value={cls.id}>
+                                  {cls.name} ({levelName})
+                                </option>
+                              );
+                            })}
                       </select>
                     </div>
-                    <button 
-                      onClick={handleBulkRemove}
-                      className="bulk-btn remove-btn"
-                    >
+                    <button onClick={handleBulkRemove} className="bulk-btn remove-btn">
                       Remove to Waiting List
                     </button>
                   </div>
@@ -997,7 +1059,9 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
           <div className="modal-content">
             <div className="modal-header">
               <h3>Edit Class Level</h3>
-              <button className="close-btn" onClick={handleCloseClassInfoEditModal}>×</button>
+              <button className="close-btn" onClick={handleCloseClassInfoEditModal}>
+                ×
+              </button>
             </div>
             <div className="modal-body">
               <div className="form-group">
@@ -1016,12 +1080,16 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                 <select
                   id="class-level"
                   value={classInfoEditModal.levelId || ''}
-                  onChange={e => setClassInfoEditModal(prev => ({ ...prev, levelId: e.target.value || null }))}
+                  onChange={(e) =>
+                    setClassInfoEditModal((prev) => ({ ...prev, levelId: e.target.value || null }))
+                  }
                   className="form-select"
                 >
                   <option value="">Select Level</option>
-                  {levels.map(level => (
-                    <option key={level._id} value={level._id}>{level.name}</option>
+                  {levels.map((level) => (
+                    <option key={level._id} value={level._id}>
+                      {level.name}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -1030,23 +1098,19 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
                 <textarea
                   id="class-description"
                   value={classInfoEditModal.description}
-                  onChange={e => setClassInfoEditModal(prev => ({ ...prev, description: e.target.value }))}
+                  onChange={(e) =>
+                    setClassInfoEditModal((prev) => ({ ...prev, description: e.target.value }))
+                  }
                   className="form-textarea"
                   rows={3}
                   placeholder="Add any additional notes about this class..."
                 />
               </div>
               <div className="modal-actions">
-                <button 
-                  onClick={handleUpdateClassInfo}
-                  className="save-btn"
-                >
+                <button onClick={handleUpdateClassInfo} className="save-btn">
                   Update Class
                 </button>
-                <button 
-                  onClick={handleCloseClassInfoEditModal}
-                  className="cancel-btn"
-                >
+                <button onClick={handleCloseClassInfoEditModal} className="cancel-btn">
                   Cancel
                 </button>
               </div>
@@ -1061,39 +1125,42 @@ const ClassesPanel = ({ students, classes, onDataRefresh }: {
           <div className="report-modal-content">
             <div className="modal-header">
               <h3>Report Student: {reportModal.studentName}</h3>
-              <button className="close-btn" onClick={handleCloseReportModal}>×</button>
+              <button className="close-btn" onClick={handleCloseReportModal}>
+                ×
+              </button>
             </div>
-            
+
             <div className="modal-body">
               <div className="report-info">
-                <p><strong>Student:</strong> {reportModal.studentName}</p>
-                <p><strong>Class:</strong> {reportModal.className}</p>
+                <p>
+                  <strong>Student:</strong> {reportModal.studentName}
+                </p>
+                <p>
+                  <strong>Class:</strong> {reportModal.className}
+                </p>
               </div>
-            
+
               <div className="report-form">
                 <label htmlFor="problem">Problem Description:</label>
-                <textarea 
+                <textarea
                   id="problem"
                   value={reportProblem}
-                  onChange={e => setReportProblem(e.target.value)}
+                  onChange={(e) => setReportProblem(e.target.value)}
                   placeholder="Describe the problem or misbehavior..."
                   rows={4}
                   className="report-textarea"
                 />
               </div>
-              
+
               <div className="modal-actions">
-                <button 
+                <button
                   onClick={handleSendReport}
                   disabled={reportSending || !safeTrim(reportProblem)}
                   className="save-btn"
                 >
                   {reportSending ? 'Sending...' : 'Confirm'}
                 </button>
-                <button 
-                  onClick={handleCloseReportModal}
-                  className="cancel-btn"
-                >
+                <button onClick={handleCloseReportModal} className="cancel-btn">
                   Cancel
                 </button>
               </div>

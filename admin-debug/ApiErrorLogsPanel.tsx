@@ -7,8 +7,8 @@ const ApiErrorLogsPanel = () => {
 
   useEffect(() => {
     fetch('/api/users/admin/error-logs', { credentials: 'include' })
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         if (data.success) setLogs(data.logs);
         else setError('Failed to fetch logs');
         setLoading(false);
@@ -29,14 +29,19 @@ const ApiErrorLogsPanel = () => {
         <ul className="space-y-2">
           {logs.map((log, i) => (
             <li key={i} className="bg-slate-100 rounded p-2 text-sm">
-              <span className={log.level === 'error' ? 'text-red-600' : 'text-yellow-600'}>[{log.level}]</span> {log.message}
+              <span className={log.level === 'error' ? 'text-red-600' : 'text-yellow-600'}>
+                [{log.level}]
+              </span>{' '}
+              {log.message}
               <span className="ml-2 text-slate-500">({log.timestamp})</span>
             </li>
           ))}
         </ul>
-      ) : !loading && <div>No logs found.</div>}
+      ) : (
+        !loading && <div>No logs found.</div>
+      )}
     </div>
   );
 };
 
-export default ApiErrorLogsPanel; 
+export default ApiErrorLogsPanel;

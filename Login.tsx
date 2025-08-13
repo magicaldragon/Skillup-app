@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import type React from 'react';
+import { useEffect, useState } from 'react';
 import './LoginPanel.css';
 import { authService } from './frontend/services/authService';
 
@@ -12,7 +13,9 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState(0);
-  const [backendStatus, setBackendStatus] = useState<'checking' | 'connected' | 'disconnected'>('checking');
+  const [backendStatus, setBackendStatus] = useState<'checking' | 'connected' | 'disconnected'>(
+    'checking'
+  );
   const MAX_ATTEMPTS = 3;
 
   // Test backend connectivity on component mount (with caching)
@@ -27,7 +30,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         setBackendStatus('disconnected');
       }
     };
-    
+
     // Use a shorter timeout for initial connection check
     const timeoutId = setTimeout(testConnection, 100);
     return () => clearTimeout(timeoutId);
@@ -51,13 +54,15 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
-    
+
     try {
       // Only test backend if we don't have a cached connection status
       if (backendStatus === 'disconnected') {
         const isConnected = await authService.testBackendConnection();
         if (!isConnected) {
-          setError('Cannot connect to server. Please check your internet connection and try again.');
+          setError(
+            'Cannot connect to server. Please check your internet connection and try again.'
+          );
           setIsLoading(false);
           return;
         }
@@ -70,11 +75,11 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         localStorage.setItem('skillup_user', JSON.stringify(response.user));
         onLoginSuccess(response.user);
       } else {
-        setFailedAttempts(prev => prev + 1);
+        setFailedAttempts((prev) => prev + 1);
         setError(response.message || 'Login failed. Please try again.');
       }
     } catch (err: any) {
-      setFailedAttempts(prev => prev + 1);
+      setFailedAttempts((prev) => prev + 1);
       setError(err.message || 'An unexpected error occurred. Please try again.');
       console.error('Login error:', err);
     } finally {
@@ -86,15 +91,13 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
     <div className="login-bg">
       {/* Backend status indicators and error messages - positioned outside the panel */}
       {backendStatus === 'checking' && (
-        <div className="login-status checking">
-          Checking server connection...
-        </div>
+        <div className="login-status checking">Checking server connection...</div>
       )}
       {backendStatus === 'disconnected' && (
         <div className="login-status disconnected">
           ⚠️ Server connection failed. Please check your internet connection.
-          <button 
-            type="button" 
+          <button
+            type="button"
             onClick={retryConnection}
             className="retry-connection-btn"
             aria-label="Retry server connection"
@@ -103,21 +106,23 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
           </button>
         </div>
       )}
-      
+
       {/* Error message positioned outside the panel */}
       {error && (
         <div className="login-error login-error-outside" role="alert">
           {error}
         </div>
       )}
-      
+
       <div className="login-panel">
         <div className="login-logo-wrap">
           <img src="/logo-skillup.png" alt="Skillup Center Logo" className="login-logo" />
         </div>
-        
+
         <form className="login-form" onSubmit={handleAuthAction} autoComplete="on">
-          <label htmlFor="email" className="login-label">Email</label>
+          <label htmlFor="email" className="login-label">
+            Email
+          </label>
           <input
             id="email"
             name="email"
@@ -126,10 +131,11 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
             placeholder="Enter your email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            autoFocus
             required
           />
-          <label htmlFor="password" className="login-label">Password</label>
+          <label htmlFor="password" className="login-label">
+            Password
+          </label>
           <input
             id="password"
             name="password"
@@ -142,14 +148,26 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
           />
           {failedAttempts >= MAX_ATTEMPTS ? (
             <div className="login-error login-lockout">
-              Too many failed login attempts.<br />Please contact the administrator.<br />
-              <button type="button" className="login-btn" onClick={() => setFailedAttempts(0)} aria-label="Try logging in again after too many failed attempts">Try Again</button>
+              Too many failed login attempts.
+              <br />
+              Please contact the administrator.
+              <br />
+              <button
+                type="button"
+                className="login-btn"
+                onClick={() => setFailedAttempts(0)}
+                aria-label="Try logging in again after too many failed attempts"
+              >
+                Try Again
+              </button>
             </div>
           ) : (
-            <button 
-              type="submit" 
-              className="login-btn" 
-              disabled={isLoading || failedAttempts >= MAX_ATTEMPTS || backendStatus === 'disconnected'} 
+            <button
+              type="submit"
+              className="login-btn"
+              disabled={
+                isLoading || failedAttempts >= MAX_ATTEMPTS || backendStatus === 'disconnected'
+              }
               aria-label="Sign in to SkillUp Center"
             >
               {isLoading ? 'Processing...' : 'Sign In'}

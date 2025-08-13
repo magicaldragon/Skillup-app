@@ -13,10 +13,10 @@ async function listUsers() {
 
     // Get all users
     const users = await User.find().select('-password');
-    
+
     console.log('\n📋 Current Users in MongoDB:');
     console.log('='.repeat(80));
-    
+
     if (users.length === 0) {
       console.log('❌ No users found in database');
     } else {
@@ -30,22 +30,21 @@ async function listUsers() {
         console.log(`   Firebase UID: ${user.firebaseUid || 'Not set'}`);
         console.log(`   Created: ${user.createdAt}`);
         console.log(`   Updated: ${user.updatedAt}`);
-        console.log('   ' + '-'.repeat(40));
+        console.log(`   ${'-'.repeat(40)}`);
       });
-      
+
       console.log(`\n📊 Summary:`);
       console.log(`   Total Users: ${users.length}`);
-      
+
       const roleCounts = users.reduce((acc, user) => {
         acc[user.role] = (acc[user.role] || 0) + 1;
         return acc;
       }, {});
-      
+
       Object.entries(roleCounts).forEach(([role, count]) => {
         console.log(`   ${role}s: ${count}`);
       });
     }
-
   } catch (error) {
     console.error('Error listing users:', error);
   } finally {
@@ -55,4 +54,4 @@ async function listUsers() {
 }
 
 // Run the function
-listUsers(); 
+listUsers();

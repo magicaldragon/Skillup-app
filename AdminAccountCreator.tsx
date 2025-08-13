@@ -1,8 +1,7 @@
-import { useState } from 'react';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from './services/firebase';
 import { doc, setDoc } from 'firebase/firestore';
-import { db } from './services/firebase';
+import { useState } from 'react';
+import { auth, db } from './services/firebase';
 
 const AdminAccountCreator = () => {
   const [loading, setLoading] = useState(false);
@@ -22,7 +21,7 @@ const AdminAccountCreator = () => {
         englishName: 'Admin',
         role: 'admin',
         username: 'admin',
-        status: 'active'
+        status: 'active',
       };
 
       console.log('Creating admin account...');
@@ -46,7 +45,7 @@ const AdminAccountCreator = () => {
         role: adminData.role,
         status: adminData.status,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       });
 
       console.log('Firestore user document created');
@@ -59,14 +58,18 @@ const AdminAccountCreator = () => {
    Role: ${adminData.role}
 
 🎉 You can now login with these credentials!`);
-
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error creating admin account:', error);
-      
-      if (error.code === 'auth/email-already-in-use') {
-        setError('⚠️ Admin account already exists! You can use the existing account.');
+
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      if (error && typeof error === 'object' && 'code' in error) {
+        if (error.code === 'auth/email-already-in-use') {
+          setError('⚠️ Admin account already exists! You can use the existing account.');
+        } else {
+          setError(`❌ Error creating admin account: ${errorMessage}`);
+        }
       } else {
-        setError(`❌ Error creating admin account: ${error.message}`);
+        setError(`❌ Error creating admin account: ${errorMessage}`);
       }
     } finally {
       setLoading(false);
@@ -74,33 +77,44 @@ const AdminAccountCreator = () => {
   };
 
   return (
-    <div style={{ 
-      padding: '20px', 
-      maxWidth: '600px', 
-      margin: '0 auto',
-      fontFamily: 'Arial, sans-serif'
-    }}>
-      <h2 style={{ color: '#2c5aa0', marginBottom: '20px' }}>
-        🛠️ Admin Account Creator
-      </h2>
-      
-      <div style={{ 
-        backgroundColor: '#f8f9fa', 
-        padding: '20px', 
-        borderRadius: '8px',
-        marginBottom: '20px'
-      }}>
+    <div
+      style={{
+        padding: '20px',
+        maxWidth: '600px',
+        margin: '0 auto',
+        fontFamily: 'Arial, sans-serif',
+      }}
+    >
+      <h2 style={{ color: '#2c5aa0', marginBottom: '20px' }}>🛠️ Admin Account Creator</h2>
+
+      <div
+        style={{
+          backgroundColor: '#f8f9fa',
+          padding: '20px',
+          borderRadius: '8px',
+          marginBottom: '20px',
+        }}
+      >
         <h3>Create New Admin Account</h3>
         <p>This will create a new admin account with the following details:</p>
         <ul>
-          <li><strong>Email:</strong> admin@admin.skillup</li>
-          <li><strong>Password:</strong> Skillup@123</li>
-          <li><strong>Role:</strong> admin</li>
-          <li><strong>Name:</strong> SkillUp Admin</li>
+          <li>
+            <strong>Email:</strong> admin@admin.skillup
+          </li>
+          <li>
+            <strong>Password:</strong> Skillup@123
+          </li>
+          <li>
+            <strong>Role:</strong> admin
+          </li>
+          <li>
+            <strong>Name:</strong> SkillUp Admin
+          </li>
         </ul>
       </div>
 
       <button
+        type="button"
         onClick={createAdminAccount}
         disabled={loading}
         style={{
@@ -111,45 +125,51 @@ const AdminAccountCreator = () => {
           borderRadius: '6px',
           fontSize: '16px',
           cursor: loading ? 'not-allowed' : 'pointer',
-          marginBottom: '20px'
+          marginBottom: '20px',
         }}
       >
         {loading ? 'Creating...' : 'Create Admin Account'}
       </button>
 
       {success && (
-        <div style={{
-          backgroundColor: '#d4edda',
-          border: '1px solid #c3e6cb',
-          color: '#155724',
-          padding: '15px',
-          borderRadius: '6px',
-          marginBottom: '20px',
-          whiteSpace: 'pre-line'
-        }}>
+        <div
+          style={{
+            backgroundColor: '#d4edda',
+            border: '1px solid #c3e6cb',
+            color: '#155724',
+            padding: '15px',
+            borderRadius: '6px',
+            marginBottom: '20px',
+            whiteSpace: 'pre-line',
+          }}
+        >
           {success}
         </div>
       )}
 
       {error && (
-        <div style={{
-          backgroundColor: '#f8d7da',
-          border: '1px solid #f5c6cb',
-          color: '#721c24',
-          padding: '15px',
-          borderRadius: '6px',
-          marginBottom: '20px'
-        }}>
+        <div
+          style={{
+            backgroundColor: '#f8d7da',
+            border: '1px solid #f5c6cb',
+            color: '#721c24',
+            padding: '15px',
+            borderRadius: '6px',
+            marginBottom: '20px',
+          }}
+        >
           {error}
         </div>
       )}
 
-      <div style={{ 
-        backgroundColor: '#e7f3ff', 
-        padding: '15px', 
-        borderRadius: '6px',
-        fontSize: '14px'
-      }}>
+      <div
+        style={{
+          backgroundColor: '#e7f3ff',
+          padding: '15px',
+          borderRadius: '6px',
+          fontSize: '14px',
+        }}
+      >
         <h4>ℹ️ How to use:</h4>
         <ol>
           <li>Click "Create Admin Account" button</li>
@@ -162,4 +182,4 @@ const AdminAccountCreator = () => {
   );
 };
 
-export default AdminAccountCreator; 
+export default AdminAccountCreator;

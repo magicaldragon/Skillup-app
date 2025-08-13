@@ -10,7 +10,7 @@ const initialUsers = [
     password: 'Skillup@123', // Will be hashed by the model
     role: 'admin',
     avatarUrl: 'https://picsum.photos/seed/admin/100/100',
-    status: 'active'
+    status: 'active',
   },
   {
     name: 'teacher-jenny',
@@ -18,7 +18,7 @@ const initialUsers = [
     password: 'Skillup@123',
     role: 'teacher',
     avatarUrl: 'https://picsum.photos/seed/jenny/100/100',
-    status: 'active'
+    status: 'active',
   },
   {
     name: 'student-alice',
@@ -28,7 +28,7 @@ const initialUsers = [
     avatarUrl: 'https://picsum.photos/seed/alice/100/100',
     status: 'active',
     englishName: 'Alice Johnson',
-    gender: 'female'
+    gender: 'female',
   },
   {
     name: 'student-bob',
@@ -38,8 +38,8 @@ const initialUsers = [
     avatarUrl: 'https://picsum.photos/seed/bob/100/100',
     status: 'active',
     englishName: 'Bob Smith',
-    gender: 'male'
-  }
+    gender: 'male',
+  },
 ];
 
 async function seedUsers() {
@@ -59,7 +59,10 @@ async function seedUsers() {
     const existingUsers = await User.find();
     if (existingUsers.length > 0) {
       console.log('Users already exist in database. Skipping seed.');
-      console.log('Existing users:', existingUsers.map(u => ({ email: u.email, role: u.role })));
+      console.log(
+        'Existing users:',
+        existingUsers.map((u) => ({ email: u.email, role: u.role }))
+      );
       return;
     }
 
@@ -72,7 +75,7 @@ async function seedUsers() {
         createdUsers.push({
           name: user.name,
           email: user.email,
-          role: user.role
+          role: user.role,
         });
         console.log(`Created user: ${user.name} (${user.email})`);
       } catch (error) {
@@ -87,7 +90,6 @@ async function seedUsers() {
     console.log('Teacher: teacher-jenny@teacher.skillup / Skillup@123');
     console.log('Student 1: student-alice@student.skillup / Skillup123');
     console.log('Student 2: student-bob@student.skillup / Skillup123');
-
   } catch (error) {
     console.error('Seeding error:', error);
   } finally {
@@ -97,4 +99,4 @@ async function seedUsers() {
 }
 
 // Run the seeding function
-seedUsers(); 
+seedUsers();

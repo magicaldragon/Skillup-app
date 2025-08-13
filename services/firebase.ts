@@ -1,18 +1,18 @@
 // firebase.ts - Firebase Configuration for Auth, Firestore, Storage, and Functions
-import { initializeApp, getApps } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
-import { getStorage } from "firebase/storage";
-import { getFunctions } from "firebase/functions";
+import { getApps, initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
+import { getFunctions } from 'firebase/functions';
+import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || '',
-  authDomain: "skillup-3beaf.firebaseapp.com",
-  projectId: "skillup-3beaf",
-  storageBucket: "skillup-3beaf.appspot.com",
-  messagingSenderId: "715786145271",
-  appId: "1:715786145271:web:7115826d1172113c9832f2",
-  measurementId: "G-03QYTPLVQG"
+  authDomain: 'skillup-3beaf.firebaseapp.com',
+  projectId: 'skillup-3beaf',
+  storageBucket: 'skillup-3beaf.appspot.com',
+  messagingSenderId: '715786145271',
+  appId: '1:715786145271:web:7115826d1172113c9832f2',
+  measurementId: 'G-03QYTPLVQG',
 };
 
 // Only initialize if not already initialized
@@ -36,4 +36,4 @@ export async function deleteAccountCompletely() {
   return { success: true, message: 'Account deletion handled by Firebase Functions.' };
 }
 
-export { app, auth, db, storage, functions }; 
+export { app, auth, db, storage, functions };

@@ -11,39 +11,39 @@ class PerformanceMonitor {
 
   startTimer(name: string): void {
     if (!this.enabled) return;
-    
+
     this.metrics.set(name, {
       name,
-      startTime: performance.now()
+      startTime: performance.now(),
     });
-    
+
     console.log(`🚀 Performance: Started timer for "${name}"`);
   }
 
   endTimer(name: string): number | null {
     if (!this.enabled) return null;
-    
+
     const metric = this.metrics.get(name);
     if (!metric) {
       console.warn(`⚠️ Performance: Timer "${name}" not found`);
       return null;
     }
-    
+
     metric.endTime = performance.now();
     metric.duration = metric.endTime - metric.startTime;
-    
+
     console.log(`⏱️ Performance: "${name}" took ${metric.duration.toFixed(2)}ms`);
-    
+
     // Log slow operations
     if (metric.duration > 1000) {
       console.warn(`🐌 Slow operation detected: "${name}" took ${metric.duration.toFixed(2)}ms`);
     }
-    
+
     return metric.duration;
   }
 
   getMetrics(): PerformanceMetric[] {
-    return Array.from(this.metrics.values()).filter(m => m.duration !== undefined);
+    return Array.from(this.metrics.values()).filter((m) => m.duration !== undefined);
   }
 
   clearMetrics(): void {
@@ -64,4 +64,4 @@ class PerformanceMonitor {
   }
 }
 
-export const performanceMonitor = new PerformanceMonitor(); 
+export const performanceMonitor = new PerformanceMonitor();

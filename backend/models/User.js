@@ -14,19 +14,23 @@ const userSchema = new mongoose.Schema({
   parentName: String,
   parentPhone: String,
   notes: String,
-  status: { type: String, enum: ['active', 'potential', 'contacted', 'studying', 'postponed', 'off', 'alumni'], default: 'potential' },
+  status: {
+    type: String,
+    enum: ['active', 'potential', 'contacted', 'studying', 'postponed', 'off', 'alumni'],
+    default: 'potential',
+  },
   studentCode: { type: String, unique: true, sparse: true },
   avatarUrl: String,
   diceBearStyle: { type: String, default: 'avataaars' },
   diceBearSeed: String,
   classIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Class' }],
   createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now }
+  updatedAt: { type: Date, default: Date.now },
 });
 
-userSchema.pre('save', function(next) {
+userSchema.pre('save', function (next) {
   this.updatedAt = new Date();
   next();
 });
 
-module.exports = mongoose.model('User', userSchema); 
+module.exports = mongoose.model('User', userSchema);

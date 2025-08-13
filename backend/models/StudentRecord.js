@@ -5,79 +5,88 @@ const studentRecordSchema = new mongoose.Schema({
   studentId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: true,
   },
   studentName: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
-  
+
   // Action Details
   action: {
     type: String,
     required: true,
     enum: [
-      'enrollment', 'class_assignment', 'class_removal', 'grade_update',
-      'attendance', 'payment', 'withdrawal', 're_enrollment',
-      'profile_update', 'status_change', 'note_added', 'test_result'
-    ]
+      'enrollment',
+      'class_assignment',
+      'class_removal',
+      'grade_update',
+      'attendance',
+      'payment',
+      'withdrawal',
+      're_enrollment',
+      'profile_update',
+      'status_change',
+      'note_added',
+      'test_result',
+    ],
   },
-  
+
   // Action Category
   category: {
     type: String,
     required: true,
-    enum: ['academic', 'administrative', 'financial', 'attendance', 'assessment']
+    enum: ['academic', 'administrative', 'financial', 'attendance', 'assessment'],
   },
-  
+
   // Detailed Information
   details: {
     type: mongoose.Schema.Types.Mixed,
-    required: true
+    required: true,
   },
-  
+
   // Related Entities
   relatedClass: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Class'
+    ref: 'Class',
   },
   relatedAssignment: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Assignment'
+    ref: 'Assignment',
   },
-  
+
   // Performed By
   performedBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: true,
   },
   performedByName: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
-  
+
   // Timestamps
   timestamp: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
-  
+
   // Additional Metadata
   ipAddress: {
-    type: String
+    type: String,
   },
   userAgent: {
-    type: String
+    type: String,
   },
-  
+
   // Status
   isActive: {
     type: Boolean,
-    default: true
-  }
+    default: true,
+  },
 });
 
 // Index for efficient queries
@@ -87,9 +96,9 @@ studentRecordSchema.index({ category: 1, timestamp: -1 });
 studentRecordSchema.index({ performedBy: 1, timestamp: -1 });
 
 // Method to get formatted details
-studentRecordSchema.methods.getFormattedDetails = function() {
+studentRecordSchema.methods.getFormattedDetails = function () {
   const details = this.details;
-  
+
   switch (this.action) {
     case 'enrollment':
       return `Enrolled in ${details.program || 'program'}`;
@@ -121,7 +130,13 @@ studentRecordSchema.methods.getFormattedDetails = function() {
 };
 
 // Static method to create enrollment record
-studentRecordSchema.statics.createEnrollmentRecord = function(studentId, studentName, performedBy, performedByName, details) {
+studentRecordSchema.statics.createEnrollmentRecord = function (
+  studentId,
+  studentName,
+  performedBy,
+  performedByName,
+  details
+) {
   return this.create({
     studentId,
     studentName,
@@ -129,12 +144,19 @@ studentRecordSchema.statics.createEnrollmentRecord = function(studentId, student
     category: 'administrative',
     details,
     performedBy,
-    performedByName
+    performedByName,
   });
 };
 
 // Static method to create class assignment record
-studentRecordSchema.statics.createClassAssignmentRecord = function(studentId, studentName, performedBy, performedByName, classId, className) {
+studentRecordSchema.statics.createClassAssignmentRecord = function (
+  studentId,
+  studentName,
+  performedBy,
+  performedByName,
+  classId,
+  className
+) {
   return this.create({
     studentId,
     studentName,
@@ -143,12 +165,19 @@ studentRecordSchema.statics.createClassAssignmentRecord = function(studentId, st
     details: { className },
     relatedClass: classId,
     performedBy,
-    performedByName
+    performedByName,
   });
 };
 
 // Static method to create class removal record
-studentRecordSchema.statics.createClassRemovalRecord = function(studentId, studentName, performedBy, performedByName, classId, className) {
+studentRecordSchema.statics.createClassRemovalRecord = function (
+  studentId,
+  studentName,
+  performedBy,
+  performedByName,
+  classId,
+  className
+) {
   return this.create({
     studentId,
     studentName,
@@ -157,12 +186,20 @@ studentRecordSchema.statics.createClassRemovalRecord = function(studentId, stude
     details: { className },
     relatedClass: classId,
     performedBy,
-    performedByName
+    performedByName,
   });
 };
 
 // Static method to create grade update record
-studentRecordSchema.statics.createGradeRecord = function(studentId, studentName, performedBy, performedByName, assignmentId, oldGrade, newGrade) {
+studentRecordSchema.statics.createGradeRecord = function (
+  studentId,
+  studentName,
+  performedBy,
+  performedByName,
+  assignmentId,
+  oldGrade,
+  newGrade
+) {
   return this.create({
     studentId,
     studentName,
@@ -171,7 +208,7 @@ studentRecordSchema.statics.createGradeRecord = function(studentId, studentName,
     details: { oldGrade, newGrade },
     relatedAssignment: assignmentId,
     performedBy,
-    performedByName
+    performedByName,
   });
 };
 

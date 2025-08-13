@@ -1,21 +1,21 @@
 // firestoreService.ts - Firestore Database Service
-import { 
-  collection, 
-  doc, 
-  getDoc, 
-  getDocs, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  where, 
-  orderBy, 
-  writeBatch,
+import {
+  addDoc,
+  collection,
+  type DocumentData,
+  type DocumentReference,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  orderBy,
+  type QueryConstraint,
+  query,
   serverTimestamp,
-  Timestamp,
-  DocumentData,
-  QueryConstraint,
-  DocumentReference
+  type Timestamp,
+  updateDoc,
+  where,
+  writeBatch,
 } from 'firebase/firestore';
 import { db } from './firebase';
 
@@ -156,19 +156,16 @@ class FirestoreService {
     submissions: 'submissions',
     potentialStudents: 'potentialStudents',
     studentRecords: 'studentRecords',
-    changeLogs: 'changeLogs'
+    changeLogs: 'changeLogs',
   };
 
   // Generic CRUD operations
-  async create<T extends DocumentData>(
-    collectionName: string, 
-    data: T
-  ): Promise<string> {
+  async create<T extends DocumentData>(collectionName: string, data: T): Promise<string> {
     try {
       const docRef = await addDoc(collection(db, collectionName), {
         ...data,
         createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
+        updatedAt: serverTimestamp(),
       });
       return docRef.id;
     } catch (error) {
@@ -177,14 +174,11 @@ class FirestoreService {
     }
   }
 
-  async getById<T>(
-    collectionName: string, 
-    id: string
-  ): Promise<T | null> {
+  async getById<T>(collectionName: string, id: string): Promise<T | null> {
     try {
       const docRef = doc(db, collectionName, id);
       const docSnap = await getDoc(docRef);
-      
+
       if (docSnap.exists()) {
         return { id: docSnap.id, ...docSnap.data() } as T;
       }
@@ -196,15 +190,15 @@ class FirestoreService {
   }
 
   async update<T extends DocumentData>(
-    collectionName: string, 
-    id: string, 
+    collectionName: string,
+    id: string,
     data: Partial<T>
   ): Promise<void> {
     try {
       const docRef = doc(db, collectionName, id);
       await updateDoc(docRef, {
         ...data,
-        updatedAt: serverTimestamp()
+        updatedAt: serverTimestamp(),
       });
     } catch (error) {
       console.error(`Error updating document in ${collectionName}:`, error);
@@ -222,17 +216,14 @@ class FirestoreService {
     }
   }
 
-  async query<T>(
-    collectionName: string, 
-    constraints: QueryConstraint[] = []
-  ): Promise<T[]> {
+  async query<T>(collectionName: string, constraints: QueryConstraint[] = []): Promise<T[]> {
     try {
       const q = query(collection(db, collectionName), ...constraints);
       const querySnapshot = await getDocs(q);
-      
-      return querySnapshot.docs.map(doc => ({
+
+      return querySnapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
       })) as T[];
     } catch (error) {
       console.error(`Error querying ${collectionName}:`, error);
@@ -241,7 +232,9 @@ class FirestoreService {
   }
 
   // User-specific operations
-  async createUser(userData: Omit<FirestoreUser, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
+  async createUser(
+    userData: Omit<FirestoreUser, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<string> {
     return this.create(this.collections.users, userData);
   }
 
@@ -250,31 +243,32 @@ class FirestoreService {
   }
 
   async getUserByFirebaseUid(firebaseUid: string): Promise<FirestoreUser | null> {
-    const users = await this.query<FirestoreUser>(
-      this.collections.users,
-      [where('firebaseUid', '==', firebaseUid)]
-    );
+    const users = await this.query<FirestoreUser>(this.collections.users, [
+      where('firebaseUid', '==', firebaseUid),
+    ]);
     return users[0] || null;
   }
 
   async getUserByEmail(email: string): Promise<FirestoreUser | null> {
-    const users = await this.query<FirestoreUser>(
-      this.collections.users,
-      [where('email', '==', email)]
-    );
+    const users = await this.query<FirestoreUser>(this.collections.users, [
+      where('email', '==', email),
+    ]);
     return users[0] || null;
   }
 
   async getUserByUsername(username: string): Promise<FirestoreUser | null> {
-    const users = await this.query<FirestoreUser>(
-      this.collections.users,
-      [where('username', '==', username)]
-    );
+    const users = await this.query<FirestoreUser>(this.collections.users, [
+      where('username', '==', username),
+    ]);
     return users[0] || null;
   }
 
-  async updateUser(id: string, userData: Partial<FirestoreUser>): Promise<void> {
-    return this.update(this.collections.users, id, userData);
+  async updateUser(
+    userId: string,
+    userName: string,
+    changes?: Partial<FirestoreUser>
+  ): Promise<void> {
+    return this.update(this.collections.users, userId, changes || {});
   }
 
   async deleteUser(id: string): Promise<void> {
@@ -283,20 +277,22 @@ class FirestoreService {
 
   async getAllUsers(role?: string, status?: string): Promise<FirestoreUser[]> {
     const constraints: QueryConstraint[] = [orderBy('createdAt', 'desc')];
-    
+
     if (role) {
       constraints.unshift(where('role', '==', role));
     }
-    
+
     if (status) {
       constraints.unshift(where('status', '==', status));
     }
-    
+
     return this.query<FirestoreUser>(this.collections.users, constraints);
   }
 
   // Class-specific operations
-  async createClass(classData: Omit<FirestoreClass, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
+  async createClass(
+    classData: Omit<FirestoreClass, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<string> {
     return this.create(this.collections.classes, classData);
   }
 
@@ -305,10 +301,9 @@ class FirestoreService {
   }
 
   async getClassByCode(classCode: string): Promise<FirestoreClass | null> {
-    const classes = await this.query<FirestoreClass>(
-      this.collections.classes,
-      [where('classCode', '==', classCode)]
-    );
+    const classes = await this.query<FirestoreClass>(this.collections.classes, [
+      where('classCode', '==', classCode),
+    ]);
     return classes[0] || null;
   }
 
@@ -322,20 +317,22 @@ class FirestoreService {
 
   async getAllClasses(teacherId?: string, isActive?: boolean): Promise<FirestoreClass[]> {
     const constraints: QueryConstraint[] = [orderBy('createdAt', 'desc')];
-    
+
     if (teacherId) {
       constraints.unshift(where('teacherId', '==', teacherId));
     }
-    
+
     if (isActive !== undefined) {
       constraints.unshift(where('isActive', '==', isActive));
     }
-    
+
     return this.query<FirestoreClass>(this.collections.classes, constraints);
   }
 
   // Level-specific operations
-  async createLevel(levelData: Omit<FirestoreLevel, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
+  async createLevel(
+    levelData: Omit<FirestoreLevel, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<string> {
     return this.create(this.collections.levels, levelData);
   }
 
@@ -353,16 +350,18 @@ class FirestoreService {
 
   async getAllLevels(isActive?: boolean): Promise<FirestoreLevel[]> {
     const constraints: QueryConstraint[] = [orderBy('order', 'asc')];
-    
+
     if (isActive !== undefined) {
       constraints.unshift(where('isActive', '==', isActive));
     }
-    
+
     return this.query<FirestoreLevel>(this.collections.levels, constraints);
   }
 
   // Assignment-specific operations
-  async createAssignment(assignmentData: Omit<FirestoreAssignment, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
+  async createAssignment(
+    assignmentData: Omit<FirestoreAssignment, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<string> {
     return this.create(this.collections.assignments, assignmentData);
   }
 
@@ -379,14 +378,11 @@ class FirestoreService {
   }
 
   async getAssignmentsByClass(classId: string): Promise<FirestoreAssignment[]> {
-    return this.query<FirestoreAssignment>(
-      this.collections.assignments,
-      [
-        where('classId', '==', classId),
-        where('isActive', '==', true),
-        orderBy('createdAt', 'desc')
-      ]
-    );
+    return this.query<FirestoreAssignment>(this.collections.assignments, [
+      where('classId', '==', classId),
+      where('isActive', '==', true),
+      orderBy('createdAt', 'desc'),
+    ]);
   }
 
   // Submission-specific operations
@@ -407,27 +403,23 @@ class FirestoreService {
   }
 
   async getSubmissionsByAssignment(assignmentId: string): Promise<FirestoreSubmission[]> {
-    return this.query<FirestoreSubmission>(
-      this.collections.submissions,
-      [
-        where('assignmentId', '==', assignmentId),
-        orderBy('submittedAt', 'desc')
-      ]
-    );
+    return this.query<FirestoreSubmission>(this.collections.submissions, [
+      where('assignmentId', '==', assignmentId),
+      orderBy('submittedAt', 'desc'),
+    ]);
   }
 
   async getSubmissionsByStudent(studentId: string): Promise<FirestoreSubmission[]> {
-    return this.query<FirestoreSubmission>(
-      this.collections.submissions,
-      [
-        where('studentId', '==', studentId),
-        orderBy('submittedAt', 'desc')
-      ]
-    );
+    return this.query<FirestoreSubmission>(this.collections.submissions, [
+      where('studentId', '==', studentId),
+      orderBy('submittedAt', 'desc'),
+    ]);
   }
 
   // Potential Student operations
-  async createPotentialStudent(potentialStudentData: Omit<FirestorePotentialStudent, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
+  async createPotentialStudent(
+    potentialStudentData: Omit<FirestorePotentialStudent, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<string> {
     return this.create(this.collections.potentialStudents, potentialStudentData);
   }
 
@@ -435,7 +427,10 @@ class FirestoreService {
     return this.getById<FirestorePotentialStudent>(this.collections.potentialStudents, id);
   }
 
-  async updatePotentialStudent(id: string, potentialStudentData: Partial<FirestorePotentialStudent>): Promise<void> {
+  async updatePotentialStudent(
+    id: string,
+    potentialStudentData: Partial<FirestorePotentialStudent>
+  ): Promise<void> {
     return this.update(this.collections.potentialStudents, id, potentialStudentData);
   }
 
@@ -445,16 +440,18 @@ class FirestoreService {
 
   async getAllPotentialStudents(status?: string): Promise<FirestorePotentialStudent[]> {
     const constraints: QueryConstraint[] = [orderBy('createdAt', 'desc')];
-    
+
     if (status) {
       constraints.unshift(where('status', '==', status));
     }
-    
+
     return this.query<FirestorePotentialStudent>(this.collections.potentialStudents, constraints);
   }
 
   // Student Record operations
-  async createStudentRecord(studentRecordData: Omit<FirestoreStudentRecord, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
+  async createStudentRecord(
+    studentRecordData: Omit<FirestoreStudentRecord, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<string> {
     return this.create(this.collections.studentRecords, studentRecordData);
   }
 
@@ -462,7 +459,10 @@ class FirestoreService {
     return this.getById<FirestoreStudentRecord>(this.collections.studentRecords, id);
   }
 
-  async updateStudentRecord(id: string, studentRecordData: Partial<FirestoreStudentRecord>): Promise<void> {
+  async updateStudentRecord(
+    id: string,
+    studentRecordData: Partial<FirestoreStudentRecord>
+  ): Promise<void> {
     return this.update(this.collections.studentRecords, id, studentRecordData);
   }
 
@@ -471,84 +471,83 @@ class FirestoreService {
   }
 
   async getStudentRecordsByStudent(studentId: string): Promise<FirestoreStudentRecord[]> {
-    return this.query<FirestoreStudentRecord>(
-      this.collections.studentRecords,
-      [
-        where('studentId', '==', studentId),
-        orderBy('createdAt', 'desc')
-      ]
-    );
+    return this.query<FirestoreStudentRecord>(this.collections.studentRecords, [
+      where('studentId', '==', studentId),
+      orderBy('createdAt', 'desc'),
+    ]);
   }
 
   // Change Log operations
-  async createChangeLog(changeLogData: Omit<FirestoreChangeLog, 'id' | 'timestamp'>): Promise<string> {
+  async createChangeLog(
+    changeLogData: Omit<FirestoreChangeLog, 'id' | 'timestamp'>
+  ): Promise<string> {
     return this.create(this.collections.changeLogs, changeLogData);
   }
 
   async getChangeLogs(collection?: string, documentId?: string): Promise<FirestoreChangeLog[]> {
     const constraints: QueryConstraint[] = [orderBy('timestamp', 'desc')];
-    
+
     if (collection) {
       constraints.unshift(where('collection', '==', collection));
     }
-    
+
     if (documentId) {
       constraints.unshift(where('documentId', '==', documentId));
     }
-    
+
     return this.query<FirestoreChangeLog>(this.collections.changeLogs, constraints);
   }
 
   // Batch operations for better performance
   async batchCreate<T extends DocumentData>(
-    collectionName: string, 
+    collectionName: string,
     documents: T[]
   ): Promise<string[]> {
     const batch = writeBatch(db);
     const docRefs: DocumentReference[] = [];
-    
-    documents.forEach(docData => {
+
+    documents.forEach((docData) => {
       const docRef = doc(collection(db, collectionName));
       batch.set(docRef, {
         ...docData,
         createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
+        updatedAt: serverTimestamp(),
       });
       docRefs.push(docRef);
     });
-    
+
     await batch.commit();
-    return docRefs.map(ref => ref.id);
+    return docRefs.map((ref) => ref.id);
   }
 
   async batchUpdate<T extends DocumentData>(
-    collectionName: string, 
+    collectionName: string,
     updates: { id: string; data: Partial<T> }[]
   ): Promise<void> {
     const batch = writeBatch(db);
-    
+
     updates.forEach(({ id, data }) => {
       const docRef = doc(db, collectionName, id);
       batch.update(docRef, {
         ...data,
-        updatedAt: serverTimestamp()
+        updatedAt: serverTimestamp(),
       });
     });
-    
+
     await batch.commit();
   }
 
   async batchDelete(collectionName: string, ids: string[]): Promise<void> {
     const batch = writeBatch(db);
-    
-    ids.forEach(id => {
+
+    ids.forEach((id) => {
       const docRef = doc(db, collectionName, id);
       batch.delete(docRef);
     });
-    
+
     await batch.commit();
   }
 }
 
 // Create singleton instance
-export const firestoreService = new FirestoreService(); 
+export const firestoreService = new FirestoreService();

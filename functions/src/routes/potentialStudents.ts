@@ -1,7 +1,7 @@
 // functions/src/routes/potentialStudents.ts - Potential Students API Routes
-import { Router, Response } from 'express';
+import { type Response, Router } from 'express';
 import * as admin from 'firebase-admin';
-import { AuthenticatedRequest, verifyToken, requireAdmin } from '../middleware/auth';
+import { type AuthenticatedRequest, requireAdmin, verifyToken } from '../middleware/auth';
 
 const router = Router();
 
@@ -10,13 +10,13 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
   try {
     const { role } = req.user!;
     const { status, assignedTo } = req.query;
-    
+
     let query: any = admin.firestore().collection('potentialStudents');
 
     // Role-based filtering
     if (role === 'teacher') {
       // Teachers see potential students assigned to them
-      query = query.where('assignedTo', '==', req.user!.userId);
+      query = query.where('assignedTo', '==', req.user?.userId);
     }
     // Admin and staff see all potential students
 
@@ -25,7 +25,7 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
       const statusArray = Array.isArray(status) ? status : [status];
       query = query.where('status', 'in', statusArray);
     }
-    
+
     if (assignedTo && role !== 'teacher') {
       query = query.where('assignedTo', '==', assignedTo);
     }
@@ -33,7 +33,7 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
     const snapshot = await query.orderBy('createdAt', 'desc').get();
     const potentialStudents = snapshot.docs.map((doc: any) => ({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
     }));
 
     console.log(`Fetched ${potentialStudents.length} potential students for role: ${role}`);
@@ -47,33 +47,34 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
 // Create new potential student
 router.post('/', verifyToken, requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { 
-      name, 
-      englishName, 
-      email, 
-      phone, 
-      gender, 
-      dob, 
-      parentName, 
-      parentPhone, 
-      source = 'manual', 
-      status = 'pending', 
-      notes, 
-      assignedTo 
+    const {
+      name,
+      englishName,
+      email,
+      phone,
+      gender,
+      dob,
+      parentName,
+      parentPhone,
+      source = 'manual',
+      status = 'pending',
+      notes,
+      assignedTo,
     } = req.body;
 
     // Check if potential student with this email already exists
     if (email) {
-      const existingStudent = await admin.firestore()
+      const existingStudent = await admin
+        .firestore()
         .collection('potentialStudents')
         .where('email', '==', email)
         .limit(1)
         .get();
 
       if (!existingStudent.empty) {
-        return res.status(400).json({ 
+        return res.status(400).json({
           success: false,
-          message: 'Potential student with this email already exists' 
+          message: 'Potential student with this email already exists',
         });
       }
     }
@@ -93,23 +94,25 @@ router.post('/', verifyToken, requireAdmin, async (req: AuthenticatedRequest, re
       notes,
       assignedTo,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     };
 
-    const docRef = await admin.firestore().collection('potentialStudents').add(potentialStudentData);
+    const docRef = await admin
+      .firestore()
+      .collection('potentialStudents')
+      .add(potentialStudentData);
     const newPotentialStudent = { id: docRef.id, ...potentialStudentData };
 
     return res.status(201).json({
       success: true,
       message: 'Potential student created successfully',
-      potentialStudent: newPotentialStudent
+      potentialStudent: newPotentialStudent,
     });
-
   } catch (error) {
     console.error('Error creating potential student:', error);
     return res.status(500).json({
       success: false,
-      message: 'Failed to create potential student'
+      message: 'Failed to create potential student',
     });
   }
 });
@@ -121,7 +124,7 @@ router.get('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response)
     const { role } = req.user!;
 
     const doc = await admin.firestore().collection('potentialStudents').doc(id).get();
-    
+
     if (!doc.exists) {
       return res.status(404).json({ message: 'Potential student not found' });
     }
@@ -129,7 +132,7 @@ router.get('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response)
     const potentialStudentData = doc.data()!;
 
     // Check if user has access to this potential student
-    if (role === 'teacher' && potentialStudentData.assignedTo !== req.user!.userId) {
+    if (role === 'teacher' && potentialStudentData.assignedTo !== req.user?.userId) {
       return res.status(403).json({ message: 'Access denied' });
     }
 
@@ -155,7 +158,7 @@ router.put('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response)
     const potentialStudentData = doc.data()!;
 
     // Check if user has access to update this potential student
-    if (role === 'teacher' && potentialStudentData.assignedTo !== req.user!.userId) {
+    if (role === 'teacher' && potentialStudentData.assignedTo !== req.user?.userId) {
       return res.status(403).json({ message: 'Access denied' });
     }
 
@@ -173,130 +176,142 @@ router.put('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response)
 });
 
 // Delete potential student
-router.delete('/:id', verifyToken, requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
-  try {
-    const { id } = req.params;
+router.delete(
+  '/:id',
+  verifyToken,
+  requireAdmin,
+  async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { id } = req.params;
 
-    await admin.firestore().collection('potentialStudents').doc(id).delete();
+      await admin.firestore().collection('potentialStudents').doc(id).delete();
 
-    return res.json({ success: true, message: 'Potential student deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting potential student:', error);
-    return res.status(500).json({ message: 'Failed to delete potential student' });
+      return res.json({ success: true, message: 'Potential student deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting potential student:', error);
+      return res.status(500).json({ message: 'Failed to delete potential student' });
+    }
   }
-});
+);
 
 // Assign potential student to teacher
-router.post('/:id/assign', verifyToken, requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
-  try {
-    const { id } = req.params;
-    const { teacherId } = req.body;
+router.post(
+  '/:id/assign',
+  verifyToken,
+  requireAdmin,
+  async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { id } = req.params;
+      const { teacherId } = req.body;
 
-    // Validate that teacher exists and is a teacher
-    const teacherDoc = await admin.firestore().collection('users').doc(teacherId).get();
-    if (!teacherDoc.exists || teacherDoc.data()?.role !== 'teacher') {
-      return res.status(400).json({ 
-        success: false,
-        message: 'Invalid teacher ID' 
-      });
-    }
-
-    await admin.firestore().collection('potentialStudents').doc(id).update({
-      assignedTo: teacherId,
-      updatedAt: admin.firestore.FieldValue.serverTimestamp()
-    });
-
-    return res.json({ success: true, message: 'Potential student assigned successfully' });
-  } catch (error) {
-    console.error('Error assigning potential student:', error);
-    return res.status(500).json({ message: 'Failed to assign potential student' });
-  }
-});
-
-// Convert potential student to regular student
-router.post('/:id/convert', verifyToken, requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
-  try {
-    const { id } = req.params;
-    const { 
-      role = 'student', 
-      status = 'active', 
-      username,
-      studentCode 
-    } = req.body;
-
-    const doc = await admin.firestore().collection('potentialStudents').doc(id).get();
-    if (!doc.exists) {
-      return res.status(404).json({ message: 'Potential student not found' });
-    }
-
-    const potentialStudentData = doc.data()!;
-
-    // Check if username already exists
-    if (username) {
-      const existingUser = await admin.firestore()
-        .collection('users')
-        .where('username', '==', username)
-        .limit(1)
-        .get();
-
-      if (!existingUser.empty) {
-        return res.status(400).json({ 
+      // Validate that teacher exists and is a teacher
+      const teacherDoc = await admin.firestore().collection('users').doc(teacherId).get();
+      if (!teacherDoc.exists || teacherDoc.data()?.role !== 'teacher') {
+        return res.status(400).json({
           success: false,
-          message: 'Username already exists' 
+          message: 'Invalid teacher ID',
         });
       }
+
+      await admin.firestore().collection('potentialStudents').doc(id).update({
+        assignedTo: teacherId,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+
+      return res.json({ success: true, message: 'Potential student assigned successfully' });
+    } catch (error) {
+      console.error('Error assigning potential student:', error);
+      return res.status(500).json({ message: 'Failed to assign potential student' });
     }
-
-    // Generate student code if not provided
-    let finalStudentCode = studentCode;
-    if (!finalStudentCode && role === 'student') {
-      finalStudentCode = await generateStudentCode();
-    }
-
-    // Create user in users collection
-    const userData = {
-      username,
-      name: potentialStudentData.name,
-      email: potentialStudentData.email,
-      role,
-      gender: potentialStudentData.gender,
-      englishName: potentialStudentData.englishName,
-      dob: potentialStudentData.dob,
-      phone: potentialStudentData.phone,
-      parentName: potentialStudentData.parentName,
-      parentPhone: potentialStudentData.parentPhone,
-      notes: potentialStudentData.notes,
-      studentCode: finalStudentCode,
-      status,
-      firebaseUid: null, // Will be set when user registers
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp()
-    };
-
-    const userRef = await admin.firestore().collection('users').add(userData);
-
-    // Update potential student status
-    await admin.firestore().collection('potentialStudents').doc(id).update({
-      status: 'converted',
-      convertedToUserId: userRef.id,
-      updatedAt: admin.firestore.FieldValue.serverTimestamp()
-    });
-
-    return res.json({ 
-      success: true, 
-      message: 'Potential student converted successfully',
-      userId: userRef.id
-    });
-  } catch (error) {
-    console.error('Error converting potential student:', error);
-    return res.status(500).json({ message: 'Failed to convert potential student' });
   }
-});
+);
+
+// Convert potential student to regular student
+router.post(
+  '/:id/convert',
+  verifyToken,
+  requireAdmin,
+  async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { id } = req.params;
+      const { role = 'student', status = 'active', username, studentCode } = req.body;
+
+      const doc = await admin.firestore().collection('potentialStudents').doc(id).get();
+      if (!doc.exists) {
+        return res.status(404).json({ message: 'Potential student not found' });
+      }
+
+      const potentialStudentData = doc.data()!;
+
+      // Check if username already exists
+      if (username) {
+        const existingUser = await admin
+          .firestore()
+          .collection('users')
+          .where('username', '==', username)
+          .limit(1)
+          .get();
+
+        if (!existingUser.empty) {
+          return res.status(400).json({
+            success: false,
+            message: 'Username already exists',
+          });
+        }
+      }
+
+      // Generate student code if not provided
+      let finalStudentCode = studentCode;
+      if (!finalStudentCode && role === 'student') {
+        finalStudentCode = await generateStudentCode();
+      }
+
+      // Create user in users collection
+      const userData = {
+        username,
+        name: potentialStudentData.name,
+        email: potentialStudentData.email,
+        role,
+        gender: potentialStudentData.gender,
+        englishName: potentialStudentData.englishName,
+        dob: potentialStudentData.dob,
+        phone: potentialStudentData.phone,
+        parentName: potentialStudentData.parentName,
+        parentPhone: potentialStudentData.parentPhone,
+        notes: potentialStudentData.notes,
+        studentCode: finalStudentCode,
+        status,
+        firebaseUid: null, // Will be set when user registers
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      };
+
+      const userRef = await admin.firestore().collection('users').add(userData);
+
+      // Update potential student status
+      await admin.firestore().collection('potentialStudents').doc(id).update({
+        status: 'converted',
+        convertedToUserId: userRef.id,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+
+      return res.json({
+        success: true,
+        message: 'Potential student converted successfully',
+        userId: userRef.id,
+      });
+    } catch (error) {
+      console.error('Error converting potential student:', error);
+      return res.status(500).json({ message: 'Failed to convert potential student' });
+    }
+  }
+);
 
 // Helper function to generate student code
 async function generateStudentCode(): Promise<string> {
   const year = new Date().getFullYear().toString().slice(-2);
-  const snapshot = await admin.firestore()
+  const snapshot = await admin
+    .firestore()
     .collection('users')
     .where('studentCode', '>=', `STU${year}0001`)
     .where('studentCode', '<=', `STU${year}9999`)
@@ -314,4 +329,4 @@ async function generateStudentCode(): Promise<string> {
   return `STU${year}${nextNumber.toString().padStart(4, '0')}`;
 }
 
-export { router as potentialStudentsRouter }; 
+export { router as potentialStudentsRouter };

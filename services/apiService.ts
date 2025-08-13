@@ -13,17 +13,14 @@ async function getAuthToken(): Promise<string> {
 }
 
 // Helper function to make authenticated API calls
-async function apiCall<T>(
-  endpoint: string, 
-  options: RequestInit = {}
-): Promise<T> {
+async function apiCall<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = await getAuthToken();
-  
+
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       ...options.headers,
     },
   });
@@ -325,11 +322,11 @@ export const assignmentsAPI = {
 // Submissions API
 export const submissionsAPI = {
   // Get all submissions
-  async getSubmissions(params?: { 
-    assignmentId?: string; 
-    classId?: string; 
-    studentId?: string; 
-    status?: string 
+  async getSubmissions(params?: {
+    assignmentId?: string;
+    classId?: string;
+    studentId?: string;
+    status?: string;
   }) {
     const searchParams = new URLSearchParams();
     if (params?.assignmentId) {
@@ -445,11 +442,7 @@ export const potentialStudentsAPI = {
 // Student Records API
 export const studentRecordsAPI = {
   // Get all student records
-  async getStudentRecords(params?: { 
-    studentId?: string; 
-    classId?: string; 
-    levelId?: string 
-  }) {
+  async getStudentRecords(params?: { studentId?: string; classId?: string; levelId?: string }) {
     const searchParams = new URLSearchParams();
     if (params?.studentId) {
       searchParams.append('studentId', params.studentId);
@@ -506,13 +499,13 @@ export const studentRecordsAPI = {
 // Change Logs API
 export const changeLogsAPI = {
   // Get all change logs
-  async getChangeLogs(params?: { 
-    entityType?: string; 
-    entityId?: string; 
-    action?: string; 
-    userId?: string; 
-    startDate?: string; 
-    endDate?: string 
+  async getChangeLogs(params?: {
+    entityType?: string;
+    entityId?: string;
+    action?: string;
+    userId?: string;
+    startDate?: string;
+    endDate?: string;
   }) {
     const searchParams = new URLSearchParams();
     if (params?.entityType) {
@@ -592,4 +585,4 @@ export const apiService = {
   studentRecords: studentRecordsAPI,
   changeLogs: changeLogsAPI,
   health: healthAPI,
-}; 
+};

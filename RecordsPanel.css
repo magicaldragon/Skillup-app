@@ -107,15 +107,20 @@
   font-size: 1rem;
   background: #fff;
   color: #295b37;
-  transition: border 0.2s, box-shadow 0.2s;
+  transition:
+    border 0.2s,
+    box-shadow 0.2s;
   box-shadow: 0 1px 4px rgba(48, 118, 55, 0.07);
 }
-.records-search-input:focus, .records-filter-select:focus {
+.records-search-input:focus,
+.records-filter-select:focus {
   border-color: #f5b802;
   outline: none;
   box-shadow: 0 0 0 2px #ffe9c2;
 }
-.records-page-btn, .records-refresh-btn, .records-retry-btn {
+.records-page-btn,
+.records-refresh-btn,
+.records-retry-btn {
   background: linear-gradient(90deg, #307637 80%, #295b37 100%);
   color: #fff;
   font-weight: bold;
@@ -124,15 +129,25 @@
   padding: 12px 24px;
   font-size: 1.1rem;
   box-shadow: 0 2px 8px rgba(48, 118, 55, 0.13);
-  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s,
+    box-shadow 0.2s;
   cursor: pointer;
   letter-spacing: 1px;
   outline: none;
 }
-.records-page-btn:hover, .records-refresh-btn:hover, .records-retry-btn:hover, .records-page-btn:focus, .records-refresh-btn:focus, .records-retry-btn:focus {
+.records-page-btn:hover,
+.records-refresh-btn:hover,
+.records-retry-btn:hover,
+.records-page-btn:focus,
+.records-refresh-btn:focus,
+.records-retry-btn:focus {
   background: linear-gradient(90deg, #f5b802 60%, #ffe9c2 100%);
   color: #307637;
-  box-shadow: 0 4px 24px 0 #f5b802, 0 2px 8px #ffe9c2;
+  box-shadow:
+    0 4px 24px 0 #f5b802,
+    0 2px 8px #ffe9c2;
   outline: none;
 }
 .custom-table {
@@ -193,7 +208,8 @@
   margin-bottom: 8px;
   display: block;
 }
-.form-input, .form-select {
+.form-input,
+.form-select {
   width: 100%;
   padding: 12px;
   border: 2px solid #307637;
@@ -204,7 +220,8 @@
   color: #295b37;
   transition: border 0.2s;
 }
-.form-input:focus, .form-select:focus {
+.form-input:focus,
+.form-select:focus {
   border-color: #f5b802;
   outline: none;
 }
@@ -217,7 +234,9 @@
   padding: 12px 0;
   width: 100%;
   font-size: 1.1rem;
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
   cursor: pointer;
 }
 .form-btn:hover {

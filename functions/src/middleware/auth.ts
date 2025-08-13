@@ -1,5 +1,5 @@
 // functions/src/middleware/auth.ts - Authentication Middleware
-import { Request, Response, NextFunction } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import * as admin from 'firebase-admin';
 
 export interface AuthenticatedRequest extends Request {
@@ -18,21 +18,21 @@ export const verifyToken = async (
 ): Promise<void> => {
   try {
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       res.status(401).json({
         success: false,
-        message: 'No token provided'
+        message: 'No token provided',
       });
       return;
     }
 
     const token = authHeader.split('Bearer ')[1];
-    
+
     if (!token) {
       res.status(401).json({
         success: false,
-        message: 'Invalid token format'
+        message: 'Invalid token format',
       });
       return;
     }
@@ -43,9 +43,10 @@ export const verifyToken = async (
     try {
       // First try to verify as Firebase ID token
       decodedToken = await admin.auth().verifyIdToken(token);
-      
+
       // Get user data from Firestore by firebaseUid
-      const userQuery = await admin.firestore()
+      const userQuery = await admin
+        .firestore()
         .collection('users')
         .where('firebaseUid', '==', decodedToken.uid)
         .limit(1)
@@ -54,7 +55,7 @@ export const verifyToken = async (
       if (userQuery.empty) {
         res.status(401).json({
           success: false,
-          message: 'User not found in database'
+          message: 'User not found in database',
         });
         return;
       }
@@ -64,9 +65,10 @@ export const verifyToken = async (
       // If Firebase ID token verification fails, try as custom token
       try {
         decodedToken = await admin.auth().verifyIdToken(token);
-        
+
         // For custom tokens, we need to extract user info from the token
-        const userQuery = await admin.firestore()
+        const userQuery = await admin
+          .firestore()
           .collection('users')
           .where('firebaseUid', '==', decodedToken.uid)
           .limit(1)
@@ -75,7 +77,7 @@ export const verifyToken = async (
         if (userQuery.empty) {
           res.status(401).json({
             success: false,
-            message: 'User not found in database'
+            message: 'User not found in database',
           });
           return;
         }
@@ -85,16 +87,16 @@ export const verifyToken = async (
         console.error('Both token verification methods failed:', { firebaseError, customError });
         res.status(401).json({
           success: false,
-          message: 'Invalid or expired token'
+          message: 'Invalid or expired token',
         });
         return;
       }
     }
-    
+
     if (!decodedToken || !userData) {
       res.status(401).json({
         success: false,
-        message: 'Token verification failed'
+        message: 'Token verification failed',
       });
       return;
     }
@@ -104,7 +106,7 @@ export const verifyToken = async (
       uid: decodedToken.uid,
       email: decodedToken.email || userData.email || '',
       role: userData.role || 'student',
-      userId: userData._id || userData.id || ''
+      userId: userData._id || userData.id || '',
     };
 
     next();
@@ -112,7 +114,7 @@ export const verifyToken = async (
     console.error('Auth middleware error:', error);
     res.status(401).json({
       success: false,
-      message: 'Authentication failed'
+      message: 'Authentication failed',
     });
   }
 };
@@ -122,7 +124,7 @@ export const requireRole = (roles: string[]) => {
     if (!req.user) {
       res.status(401).json({
         success: false,
-        message: 'Authentication required'
+        message: 'Authentication required',
       });
       return;
     }
@@ -130,7 +132,7 @@ export const requireRole = (roles: string[]) => {
     if (!roles.includes(req.user.role)) {
       res.status(403).json({
         success: false,
-        message: 'Insufficient permissions'
+        message: 'Insufficient permissions',
       });
       return;
     }
@@ -141,4 +143,4 @@ export const requireRole = (roles: string[]) => {
 
 export const requireAdmin = requireRole(['admin']);
 export const requireTeacher = requireRole(['admin', 'teacher']);
-export const requireStaff = requireRole(['admin', 'teacher', 'staff']); 
+export const requireStaff = requireRole(['admin', 'teacher', 'staff']);

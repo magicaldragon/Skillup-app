@@ -7,68 +7,70 @@ const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   email: {
     type: String,
     required: true,
     unique: true,
     lowercase: true,
-    trim: true
+    trim: true,
   },
   password: {
     type: String,
-    required: true
+    required: true,
   },
   role: {
     type: String,
     enum: ['admin', 'teacher', 'student', 'staff'],
-    default: 'student'
+    default: 'student',
   },
   firebaseUid: {
     type: String,
     unique: true,
-    sparse: true
+    sparse: true,
   },
   username: {
     type: String,
     unique: true,
     lowercase: true,
-    trim: true
+    trim: true,
   },
   avatarUrl: {
     type: String,
-    default: ''
+    default: '',
   },
   status: {
     type: String,
     enum: ['active', 'inactive', 'suspended'],
-    default: 'active'
+    default: 'active',
   },
   phone: String,
   englishName: String,
   dob: String,
   gender: {
     type: String,
-    enum: ['male', 'female', 'other']
+    enum: ['male', 'female', 'other'],
   },
   note: String,
-  classIds: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Class'
-  }],
+  classIds: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Class',
+    },
+  ],
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   updatedAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
 // Password comparison method
-userSchema.methods.comparePassword = async function(candidatePassword) {
+userSchema.methods.comparePassword = async function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
@@ -87,7 +89,7 @@ async function setupUsers() {
         password: 'Skillup@123',
         role: 'teacher',
         firebaseUid: 'YCqXqLV1JacLMsmkgOoCrJQORtE2',
-        username: 'teacher-jenny'
+        username: 'teacher-jenny',
       },
       {
         name: 'SkillUp Admin',
@@ -95,8 +97,8 @@ async function setupUsers() {
         password: 'Skillup@123',
         role: 'admin',
         firebaseUid: 'qkHQ4gopbTgJdv9Pf0QSZkiGs222',
-        username: 'skillup-admin'
-      }
+        username: 'skillup-admin',
+      },
     ];
 
     for (const userData of usersToAdd) {
@@ -111,7 +113,7 @@ async function setupUsers() {
 
       // Create user
       const hashedPassword = await bcrypt.hash(userData.password, 10);
-      
+
       const user = new User({
         name: userData.name,
         email: userData.email,
@@ -121,7 +123,7 @@ async function setupUsers() {
         username: userData.username,
         status: 'active',
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       });
 
       await user.save();
@@ -131,7 +133,6 @@ async function setupUsers() {
     }
 
     console.log('\n✅ All users setup complete!');
-
   } catch (error) {
     console.error('Error setting up users:', error);
   } finally {
@@ -141,4 +142,4 @@ async function setupUsers() {
 }
 
 // Run the script
-setupUsers(); 
+setupUsers();

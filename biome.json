@@ -3,7 +3,18 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true
+      "recommended": true,
+      "correctness": {
+        "noUnusedVariables": "warn",
+        "useExhaustiveDependencies": "warn"
+      },
+      "style": {
+        "useImportType": "warn"
+      },
+      "suspicious": {
+        "noExplicitAny": "warn",
+        "noArrayIndexKey": "warn"
+      }
     }
   },
   "formatter": {
@@ -15,7 +26,35 @@
   "javascript": {
     "formatter": {
       "quoteStyle": "single",
-      "trailingCommas": "es5"
+      "trailingCommas": "es5",
+      "semicolons": "always"
     }
+  },
+  "files": {
+    "ignoreUnknown": true,
+    "experimentalScannerIgnores": [
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/build/**",
+      "**/.git/**",
+      "**/backend/**/*.js",
+      "**/functions/lib/**",
+      "**/*.md",
+      "**/*.png",
+      "**/*.svg",
+      "**/*.yml",
+      "**/*.yaml",
+      "**/*.txt",
+      "**/*.rules",
+      "**/*.cache",
+      "**/.env*",
+      "**/firebase.json",
+      "**/firestore.*",
+      "**/serviceAccountKey*",
+      "**/vstorage.config.ts",
+      "**/test-*.js",
+      "**/scripts/**/*.js",
+      "**/scripts/**/*.cjs"
+    ]
   }
-} 
+}

@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
+import type React from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const FrontendStatusPanel: React.FC = () => {
   const [logs, setLogs] = useState<string[]>([]);
@@ -16,7 +17,7 @@ const FrontendStatusPanel: React.FC = () => {
     // Capture console errors
     const origConsoleError = console.error;
     console.error = (...args) => {
-      const msg = `[${new Date().toLocaleTimeString()}] CONSOLE: ${args.map(a => (typeof a === 'string' ? a : JSON.stringify(a))).join(' ')}`;
+      const msg = `[${new Date().toLocaleTimeString()}] CONSOLE: ${args.map((a) => (typeof a === 'string' ? a : JSON.stringify(a))).join(' ')}`;
       logsRef.current = [...logsRef.current, msg];
       setLogs([...logsRef.current]);
       origConsoleError(...args);
@@ -39,9 +40,14 @@ const FrontendStatusPanel: React.FC = () => {
       <button className="px-4 py-2 bg-blue-600 text-white rounded mb-4" onClick={handleClear}>
         Clear Logs
       </button>
-      <pre className="bg-slate-100 p-4 rounded text-xs overflow-x-auto max-h-96" style={{ whiteSpace: 'pre-wrap' }}>{logs.join('\n')}</pre>
+      <pre
+        className="bg-slate-100 p-4 rounded text-xs overflow-x-auto max-h-96"
+        style={{ whiteSpace: 'pre-wrap' }}
+      >
+        {logs.join('\n')}
+      </pre>
     </div>
   );
 };
 
-export default FrontendStatusPanel; 
+export default FrontendStatusPanel;

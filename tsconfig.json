@@ -24,10 +24,8 @@
     "noUncheckedSideEffectImports": true,
 
     "paths": {
-      "@/*" :  ["./*"]
+      "@/*": ["./*"]
     }
   },
-  "exclude": [
-    "functions/**"
-  ]
+  "exclude": ["functions/**"]
 }

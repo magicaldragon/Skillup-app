@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const User = require('../models/User');
+const _User = require('../models/User');
 require('dotenv').config();
 
 const initialUsers = [
@@ -8,29 +8,29 @@ const initialUsers = [
     email: 'admin@admin.skillup',
     password: 'Skillup@123',
     role: 'admin',
-    username: 'skillup-admin'
+    username: 'skillup-admin',
   },
   {
     name: 'Jenny Teacher',
     email: 'teacher-jenny@teacher.skillup',
     password: 'Skillup@123',
     role: 'teacher',
-    username: 'teacher-jenny'
+    username: 'teacher-jenny',
   },
   {
     name: 'Alice Student',
     email: 'student-alice@student.skillup',
     password: 'Skillup123',
     role: 'student',
-    username: 'student-alice'
+    username: 'student-alice',
   },
   {
     name: 'Bob Student',
     email: 'student-bob@student.skillup',
     password: 'Skillup123',
     role: 'student',
-    username: 'student-bob'
-  }
+    username: 'student-bob',
+  },
 ];
 
 async function setupInitialUsers() {
@@ -46,7 +46,7 @@ async function setupInitialUsers() {
     console.log('\n📝 Steps to complete setup:');
     console.log('1. Go to Firebase Console > Authentication > Users');
     console.log('2. Click "Add User" for each user below:');
-    
+
     initialUsers.forEach((user, index) => {
       console.log(`\n   ${index + 1}. ${user.name} (${user.role})`);
       console.log(`      Email: ${user.email}`);
@@ -56,7 +56,6 @@ async function setupInitialUsers() {
 
     console.log('\n3. After creating users in Firebase, run this script again with the UIDs');
     console.log('4. Or use the "Add New Member" feature in the app to create users automatically');
-
   } catch (error) {
     console.error('❌ Error:', error.message);
   } finally {
@@ -65,4 +64,4 @@ async function setupInitialUsers() {
   }
 }
 
-setupInitialUsers(); 
+setupInitialUsers();

@@ -1,7 +1,7 @@
 // functions/src/routes/users.ts - Users API Routes
-import { Router, Response } from 'express';
+import { type Response, Router } from 'express';
 import * as admin from 'firebase-admin';
-import { AuthenticatedRequest, verifyToken, requireAdmin } from '../middleware/auth';
+import { type AuthenticatedRequest, requireAdmin, verifyToken } from '../middleware/auth';
 
 const router = Router();
 
@@ -10,7 +10,7 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
   try {
     const { role } = req.user!;
     const { status } = req.query;
-    
+
     let query: any = admin.firestore().collection('users');
 
     // Role-based filtering
@@ -18,7 +18,7 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
       // Admin, teachers, and staff see all users
     } else if (role === 'student') {
       // Students see only themselves
-      query = query.where('firebaseUid', '==', req.user!.uid);
+      query = query.where('firebaseUid', '==', req.user?.uid);
     }
 
     // Add status filtering if provided
@@ -30,10 +30,12 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
     const snapshot = await query.orderBy('createdAt', 'desc').get();
     const users = snapshot.docs.map((doc: any) => ({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
     }));
 
-    console.log(`Fetched ${users.length} users for role: ${role}${status ? ` with status: ${status}` : ''}`);
+    console.log(
+      `Fetched ${users.length} users for role: ${role}${status ? ` with status: ${status}` : ''}`
+    );
     return res.json(users);
   } catch (error) {
     console.error('Error fetching users:', error);
@@ -44,57 +46,59 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
 // Register new user
 router.post('/', async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { 
-      name, 
-      email, 
-      role, 
-      gender, 
-      englishName, 
-      dob, 
-      phone, 
-      parentName, 
-      parentPhone, 
+    const {
+      name,
+      email,
+      role,
+      gender,
+      englishName,
+      dob,
+      phone,
+      parentName,
+      parentPhone,
       notes,
       status = 'potential',
       firebaseUid,
-      username
+      username,
     } = req.body;
 
     // Check if user already exists
-    const existingUser = await admin.firestore()
+    const existingUser = await admin
+      .firestore()
       .collection('users')
       .where('email', '==', email)
       .limit(1)
       .get();
 
     if (!existingUser.empty) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: 'User with this email already exists' 
+        message: 'User with this email already exists',
       });
     }
 
     // Check if username already exists
     if (username) {
-      const existingUsername = await admin.firestore()
+      const existingUsername = await admin
+        .firestore()
         .collection('users')
         .where('username', '==', username)
         .limit(1)
         .get();
 
       if (!existingUsername.empty) {
-        return res.status(400).json({ 
+        return res.status(400).json({
           success: false,
-          message: 'Username already exists' 
+          message: 'Username already exists',
         });
       }
     }
 
     // Validate that firebaseUid is provided
     if (!firebaseUid) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: 'Firebase UID is required' 
+        message: 'Firebase UID is required',
       });
     }
 
@@ -122,7 +126,7 @@ router.post('/', async (req: AuthenticatedRequest, res: Response) => {
       status,
       firebaseUid,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     };
 
     const docRef = await admin.firestore().collection('users').add(userData);
@@ -145,9 +149,9 @@ router.post('/', async (req: AuthenticatedRequest, res: Response) => {
           notes: notes || `Created from registration form. Student Code: ${studentCode}`,
           assignedTo: null,
           createdAt: admin.firestore.FieldValue.serverTimestamp(),
-          updatedAt: admin.firestore.FieldValue.serverTimestamp()
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         };
-        
+
         await admin.firestore().collection('potentialStudents').add(potentialStudentData);
         console.log(`Created PotentialStudent record for user: ${docRef.id}`);
       } catch (potentialStudentError) {
@@ -159,14 +163,13 @@ router.post('/', async (req: AuthenticatedRequest, res: Response) => {
     return res.status(201).json({
       success: true,
       message: 'User created successfully',
-      user
+      user,
     });
-
   } catch (error) {
     console.error('Error creating user:', error);
     return res.status(500).json({
       success: false,
-      message: 'Failed to create user'
+      message: 'Failed to create user',
     });
   }
 });
@@ -178,12 +181,12 @@ router.get('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response)
     const { role } = req.user!;
 
     // Students can only see themselves
-    if (role === 'student' && req.user!.userId !== id) {
+    if (role === 'student' && req.user?.userId !== id) {
       return res.status(403).json({ message: 'Access denied' });
     }
 
     const doc = await admin.firestore().collection('users').doc(id).get();
-    
+
     if (!doc.exists) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -203,7 +206,7 @@ router.put('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response)
     const updateData = req.body;
 
     // Students can only update themselves
-    if (role === 'student' && req.user!.userId !== id) {
+    if (role === 'student' && req.user?.userId !== id) {
       return res.status(403).json({ message: 'Access denied' });
     }
 
@@ -212,25 +215,26 @@ router.put('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response)
     if (!currentUserDoc.exists) {
       return res.status(404).json({ message: 'User not found' });
     }
-    
+
     const currentUserData = currentUserDoc.data()!;
     const newEmail = updateData.email;
     const currentEmail = currentUserData.email;
 
     // Prepare Firebase Auth update data
     const authUpdateData: any = {};
-    
+
     // If email is being changed, update Firebase Auth as well
     if (newEmail && newEmail !== currentEmail) {
       try {
         // Check if new email already exists
-        const emailCheck = await admin.firestore()
+        const emailCheck = await admin
+          .firestore()
           .collection('users')
           .where('email', '==', newEmail)
           .where('firebaseUid', '!=', currentUserData.firebaseUid)
           .limit(1)
           .get();
-        
+
         if (!emailCheck.empty) {
           return res.status(400).json({ message: 'Email already exists' });
         }
@@ -239,9 +243,9 @@ router.put('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response)
         console.log(`Email change detected for user ${id}: ${currentEmail} → ${newEmail}`);
       } catch (authError: any) {
         console.error('Error checking email uniqueness:', authError);
-        return res.status(500).json({ 
+        return res.status(500).json({
           message: 'Failed to verify email uniqueness',
-          error: authError.message 
+          error: authError.message,
         });
       }
     }
@@ -249,20 +253,23 @@ router.put('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response)
     // If display name is being changed, update Firebase Auth as well
     if (updateData.name && updateData.name !== currentUserData.name) {
       authUpdateData.displayName = updateData.name;
-      console.log(`Display name change detected for user ${id}: ${currentUserData.name} → ${updateData.name}`);
+      console.log(
+        `Display name change detected for user ${id}: ${currentUserData.name} → ${updateData.name}`
+      );
     }
 
     // If username is being changed, update Firebase Auth custom claims
     if (updateData.username && updateData.username !== currentUserData.username) {
       try {
         // Check if username already exists
-        const usernameCheck = await admin.firestore()
+        const usernameCheck = await admin
+          .firestore()
           .collection('users')
           .where('username', '==', updateData.username)
           .where('firebaseUid', '!=', currentUserData.firebaseUid)
           .limit(1)
           .get();
-        
+
         if (!usernameCheck.empty) {
           return res.status(400).json({ message: 'Username already exists' });
         }
@@ -271,16 +278,18 @@ router.put('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response)
         if (currentUserData.firebaseUid) {
           const customClaims = {
             username: updateData.username,
-            role: currentUserData.role
+            role: currentUserData.role,
           };
           await admin.auth().setCustomUserClaims(currentUserData.firebaseUid, customClaims);
-          console.log(`Updated Firebase Auth custom claims for user ${id} with username: ${updateData.username}`);
+          console.log(
+            `Updated Firebase Auth custom claims for user ${id} with username: ${updateData.username}`
+          );
         }
       } catch (authError: any) {
         console.error('Error updating Firebase Auth custom claims:', authError);
-        return res.status(500).json({ 
+        return res.status(500).json({
           message: 'Failed to update username in authentication system',
-          error: authError.message 
+          error: authError.message,
         });
       }
     }
@@ -292,9 +301,9 @@ router.put('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response)
         console.log(`Updated Firebase Auth for user ${id}:`, authUpdateData);
       } catch (authError: any) {
         console.error('Error updating Firebase Auth user:', authError);
-        return res.status(500).json({ 
+        return res.status(500).json({
           message: 'Failed to update user in authentication system',
-          error: authError.message 
+          error: authError.message,
         });
       }
     }
@@ -315,51 +324,60 @@ router.put('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response)
 });
 
 // Delete user
-router.delete('/:id', verifyToken, requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
-  try {
-    const { id } = req.params;
+router.delete(
+  '/:id',
+  verifyToken,
+  requireAdmin,
+  async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { id } = req.params;
 
-    // Get user data before deletion to remove from Firebase Auth
-    const userDoc = await admin.firestore().collection('users').doc(id).get();
-    if (!userDoc.exists) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    const userData = userDoc.data()!;
-    
-    // Delete from Firestore first
-    await admin.firestore().collection('users').doc(id).delete();
-
-    // Delete from Firebase Auth if firebaseUid exists
-    if (userData.firebaseUid) {
-      try {
-        await admin.auth().deleteUser(userData.firebaseUid);
-        console.log(`Deleted Firebase Auth user: ${userData.firebaseUid}`);
-      } catch (authError: any) {
-        console.error('Error deleting Firebase Auth user:', authError);
-        // Don't fail the request if Auth deletion fails, but log it
-        console.warn(`Firebase Auth user ${userData.firebaseUid} could not be deleted:`, authError.message);
+      // Get user data before deletion to remove from Firebase Auth
+      const userDoc = await admin.firestore().collection('users').doc(id).get();
+      if (!userDoc.exists) {
+        return res.status(404).json({ message: 'User not found' });
       }
-    }
 
-    console.log(`Deleted user ${id} from Firestore and Firebase Auth`);
-    return res.json({ success: true, message: 'User deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting user:', error);
-    return res.status(500).json({ message: 'Failed to delete user' });
+      const userData = userDoc.data()!;
+
+      // Delete from Firestore first
+      await admin.firestore().collection('users').doc(id).delete();
+
+      // Delete from Firebase Auth if firebaseUid exists
+      if (userData.firebaseUid) {
+        try {
+          await admin.auth().deleteUser(userData.firebaseUid);
+          console.log(`Deleted Firebase Auth user: ${userData.firebaseUid}`);
+        } catch (authError: any) {
+          console.error('Error deleting Firebase Auth user:', authError);
+          // Don't fail the request if Auth deletion fails, but log it
+          console.warn(
+            `Firebase Auth user ${userData.firebaseUid} could not be deleted:`,
+            authError.message
+          );
+        }
+      }
+
+      console.log(`Deleted user ${id} from Firestore and Firebase Auth`);
+      return res.json({ success: true, message: 'User deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      return res.status(500).json({ message: 'Failed to delete user' });
+    }
   }
-});
+);
 
 // Check if email exists
 router.get('/check-email/:email', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { email } = req.params;
-    const snapshot = await admin.firestore()
+    const snapshot = await admin
+      .firestore()
       .collection('users')
       .where('email', '==', email)
       .limit(1)
       .get();
-    
+
     return res.json({ exists: !snapshot.empty });
   } catch (error) {
     console.error('Error checking email:', error);
@@ -371,12 +389,13 @@ router.get('/check-email/:email', async (req: AuthenticatedRequest, res: Respons
 router.get('/check-username/:username', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { username } = req.params;
-    const snapshot = await admin.firestore()
+    const snapshot = await admin
+      .firestore()
       .collection('users')
       .where('username', '==', username)
       .limit(1)
       .get();
-    
+
     return res.json({ exists: !snapshot.empty });
   } catch (error) {
     console.error('Error checking username:', error);
@@ -385,39 +404,44 @@ router.get('/check-username/:username', async (req: AuthenticatedRequest, res: R
 });
 
 // Change user password
-router.put('/:id/password', verifyToken, requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
-  try {
-    const { id } = req.params;
-    const { newPassword } = req.body;
+router.put(
+  '/:id/password',
+  verifyToken,
+  requireAdmin,
+  async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { id } = req.params;
+      const { newPassword } = req.body;
 
-    if (!newPassword || newPassword.length < 6) {
-      return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+      if (!newPassword || newPassword.length < 6) {
+        return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+      }
+
+      // Get user data to find firebaseUid
+      const userDoc = await admin.firestore().collection('users').doc(id).get();
+      if (!userDoc.exists) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      const userData = userDoc.data()!;
+
+      if (!userData.firebaseUid) {
+        return res.status(400).json({ message: 'User has no Firebase Auth account' });
+      }
+
+      // Update password in Firebase Auth
+      await admin.auth().updateUser(userData.firebaseUid, {
+        password: newPassword,
+      });
+
+      console.log(`Password updated for Firebase Auth user: ${userData.firebaseUid}`);
+      return res.json({ success: true, message: 'Password updated successfully' });
+    } catch (error) {
+      console.error('Error updating password:', error);
+      return res.status(500).json({ message: 'Failed to update password' });
     }
-
-    // Get user data to find firebaseUid
-    const userDoc = await admin.firestore().collection('users').doc(id).get();
-    if (!userDoc.exists) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    const userData = userDoc.data()!;
-    
-    if (!userData.firebaseUid) {
-      return res.status(400).json({ message: 'User has no Firebase Auth account' });
-    }
-
-    // Update password in Firebase Auth
-    await admin.auth().updateUser(userData.firebaseUid, {
-      password: newPassword
-    });
-
-    console.log(`Password updated for Firebase Auth user: ${userData.firebaseUid}`);
-    return res.json({ success: true, message: 'Password updated successfully' });
-  } catch (error) {
-    console.error('Error updating password:', error);
-    return res.status(500).json({ message: 'Failed to update password' });
   }
-});
+);
 
 // Update user avatar
 router.post('/:id/avatar', verifyToken, async (req: AuthenticatedRequest, res: Response) => {
@@ -425,7 +449,11 @@ router.post('/:id/avatar', verifyToken, async (req: AuthenticatedRequest, res: R
     const { id } = req.params;
     // This would typically handle file upload to Firebase Storage
     // For now, we'll just return a success message with the user ID
-    return res.json({ message: 'Avatar updated successfully', avatarUrl: 'placeholder-url', userId: id });
+    return res.json({
+      message: 'Avatar updated successfully',
+      avatarUrl: 'placeholder-url',
+      userId: id,
+    });
   } catch (error) {
     console.error('Error updating avatar:', error);
     return res.status(500).json({ message: 'Failed to update avatar' });
@@ -447,7 +475,8 @@ router.delete('/:id/avatar', verifyToken, async (req: AuthenticatedRequest, res:
 // Helper function to generate student code
 async function generateStudentCode(): Promise<string> {
   const year = new Date().getFullYear().toString().slice(-2);
-  const snapshot = await admin.firestore()
+  const snapshot = await admin
+    .firestore()
     .collection('users')
     .where('studentCode', '>=', `STU${year}0001`)
     .where('studentCode', '<=', `STU${year}9999`)
@@ -465,4 +494,4 @@ async function generateStudentCode(): Promise<string> {
   return `STU${year}${nextNumber.toString().padStart(4, '0')}`;
 }
 
-export { router as usersRouter }; 
+export { router as usersRouter };

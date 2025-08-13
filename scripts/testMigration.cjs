@@ -7,27 +7,27 @@ console.log('==========================\n');
 // Test MongoDB connection
 async function testMongoDB() {
   console.log('1. Testing MongoDB connection...');
-  
+
   if (!process.env.MONGODB_URI) {
     console.log('❌ MONGODB_URI not set');
     return false;
   }
-  
+
   console.log('✅ MONGODB_URI is set');
-  
+
   try {
     const client = new MongoClient(process.env.MONGODB_URI);
     await client.connect();
     console.log('✅ MongoDB connection successful');
-    
+
     const db = client.db();
     const collections = await db.listCollections().toArray();
     console.log(`📊 Found ${collections.length} collections:`);
-    
-    collections.forEach(col => {
+
+    collections.forEach((col) => {
       console.log(`   - ${col.name}`);
     });
-    
+
     await client.close();
     return true;
   } catch (error) {
@@ -39,11 +39,11 @@ async function testMongoDB() {
 // Test Firebase Functions API
 async function testFirebaseAPI() {
   console.log('\n2. Testing Firebase Functions API...');
-  
+
   try {
     const response = await fetch('https://us-central1-skillup-3beaf.cloudfunctions.net/api/health');
     const data = await response.json();
-    
+
     if (response.ok && data.success) {
       console.log('✅ Firebase Functions API is working');
       console.log(`📍 API URL: https://us-central1-skillup-3beaf.cloudfunctions.net/api`);
@@ -61,15 +61,15 @@ async function testFirebaseAPI() {
 // Test VStorage configuration
 function testVStorageConfig() {
   console.log('\n3. Testing VStorage configuration...');
-  
+
   const requiredVars = [
     'VITE_VSTORAGE_ACCESS_KEY',
     'VITE_VSTORAGE_SECRET_KEY',
-    'VITE_VSTORAGE_BUCKET'
+    'VITE_VSTORAGE_BUCKET',
   ];
-  
+
   let allSet = true;
-  requiredVars.forEach(varName => {
+  requiredVars.forEach((varName) => {
     if (process.env[varName]) {
       console.log(`✅ ${varName} is set`);
     } else {
@@ -77,26 +77,26 @@ function testVStorageConfig() {
       allSet = false;
     }
   });
-  
+
   return allSet;
 }
 
 // Main test function
 async function runTests() {
   console.log('🚀 Starting migration tests...\n');
-  
+
   const results = {
     mongodb: await testMongoDB(),
     firebase: await testFirebaseAPI(),
-    vstorage: testVStorageConfig()
+    vstorage: testVStorageConfig(),
   };
-  
+
   console.log('\n📊 Test Results:');
   console.log('================');
   console.log(`MongoDB Connection: ${results.mongodb ? '✅ PASS' : '❌ FAIL'}`);
   console.log(`Firebase API: ${results.firebase ? '✅ PASS' : '❌ FAIL'}`);
   console.log(`VStorage Config: ${results.vstorage ? '✅ PASS' : '❌ FAIL'}`);
-  
+
   if (results.mongodb && results.firebase) {
     console.log('\n🎉 Ready for migration!');
     console.log('\n📋 Next steps:');
@@ -113,4 +113,4 @@ if (require.main === module) {
   runTests().catch(console.error);
 }
 
-module.exports = { runTests }; 
+module.exports = { runTests };

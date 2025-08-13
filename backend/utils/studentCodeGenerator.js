@@ -4,9 +4,9 @@ const generateStudentCode = async () => {
   try {
     // Get all existing student codes, sorted
     const existingStudents = await User.find(
-      { 
+      {
         studentCode: { $exists: true, $ne: null },
-        role: 'student'
+        role: 'student',
       },
       { studentCode: 1 },
       { sort: { studentCode: 1 } }
@@ -19,8 +19,8 @@ const generateStudentCode = async () => {
 
     // Extract numbers from existing codes
     const existingNumbers = existingStudents
-      .map(student => parseInt(student.studentCode.replace('SU-', '')))
-      .filter(num => !isNaN(num))
+      .map((student) => parseInt(student.studentCode.replace('SU-', '')))
+      .filter((num) => !Number.isNaN(num))
       .sort((a, b) => a - b);
 
     // Find the first gap in the sequence, or use the next number
@@ -32,7 +32,7 @@ const generateStudentCode = async () => {
       }
       nextNumber = num + 1;
     }
-    
+
     // Format with leading zeros (e.g., SU-001, SU-002, etc.)
     return `SU-${nextNumber.toString().padStart(3, '0')}`;
   } catch (error) {
@@ -60,9 +60,9 @@ const reassignAllStudentCodes = async () => {
           id: student._id,
           oldCode: student.studentCode,
           newCode: newCode,
-          name: student.name
+          name: student.name,
         });
-        
+
         await User.findByIdAndUpdate(student._id, { studentCode: newCode });
       }
       codeNumber++;
@@ -71,7 +71,7 @@ const reassignAllStudentCodes = async () => {
     return {
       success: true,
       message: `Reassigned ${updates.length} student codes`,
-      updates: updates
+      updates: updates,
     };
   } catch (error) {
     console.error('Error reassigning student codes:', error);
@@ -83,17 +83,17 @@ const reassignAllStudentCodes = async () => {
 const findStudentCodeGaps = async () => {
   try {
     const students = await User.find(
-      { 
+      {
         studentCode: { $exists: true, $ne: null },
-        role: 'student'
+        role: 'student',
       },
       { studentCode: 1, name: 1 },
       { sort: { studentCode: 1 } }
     );
 
     const existingNumbers = students
-      .map(student => parseInt(student.studentCode.replace('SU-', '')))
-      .filter(num => !isNaN(num))
+      .map((student) => parseInt(student.studentCode.replace('SU-', '')))
+      .filter((num) => !Number.isNaN(num))
       .sort((a, b) => a - b);
 
     const gaps = [];
@@ -105,9 +105,14 @@ const findStudentCodeGaps = async () => {
 
     return {
       totalStudents: students.length,
-      highestCode: existingNumbers.length > 0 ? `SU-${Math.max(...existingNumbers).toString().padStart(3, '0')}` : 'None',
+      highestCode:
+        existingNumbers.length > 0
+          ? `SU-${Math.max(...existingNumbers)
+              .toString()
+              .padStart(3, '0')}`
+          : 'None',
       gaps: gaps,
-      gapCount: gaps.length
+      gapCount: gaps.length,
     };
   } catch (error) {
     console.error('Error finding student code gaps:', error);
@@ -115,8 +120,8 @@ const findStudentCodeGaps = async () => {
   }
 };
 
-module.exports = { 
-  generateStudentCode, 
-  reassignAllStudentCodes, 
-  findStudentCodeGaps 
-}; 
+module.exports = {
+  generateStudentCode,
+  reassignAllStudentCodes,
+  findStudentCodeGaps,
+};

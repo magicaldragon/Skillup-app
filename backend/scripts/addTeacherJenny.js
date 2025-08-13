@@ -7,68 +7,70 @@ const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   email: {
     type: String,
     required: true,
     unique: true,
     lowercase: true,
-    trim: true
+    trim: true,
   },
   password: {
     type: String,
-    required: true
+    required: true,
   },
   role: {
     type: String,
     enum: ['admin', 'teacher', 'student', 'staff'],
-    default: 'student'
+    default: 'student',
   },
   firebaseUid: {
     type: String,
     unique: true,
-    sparse: true
+    sparse: true,
   },
   username: {
     type: String,
     unique: true,
     lowercase: true,
-    trim: true
+    trim: true,
   },
   avatarUrl: {
     type: String,
-    default: ''
+    default: '',
   },
   status: {
     type: String,
     enum: ['active', 'inactive', 'suspended'],
-    default: 'active'
+    default: 'active',
   },
   phone: String,
   englishName: String,
   dob: String,
   gender: {
     type: String,
-    enum: ['male', 'female', 'other']
+    enum: ['male', 'female', 'other'],
   },
   note: String,
-  classIds: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Class'
-  }],
+  classIds: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Class',
+    },
+  ],
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   updatedAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
 // Password comparison method
-userSchema.methods.comparePassword = async function(candidatePassword) {
+userSchema.methods.comparePassword = async function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
@@ -91,7 +93,7 @@ async function addTeacherJenny() {
 
     // Create Teacher Jenny
     const hashedPassword = await bcrypt.hash('Skillup@123', 10);
-    
+
     const teacherJenny = new User({
       name: 'Jenny Teacher',
       email: 'teacher-jenny@teacher.skillup',
@@ -101,14 +103,13 @@ async function addTeacherJenny() {
       username: 'teacher-jenny',
       status: 'active',
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     });
 
     await teacherJenny.save();
     console.log('Teacher Jenny added to MongoDB successfully!');
     console.log('User ID:', teacherJenny._id);
     console.log('Firebase UID:', teacherJenny.firebaseUid);
-
   } catch (error) {
     console.error('Error adding Teacher Jenny:', error);
   } finally {
@@ -118,4 +119,4 @@ async function addTeacherJenny() {
 }
 
 // Run the script
-addTeacherJenny(); 
+addTeacherJenny();

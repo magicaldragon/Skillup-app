@@ -15,9 +15,9 @@ async function testRegistrationFlow() {
     console.log('\n📊 Current State:');
     console.log('Firebase Auth: skillup-admin, teacher-jenny');
     console.log('MongoDB: 2 users with Firebase UIDs');
-    
+
     const currentUsers = await User.find().select('-password');
-    currentUsers.forEach(user => {
+    currentUsers.forEach((user) => {
       console.log(`- ${user.name}: Firebase UID = ${user.firebaseUid}`);
     });
 
@@ -28,18 +28,18 @@ async function testRegistrationFlow() {
     console.log('   - Username: student-johndoe-1234');
     console.log('   - Email: student-johndoe-1234@student.skillup');
     console.log('   - Password: Skillup123');
-    
+
     console.log('\n3. Creates user in Firebase Auth:');
     console.log('   - Email: student-johndoe-1234@student.skillup');
     console.log('   - Password: Skillup123');
     console.log('   - Firebase generates UID: abc123def456...');
-    
+
     console.log('\n4. Creates user in MongoDB:');
     console.log('   - Name: John Doe');
     console.log('   - Email: student-johndoe-1234@student.skillup');
     console.log('   - Role: student');
     console.log('   - Firebase UID: abc123def456... (SAME UID!)');
-    
+
     console.log('\n5. Result:');
     console.log('   - Firebase Auth: User can login with email/password');
     console.log('   - MongoDB: User profile data is stored');
@@ -59,11 +59,11 @@ async function testRegistrationFlow() {
     console.log('✅ userRegistrationService.registerNewUser():');
     console.log('   - Creates Firebase user → gets UID');
     console.log('   - Creates MongoDB user with same UID');
-    
+
     console.log('✅ hybridAuthService.login():');
     console.log('   - Firebase validates credentials → returns UID');
     console.log('   - Fetches MongoDB user by Firebase UID');
-    
+
     console.log('✅ Backend API /api/users/firebase/:firebaseUid:');
     console.log('   - Returns MongoDB user data for given Firebase UID');
 
@@ -81,7 +81,6 @@ async function testRegistrationFlow() {
 
     console.log('\n✅ The UID in Firebase IS the same UID in MongoDB!');
     console.log('✅ This is how the systems stay synchronized!');
-
   } catch (error) {
     console.error('❌ Error:', error.message);
   } finally {
@@ -90,4 +89,4 @@ async function testRegistrationFlow() {
   }
 }
 
-testRegistrationFlow(); 
+testRegistrationFlow();

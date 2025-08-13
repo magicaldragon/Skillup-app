@@ -12,7 +12,7 @@ const initialUsers = [
     email: 'admin@admin.skillup',
     role: 'admin',
     avatarUrl: 'https://picsum.photos/seed/admin/100/100',
-    status: 'active'
+    status: 'active',
   },
   {
     firebaseUid: 'teacher-uid-456', // Replace with actual Firebase UID
@@ -20,7 +20,7 @@ const initialUsers = [
     email: 'teacher-jenny@teacher.skillup',
     role: 'teacher',
     avatarUrl: 'https://picsum.photos/seed/jenny/100/100',
-    status: 'active'
+    status: 'active',
   },
   {
     firebaseUid: 'student-alice-uid-789', // Replace with actual Firebase UID
@@ -30,7 +30,7 @@ const initialUsers = [
     avatarUrl: 'https://picsum.photos/seed/alice/100/100',
     status: 'active',
     englishName: 'Alice Johnson',
-    gender: 'female'
+    gender: 'female',
   },
   {
     firebaseUid: 'student-bob-uid-012', // Replace with actual Firebase UID
@@ -40,8 +40,8 @@ const initialUsers = [
     avatarUrl: 'https://picsum.photos/seed/bob/100/100',
     status: 'active',
     englishName: 'Bob Smith',
-    gender: 'male'
-  }
+    gender: 'male',
+  },
 ];
 
 async function seedHybridUsers() {
@@ -57,7 +57,10 @@ async function seedHybridUsers() {
     const existingUsers = await User.find();
     if (existingUsers.length > 0) {
       console.log('Users already exist in database. Skipping seed.');
-      console.log('Existing users:', existingUsers.map(u => ({ email: u.email, role: u.role, firebaseUid: u.firebaseUid })));
+      console.log(
+        'Existing users:',
+        existingUsers.map((u) => ({ email: u.email, role: u.role, firebaseUid: u.firebaseUid }))
+      );
       return;
     }
 
@@ -76,9 +79,11 @@ async function seedHybridUsers() {
           name: user.name,
           email: user.email,
           role: user.role,
-          firebaseUid: user.firebaseUid
+          firebaseUid: user.firebaseUid,
         });
-        console.log(`Created user: ${user.name} (${user.email}) with Firebase UID: ${user.firebaseUid}`);
+        console.log(
+          `Created user: ${user.name} (${user.email}) with Firebase UID: ${user.firebaseUid}`
+        );
       } catch (error) {
         console.error(`Error creating user ${userData.email}:`, error.message);
       }
@@ -90,7 +95,6 @@ async function seedHybridUsers() {
     console.log('1. Create these users in Firebase Auth with the same emails');
     console.log('2. Update the firebaseUid values in this script with the actual Firebase UIDs');
     console.log('3. Run this script again to update the MongoDB records');
-
   } catch (error) {
     console.error('Seeding error:', error);
   } finally {
@@ -100,4 +104,4 @@ async function seedHybridUsers() {
 }
 
 // Run the seeding function
-seedHybridUsers(); 
+seedHybridUsers();

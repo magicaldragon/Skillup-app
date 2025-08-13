@@ -4,7 +4,7 @@ const router = express.Router();
 const ChangeLog = require('../models/ChangeLog');
 
 // Mock data for now - in production this would come from a database
-let assignments = [
+const assignments = [
   {
     id: '1',
     title: 'IELTS Reading Practice - Academic',
@@ -14,7 +14,7 @@ let assignments = [
     dueDate: '2024-12-31',
     classIds: ['class1', 'class2'],
     createdAt: new Date().toISOString(),
-    createdBy: 'teacher1'
+    createdBy: 'teacher1',
   },
   {
     id: '2',
@@ -25,8 +25,8 @@ let assignments = [
     dueDate: '2024-12-25',
     classIds: ['class1'],
     createdAt: new Date().toISOString(),
-    createdBy: 'teacher1'
-  }
+    createdBy: 'teacher1',
+  },
 ];
 
 // Get all assignments (admin/teacher can see all, staff can see assignments for their classes)
@@ -34,13 +34,13 @@ router.get('/', verifyToken, async (req, res) => {
   try {
     // Check if user is admin, teacher, or staff
     if (req.user.role !== 'admin' && req.user.role !== 'teacher' && req.user.role !== 'staff') {
-      return res.status(403).json({ 
-        success: false, 
-        message: 'Access denied. Admin, teacher, or staff role required.' 
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin, teacher, or staff role required.',
       });
     }
 
-    let filteredAssignments = assignments;
+    const filteredAssignments = assignments;
 
     // Staff can only see assignments for their classes
     if (req.user.role === 'staff') {
@@ -50,13 +50,13 @@ router.get('/', verifyToken, async (req, res) => {
 
     res.json({
       success: true,
-      assignments: filteredAssignments
+      assignments: filteredAssignments,
     });
   } catch (error) {
     console.error('Get assignments error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Internal server error' 
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
     });
   }
 });
@@ -67,10 +67,15 @@ router.get('/student/:studentId', verifyToken, async (req, res) => {
     const { studentId } = req.params;
 
     // Check if user is admin, teacher, staff, or the student themselves
-    if (req.user.role !== 'admin' && req.user.role !== 'teacher' && req.user.role !== 'staff' && req.user.userId !== studentId) {
-      return res.status(403).json({ 
-        success: false, 
-        message: 'Access denied.' 
+    if (
+      req.user.role !== 'admin' &&
+      req.user.role !== 'teacher' &&
+      req.user.role !== 'staff' &&
+      req.user.userId !== studentId
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied.',
       });
     }
 
@@ -80,13 +85,13 @@ router.get('/student/:studentId', verifyToken, async (req, res) => {
 
     res.json({
       success: true,
-      assignments: studentAssignments
+      assignments: studentAssignments,
     });
   } catch (error) {
     console.error('Get student assignments error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Internal server error' 
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
     });
   }
 });
@@ -96,9 +101,9 @@ router.post('/', verifyToken, async (req, res) => {
   try {
     // Check if user is admin or teacher
     if (req.user.role !== 'admin' && req.user.role !== 'teacher') {
-      return res.status(403).json({ 
-        success: false, 
-        message: 'Access denied. Admin or teacher role required.' 
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin or teacher role required.',
       });
     }
 
@@ -108,7 +113,7 @@ router.post('/', verifyToken, async (req, res) => {
     if (!title || !skill || !level || !dueDate) {
       return res.status(400).json({
         success: false,
-        message: 'Title, skill, level, and due date are required'
+        message: 'Title, skill, level, and due date are required',
       });
     }
 
@@ -121,7 +126,7 @@ router.post('/', verifyToken, async (req, res) => {
       dueDate,
       classIds: classIds || [],
       createdAt: new Date().toISOString(),
-      createdBy: req.user.userId
+      createdBy: req.user.userId,
     };
 
     assignments.push(newAssignment);
@@ -135,19 +140,19 @@ router.post('/', verifyToken, async (req, res) => {
       entityType: 'assignment',
       entityId: newAssignment.id,
       details: { after: newAssignment },
-      ip: req.ip
+      ip: req.ip,
     });
 
     res.status(201).json({
       success: true,
       message: 'Assignment created successfully',
-      assignment: newAssignment
+      assignment: newAssignment,
     });
   } catch (error) {
     console.error('Create assignment error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Internal server error' 
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
     });
   }
 });
@@ -157,17 +162,17 @@ router.put('/:id', verifyToken, async (req, res) => {
   try {
     // Check if user is admin or teacher
     if (req.user.role !== 'admin' && req.user.role !== 'teacher') {
-      return res.status(403).json({ 
-        success: false, 
-        message: 'Access denied. Admin or teacher role required.' 
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin or teacher role required.',
       });
     }
 
-    const assignmentIndex = assignments.findIndex(a => a.id === req.params.id);
+    const assignmentIndex = assignments.findIndex((a) => a.id === req.params.id);
     if (assignmentIndex === -1) {
       return res.status(404).json({
         success: false,
-        message: 'Assignment not found'
+        message: 'Assignment not found',
       });
     }
 
@@ -177,7 +182,7 @@ router.put('/:id', verifyToken, async (req, res) => {
     if (req.user.role !== 'admin' && assignment.createdBy !== req.user.userId) {
       return res.status(403).json({
         success: false,
-        message: 'You can only update assignments you created'
+        message: 'You can only update assignments you created',
       });
     }
 
@@ -191,7 +196,7 @@ router.put('/:id', verifyToken, async (req, res) => {
       skill: skill || assignment.skill,
       level: level || assignment.level,
       dueDate: dueDate || assignment.dueDate,
-      classIds: classIds || assignment.classIds
+      classIds: classIds || assignment.classIds,
     };
 
     // Log the action
@@ -203,19 +208,19 @@ router.put('/:id', verifyToken, async (req, res) => {
       entityType: 'assignment',
       entityId: req.params.id,
       details: { before: assignment, after: assignments[assignmentIndex] },
-      ip: req.ip
+      ip: req.ip,
     });
 
     res.json({
       success: true,
       message: 'Assignment updated successfully',
-      assignment: assignments[assignmentIndex]
+      assignment: assignments[assignmentIndex],
     });
   } catch (error) {
     console.error('Update assignment error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Internal server error' 
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
     });
   }
 });
@@ -225,17 +230,17 @@ router.delete('/:id', verifyToken, async (req, res) => {
   try {
     // Check if user is admin or teacher
     if (req.user.role !== 'admin' && req.user.role !== 'teacher') {
-      return res.status(403).json({ 
-        success: false, 
-        message: 'Access denied. Admin or teacher role required.' 
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin or teacher role required.',
       });
     }
 
-    const assignmentIndex = assignments.findIndex(a => a.id === req.params.id);
+    const assignmentIndex = assignments.findIndex((a) => a.id === req.params.id);
     if (assignmentIndex === -1) {
       return res.status(404).json({
         success: false,
-        message: 'Assignment not found'
+        message: 'Assignment not found',
       });
     }
 
@@ -245,7 +250,7 @@ router.delete('/:id', verifyToken, async (req, res) => {
     if (req.user.role !== 'admin' && assignment.createdBy !== req.user.userId) {
       return res.status(403).json({
         success: false,
-        message: 'You can only delete assignments you created'
+        message: 'You can only delete assignments you created',
       });
     }
 
@@ -260,20 +265,20 @@ router.delete('/:id', verifyToken, async (req, res) => {
       entityType: 'assignment',
       entityId: req.params.id,
       details: { before: assignment },
-      ip: req.ip
+      ip: req.ip,
     });
 
     res.json({
       success: true,
-      message: 'Assignment deleted successfully'
+      message: 'Assignment deleted successfully',
     });
   } catch (error) {
     console.error('Delete assignment error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Internal server error' 
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
     });
   }
 });
 
-module.exports = router; 
+module.exports = router;

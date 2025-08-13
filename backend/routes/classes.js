@@ -10,9 +10,12 @@ const Class = require('../models/Class');
 router.get('/', verifyToken, async (req, res) => {
   try {
     if (req.user.role !== 'admin' && req.user.role !== 'teacher' && req.user.role !== 'staff') {
-      return res.status(403).json({ success: false, message: 'Access denied. Admin, teacher, or staff role required.' });
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin, teacher, or staff role required.',
+      });
     }
-    let query = { isActive: true };
+    const query = { isActive: true };
     if (req.user.role === 'teacher') {
       query.teacherId = req.user.userId;
     }
@@ -32,7 +35,12 @@ router.get('/', verifyToken, async (req, res) => {
 router.get('/student/:studentId', verifyToken, async (req, res) => {
   try {
     const { studentId } = req.params;
-    if (req.user.role !== 'admin' && req.user.role !== 'teacher' && req.user.role !== 'staff' && req.user.userId !== studentId) {
+    if (
+      req.user.role !== 'admin' &&
+      req.user.role !== 'teacher' &&
+      req.user.role !== 'staff' &&
+      req.user.userId !== studentId
+    ) {
       return res.status(403).json({ success: false, message: 'Access denied.' });
     }
     const classes = await Class.find({ studentIds: studentId, isActive: true })
@@ -51,10 +59,15 @@ router.get('/teacher/:teacherId', verifyToken, async (req, res) => {
   try {
     const { teacherId } = req.params;
     if (req.user.role !== 'admin' && req.user.role !== 'teacher' && req.user.role !== 'staff') {
-      return res.status(403).json({ success: false, message: 'Access denied. Admin, teacher, or staff role required.' });
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Admin, teacher, or staff role required.',
+      });
     }
     if (req.user.role === 'teacher' && req.user.userId !== teacherId) {
-      return res.status(403).json({ success: false, message: 'You can only view your own classes' });
+      return res
+        .status(403)
+        .json({ success: false, message: 'You can only view your own classes' });
     }
     const classes = await Class.find({ teacherId, isActive: true })
       .populate('teacherId', 'name')
@@ -73,40 +86,42 @@ router.post('/', verifyToken, async (req, res) => {
     console.log('=== CREATE CLASS DEBUG ===');
     console.log('User:', req.user);
     console.log('Request body:', req.body);
-    
+
     if (req.user.role !== 'admin' && req.user.role !== 'teacher') {
       console.log('Access denied - role not allowed:', req.user.role);
-      return res.status(403).json({ success: false, message: 'Access denied. Admin or teacher role required.' });
+      return res
+        .status(403)
+        .json({ success: false, message: 'Access denied. Admin or teacher role required.' });
     }
-    
+
     const { levelId, description, studentIds } = req.body;
     console.log('Extracted levelId:', levelId);
-    
+
     if (!levelId) {
       console.log('Level ID is missing');
       return res.status(400).json({ success: false, message: 'Level ID is required' });
     }
-    
+
     // Verify level exists
     const Level = require('../models/Level');
     const level = await Level.findById(levelId);
     console.log('Found level:', level ? { id: level._id, name: level.name } : 'null');
-    
+
     if (!level || !level.isActive) {
       console.log('Invalid level ID or level not active');
       return res.status(400).json({ success: false, message: 'Invalid level ID' });
     }
-    
+
     // Generate next classCode (SU-XXX). Fill gaps first.
     // Only consider active classes for code assignment
     const allCodes = await Class.find({ isActive: true }, 'classCode').lean();
     const takenNumbers = allCodes
-      .map(c => (c.classCode || ''))
-      .map(code => {
+      .map((c) => c.classCode || '')
+      .map((code) => {
         const m = code.match(/SU-(\d{3})/);
         return m ? parseInt(m[1], 10) : null;
       })
-      .filter(n => n !== null)
+      .filter((n) => n !== null)
       .sort((a, b) => a - b); // Ensure sorted order
     const taken = new Set(takenNumbers);
     let nextNumber = 1;
@@ -115,7 +130,7 @@ router.post('/', verifyToken, async (req, res) => {
     }
     const classCode = `SU-${String(nextNumber).padStart(3, '0')}`;
     console.log('Generated classCode (gap-aware):', classCode);
-    
+
     let newClass;
     try {
       newClass = await Class.create({
@@ -147,20 +162,22 @@ router.post('/', verifyToken, async (req, res) => {
             entityType: 'class',
             entityId: existing._id,
             details: { before, after: existing },
-            ip: req.ip
+            ip: req.ip,
           });
-          return res.status(200).json({ success: true, message: 'Class reactivated successfully', class: existing });
+          return res
+            .status(200)
+            .json({ success: true, message: 'Class reactivated successfully', class: existing });
         }
         // Otherwise, compute a brand-new code that does not exist at all (active or inactive)
         const allCodesAny = await Class.find({}, 'classCode').lean();
         const allTaken = new Set(
           allCodesAny
-            .map(c => (c.classCode || ''))
-            .map(code => {
+            .map((c) => c.classCode || '')
+            .map((code) => {
               const m = code.match(/SU-(\d{3})/);
               return m ? parseInt(m[1], 10) : null;
             })
-            .filter(n => n !== null)
+            .filter((n) => n !== null)
         );
         let fallbackNumber = 1;
         while (allTaken.has(fallbackNumber)) fallbackNumber += 1;
@@ -177,8 +194,12 @@ router.post('/', verifyToken, async (req, res) => {
         throw err;
       }
     }
-    
-    console.log('Created class:', { id: newClass._id, name: newClass.name, levelId: newClass.levelId });
+
+    console.log('Created class:', {
+      id: newClass._id,
+      name: newClass.name,
+      levelId: newClass.levelId,
+    });
     await ChangeLog.create({
       userId: req.user.id,
       userName: req.user.name,
@@ -187,9 +208,9 @@ router.post('/', verifyToken, async (req, res) => {
       entityType: 'class',
       entityId: newClass._id,
       details: { after: newClass },
-      ip: req.ip
+      ip: req.ip,
     });
-    
+
     console.log('Class created successfully, sending response');
     res.status(201).json({ success: true, message: 'Class created successfully', class: newClass });
     console.log('=== END CREATE CLASS DEBUG ===');
@@ -204,14 +225,18 @@ router.post('/', verifyToken, async (req, res) => {
 router.put('/:id', verifyToken, async (req, res) => {
   try {
     if (req.user.role !== 'admin' && req.user.role !== 'teacher') {
-      return res.status(403).json({ success: false, message: 'Access denied. Admin or teacher role required.' });
+      return res
+        .status(403)
+        .json({ success: false, message: 'Access denied. Admin or teacher role required.' });
     }
     const classObj = await Class.findById(req.params.id);
     if (!classObj || !classObj.isActive) {
       return res.status(404).json({ success: false, message: 'Class not found' });
     }
     if (req.user.role !== 'admin' && classObj.teacherId.toString() !== req.user.userId) {
-      return res.status(403).json({ success: false, message: 'You can only update classes you created' });
+      return res
+        .status(403)
+        .json({ success: false, message: 'You can only update classes you created' });
     }
     const { name, levelId, description, studentIds, isActive } = req.body;
     const before = { ...classObj.toObject() };
@@ -229,7 +254,7 @@ router.put('/:id', verifyToken, async (req, res) => {
       entityType: 'class',
       entityId: classObj._id,
       details: { before, after: classObj },
-      ip: req.ip
+      ip: req.ip,
     });
     res.json({ success: true, message: 'Class updated successfully', class: classObj });
   } catch (error) {
@@ -242,14 +267,18 @@ router.put('/:id', verifyToken, async (req, res) => {
 router.post('/:id/students', verifyToken, async (req, res) => {
   try {
     if (req.user.role !== 'admin' && req.user.role !== 'teacher') {
-      return res.status(403).json({ success: false, message: 'Access denied. Admin or teacher role required.' });
+      return res
+        .status(403)
+        .json({ success: false, message: 'Access denied. Admin or teacher role required.' });
     }
     const classObj = await Class.findById(req.params.id);
     if (!classObj || !classObj.isActive) {
       return res.status(404).json({ success: false, message: 'Class not found' });
     }
     if (req.user.role !== 'admin' && classObj.teacherId.toString() !== req.user.userId) {
-      return res.status(403).json({ success: false, message: 'You can only modify classes you created' });
+      return res
+        .status(403)
+        .json({ success: false, message: 'You can only modify classes you created' });
     }
     const { studentId } = req.body;
     if (!studentId) {
@@ -269,7 +298,7 @@ router.post('/:id/students', verifyToken, async (req, res) => {
       entityType: 'class',
       entityId: classObj._id,
       details: { before, after: classObj },
-      ip: req.ip
+      ip: req.ip,
     });
     // Optionally, create a student record
     const student = await User.findById(studentId);
@@ -294,21 +323,25 @@ router.post('/:id/students', verifyToken, async (req, res) => {
 router.delete('/:id/students/:studentId', verifyToken, async (req, res) => {
   try {
     if (req.user.role !== 'admin' && req.user.role !== 'teacher') {
-      return res.status(403).json({ success: false, message: 'Access denied. Admin or teacher role required.' });
+      return res
+        .status(403)
+        .json({ success: false, message: 'Access denied. Admin or teacher role required.' });
     }
     const classObj = await Class.findById(req.params.id);
     if (!classObj || !classObj.isActive) {
       return res.status(404).json({ success: false, message: 'Class not found' });
     }
     if (req.user.role !== 'admin' && classObj.teacherId.toString() !== req.user.userId) {
-      return res.status(403).json({ success: false, message: 'You can only modify classes you created' });
+      return res
+        .status(403)
+        .json({ success: false, message: 'You can only modify classes you created' });
     }
     const { studentId } = req.params;
     if (!classObj.studentIds.includes(studentId)) {
       return res.status(400).json({ success: false, message: 'Student is not in this class' });
     }
     const before = { ...classObj.toObject() };
-    classObj.studentIds = classObj.studentIds.filter(id => id.toString() !== studentId);
+    classObj.studentIds = classObj.studentIds.filter((id) => id.toString() !== studentId);
     await classObj.save();
     await ChangeLog.create({
       userId: req.user.id,
@@ -318,9 +351,13 @@ router.delete('/:id/students/:studentId', verifyToken, async (req, res) => {
       entityType: 'class',
       entityId: classObj._id,
       details: { before, after: classObj },
-      ip: req.ip
+      ip: req.ip,
     });
-    res.json({ success: true, message: 'Student removed from class successfully', class: classObj });
+    res.json({
+      success: true,
+      message: 'Student removed from class successfully',
+      class: classObj,
+    });
   } catch (error) {
     console.error('Remove student from class error:', error);
     res.status(500).json({ success: false, message: 'Internal server error' });
@@ -331,14 +368,18 @@ router.delete('/:id/students/:studentId', verifyToken, async (req, res) => {
 router.delete('/:id', verifyToken, async (req, res) => {
   try {
     if (req.user.role !== 'admin' && req.user.role !== 'teacher') {
-      return res.status(403).json({ success: false, message: 'Access denied. Admin or teacher role required.' });
+      return res
+        .status(403)
+        .json({ success: false, message: 'Access denied. Admin or teacher role required.' });
     }
     const classObj = await Class.findById(req.params.id);
     if (!classObj || !classObj.isActive) {
       return res.status(404).json({ success: false, message: 'Class not found' });
     }
     if (req.user.role !== 'admin' && classObj.teacherId.toString() !== req.user.userId) {
-      return res.status(403).json({ success: false, message: 'You can only delete classes you created' });
+      return res
+        .status(403)
+        .json({ success: false, message: 'You can only delete classes you created' });
     }
     const before = { ...classObj.toObject() };
 
@@ -372,7 +413,7 @@ router.delete('/:id', verifyToken, async (req, res) => {
       entityType: 'class',
       entityId: classObj._id,
       details: { before, hardDelete: true },
-      ip: req.ip
+      ip: req.ip,
     });
     res.json({ success: true, message: 'Class deleted successfully' });
   } catch (error) {
@@ -381,4 +422,4 @@ router.delete('/:id', verifyToken, async (req, res) => {
   }
 });
 
-module.exports = router; 
+module.exports = router;

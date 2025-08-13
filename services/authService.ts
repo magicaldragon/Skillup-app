@@ -58,11 +58,11 @@ class AuthService {
       if (data.success && data.token) {
         this.token = data.token;
         this.user = data.user;
-        
+
         // Store in localStorage
         localStorage.setItem('skillup_token', data.token);
         localStorage.setItem('skillup_user', JSON.stringify(data.user));
-        
+
         return data;
       } else {
         return data;
@@ -83,7 +83,7 @@ class AuthService {
         await fetch(`${API_BASE_URL}/auth/logout`, {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${this.token}`,
+            Authorization: `Bearer ${this.token}`,
           },
         });
       }
@@ -101,7 +101,7 @@ class AuthService {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/profile`, {
         headers: {
-          'Authorization': `Bearer ${this.token}`,
+          Authorization: `Bearer ${this.token}`,
         },
       });
 
@@ -187,4 +187,4 @@ class AuthService {
 }
 
 // Create singleton instance
-export const authService = new AuthService(); 
+export const authService = new AuthService();

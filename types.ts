@@ -1,4 +1,3 @@
-
 export interface Student {
   id: string;
   _id?: string; // For Firestore compatibility
@@ -47,7 +46,13 @@ export interface StudentClass {
   updatedAt?: string;
 }
 
-export type AssignmentCategory = 'Reading' | 'Listening' | 'Writing' | 'Speaking' | 'Full Practice Tests' | 'Mini Tests';
+export type AssignmentCategory =
+  | 'Reading'
+  | 'Listening'
+  | 'Writing'
+  | 'Speaking'
+  | 'Full Practice Tests'
+  | 'Mini Tests';
 
 export type IELTS_Skill = 'Listening' | 'Reading' | 'Writing' | 'Speaking';
 
@@ -84,7 +89,7 @@ export interface Assignment {
 }
 
 export interface Submission {
-  id:string;
+  id: string;
   studentId: string;
   assignmentId: string;
   submittedAt: string;
@@ -96,14 +101,28 @@ export interface Submission {
 export interface AuditLogEntry {
   id: string;
   timestamp: string; // ISO string
-  adminId: string;
-  adminName: string;
+  userId: string;
+  userName: string;
+  userRole: string;
   action: string; // e.g., 'user_created', 'user_deleted', 'role_changed', etc.
   targetType: string; // e.g., 'user', 'assignment', 'class'
   targetId: string;
-  details: Record<string, any>; // Additional info (before/after, bulk, etc.)
+  details: Record<string, unknown>; // Additional info (before/after, bulk, etc.)
 }
 
-export type View = 'dashboard' | 'management-classes' | 'management-waiting-list' | 'management-levels' | 'management-status' | 'management-scores' | 'assignments' | 'assignment-detail' | 'student-assignments' | 'profile' | 'user-management' | 'management-add' | 'accounts';
+export type View =
+  | 'dashboard'
+  | 'management-classes'
+  | 'management-waiting-list'
+  | 'management-levels'
+  | 'management-status'
+  | 'management-scores'
+  | 'assignments'
+  | 'assignment-detail'
+  | 'student-assignments'
+  | 'profile'
+  | 'user-management'
+  | 'management-add'
+  | 'accounts';
 
 export type ExamLevel = 'IELTS' | 'KEY' | 'PET';

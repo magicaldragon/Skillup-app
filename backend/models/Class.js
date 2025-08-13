@@ -4,47 +4,49 @@ const classSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
   },
   classCode: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
   },
   levelId: {
     type: String,
-    default: null
+    default: null,
   },
   description: {
     type: String,
-    trim: true
+    trim: true,
   },
   teacherId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+    ref: 'User',
   },
-  studentIds: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  }],
+  studentIds: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+  ],
   isActive: {
     type: Boolean,
-    default: true
+    default: true,
   },
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   updatedAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
 // Update the updatedAt field before saving
-classSchema.pre('save', function(next) {
+classSchema.pre('save', function (next) {
   this.updatedAt = new Date();
   next();
 });
 
-module.exports = mongoose.model('Class', classSchema); 
+module.exports = mongoose.model('Class', classSchema);

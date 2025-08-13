@@ -3,7 +3,11 @@ const router = express.Router();
 const User = require('../models/User');
 const PotentialStudent = require('../models/PotentialStudent');
 const { verifyToken } = require('./auth');
-const { generateStudentCode, reassignAllStudentCodes, findStudentCodeGaps } = require('../utils/studentCodeGenerator');
+const {
+  generateStudentCode,
+  reassignAllStudentCodes,
+  findStudentCodeGaps,
+} = require('../utils/studentCodeGenerator');
 
 // Get all users (with role-based filtering)
 router.get('/', verifyToken, async (req, res) => {
@@ -29,7 +33,9 @@ router.get('/', verifyToken, async (req, res) => {
     }
 
     const users = await User.find(query).sort({ createdAt: -1 });
-    console.log(`Fetched ${users.length} users for role: ${role}${status ? ` with status: ${status}` : ''}`);
+    console.log(
+      `Fetched ${users.length} users for role: ${role}${status ? ` with status: ${status}` : ''}`
+    );
     res.json(users);
   } catch (error) {
     console.error('Error fetching users:', error);
@@ -70,28 +76,28 @@ router.post('/admin/student-codes/reassign', verifyToken, async (req, res) => {
 // Register new user
 router.post('/', async (req, res) => {
   try {
-    const { 
-      name, 
-      email, 
-      role, 
-      gender, 
-      englishName, 
-      dob, 
-      phone, 
-      parentName, 
-      parentPhone, 
+    const {
+      name,
+      email,
+      role,
+      gender,
+      englishName,
+      dob,
+      phone,
+      parentName,
+      parentPhone,
       notes,
       status = 'potential',
       firebaseUid, // Accept firebaseUid from frontend
-      username // Accept username from frontend
+      username, // Accept username from frontend
     } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: 'User with this email already exists' 
+        message: 'User with this email already exists',
       });
     }
 
@@ -99,18 +105,18 @@ router.post('/', async (req, res) => {
     if (username) {
       const existingUsername = await User.findOne({ username });
       if (existingUsername) {
-        return res.status(400).json({ 
+        return res.status(400).json({
           success: false,
-          message: 'Username already exists' 
+          message: 'Username already exists',
         });
       }
     }
 
     // Validate that firebaseUid is provided
     if (!firebaseUid) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: 'Firebase UID is required' 
+        message: 'Firebase UID is required',
       });
     }
 
@@ -136,7 +142,7 @@ router.post('/', async (req, res) => {
       notes,
       studentCode,
       status,
-      firebaseUid
+      firebaseUid,
     });
 
     await user.save();
@@ -156,9 +162,9 @@ router.post('/', async (req, res) => {
           source: 'other', // Use valid enum value
           status: 'pending', // PotentialStudent uses different status values
           notes: notes || `Created from registration form. Student Code: ${studentCode}`,
-          assignedTo: null // Will be assigned by admin later
+          assignedTo: null, // Will be assigned by admin later
         });
-        
+
         await potentialStudent.save();
         console.log(`Created PotentialStudent record for user: ${user._id}`);
       } catch (potentialStudentError) {
@@ -177,15 +183,14 @@ router.post('/', async (req, res) => {
         role: user.role,
         status: user.status,
         studentCode: user.studentCode,
-        firebaseUid: user.firebaseUid
-      }
+        firebaseUid: user.firebaseUid,
+      },
     });
-
   } catch (error) {
     console.error('Error creating user:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      message: 'Failed to create user: ' + error.message 
+      message: `Failed to create user: ${error.message}`,
     });
   }
 });
@@ -194,19 +199,19 @@ router.post('/', async (req, res) => {
 router.put('/:id', verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
-    const { 
-      name, 
-      email, 
-      role, 
-      gender, 
-      englishName, 
-      dob, 
-      phone, 
-      parentName, 
-      parentPhone, 
-      notes, 
-      status, 
-      studentCode 
+    const {
+      name,
+      email,
+      role,
+      gender,
+      englishName,
+      dob,
+      phone,
+      parentName,
+      parentPhone,
+      notes,
+      status,
+      studentCode,
     } = req.body;
 
     const updateData = {
@@ -222,12 +227,12 @@ router.put('/:id', verifyToken, async (req, res) => {
       notes,
       status,
       studentCode,
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
 
     // Remove undefined fields
-    Object.keys(updateData).forEach(key => 
-      updateData[key] === undefined && delete updateData[key]
+    Object.keys(updateData).forEach(
+      (key) => updateData[key] === undefined && delete updateData[key]
     );
 
     const user = await User.findByIdAndUpdate(id, updateData, { new: true });
@@ -247,7 +252,7 @@ router.delete('/:id', verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
     const user = await User.findById(id);
-    
+
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -289,7 +294,7 @@ router.get('/:id', verifyToken, async (req, res) => {
   try {
     const { id } = req.params;
     const user = await User.findById(id);
-    
+
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -333,14 +338,14 @@ router.post('/sync-potential-students', verifyToken, async (req, res) => {
     if (req.user.role !== 'admin') {
       return res.status(403).json({
         success: false,
-        message: 'Admin access required'
+        message: 'Admin access required',
       });
     }
 
     // Find all users with status 'potential' that are students
-    const potentialStudents = await User.find({ 
-      role: 'student', 
-      status: 'potential' 
+    const potentialStudents = await User.find({
+      role: 'student',
+      status: 'potential',
     });
 
     let createdCount = 0;
@@ -348,8 +353,8 @@ router.post('/sync-potential-students', verifyToken, async (req, res) => {
 
     for (const student of potentialStudents) {
       // Check if PotentialStudent record already exists for this email
-      const existingPotentialStudent = await PotentialStudent.findOne({ 
-        email: student.email 
+      const existingPotentialStudent = await PotentialStudent.findOne({
+        email: student.email,
       });
 
       if (!existingPotentialStudent) {
@@ -366,9 +371,9 @@ router.post('/sync-potential-students', verifyToken, async (req, res) => {
           source: 'other', // Use valid enum value
           status: 'pending', // PotentialStudent uses different status values
           notes: `Synced from existing user. Student Code: ${student.studentCode || 'N/A'}`,
-          assignedTo: null // Will be assigned by admin later
+          assignedTo: null, // Will be assigned by admin later
         });
-        
+
         await potentialStudent.save();
         createdCount++;
         console.log(`Created PotentialStudent record for existing user: ${student.email}`);
@@ -382,16 +387,15 @@ router.post('/sync-potential-students', verifyToken, async (req, res) => {
       success: true,
       message: `Sync completed. Created: ${createdCount}, Skipped: ${skippedCount}`,
       created: createdCount,
-      skipped: skippedCount
+      skipped: skippedCount,
     });
-
   } catch (error) {
     console.error('Error syncing potential students:', error);
     res.status(500).json({
       success: false,
-      message: 'Failed to sync potential students: ' + error.message
+      message: `Failed to sync potential students: ${error.message}`,
     });
   }
 });
 
-module.exports = router; 
+module.exports = router;

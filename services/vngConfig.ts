@@ -30,8 +30,10 @@ const VNG_BUCKET_URL = `https://${VNG_STORAGE_BUCKET_NAME}.vstorage.vngcloud.vn`
 export const getVngFileUrl = (fileName: string): string => {
   if (!VNG_STORAGE_BUCKET_NAME || VNG_STORAGE_BUCKET_NAME === 'your-bucket-name-here') {
     // Return a placeholder or show an error to remind the user to configure the bucket name.
-    console.error("VNG vStorage bucket name is not configured in services/vngConfig.ts. Please update the VNG_STORAGE_BUCKET_NAME constant.");
-    return ``; 
+    console.error(
+      'VNG vStorage bucket name is not configured in services/vngConfig.ts. Please update the VNG_STORAGE_BUCKET_NAME constant.'
+    );
+    return ``;
   }
   return `${VNG_BUCKET_URL}/${fileName}`;
 };

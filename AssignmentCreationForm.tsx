@@ -1,5 +1,14 @@
-import React, { useState } from 'react';
-import type { Assignment, AssignmentQuestion, QuestionType, IELTS_Skill, ExamLevel, StudentClass, Student } from './types';
+import type React from 'react';
+import { useState } from 'react';
+import type {
+  Assignment,
+  AssignmentQuestion,
+  ExamLevel,
+  IELTS_Skill,
+  QuestionType,
+  Student,
+  StudentClass,
+} from './types';
 
 const EXAM_LEVELS: ExamLevel[] = ['IELTS', 'KEY', 'PET'];
 const SKILLS: IELTS_Skill[] = ['Listening', 'Reading', 'Writing', 'Speaking'];
@@ -20,9 +29,14 @@ const initialQuestion: Partial<AssignmentQuestion> = {
   matchPairs: [],
 };
 
-export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({ classes, currentUser, onCreated, onDataRefresh }) => {
+export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({
+  classes,
+  currentUser,
+  onCreated,
+  onDataRefresh,
+}) => {
   const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
-  
+
   const [form, setForm] = useState<Partial<Assignment>>({
     title: '',
     level: 'IELTS',
@@ -48,37 +62,41 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({ 
   const addOrUpdateQuestion = (e: React.FormEvent) => {
     e.preventDefault();
     if (!question.type || !question.question) return;
-    let newQuestions = [...(form.questions || [])];
-    const qId = editingQ !== null ? newQuestions[editingQ].id : Math.random().toString(36).slice(2, 10);
+    const newQuestions = [...(form.questions || [])];
+    const qId =
+      editingQ !== null ? newQuestions[editingQ].id : Math.random().toString(36).slice(2, 10);
     const q: AssignmentQuestion = {
       id: qId,
       type: question.type,
       question: question.question,
       options: question.type === 'mcq' ? (question.options || []).filter(Boolean) : undefined,
       answer: question.type === 'mcq' || question.type === 'fill' ? question.answer : undefined,
-      matchPairs: question.type === 'match' ? (question.matchPairs || []) : undefined,
+      matchPairs: question.type === 'match' ? question.matchPairs || [] : undefined,
     };
     if (editingQ !== null) {
       newQuestions[editingQ] = q;
     } else {
       newQuestions.push(q);
     }
-    setForm(f => ({ ...f, questions: newQuestions }));
+    setForm((f) => ({ ...f, questions: newQuestions }));
     setQuestion(initialQuestion);
     setEditingQ(null);
   };
   const editQuestion = (idx: number) => {
     setEditingQ(idx);
-    setQuestion(form.questions![idx]);
+    const question = form.questions?.[idx];
+    if (question) {
+      setQuestion(question);
+    }
   };
   const deleteQuestion = (idx: number) => {
-    setForm(f => ({ ...f, questions: f.questions!.filter((_, i) => i !== idx) }));
+    setForm((f) => ({ ...f, questions: f.questions?.filter((_, i) => i !== idx) }));
     setEditingQ(null);
     setQuestion(initialQuestion);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFile(e.target.files && e.target.files[0] ? e.target.files[0] : null);
+    setFile(e.target.files?.[0] ? e.target.files[0] : null);
     setUploadError('');
   };
 
@@ -99,7 +117,7 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({ 
       } else {
         setUploadError(data.error || 'Upload failed');
       }
-    } catch (err) {
+    } catch (_err) {
       setUploadError('Upload failed');
     } finally {
       setUploading(false);
@@ -119,9 +137,9 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({ 
       }
       // Build answerKey
       const answerKey: Record<string, string | string[]> = {};
-      form.questions.forEach(q => {
+      form.questions.forEach((q) => {
         if (q.type === 'mcq' || q.type === 'fill') answerKey[q.id] = q.answer as string;
-        if (q.type === 'match' && q.matchPairs) answerKey[q.id] = q.matchPairs.map(p => p.right);
+        if (q.type === 'match' && q.matchPairs) answerKey[q.id] = q.matchPairs.map((p) => p.right);
       });
       const assignment: Omit<Assignment, 'id'> = {
         ...form,
@@ -142,12 +160,23 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({ 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(assignment),
       });
-      setForm({ title: '', level: 'IELTS', skill: 'Listening', description: '', questions: [], answerKey: {}, classIds: [], publishDate: '', dueDate: '' });
+      setForm({
+        title: '',
+        level: 'IELTS',
+        skill: 'Listening',
+        description: '',
+        questions: [],
+        answerKey: {},
+        classIds: [],
+        publishDate: '',
+        dueDate: '',
+      });
       setShowForm(false);
       if (onCreated) onCreated();
       onDataRefresh?.();
-    } catch (err: any) {
-      setError('Failed to save assignment: ' + (err.message || ''));
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+      setError(`Failed to save assignment: ${errorMessage}`);
     } finally {
       setSaving(false);
     }
@@ -156,43 +185,121 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({ 
   // --- UI ---
   return (
     <div className="form-glass max-w-2xl mx-auto mt-10 p-0 rounded-3xl shadow-2xl border-0 bg-gradient-to-br from-green-200/60 via-white/80 to-green-100/60 relative overflow-hidden transition-colors duration-500">
-      <button onClick={() => setShowForm(f => !f)} className="form-btn-vivid mb-4 mt-6 ml-6">{showForm ? 'Hide' : 'Create New Assignment'}</button>
+      <button
+        type="button"
+        onClick={() => setShowForm((f) => !f)}
+        className="form-btn-vivid mb-4 mt-6 ml-6"
+      >
+        {showForm ? 'Hide' : 'Create New Assignment'}
+      </button>
       {showForm && (
         <form onSubmit={saveAssignment} className="space-y-6 mb-6 px-8 py-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="form-label">Title *</label>
-              <input id="assignment-title" name="title" type="text" value={form.title ?? ''} onChange={e => setForm(f => ({ ...f, title: e.target.value ?? '' }))} className="form-input" required />
+              <label htmlFor="assignment-title" className="form-label">
+                Title *
+              </label>
+              <input
+                id="assignment-title"
+                name="title"
+                type="text"
+                value={form.title ?? ''}
+                onChange={(e) => setForm((f) => ({ ...f, title: e.target.value ?? '' }))}
+                className="form-input"
+                required
+              />
             </div>
             <div>
-              <label className="form-label">Level *</label>
-              <select value={form.level || 'IELTS'} onChange={e => setForm(f => ({ ...f, level: e.target.value as ExamLevel }))} className="form-select">
-                {EXAM_LEVELS.map(l => <option key={l} value={l}>{l}</option>)}
+              <label htmlFor="assignment-level" className="form-label">
+                Level *
+              </label>
+              <select
+                id="assignment-level"
+                value={form.level || 'IELTS'}
+                onChange={(e) => setForm((f) => ({ ...f, level: e.target.value as ExamLevel }))}
+                className="form-select"
+              >
+                {EXAM_LEVELS.map((l) => (
+                  <option key={l} value={l}>
+                    {l}
+                  </option>
+                ))}
               </select>
             </div>
             <div>
-              <label className="form-label">Skill *</label>
-              <select value={form.skill || 'Listening'} onChange={e => setForm(f => ({ ...f, skill: e.target.value as IELTS_Skill }))} className="form-select">
-                {SKILLS.map(s => <option key={s} value={s}>{s}</option>)}
+              <label htmlFor="assignment-skill" className="form-label">
+                Skill *
+              </label>
+              <select
+                id="assignment-skill"
+                value={form.skill || 'Listening'}
+                onChange={(e) => setForm((f) => ({ ...f, skill: e.target.value as IELTS_Skill }))}
+                className="form-select"
+              >
+                {SKILLS.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
               </select>
             </div>
             <div>
-              <label className="form-label">Assign to Classes</label>
-              <select multiple value={form.classIds || []} onChange={e => setForm(f => ({ ...f, classIds: Array.from(e.target.selectedOptions, o => o.value) }))} className="form-select">
-                {classes.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              <label htmlFor="assignment-classes" className="form-label">
+                Assign to Classes
+              </label>
+              <select
+                id="assignment-classes"
+                multiple
+                value={form.classIds || []}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    classIds: Array.from(e.target.selectedOptions, (o) => o.value),
+                  }))
+                }
+                className="form-select"
+              >
+                {classes.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="md:col-span-2">
-              <label className="form-label">Description</label>
-              <textarea value={form.description || ''} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} className="form-textarea" />
+              <label htmlFor="assignment-description" className="form-label">
+                Description
+              </label>
+              <textarea
+                id="assignment-description"
+                value={form.description || ''}
+                onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                className="form-textarea"
+              />
             </div>
             <div>
-              <label className="form-label">Publish Date</label>
-              <input type="date" value={form.publishDate || ''} onChange={e => setForm(f => ({ ...f, publishDate: e.target.value }))} className="form-input" />
+              <label htmlFor="assignment-publish-date" className="form-label">
+                Publish Date
+              </label>
+              <input
+                id="assignment-publish-date"
+                type="date"
+                value={form.publishDate || ''}
+                onChange={(e) => setForm((f) => ({ ...f, publishDate: e.target.value }))}
+                className="form-input"
+              />
             </div>
             <div>
-              <label className="form-label">Due Date</label>
-              <input type="date" value={form.dueDate || ''} onChange={e => setForm(f => ({ ...f, dueDate: e.target.value }))} className="form-input" />
+              <label htmlFor="assignment-due-date" className="form-label">
+                Due Date
+              </label>
+              <input
+                id="assignment-due-date"
+                type="date"
+                value={form.dueDate || ''}
+                onChange={(e) => setForm((f) => ({ ...f, dueDate: e.target.value }))}
+                className="form-input"
+              />
             </div>
           </div>
           {/* --- Question Builder --- */}
@@ -200,56 +307,196 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({ 
             <h3 className="text-lg font-bold mb-2">Questions</h3>
             <form onSubmit={addOrUpdateQuestion} className="space-y-2 mb-4">
               <div className="flex gap-2 items-center flex-wrap">
-                <select value={question.type} onChange={e => setQuestion(q => ({ ...q, type: e.target.value as QuestionType }))} className="form-select">
-                  {QUESTION_TYPES.map(qt => <option key={qt} value={qt}>{qt.toUpperCase()}</option>)}
+                <select
+                  value={question.type}
+                  onChange={(e) =>
+                    setQuestion((q) => ({ ...q, type: e.target.value as QuestionType }))
+                  }
+                  className="form-select"
+                >
+                  {QUESTION_TYPES.map((qt) => (
+                    <option key={qt} value={qt}>
+                      {qt.toUpperCase()}
+                    </option>
+                  ))}
                 </select>
-                <input type="text" value={question.question || ''} onChange={e => setQuestion(q => ({ ...q, question: e.target.value }))} placeholder="Question" className="form-input flex-1" required />
+                <input
+                  type="text"
+                  value={question.question || ''}
+                  onChange={(e) => setQuestion((q) => ({ ...q, question: e.target.value }))}
+                  placeholder="Question"
+                  className="form-input flex-1"
+                  required
+                />
                 {/* MCQ Options */}
                 {question.type === 'mcq' && (
                   <>
-                    <input type="text" value={question.options?.[0] || ''} onChange={e => setQuestion(q => ({ ...q, options: [e.target.value, ...(q.options?.slice(1) || [])] }))} placeholder="Option 1" className="form-input" required />
-                    <input type="text" value={question.options?.[1] || ''} onChange={e => setQuestion(q => ({ ...q, options: [(q.options?.[0] || ''), e.target.value, ...(q.options?.slice(2) || [])] }))} placeholder="Option 2" className="form-input" required />
-                    <input type="text" value={question.options?.[2] || ''} onChange={e => setQuestion(q => ({ ...q, options: [(q.options?.[0] || ''), (q.options?.[1] || ''), e.target.value, ...(q.options?.slice(3) || [])] }))} placeholder="Option 3" className="form-input" />
-                    <input type="text" value={question.options?.[3] || ''} onChange={e => setQuestion(q => ({ ...q, options: [(q.options?.[0] || ''), (q.options?.[1] || ''), (q.options?.[2] || ''), e.target.value] }))} placeholder="Option 4" className="form-input" />
-                    <input type="text" value={question.answer as string || ''} onChange={e => setQuestion(q => ({ ...q, answer: e.target.value }))} placeholder="Correct Answer" className="form-input" required />
+                    <input
+                      type="text"
+                      value={question.options?.[0] || ''}
+                      onChange={(e) =>
+                        setQuestion((q) => ({
+                          ...q,
+                          options: [e.target.value, ...(q.options?.slice(1) || [])],
+                        }))
+                      }
+                      placeholder="Option 1"
+                      className="form-input"
+                      required
+                    />
+                    <input
+                      type="text"
+                      value={question.options?.[1] || ''}
+                      onChange={(e) =>
+                        setQuestion((q) => ({
+                          ...q,
+                          options: [
+                            q.options?.[0] || '',
+                            e.target.value,
+                            ...(q.options?.slice(2) || []),
+                          ],
+                        }))
+                      }
+                      placeholder="Option 2"
+                      className="form-input"
+                      required
+                    />
+                    <input
+                      type="text"
+                      value={question.options?.[2] || ''}
+                      onChange={(e) =>
+                        setQuestion((q) => ({
+                          ...q,
+                          options: [
+                            q.options?.[0] || '',
+                            q.options?.[1] || '',
+                            e.target.value,
+                            ...(q.options?.slice(3) || []),
+                          ],
+                        }))
+                      }
+                      placeholder="Option 3"
+                      className="form-input"
+                    />
+                    <input
+                      type="text"
+                      value={question.options?.[3] || ''}
+                      onChange={(e) =>
+                        setQuestion((q) => ({
+                          ...q,
+                          options: [
+                            q.options?.[0] || '',
+                            q.options?.[1] || '',
+                            q.options?.[2] || '',
+                            e.target.value,
+                          ],
+                        }))
+                      }
+                      placeholder="Option 4"
+                      className="form-input"
+                    />
+                    <input
+                      type="text"
+                      value={(question.answer as string) || ''}
+                      onChange={(e) => setQuestion((q) => ({ ...q, answer: e.target.value }))}
+                      placeholder="Correct Answer"
+                      className="form-input"
+                      required
+                    />
                   </>
                 )}
                 {/* Fill-in-the-blank */}
                 {question.type === 'fill' && (
-                  <input type="text" value={question.answer as string || ''} onChange={e => setQuestion(q => ({ ...q, answer: e.target.value }))} placeholder="Correct Answer" className="form-input" required />
+                  <input
+                    type="text"
+                    value={(question.answer as string) || ''}
+                    onChange={(e) => setQuestion((q) => ({ ...q, answer: e.target.value }))}
+                    placeholder="Correct Answer"
+                    className="form-input"
+                    required
+                  />
                 )}
                 {/* Match Pairs */}
                 {question.type === 'match' && (
                   <div className="flex flex-col gap-1">
                     {(question.matchPairs || []).map((pair, idx) => (
-                      <div key={idx} className="flex gap-1 items-center">
-                        <input type="text" value={pair.left} onChange={e => {
-                          const pairs = [...(question.matchPairs || [])];
-                          pairs[idx].left = e.target.value;
-                          setQuestion(q => ({ ...q, matchPairs: pairs }));
-                        }} placeholder="Left" className="form-input" />
-                        <input type="text" value={pair.right} onChange={e => {
-                          const pairs = [...(question.matchPairs || [])];
-                          pairs[idx].right = e.target.value;
-                          setQuestion(q => ({ ...q, matchPairs: pairs }));
-                        }} placeholder="Right" className="form-input" />
-                        <button type="button" onClick={() => {
-                          const pairs = [...(question.matchPairs || [])];
-                          pairs.splice(idx, 1);
-                          setQuestion(q => ({ ...q, matchPairs: pairs }));
-                        }} className="form-btn bg-red-600 text-white">Delete</button>
+                      <div
+                        key={`${pair.left}-${pair.right}-${idx}`}
+                        className="flex gap-1 items-center"
+                      >
+                        <input
+                          type="text"
+                          value={pair.left}
+                          onChange={(e) => {
+                            const pairs = [...(question.matchPairs || [])];
+                            pairs[idx].left = e.target.value;
+                            setQuestion((q) => ({ ...q, matchPairs: pairs }));
+                          }}
+                          placeholder="Left"
+                          className="form-input"
+                        />
+                        <input
+                          type="text"
+                          value={pair.right}
+                          onChange={(e) => {
+                            const pairs = [...(question.matchPairs || [])];
+                            pairs[idx].right = e.target.value;
+                            setQuestion((q) => ({ ...q, matchPairs: pairs }));
+                          }}
+                          placeholder="Right"
+                          className="form-input"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const pairs = [...(question.matchPairs || [])];
+                            pairs.splice(idx, 1);
+                            setQuestion((q) => ({ ...q, matchPairs: pairs }));
+                          }}
+                          className="form-btn bg-red-600 text-white"
+                        >
+                          Delete
+                        </button>
                       </div>
                     ))}
-                    <button type="button" onClick={() => setQuestion(q => ({ ...q, matchPairs: [...(q.matchPairs || []), { left: '', right: '' }] }))} className="form-btn bg-blue-600 text-white">Add Pair</button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setQuestion((q) => ({
+                          ...q,
+                          matchPairs: [...(q.matchPairs || []), { left: '', right: '' }],
+                        }))
+                      }
+                      className="form-btn bg-blue-600 text-white"
+                    >
+                      Add Pair
+                    </button>
                   </div>
                 )}
                 {/* Essay */}
                 {question.type === 'essay' && (
-                  <textarea value={question.question || ''} onChange={e => setQuestion(q => ({ ...q, question: e.target.value }))} placeholder="Essay Prompt" className="form-textarea" required />
+                  <textarea
+                    value={question.question || ''}
+                    onChange={(e) => setQuestion((q) => ({ ...q, question: e.target.value }))}
+                    placeholder="Essay Prompt"
+                    className="form-textarea"
+                    required
+                  />
                 )}
-                <button type="submit" className="form-btn bg-[#307637] text-white">{editingQ !== null ? 'Update' : 'Add'}</button>
+                <button type="submit" className="form-btn bg-[#307637] text-white">
+                  {editingQ !== null ? 'Update' : 'Add'}
+                </button>
                 {editingQ !== null && (
-                  <button type="button" onClick={() => { setEditingQ(null); setQuestion(initialQuestion); }} className="form-btn bg-gray-600 text-white">Cancel</button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingQ(null);
+                      setQuestion(initialQuestion);
+                    }}
+                    className="form-btn bg-gray-600 text-white"
+                  >
+                    Cancel
+                  </button>
                 )}
               </div>
             </form>
@@ -258,31 +505,73 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({ 
                 <li key={q.id} className="flex items-center gap-2">
                   <span className="font-semibold">{q.type.toUpperCase()}</span>
                   <span>{q.question}</span>
-                  {q.type === 'mcq' && <span className="text-xs text-slate-500">Options: {(q.options || []).join(', ')}</span>}
-                  {q.type === 'match' && <span className="text-xs text-slate-500">Pairs: {(q.matchPairs || []).map(p => `${p.left}→${p.right}`).join(', ')}</span>}
-                  {q.type === 'fill' && <span className="text-xs text-slate-500">Answer: {q.answer as string}</span>}
-                  <button onClick={() => editQuestion(idx)} className="form-btn bg-blue-600 text-white">Edit</button>
-                  <button onClick={() => deleteQuestion(idx)} className="form-btn bg-red-600 text-white">Delete</button>
+                  {q.type === 'mcq' && (
+                    <span className="text-xs text-slate-500">
+                      Options: {(q.options || []).join(', ')}
+                    </span>
+                  )}
+                  {q.type === 'match' && (
+                    <span className="text-xs text-slate-500">
+                      Pairs: {(q.matchPairs || []).map((p) => `${p.left}→${p.right}`).join(', ')}
+                    </span>
+                  )}
+                  {q.type === 'fill' && (
+                    <span className="text-xs text-slate-500">Answer: {q.answer as string}</span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => editQuestion(idx)}
+                    className="form-btn bg-blue-600 text-white"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => deleteQuestion(idx)}
+                    className="form-btn bg-red-600 text-white"
+                  >
+                    Delete
+                  </button>
                 </li>
               ))}
             </ul>
           </div>
           {error && <div className="text-red-600 font-semibold text-center">{error}</div>}
           <div className="flex gap-2 mt-4">
-            <button type="submit" className="form-btn primary" disabled={saving}>Create Assignment</button>
-            <button type="button" className="form-btn secondary" onClick={() => setShowForm(false)}>Cancel</button>
+            <button type="submit" className="form-btn primary" disabled={saving}>
+              Create Assignment
+            </button>
+            <button type="button" className="form-btn secondary" onClick={() => setShowForm(false)}>
+              Cancel
+            </button>
           </div>
           {currentUser?.role === 'teacher' && (
             <div className="mt-4">
-              <label className="form-label">Assignment File (PDF/Audio)</label>
-              <input type="file" accept=".pdf,audio/*" onChange={handleFileChange} className="form-input" />
-              <button type="button" onClick={handleFileUpload} disabled={!file || uploading} className="form-btn bg-blue-600 text-white ml-2">
+              <label htmlFor="assignment-file" className="form-label">
+                Assignment File (PDF/Audio)
+              </label>
+              <input
+                id="assignment-file"
+                type="file"
+                accept=".pdf,audio/*"
+                onChange={handleFileChange}
+                className="form-input"
+              />
+              <button
+                type="button"
+                onClick={handleFileUpload}
+                disabled={!file || uploading}
+                className="form-btn bg-blue-600 text-white ml-2"
+              >
                 {uploading ? 'Uploading...' : 'Upload'}
               </button>
               {uploadError && <div className="text-red-600 text-xs mt-1">{uploadError}</div>}
               {fileUrl && (
                 <div className="mt-2 text-xs text-green-700">
-                  Uploaded: <a href={fileUrl} target="_blank" rel="noopener noreferrer" className="underline">{fileUrl}</a>
+                  Uploaded:{' '}
+                  <a href={fileUrl} target="_blank" rel="noopener noreferrer" className="underline">
+                    {fileUrl}
+                  </a>
                 </div>
               )}
             </div>
@@ -293,4 +582,4 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({ 
   );
 };
 
-export default AssignmentCreationForm; 
+export default AssignmentCreationForm;

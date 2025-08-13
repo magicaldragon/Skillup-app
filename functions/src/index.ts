@@ -1,8 +1,9 @@
 // functions/src/index.ts - Firebase Functions Main Entry Point
-import express from 'express';
+
 import cors from 'cors';
-import { onRequest } from 'firebase-functions/v2/https';
+import express from 'express';
 import * as admin from 'firebase-admin';
+import { onRequest } from 'firebase-functions/v2/https';
 
 // Initialize Firebase Admin with proper error handling
 try {
@@ -13,28 +14,29 @@ try {
   } else {
     console.log('Firebase Admin SDK already initialized');
   }
-  
+
   // Verify Firestore connection
   console.log('Firestore connection verified');
-  
+
   // Verify Auth connection
   console.log('Firebase Auth connection verified');
-  
 } catch (error) {
   console.error('Failed to initialize Firebase Admin SDK:', error);
-  throw new Error(`Firebase initialization failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  throw new Error(
+    `Firebase initialization failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+  );
 }
 
+import { assignmentsRouter } from './routes/assignments';
 // Import routes
 import { authRouter } from './routes/auth';
-import { usersRouter } from './routes/users';
+import { changeLogsRouter } from './routes/changeLogs';
 import { classesRouter } from './routes/classes';
 import { levelsRouter } from './routes/levels';
-import { assignmentsRouter } from './routes/assignments';
-import { submissionsRouter } from './routes/submissions';
 import { potentialStudentsRouter } from './routes/potentialStudents';
 import { studentRecordsRouter } from './routes/studentRecords';
-import { changeLogsRouter } from './routes/changeLogs';
+import { submissionsRouter } from './routes/submissions';
+import { usersRouter } from './routes/users';
 
 const app = express();
 
@@ -49,10 +51,10 @@ app.get('/health', async (_req, res) => {
     // Test Firestore connection
     const db = admin.firestore();
     await db.collection('_health').doc('check').get();
-    
+
     // Test Auth connection
     admin.auth();
-    
+
     res.json({
       status: 'healthy',
       timestamp: new Date().toISOString(),
@@ -61,13 +63,21 @@ app.get('/health', async (_req, res) => {
         projectId: admin.app().options.projectId,
         database: 'firestore',
         firestore: 'connected',
-        auth: 'connected'
+        auth: 'connected',
       },
       vstorage: {
-        accessKey: process.env.VSTORAGE_ACCESS_KEY || process.env.VITE_VSTORAGE_ACCESS_KEY || 'cb1d2453d51a5936b5eee3be7685d1dc' ? 'configured' : 'not configured',
+        accessKey:
+          process.env.VSTORAGE_ACCESS_KEY ||
+          process.env.VITE_VSTORAGE_ACCESS_KEY ||
+          'cb1d2453d51a5936b5eee3be7685d1dc'
+            ? 'configured'
+            : 'not configured',
         bucket: process.env.VSTORAGE_BUCKET || process.env.VITE_VSTORAGE_BUCKET || 'skillup',
-        endpoint: process.env.VSTORAGE_ENDPOINT || process.env.VITE_VSTORAGE_ENDPOINT || 'https://s3.vngcloud.vn'
-      }
+        endpoint:
+          process.env.VSTORAGE_ENDPOINT ||
+          process.env.VITE_VSTORAGE_ENDPOINT ||
+          'https://s3.vngcloud.vn',
+      },
     });
   } catch (error) {
     console.error('Health check failed:', error);
@@ -79,8 +89,8 @@ app.get('/health', async (_req, res) => {
         projectId: admin.app().options.projectId,
         database: 'firestore',
         firestore: 'disconnected',
-        auth: 'disconnected'
-      }
+        auth: 'disconnected',
+      },
     });
   }
 });
@@ -90,7 +100,7 @@ app.get('/test', (_req, res) => {
   res.json({
     status: 'connected',
     timestamp: new Date().toISOString(),
-    message: 'Backend is reachable'
+    message: 'Backend is reachable',
   });
 });
 
@@ -109,7 +119,7 @@ app.use('/change-logs', changeLogsRouter);
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error('Error:', err);
   res.status(500).json({
-    error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
+    error: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong',
   });
 });
 
@@ -119,8 +129,11 @@ app.use('*', (_req, res) => {
 });
 
 // Export the Express app as a Firebase Function
-export const api = onRequest({
-  region: 'us-central1',
-  timeoutSeconds: 540,
-  memory: '256MiB'
-}, app); 
+export const api = onRequest(
+  {
+    region: 'us-central1',
+    timeoutSeconds: 540,
+    memory: '256MiB',
+  },
+  app
+);

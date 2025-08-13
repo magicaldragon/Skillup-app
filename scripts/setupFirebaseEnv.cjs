@@ -1,5 +1,5 @@
 // setupFirebaseEnv.cjs - Setup Firebase environment variables
-const { execSync } = require('child_process');
+const { execSync } = require('node:child_process');
 
 console.log('🔧 Firebase Environment Variables Setup');
 console.log('=======================================\n');
@@ -22,7 +22,7 @@ try {
   console.log('   If you still need to set it for legacy scripts, run:');
   console.log('   firebase functions:config:set mongodb.uri="<YOUR_MONGODB_URI>"');
   console.log('\n✅ Environment step completed (MongoDB skipped).');
-  
+
   console.log('\n📝 Next steps:');
   console.log('==============');
   console.log('1. Get your VStorage credentials from Render:');
@@ -38,10 +38,11 @@ try {
   console.log('   firebase functions:config:set vstorage.region="sgn"');
   console.log('\n3. Deploy the updated functions:');
   console.log('   npm run firebase:deploy');
-  
 } catch (error) {
   console.log('❌ Error setting environment variables:', error.message);
   console.log('\n💡 Alternative: Set them manually in Firebase Console');
-  console.log('1. Go to: https://console.firebase.google.com/project/skillup-3beaf/functions/config');
+  console.log(
+    '1. Go to: https://console.firebase.google.com/project/skillup-3beaf/functions/config'
+  );
   console.log('2. Add the environment variables manually');
-} 
+}

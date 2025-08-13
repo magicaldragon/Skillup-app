@@ -3,14 +3,16 @@
 // - Firebase Authentication for user accounts
 // - Firestore for user data storage
 // - VStorage only for assignment files (not user data)
-import { auth } from '../frontend/services/firebase';
+
 import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../frontend/services/firebase';
+import type { Student } from '../types';
 import { safeTrim } from '../utils/stringUtils';
 
 const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL || '/api';
 
 export interface NewUserData {
-  name: string; // Change from fullname to name
+  name: string;
   role: 'admin' | 'teacher' | 'student';
   email?: string;
   phone?: string;
@@ -18,10 +20,10 @@ export interface NewUserData {
   dob?: string;
   gender?: 'male' | 'female' | 'other';
   note?: string;
-  username?: string; // <-- add username
-  parentName?: string; // Add parent name
-  parentPhone?: string; // Add parent phone
-  status?: string; // Add status
+  username?: string;
+  parentName?: string;
+  parentPhone?: string;
+  status?: string;
 }
 
 export interface RegistrationResponse {
@@ -34,7 +36,7 @@ export interface RegistrationResponse {
     role: string;
     username: string;
     password: string;
-    studentCode?: string; // Added for new flow
+    studentCode?: string;
   };
 }
 
@@ -46,24 +48,24 @@ class UserRegistrationService {
       .toLowerCase()
       .replace(/[^a-z0-9\s]/g, '')
       .replace(/\s+/g, '');
-    
+
     // Generate base username (no role prefix, just clean name)
     let username = cleanName;
     let counter = 0;
-    
+
     // Check if username exists and add number if needed
     while (await this.checkUsernameExists(username)) {
       counter++;
       username = `${cleanName}${counter}`;
     }
-    
+
     return username;
   }
 
   // Generate email based on username and role
   private generateEmail(username: string, role: string): string {
     let domain = 'teacher.skillup'; // default
-    
+
     switch (role) {
       case 'student':
         domain = 'student.skillup';
@@ -80,7 +82,7 @@ class UserRegistrationService {
       default:
         domain = 'teacher.skillup';
     }
-    
+
     return `${username}@${domain}`;
   }
 
@@ -94,198 +96,22 @@ class UserRegistrationService {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       return userCredential.user.uid;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Firebase user creation error:', error);
-      throw new Error(`Failed to create Firebase user: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      throw new Error(`Failed to create Firebase user: ${errorMessage}`);
     }
   }
 
-  // Create user in MongoDB
-  private async createMongoDBUser(userData: {
-    firebaseUid?: string; // Make optional since backend will create Firebase user
-    name: string;
-    email: string;
-    role: string;
-    username: string;
-    phone?: string;
-    englishName?: string;
-    dob?: string;
-    gender?: string;
-    note?: string;
-    parentName?: string;
-    parentPhone?: string;
-    status?: string;
-    password?: string; // Added for new flow
-  }) {
+  // Check if username exists in Firestore
+  private async checkUsernameExists(username: string): Promise<boolean> {
     try {
-      const token = await this.getAuthToken();
-      
-      const url = `${API_BASE_URL}/users`;
-      
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          name: userData.name,
-          email: userData.email,
-          role: userData.role,
-          gender: userData.gender,
-          englishName: userData.englishName,
-          dob: userData.dob,
-          phone: userData.phone,
-          parentName: userData.parentName || '',
-          parentPhone: userData.parentPhone || '',
-          notes: userData.note,
-          status: userData.status || 'active',
-          firebaseUid: userData.firebaseUid, // Pass the firebaseUid to backend
-          password: userData.password, // Pass password to backend for Firebase user creation
-        }),
-      });
-
-      let data;
-      try {
-        data = JSON.parse(await response.text());
-      } catch (parseError) {
-        console.error('🔍 [DEBUG] Failed to parse JSON:', parseError);
-        throw new Error(`Invalid JSON response: ${response.text()}`);
-      }
-      
-      if (!data.success) {
-        // Check if this is the "role is not defined" error from old backend
-        if (data.message && data.message.includes('role is not defined')) {
-          throw new Error('Backend needs to be updated. Please contact administrator to deploy the latest backend changes.');
+      const response = await fetch(
+        `${API_BASE_URL}/users/check-username/${encodeURIComponent(username)}`,
+        {
+          credentials: 'include',
         }
-        throw new Error(data.message || 'Failed to create MongoDB user');
-      }
-      
-      return data.user;
-    } catch (error) {
-      console.error('🔍 [DEBUG] MongoDB user creation error:', error);
-      throw error;
-    }
-  }
-
-  // Create potential student entry (for students only)
-  private async createPotentialStudent(userData: {
-    firebaseUid: string;
-    name: string;
-    email: string;
-    username: string;
-    phone?: string;
-    englishName?: string;
-    dob?: string;
-    gender?: string;
-    note?: string;
-  }) {
-    try {
-      const token = await this.getAuthToken();
-      
-      const url = `${API_BASE_URL}/potential-students`;
-      
-      const potentialStudentData = {
-        name: userData.name,
-        englishName: userData.englishName,
-        email: userData.email,
-        phone: userData.phone,
-        gender: userData.gender,
-        dob: userData.dob,
-        status: 'pending',
-        source: 'admin_registration',
-        notes: userData.note,
-        // Additional fields for potential student
-        currentSchool: '',
-        currentGrade: '',
-        englishLevel: 'beginner',
-        parentName: '',
-        parentPhone: '',
-        parentEmail: '',
-        interestedPrograms: [],
-      };
-      
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(potentialStudentData),
-      });
-
-      let data;
-      try {
-        data = JSON.parse(await response.text());
-      } catch (parseError) {
-        console.error('🔍 [DEBUG] Failed to parse potential student JSON:', parseError);
-        throw new Error(`Invalid JSON response: ${response.text()}`);
-      }
-      
-      if (!data.success) {
-        throw new Error(data.message || 'Failed to create potential student entry');
-      }
-      
-      return data.potentialStudent;
-    } catch (error) {
-      console.error('🔍 [DEBUG] Potential student creation error:', error);
-      throw error;
-    }
-  }
-
-  // Get auth token from localStorage or create one for hybrid auth users
-  private async getAuthToken(): Promise<string | null> {
-    
-    // Check if we have a JWT token in localStorage
-    const token = localStorage.getItem('skillup_token');
-    if (token) {
-      return token;
-    }
-
-    
-    // If no JWT token, try to get Firebase ID token and exchange it for JWT
-    const user = auth.currentUser;
-    if (user) {
-      try {
-        const idToken = await user.getIdToken();
-        
-        const url = `${API_BASE_URL}/auth/firebase-login`;
-        
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            firebaseToken: idToken,
-            email: user.email,
-          }),
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          const jwtToken = data.token;
-          localStorage.setItem('authToken', jwtToken);
-          return jwtToken;
-        } else {
-          console.error('🔍 [DEBUG] Firebase login failed:', response.status, response.statusText);
-        }
-      } catch (error) {
-        console.error('🔍 [DEBUG] Error exchanging Firebase token for JWT:', error);
-      }
-    }
-
-    return null;
-  }
-
-  async checkUsernameExists(username: string): Promise<boolean> {
-    try {
-      const token = await this.getAuthToken();
-      const response = await fetch(`${API_BASE_URL}/users/check-username/${encodeURIComponent(username)}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      );
       const data = await response.json();
       return data.exists || false;
     } catch (error) {
@@ -294,21 +120,35 @@ class UserRegistrationService {
     }
   }
 
-  // Main registration function
-  async registerNewUser(userData: NewUserData): Promise<RegistrationResponse> {
+  // Get Firebase auth token
+  private async getAuthToken(): Promise<string> {
+    const user = auth.currentUser;
+    if (!user) {
+      throw new Error('No authenticated user');
+    }
+    return await user.getIdToken();
+  }
+
+  // Register new user (Firebase-only)
+  async registerUser(userData: NewUserData): Promise<RegistrationResponse> {
     try {
-      
-      // Step 1: Use provided username or generate one, then generate email from username and role
-      const username = userData.username || await this.generateUsername(userData.name);
+      // Step 1: Generate username and email
+      const username = userData.username || (await this.generateUsername(userData.name));
       const email = userData.email || this.generateEmail(username, userData.role);
       const password = this.generatePassword(userData.role);
 
-      // Step 2: Create Firebase Auth user using frontend SDK
+      // Step 2: Create Firebase Auth user
       const firebaseUid = await this.createFirebaseUser(email, password);
 
-      // Step 3: Create MongoDB user
-      try {
-        const mongoUser = await this.createMongoDBUser({
+      // Step 3: Create user in Firestore via API
+      const token = await this.getAuthToken();
+      const response = await fetch(`${API_BASE_URL}/users`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
           firebaseUid,
           name: userData.name,
           email,
@@ -321,62 +161,49 @@ class UserRegistrationService {
           note: userData.note,
           parentName: userData.parentName,
           parentPhone: userData.parentPhone,
-          status: userData.status,
-        });
+          status: userData.status || 'active',
+        }),
+      });
 
-        // Step 4: For students only, also create potential student entry
-        if (userData.role === 'student') {
-          try {
-            await this.createPotentialStudent({
-              firebaseUid,
-              name: userData.name,
-              email,
-              username,
-              phone: userData.phone,
-              englishName: userData.englishName,
-              dob: userData.dob,
-              gender: userData.gender,
-              note: userData.note,
-            });
-            console.log('✅ Student added to accounts and potential students list');
-          } catch (potentialStudentError) {
-            console.warn('⚠️ Failed to add student to potential students list:', potentialStudentError);
-            // Don't fail the entire registration if potential student creation fails
-          }
-        }
-
-        return {
-          success: true,
-          message: userData.role === 'student' 
-            ? 'Student registered successfully and added to potential students list' 
-            : 'User registered successfully',
-          user: {
-            id: mongoUser.id,
-            name: mongoUser.name,
-            email: mongoUser.email,
-            role: mongoUser.role,
-            username,
-            password,
-            studentCode: mongoUser.studentCode,
-          },
-        };
-      } catch (mongoError: any) {
-        // If MongoDB creation fails, delete the Firebase user to maintain consistency
-        try {
-          // Note: We can't delete Firebase users from frontend without admin privileges
-          // This is a limitation of the frontend SDK
-          console.warn('⚠️ MongoDB creation failed, but Firebase user was created');
-        } catch (deleteError) {
-          console.error('❌ Failed to clean up Firebase user:', deleteError);
-        }
-        throw mongoError;
+      let data: unknown;
+      try {
+        data = JSON.parse(await response.text());
+      } catch (_parseError) {
+        throw new Error('Invalid response from backend');
       }
 
-    } catch (error: any) {
+      if (!data || typeof data !== 'object' || !('success' in data)) {
+        throw new Error('Invalid response from backend for user creation');
+      }
+
+      const responseData = data as { success: boolean; message?: string; user?: Student };
+
+      if (!responseData.success) {
+        throw new Error(responseData.message || 'Failed to create user in backend');
+      }
+
+      if (!responseData.user) {
+        throw new Error('Failed to create user in backend');
+      }
+
+      return {
+        success: true,
+        message: 'User registered successfully',
+        user: {
+          id: responseData.user.id,
+          name: responseData.user.name,
+          email: responseData.user.email,
+          role: responseData.user.role,
+          username,
+          password,
+          studentCode: responseData.user.studentCode,
+        },
+      };
+    } catch (error: unknown) {
       console.error('Registration error:', error);
       return {
         success: false,
-        message: error.message || 'Failed to register user',
+        message: (error as Error).message || 'Failed to register user',
       };
     }
   }
@@ -385,12 +212,15 @@ class UserRegistrationService {
   async checkUserExists(email: string): Promise<boolean> {
     try {
       const token = await this.getAuthToken();
-      const response = await fetch(`${API_BASE_URL}/users/check-email/${encodeURIComponent(email)}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      
+      const response = await fetch(
+        `${API_BASE_URL}/users/check-email/${encodeURIComponent(email)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
       const data = await response.json();
       return data.exists || false;
     } catch (error) {
@@ -402,15 +232,16 @@ class UserRegistrationService {
   // Check if email exists in Firebase
   async checkEmailExists(email: string): Promise<boolean> {
     try {
-      // Try to create a temporary user to check if email exists
-      // This is a workaround since Firebase doesn't have a direct "check if email exists" API
       const token = await this.getAuthToken();
-      const response = await fetch(`${API_BASE_URL}/users/check-email/${encodeURIComponent(email)}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      
+      const response = await fetch(
+        `${API_BASE_URL}/users/check-email/${encodeURIComponent(email)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
       const data = await response.json();
       return data.exists || false;
     } catch (error) {
@@ -423,39 +254,37 @@ class UserRegistrationService {
   async checkUsernameOrEmailExists(username: string, role: string): Promise<boolean> {
     // Generate email from username and role for checking
     const email = username.includes('@') ? username : this.generateEmail(username, role);
-    
-    // Check both username in MongoDB and email in Firebase
+
+    // Check both username and email
     const [usernameExists, emailExists] = await Promise.all([
       this.checkUsernameExists(username),
-      this.checkEmailExists(email)
+      this.checkEmailExists(email),
     ]);
-    
+
     return usernameExists || emailExists;
   }
 
   // Get all users (admin only)
-  async getAllUsers(): Promise<any[]> {
+  async getAllUsers(): Promise<Student[]> {
     try {
       const token = await this.getAuthToken();
       const response = await fetch(`${API_BASE_URL}/users`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        return data.users || [];
-      } else {
-        throw new Error(data.message || 'Failed to fetch users');
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch users');
       }
+
+      const data = await response.json();
+      return data.users || [];
     } catch (error) {
       console.error('Get all users error:', error);
-      throw error;
+      return [];
     }
   }
 }
 
-// Create singleton instance
-export const userRegistrationService = new UserRegistrationService(); 
+export default new UserRegistrationService();

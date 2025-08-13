@@ -1,33 +1,42 @@
 // AdminDashboard.tsx
 // Professional admin dashboard with system overview, user management, and administrative controls
 // React import removed as it's not needed
-import AddNewMembers from './AddNewMembers';
-import PotentialStudentsPanel from './PotentialStudentsPanel';
-import WaitingListPanel from './WaitingListPanel';
-import ClassesPanel from './ClassesPanel';
-import TeacherScoresFeedbackPanel from './TeacherScoresFeedbackPanel';
-import ReportsPanel from './ReportsPanel';
-import LevelsPanel from './LevelsPanel';
-import RecordsPanel from './RecordsPanel';
+
 import AccountsPanel from './AccountsPanel';
-import SettingsPanel from './SettingsPanel';
+import AddNewMembers from './AddNewMembers';
 import ChangeLogPanel from './ChangeLogPanel';
+import ClassesPanel from './ClassesPanel';
+import LevelsPanel from './LevelsPanel';
+import PotentialStudentsPanel from './PotentialStudentsPanel';
+import RecordsPanel from './RecordsPanel';
+import ReportsPanel from './ReportsPanel';
+import SettingsPanel from './SettingsPanel';
+import TeacherScoresFeedbackPanel from './TeacherScoresFeedbackPanel';
+import type { Assignment, Student, StudentClass } from './types';
+import WaitingListPanel from './WaitingListPanel';
 import './AdminDashboard.css';
 
-const AdminDashboard = ({ user, students, assignments, classes, activeKey, onDataRefresh }: {
-  user: any,
-  students: any[],
-  assignments: any[],
-  classes: any[],
-  activeKey: string,
-  onDataRefresh?: () => void
+const AdminDashboard = ({
+  user,
+  students,
+  assignments,
+  classes,
+  activeKey,
+  onDataRefresh,
+}: {
+  user: Student;
+  students: Student[];
+  assignments: Assignment[];
+  classes: StudentClass[];
+  activeKey: string;
+  onDataRefresh?: () => void;
 }) => {
-  const totalStudents = students.filter(s => s.role === 'student').length;
-  const totalTeachers = students.filter(s => s.role === 'teacher').length;
-  const totalStaff = students.filter(s => s.role === 'staff').length;
-  const activeAssignments = assignments.filter(a => a.status === 'active').length;
+  const totalStudents = students.filter((s) => s.role === 'student').length;
+  const totalTeachers = students.filter((s) => s.role === 'teacher').length;
+  const totalStaff = students.filter((s) => s.role === 'staff').length;
+  const totalAssignments = assignments.length; // Count all assignments since status property doesn't exist
   const totalClasses = classes.length;
-  
+
   return (
     <div className="admin-dashboard">
       {/* Show avatar at the top of the dashboard */}
@@ -42,12 +51,16 @@ const AdminDashboard = ({ user, students, assignments, classes, activeKey, onDat
           </div>
         </div>
       ) : null}
-      
+
       {/* Management Submenu Items */}
       {activeKey === 'add-student' ? (
         <AddNewMembers />
       ) : activeKey === 'potential-students' ? (
-        <PotentialStudentsPanel classes={classes} currentUser={user} onDataRefresh={onDataRefresh} />
+        <PotentialStudentsPanel
+          classes={classes}
+          currentUser={user}
+          onDataRefresh={onDataRefresh}
+        />
       ) : activeKey === 'waiting-list' ? (
         <WaitingListPanel classes={classes} onDataRefresh={onDataRefresh} />
       ) : activeKey === 'classes' ? (
@@ -108,9 +121,11 @@ const AdminDashboard = ({ user, students, assignments, classes, activeKey, onDat
             <h1 className="admin-dashboard-title">
               Welcome back, {user.englishName || user.name}!
             </h1>
-            <p className="admin-dashboard-subtitle">Here's your system administration dashboard overview</p>
+            <p className="admin-dashboard-subtitle">
+              Here's your system administration dashboard overview
+            </p>
           </div>
-          
+
           {/* Summary Cards */}
           <div className="admin-dashboard-summary">
             <div className="admin-dashboard-card">
@@ -120,7 +135,7 @@ const AdminDashboard = ({ user, students, assignments, classes, activeKey, onDat
                 <p className="admin-dashboard-card-value">{totalStudents}</p>
               </div>
             </div>
-            
+
             <div className="admin-dashboard-card">
               <div className="admin-dashboard-card-icon">👨‍🏫</div>
               <div className="admin-dashboard-card-content">
@@ -128,7 +143,7 @@ const AdminDashboard = ({ user, students, assignments, classes, activeKey, onDat
                 <p className="admin-dashboard-card-value">{totalTeachers}</p>
               </div>
             </div>
-            
+
             <div className="admin-dashboard-card">
               <div className="admin-dashboard-card-icon">👨‍💼</div>
               <div className="admin-dashboard-card-content">
@@ -136,7 +151,7 @@ const AdminDashboard = ({ user, students, assignments, classes, activeKey, onDat
                 <p className="admin-dashboard-card-value">{totalStaff}</p>
               </div>
             </div>
-            
+
             <div className="admin-dashboard-card">
               <div className="admin-dashboard-card-icon">📚</div>
               <div className="admin-dashboard-card-content">
@@ -144,15 +159,15 @@ const AdminDashboard = ({ user, students, assignments, classes, activeKey, onDat
                 <p className="admin-dashboard-card-value">{totalClasses}</p>
               </div>
             </div>
-            
+
             <div className="admin-dashboard-card">
               <div className="admin-dashboard-card-icon">📝</div>
               <div className="admin-dashboard-card-content">
                 <h3 className="admin-dashboard-card-title">Active Assignments</h3>
-                <p className="admin-dashboard-card-value">{activeAssignments}</p>
+                <p className="admin-dashboard-card-value">{totalAssignments}</p>
               </div>
             </div>
-            
+
             <div className="admin-dashboard-card">
               <div className="admin-dashboard-card-icon">⚙️</div>
               <div className="admin-dashboard-card-content">
@@ -167,4 +182,4 @@ const AdminDashboard = ({ user, students, assignments, classes, activeKey, onDat
   );
 };
 
-export default AdminDashboard; 
+export default AdminDashboard;

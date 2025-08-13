@@ -16,29 +16,32 @@ if (!process.env.MONGODB_URI) {
 console.log('✅ Backend initialized');
 
 // Optimized MongoDB connection
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  maxPoolSize: 5, // Reduced for faster startup
-  serverSelectionTimeoutMS: 3000, // Faster timeout
-  socketTimeoutMS: 30000
-})
-.then(() => console.log('✅ Connected to MongoDB'))
-.catch(err => console.error('❌ MongoDB connection error:', err));
+mongoose
+  .connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    maxPoolSize: 5, // Reduced for faster startup
+    serverSelectionTimeoutMS: 3000, // Faster timeout
+    socketTimeoutMS: 30000,
+  })
+  .then(() => console.log('✅ Connected to MongoDB'))
+  .catch((err) => console.error('❌ MongoDB connection error:', err));
 
 // Simplified CORS configuration
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
-  'https://skillup-3beaf.web.app'
+  'https://skillup-3beaf.web.app',
 ];
 
-app.use(cors({
-  origin: allowedOrigins,
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
+);
 
 // Essential middleware only
 app.use(compression());
@@ -46,9 +49,12 @@ app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true, limit: '5mb' }));
 
 // Simple caching for static assets
-app.use('/uploads/avatars', express.static('uploads/avatars', {
-  maxAge: '1y'
-}));
+app.use(
+  '/uploads/avatars',
+  express.static('uploads/avatars', {
+    maxAge: '1y',
+  })
+);
 
 // Import and use routes
 const { router: authRouter } = require('./routes/auth');
@@ -72,45 +78,45 @@ app.use('/api/potential-students', potentialStudentsRouter);
 app.use('/api/student-records', studentRecordsRouter);
 
 // Optimized health check
-app.get('/api/health', (req, res) => {
+app.get('/api/health', (_req, res) => {
   const state = mongoose.connection.readyState;
   const healthy = state === 1;
-  
+
   res.json({
     success: healthy,
     health: {
       dbConnected: healthy,
       state,
       timestamp: new Date().toISOString(),
-      uptime: process.uptime()
-    }
+      uptime: process.uptime(),
+    },
   });
 });
 
 // Simple test route
-app.get('/api/test', (req, res) => {
-  res.json({ 
-    success: true, 
+app.get('/api/test', (_req, res) => {
+  res.json({
+    success: true,
     message: 'Backend API is working!',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
 // Root route
-app.get('/', (req, res) => {
+app.get('/', (_req, res) => {
   res.send('SKILLUP Backend is running!');
 });
 
 // Error handling
-app.use((err, req, res, next) => {
+app.use((err, _req, res, _next) => {
   console.error(err.stack);
   res.status(500).json({
     success: false,
-    message: 'Something went wrong!'
+    message: 'Something went wrong!',
   });
 });
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-}); 
+});

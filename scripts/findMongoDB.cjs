@@ -1,6 +1,6 @@
 // findMongoDB.cjs - Script to help find MongoDB connection string
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const _path = require('node:path');
 
 console.log('🔍 MongoDB Connection String Finder');
 console.log('===================================\n');
@@ -9,7 +9,10 @@ console.log('===================================\n');
 console.log('1. Checking environment variable MONGODB_URI...');
 if (process.env.MONGODB_URI) {
   console.log('✅ Found MONGODB_URI in environment');
-  console.log('📍 Connection string:', process.env.MONGODB_URI.replace(/\/\/[^:]+:[^@]+@/, '//***:***@'));
+  console.log(
+    '📍 Connection string:',
+    process.env.MONGODB_URI.replace(/\/\/[^:]+:[^@]+@/, '//***:***@')
+  );
 } else {
   console.log('❌ MONGODB_URI not found in environment');
 }
@@ -22,16 +25,16 @@ const envFiles = [
   '.env.development',
   '.env.production',
   'backend/.env',
-  'backend/.env.local'
+  'backend/.env.local',
 ];
 
-envFiles.forEach(envFile => {
+envFiles.forEach((envFile) => {
   if (fs.existsSync(envFile)) {
     console.log(`✅ Found ${envFile}`);
     try {
       const content = fs.readFileSync(envFile, 'utf8');
       const lines = content.split('\n');
-      const mongoLine = lines.find(line => line.startsWith('MONGODB_URI='));
+      const mongoLine = lines.find((line) => line.startsWith('MONGODB_URI='));
       if (mongoLine) {
         console.log('📍 MongoDB URI found:', mongoLine.replace(/\/\/[^:]+:[^@]+@/, '//***:***@'));
       }
@@ -54,7 +57,7 @@ try {
       }
     });
   }
-} catch (error) {
+} catch (_error) {
   console.log('⚠️  Could not read package.json');
 }
 
@@ -69,17 +72,17 @@ try {
       }
     });
   }
-} catch (error) {
+} catch (_error) {
   console.log('⚠️  Could not read backend/package.json');
 }
 
 console.log('\n📋 Next Steps:');
 console.log('==============');
 console.log('1. Check your Render dashboard for environment variables');
-console.log('2. Check MongoDB Atlas if you\'re using Atlas');
+console.log("2. Check MongoDB Atlas if you're using Atlas");
 console.log('3. Look for any .env files in your project');
 console.log('4. Check your deployment platform settings');
 console.log('\n💡 If you find your connection string, set it as:');
 console.log('   export MONGODB_URI="your_connection_string"');
 console.log('\n🚀 Then run the migration with:');
-console.log('   npm run migrate:firestore'); 
+console.log('   npm run migrate:firestore');

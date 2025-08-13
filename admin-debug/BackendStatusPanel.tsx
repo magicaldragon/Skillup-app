@@ -20,18 +20,29 @@ const BackendStatusPanel: React.FC = () => {
     }
   };
 
-  React.useEffect(() => { fetchLogs(); }, []);
+  React.useEffect(() => {
+    fetchLogs();
+  }, [fetchLogs]);
 
   return (
     <div className="bg-white rounded-xl shadow p-6 max-w-3xl mx-auto mt-8">
       <h2 className="text-2xl font-bold mb-4">Backend Logs</h2>
-      <button className="px-4 py-2 bg-blue-600 text-white rounded mb-4" onClick={fetchLogs} disabled={loading}>
+      <button
+        className="px-4 py-2 bg-blue-600 text-white rounded mb-4"
+        onClick={fetchLogs}
+        disabled={loading}
+      >
         {loading ? 'Refreshing...' : 'Refresh'}
       </button>
       {error && <div className="text-red-600 mb-2">{error}</div>}
-      <pre className="bg-slate-100 p-4 rounded text-xs overflow-x-auto max-h-96" style={{ whiteSpace: 'pre-wrap' }}>{logs}</pre>
+      <pre
+        className="bg-slate-100 p-4 rounded text-xs overflow-x-auto max-h-96"
+        style={{ whiteSpace: 'pre-wrap' }}
+      >
+        {logs}
+      </pre>
     </div>
   );
 };
 
-export default BackendStatusPanel; 
+export default BackendStatusPanel;

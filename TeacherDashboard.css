@@ -122,19 +122,19 @@
   .teacher-dashboard {
     padding: 1rem;
   }
-  
+
   .teacher-dashboard-main {
     padding: 0;
   }
-  
+
   .teacher-dashboard-title {
     font-size: 2rem;
   }
-  
+
   .teacher-dashboard-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .teacher-dashboard-card-value {
     font-size: 2.5rem;
   }

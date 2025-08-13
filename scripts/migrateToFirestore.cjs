@@ -6,7 +6,7 @@ const { MongoClient } = require('mongodb');
 const serviceAccount = require('../serviceAccountKey.json');
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  projectId: 'skillup-3beaf'
+  projectId: 'skillup-3beaf',
 });
 
 const db = admin.firestore();
@@ -17,14 +17,14 @@ const config = {
   delayBetweenBatches: 1000, // Delay between batches in milliseconds
   collections: [
     'users',
-    'classes', 
+    'classes',
     'levels',
     'assignments',
     'submissions',
     'potentialStudents',
     'studentRecords',
-    'changeLogs'
-  ]
+    'changeLogs',
+  ],
 };
 
 // Helper function to add timestamps
@@ -32,7 +32,7 @@ function addTimestamps(data) {
   return {
     ...data,
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
-    updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
   };
 }
 
@@ -43,7 +43,7 @@ function convertObjectIds(data) {
       data.id = data._id.toString();
       delete data._id;
     }
-    
+
     for (const key in data) {
       if (typeof data[key] === 'object' && data[key] !== null) {
         data[key] = convertObjectIds(data[key]);
@@ -78,66 +78,67 @@ function processData(data) {
 
 // Helper function to sleep
 function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 // Migration function for a single collection
 async function migrateCollection(collectionName, mongoCollection) {
   console.log(`\n🔄 Starting migration for collection: ${collectionName}`);
-  
+
   try {
     // Get total count
     const totalCount = await mongoCollection.countDocuments();
     console.log(`📊 Total documents in ${collectionName}: ${totalCount}`);
-    
+
     if (totalCount === 0) {
       console.log(`✅ No documents to migrate for ${collectionName}`);
       return { success: true, count: 0 };
     }
-    
+
     // Process in batches
     let processedCount = 0;
     let batchCount = 0;
-    
+
     const cursor = mongoCollection.find({});
-    
+
     while (await cursor.hasNext()) {
       const batch = [];
-      
+
       // Collect documents for this batch
-      for (let i = 0; i < config.batchSize && await cursor.hasNext(); i++) {
+      for (let i = 0; i < config.batchSize && (await cursor.hasNext()); i++) {
         const doc = await cursor.next();
         batch.push(doc);
       }
-      
+
       if (batch.length === 0) break;
-      
+
       // Process batch
       const writeBatch = db.batch();
-      
+
       for (const doc of batch) {
         const processedDoc = processData(doc);
         const docRef = db.collection(collectionName).doc();
         writeBatch.set(docRef, processedDoc);
       }
-      
+
       // Commit batch
       await writeBatch.commit();
-      
+
       processedCount += batch.length;
       batchCount++;
-      
-      console.log(`�� Batch ${batchCount}: Processed ${batch.length} documents (${processedCount}/${totalCount})`);
-      
+
+      console.log(
+        `�� Batch ${batchCount}: Processed ${batch.length} documents (${processedCount}/${totalCount})`
+      );
+
       // Add delay between batches to avoid rate limiting
       if (await cursor.hasNext()) {
         await sleep(config.delayBetweenBatches);
       }
     }
-    
+
     console.log(`✅ Successfully migrated ${processedCount} documents from ${collectionName}`);
     return { success: true, count: processedCount };
-    
   } catch (error) {
     console.error(`❌ Error migrating collection ${collectionName}:`, error);
     return { success: false, error: error.message };
@@ -148,33 +149,33 @@ async function migrateCollection(collectionName, mongoCollection) {
 async function migrateData() {
   console.log('🚀 Starting MongoDB to Firestore migration...');
   console.log('📋 Configuration:', config);
-  
+
   let mongoClient;
-  
+
   try {
     // Connect to MongoDB
     console.log('\n🔌 Connecting to MongoDB...');
     mongoClient = new MongoClient(process.env.MONGODB_URI);
     await mongoClient.connect();
     console.log('✅ Connected to MongoDB');
-    
+
     const mongoDb = mongoClient.db();
-    
+
     // Migration results
     const results = {
       totalCollections: config.collections.length,
       successfulCollections: 0,
       failedCollections: 0,
       totalDocuments: 0,
-      errors: []
+      errors: [],
     };
-    
+
     // Migrate each collection
     for (const collectionName of config.collections) {
       try {
         const mongoCollection = mongoDb.collection(collectionName);
         const result = await migrateCollection(collectionName, mongoCollection);
-        
+
         if (result.success) {
           results.successfulCollections++;
           results.totalDocuments += result.count;
@@ -182,20 +183,19 @@ async function migrateData() {
           results.failedCollections++;
           results.errors.push({
             collection: collectionName,
-            error: result.error
+            error: result.error,
           });
         }
-        
       } catch (error) {
         console.error(`❌ Failed to migrate collection ${collectionName}:`, error);
         results.failedCollections++;
         results.errors.push({
           collection: collectionName,
-          error: error.message
+          error: error.message,
         });
       }
     }
-    
+
     // Print summary
     console.log('\n📊 Migration Summary:');
     console.log('====================');
@@ -203,20 +203,19 @@ async function migrateData() {
     console.log(`Successful: ${results.successfulCollections}`);
     console.log(`Failed: ${results.failedCollections}`);
     console.log(`Total Documents Migrated: ${results.totalDocuments}`);
-    
+
     if (results.errors.length > 0) {
       console.log('\n❌ Errors:');
-      results.errors.forEach(error => {
+      results.errors.forEach((error) => {
         console.log(`  - ${error.collection}: ${error.error}`);
       });
     }
-    
+
     if (results.failedCollections === 0) {
       console.log('\n🎉 Migration completed successfully!');
     } else {
       console.log('\n⚠️  Migration completed with errors. Please review the errors above.');
     }
-    
   } catch (error) {
     console.error('❌ Migration failed:', error);
     throw error;
@@ -232,7 +231,7 @@ async function migrateData() {
 // Validation function
 async function validateMigration() {
   console.log('\n🔍 Validating migration...');
-  
+
   try {
     for (const collectionName of config.collections) {
       const snapshot = await db.collection(collectionName).limit(1).get();
@@ -252,16 +251,16 @@ if (require.main === module) {
     console.log('Please set it with: export MONGODB_URI="your_mongodb_connection_string"');
     process.exit(1);
   }
-  
+
   // Check for service account key
   try {
     require('../serviceAccountKey.json');
-  } catch (error) {
+  } catch (_error) {
     console.error('❌ serviceAccountKey.json file is required');
     console.log('Please download it from Firebase Console > Project Settings > Service Accounts');
     process.exit(1);
   }
-  
+
   // Run migration
   migrateData()
     .then(() => validateMigration())
@@ -275,4 +274,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { migrateData, validateMigration }; 
+module.exports = { migrateData, validateMigration };

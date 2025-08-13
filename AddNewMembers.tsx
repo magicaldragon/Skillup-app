@@ -1,9 +1,16 @@
 // AddNewMembers.tsx
 // Professional panel to add new members (students, teachers, staff, admins), with Firebase-only architecture
 // Enhanced with Vietnamese name handling and real-time username preview
-import React, { useState, useEffect, useCallback } from 'react';
+import type React from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { userRegistrationService } from './frontend/services/userRegistrationService';
-import { generateVietnameseUsername, debounce } from './utils/stringUtils';
+import type { Student } from './types';
+import { debounce, generateVietnameseUsername } from './utils/stringUtils';
+
+// Extended interface for created user with generated password
+interface CreatedUser extends Student {
+  generatedPassword?: string;
+}
 import './AddNewMembers.css';
 
 const AddNewMembers = () => {
@@ -20,13 +27,13 @@ const AddNewMembers = () => {
     parentPhone: '',
     notes: '',
     status: 'potential',
-    password: ''
+    password: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [generatedStudentCode, setGeneratedStudentCode] = useState<string | null>(null);
-  const [createdUser, setCreatedUser] = useState<any>(null);
+  const [createdUser, setCreatedUser] = useState<CreatedUser | null>(null);
   const [previewUsername, setPreviewUsername] = useState<string>('');
   const [previewEmail, setPreviewEmail] = useState<string>('');
 
@@ -51,9 +58,11 @@ const AddNewMembers = () => {
     debouncedUsernameGeneration(form.name, form.role);
   }, [form.name, form.role, debouncedUsernameGeneration]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+    setForm((prev) => ({ ...prev, [name]: value }));
     setError(null);
     setSuccess(null);
     setCreatedUser(null);
@@ -73,7 +82,7 @@ const AddNewMembers = () => {
       parentPhone: '',
       notes: '',
       status: 'potential',
-      password: ''
+      password: '',
     });
     setError(null);
     setSuccess(null);
@@ -98,24 +107,31 @@ const AddNewMembers = () => {
 
       // Set appropriate status based on role
       const userStatus = form.role === 'student' ? 'potential' : 'active';
-      
+
       const result = await userRegistrationService.registerNewUser({
         ...form,
         status: userStatus,
-        password: form.password || (form.role === 'student' ? 'Skillup123' : 'Skillup@123')
+        password: form.password || (form.role === 'student' ? 'Skillup123' : 'Skillup@123'),
       });
-      setSuccess(`User registered successfully! ${result.user.studentCode ? `Student Code: ${result.user.studentCode}` : ''}`);
+      setSuccess(
+        `User registered successfully! ${result.user.studentCode ? `Student Code: ${result.user.studentCode}` : ''}`
+      );
       setGeneratedStudentCode(result.user.studentCode || null);
       setCreatedUser(result.user);
       handleReset();
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Improved error handling for Firebase errors
-      if (err.code === 'auth/email-already-in-use') {
-        setError('This email is already registered in Firebase Authentication.');
-      } else if (err.code === 'auth/weak-password') {
-        setError('Password is too weak. Please use a stronger password.');
+      const errorMessage = err instanceof Error ? err.message : 'Registration failed';
+      if (err && typeof err === 'object' && 'code' in err) {
+        if (err.code === 'auth/email-already-in-use') {
+          setError('This email is already registered in Firebase Authentication.');
+        } else if (err.code === 'auth/weak-password') {
+          setError('Password is too weak. Please use a stronger password.');
+        } else {
+          setError(errorMessage);
+        }
       } else {
-        setError(err.message || 'Registration failed');
+        setError(errorMessage);
       }
     } finally {
       setLoading(false);
@@ -123,7 +139,7 @@ const AddNewMembers = () => {
   };
 
   // Helper function to get student ID format
-  const getStudentId = (user: any) => {
+  const getStudentId = (user: CreatedUser) => {
     if (user.role === 'student' && user.studentCode) {
       return user.studentCode;
     }
@@ -131,7 +147,7 @@ const AddNewMembers = () => {
   };
 
   // Helper function to get password based on role
-  const getPassword = (user: any) => {
+  const getPassword = (user: CreatedUser) => {
     if (user.role === 'student') {
       return 'Skillup123';
     }
@@ -143,19 +159,16 @@ const AddNewMembers = () => {
       <div className="panel-content">
         <div className="registration-form-section">
           <div className="panel-card">
-            <h2 className="panel-title" style={{ fontSize: '2.5rem', color: '#2c5aa0', marginBottom: '20px' }}>REGISTRATION FORM</h2>
-            
-            {error && (
-              <div className="error-message">
-                {error}
-              </div>
-            )}
-            
-            {success && (
-              <div className="success-message">
-                {success}
-              </div>
-            )}
+            <h2
+              className="panel-title"
+              style={{ fontSize: '2.5rem', color: '#2c5aa0', marginBottom: '20px' }}
+            >
+              REGISTRATION FORM
+            </h2>
+
+            {error && <div className="error-message">{error}</div>}
+
+            {success && <div className="success-message">{success}</div>}
 
             {generatedStudentCode && (
               <div className="student-code-display">
@@ -167,10 +180,11 @@ const AddNewMembers = () => {
               {/* Left Column */}
               {/* Full Name */}
               <div className="form-group">
-                <label className="form-label">
+                <label htmlFor="name" className="form-label">
                   Full Name <span className="required">*</span>
                 </label>
                 <input
+                  id="name"
                   type="text"
                   name="name"
                   value={form.name}
@@ -192,10 +206,11 @@ const AddNewMembers = () => {
               {/* Right Column */}
               {/* Role */}
               <div className="form-group">
-                <label className="form-label">
+                <label htmlFor="role" className="form-label">
                   Role <span className="required">*</span>
                 </label>
                 <select
+                  id="role"
                   name="role"
                   value={form.role}
                   onChange={handleChange}
@@ -213,10 +228,11 @@ const AddNewMembers = () => {
               {/* Left Column */}
               {/* Gender */}
               <div className="form-group">
-                <label className="form-label">
+                <label htmlFor="gender" className="form-label">
                   Gender <span className="required">*</span>
                 </label>
                 <select
+                  id="gender"
                   name="gender"
                   value={form.gender}
                   onChange={handleChange}
@@ -232,8 +248,11 @@ const AddNewMembers = () => {
               {/* Right Column */}
               {/* English Name */}
               <div className="form-group">
-                <label className="form-label">English Name</label>
+                <label htmlFor="englishName" className="form-label">
+                  English Name
+                </label>
                 <input
+                  id="englishName"
                   type="text"
                   name="englishName"
                   value={form.englishName}
@@ -245,8 +264,11 @@ const AddNewMembers = () => {
               {/* Left Column */}
               {/* Date of Birth */}
               <div className="form-group">
-                <label className="form-label">Date of Birth</label>
+                <label htmlFor="dob" className="form-label">
+                  Date of Birth
+                </label>
                 <input
+                  id="dob"
                   type="date"
                   name="dob"
                   value={form.dob}
@@ -258,8 +280,11 @@ const AddNewMembers = () => {
               {/* Right Column */}
               {/* Phone Number */}
               <div className="form-group">
-                <label className="form-label">Phone Number</label>
+                <label htmlFor="phone" className="form-label">
+                  Phone Number
+                </label>
                 <input
+                  id="phone"
                   type="tel"
                   name="phone"
                   value={form.phone}
@@ -271,8 +296,11 @@ const AddNewMembers = () => {
               {/* Left Column */}
               {/* Email */}
               <div className="form-group">
-                <label className="form-label">Email</label>
+                <label htmlFor="email" className="form-label">
+                  Email
+                </label>
                 <input
+                  id="email"
                   type="email"
                   name="email"
                   value={form.email}
@@ -285,10 +313,11 @@ const AddNewMembers = () => {
               {/* Status - Only for students */}
               {form.role === 'student' && (
                 <div className="form-group">
-                  <label className="form-label">
+                  <label htmlFor="status" className="form-label">
                     Status <span className="required">*</span>
                   </label>
                   <select
+                    id="status"
                     name="status"
                     value={form.status}
                     onChange={handleChange}
@@ -308,8 +337,11 @@ const AddNewMembers = () => {
               {/* Parent's Name - Only for students */}
               {form.role === 'student' && (
                 <div className="form-group">
-                  <label className="form-label">Parent's Name</label>
+                  <label htmlFor="parentName" className="form-label">
+                    Parent's Name
+                  </label>
                   <input
+                    id="parentName"
                     type="text"
                     name="parentName"
                     value={form.parentName}
@@ -322,8 +354,11 @@ const AddNewMembers = () => {
               {/* Parent's Phone - Only for students */}
               {form.role === 'student' && (
                 <div className="form-group">
-                  <label className="form-label">Parent's Phone</label>
+                  <label htmlFor="parentPhone" className="form-label">
+                    Parent's Phone
+                  </label>
                   <input
+                    id="parentPhone"
                     type="tel"
                     name="parentPhone"
                     value={form.parentPhone}
@@ -335,8 +370,11 @@ const AddNewMembers = () => {
 
               {/* Notes - Full Width at the end */}
               <div className="form-group full-width">
-                <label className="form-label">Notes</label>
+                <label htmlFor="notes" className="form-label">
+                  Notes
+                </label>
                 <textarea
+                  id="notes"
                   name="notes"
                   value={form.notes}
                   onChange={handleChange}
@@ -347,11 +385,7 @@ const AddNewMembers = () => {
               </div>
 
               <div className="form-actions">
-                <button
-                  type="submit"
-                  className="submit-btn"
-                  disabled={loading}
-                >
+                <button type="submit" className="submit-btn" disabled={loading}>
                   {loading ? 'Registering...' : 'Register'}
                 </button>
                 <button
@@ -374,7 +408,9 @@ const AddNewMembers = () => {
               <h3 className="success-title">✅ THE ACCOUNT HAS BEEN CREATED SUCCESSFULLY!</h3>
               <div className="account-details">
                 <div className="account-detail">
-                  <span className="detail-label">{createdUser.role === 'student' ? 'STUDENT ID' : 'MEMBER ID'}:</span>
+                  <span className="detail-label">
+                    {createdUser.role === 'student' ? 'STUDENT ID' : 'MEMBER ID'}:
+                  </span>
                   <span className="detail-value">{getStudentId(createdUser)}</span>
                 </div>
                 <div className="account-detail">
@@ -391,7 +427,9 @@ const AddNewMembers = () => {
                 </div>
                 <div className="account-detail">
                   <span className="detail-label">USERNAME:</span>
-                  <span className="detail-value">{createdUser.username || createdUser.email || 'N/A'}</span>
+                  <span className="detail-value">
+                    {createdUser.username || createdUser.email || 'N/A'}
+                  </span>
                 </div>
                 <div className="account-detail">
                   <span className="detail-value">{createdUser.email || 'N/A'}</span>
@@ -410,9 +448,15 @@ const AddNewMembers = () => {
                 )}
               </div>
               <div className="success-instructions">
-                <p>📋 Please copy or take a screenshot of this information and send it to the new member.</p>
+                <p>
+                  📋 Please copy or take a screenshot of this information and send it to the new
+                  member.
+                </p>
                 <p>🔐 They can use these credentials to log in to their account.</p>
-                <p>💡 The username is automatically generated from their Vietnamese name for easy memorization.</p>
+                <p>
+                  💡 The username is automatically generated from their Vietnamese name for easy
+                  memorization.
+                </p>
               </div>
             </div>
           </div>
@@ -422,4 +466,4 @@ const AddNewMembers = () => {
   );
 };
 
-export default AddNewMembers; 
+export default AddNewMembers;

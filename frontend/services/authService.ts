@@ -1,7 +1,7 @@
-import { auth } from './firebase';
 import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
-import { safeTrim } from '../../utils/stringUtils';
 import { performanceMonitor } from '../../utils/performanceMonitor';
+import { safeTrim } from '../../utils/stringUtils';
+import { auth } from './firebase';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 const FUNCTIONS_BASE = 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
@@ -37,22 +37,24 @@ class AuthService {
   }
 
   private isConnectionCacheValid(): boolean {
-    return this.connectionCache !== null && 
-           (Date.now() - this.connectionCache.timestamp) < this.CACHE_DURATION;
+    return (
+      this.connectionCache !== null &&
+      Date.now() - this.connectionCache.timestamp < this.CACHE_DURATION
+    );
   }
 
   async testBackendConnection(): Promise<boolean> {
     // Return cached result if still valid
     if (this.isConnectionCacheValid()) {
-      console.log('Using cached backend connection status:', this.connectionCache!.status);
-      return this.connectionCache!.status;
+      console.log('Using cached backend connection status:', this.connectionCache?.status);
+      return this.connectionCache?.status;
     }
 
     try {
       console.log('Testing backend connectivity to:', `/health`);
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 8000); // Increased timeout to 8 seconds
-      
+
       // Prefer health endpoint if available
       let response: Response | null = null;
       try {
@@ -62,14 +64,16 @@ class AuthService {
           signal: controller.signal,
           mode: 'cors',
         });
-      } catch (e) {
+      } catch (_e) {
         // fallback to /test
         console.warn('Health endpoint failed, falling back to /test');
       }
 
       // If no response or 404/502, try fallback routes
       if (!response || response.status === 404 || response.status === 502) {
-        console.warn(`Primary health check returned ${response ? response.status : 'no response'}, trying /test`);
+        console.warn(
+          `Primary health check returned ${response ? response.status : 'no response'}, trying /test`
+        );
         try {
           response = await fetch(`/test`, {
             method: 'GET',
@@ -77,7 +81,7 @@ class AuthService {
             signal: controller.signal,
             mode: 'cors',
           });
-        } catch (e) {
+        } catch (_e) {
           console.warn('Primary /test failed, trying Cloud Functions fallback');
         }
       }
@@ -92,11 +96,11 @@ class AuthService {
             signal: controller.signal,
             mode: 'cors',
           });
-        } catch (e) {
+        } catch (_e) {
           console.error('Cloud Functions fallback health check failed');
         }
       }
-      
+
       clearTimeout(timeoutId);
       if (!response) {
         console.error('No response from any health check endpoint');
@@ -104,10 +108,10 @@ class AuthService {
         return false;
       }
       console.log('Connectivity response status:', response.status);
-      
+
       const isConnected = response.ok;
       this.connectionCache = { status: isConnected, timestamp: Date.now() };
-      
+
       if (isConnected) {
         const data = await response.json().catch(() => ({}));
         console.log('Connectivity response:', data);
@@ -116,23 +120,25 @@ class AuthService {
       } else {
         console.error('Connectivity test failed with status:', response.status);
       }
-      
+
       return isConnected;
     } catch (error) {
       console.error('Backend connectivity test failed:', error);
       console.error('Error details:', {
         message: error instanceof Error ? error.message : 'Unknown error',
         name: error instanceof Error ? error.name : 'Unknown',
-        stack: error instanceof Error ? error.stack : undefined
+        stack: error instanceof Error ? error.stack : undefined,
       });
-      
+
       // Don't cache failed attempts for too long
       this.connectionCache = { status: false, timestamp: Date.now() - 25000 }; // Cache for only 5 seconds on failure
       return false;
     }
   }
 
-  async login(credentials: LoginCredentials): Promise<{ success: boolean; message: string; user?: any }> {
+  async login(
+    credentials: LoginCredentials
+  ): Promise<{ success: boolean; message: string; user?: any }> {
     performanceMonitor.startTimer('login');
     try {
       // Validate input with safe handling
@@ -156,31 +162,31 @@ class AuthService {
       }
 
       console.log('Attempting login with email:', email);
-      
+
       // Step 1: Login with Firebase (with timeout)
       console.log('Step 1: Authenticating with Firebase...');
       const firebasePromise = signInWithEmailAndPassword(auth, email, password);
-      const firebaseTimeout = new Promise<never>((_, reject) => 
+      const firebaseTimeout = new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error('Firebase authentication timeout')), 10000)
       );
-      
-      const userCredential = await Promise.race([firebasePromise, firebaseTimeout]) as any;
+
+      const userCredential = (await Promise.race([firebasePromise, firebaseTimeout])) as any;
       console.log('Firebase authentication successful');
 
       // Step 2: Get Firebase ID token (with timeout)
       console.log('Step 2: Getting Firebase ID token...');
       const tokenPromise = userCredential.user.getIdToken();
-      const tokenTimeout = new Promise<never>((_, reject) => 
+      const tokenTimeout = new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error('Token retrieval timeout')), 5000)
       );
-      
-      const idToken = await Promise.race([tokenPromise, tokenTimeout]) as string;
+
+      const idToken = (await Promise.race([tokenPromise, tokenTimeout])) as string;
       console.log('Firebase ID token obtained');
 
       // Step 3: Exchange Firebase token for JWT (with timeout)
       console.log('Step 3: Exchanging Firebase token for JWT...');
       console.log('Making request to:', `/auth/firebase-login`);
-      
+
       const requestBody = {
         firebaseToken: idToken,
         email: email,
@@ -194,12 +200,12 @@ class AuthService {
         },
         body: JSON.stringify(requestBody),
       });
-      
-      const backendTimeout = new Promise<never>((_, reject) => 
+
+      const backendTimeout = new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error('Backend request timeout')), 8000)
       );
-      
-      const response = await Promise.race([backendPromise, backendTimeout]) as Response;
+
+      const response = (await Promise.race([backendPromise, backendTimeout])) as Response;
 
       console.log('Backend response status:', response.status);
       console.log('Backend response headers:', Object.fromEntries(response.headers.entries()));
@@ -209,28 +215,37 @@ class AuthService {
         console.log('Backend response data:', data);
         console.log('Token received:', data.token ? 'Token exists' : 'No token');
         if (data.token) {
-          console.log('Token preview:', data.token.substring(0, 20) + '...');
+          console.log('Token preview:', `${data.token.substring(0, 20)}...`);
         }
-        
+
         // Store both the JWT token and user data consistently
         localStorage.setItem('skillup_token', data.token);
         localStorage.setItem('skillup_user', JSON.stringify(data.user));
         console.log('Token and user data stored in localStorage');
-        console.log('Token verification - stored token:', localStorage.getItem('skillup_token') ? 'Present' : 'Missing');
-        console.log('User data verification - stored user:', localStorage.getItem('skillup_user') ? 'Present' : 'Missing');
-        
+        console.log(
+          'Token verification - stored token:',
+          localStorage.getItem('skillup_token') ? 'Present' : 'Missing'
+        );
+        console.log(
+          'User data verification - stored user:',
+          localStorage.getItem('skillup_user') ? 'Present' : 'Missing'
+        );
+
         // Update connection cache on successful login
         this.connectionCache = { status: true, timestamp: Date.now() };
-        
+
         // Ensure user data is safe before returning
-        const safeUser = data.user && typeof data.user === 'object' ? {
-          _id: data.user._id || data.user.id || '',
-          fullname: data.user.name || data.user.fullname || '',
-          email: data.user.email || '',
-          role: data.user.role || 'student',
-          username: data.user.username || data.user.email || '',
-          ...data.user // Include any additional fields
-        } : null;
+        const safeUser =
+          data.user && typeof data.user === 'object'
+            ? {
+                _id: data.user._id || data.user.id || '',
+                fullname: data.user.name || data.user.fullname || '',
+                email: data.user.email || '',
+                role: data.user.role || 'student',
+                username: data.user.username || data.user.email || '',
+                ...data.user, // Include any additional fields
+              }
+            : null;
 
         return {
           success: true,
@@ -238,12 +253,15 @@ class AuthService {
           user: safeUser,
         };
       } else {
-        const errorData = await response.json().catch(() => ({ message: 'Failed to parse error response' }));
+        const errorData = await response
+          .json()
+          .catch(() => ({ message: 'Failed to parse error response' }));
         console.error('Backend error response:', errorData);
-        
+
         // Provide more specific error messages based on backend response
-        let errorMessage = errorData.message || `Backend request failed with status ${response.status}`;
-        
+        let errorMessage =
+          errorData.message || `Backend request failed with status ${response.status}`;
+
         if (response.status === 401) {
           if (errorData.message?.includes('not found')) {
             errorMessage = 'User not found. Please contact administrator.';
@@ -257,16 +275,16 @@ class AuthService {
         } else if (response.status === 500) {
           errorMessage = 'Server error. Please try again later.';
         }
-        
+
         throw new Error(errorMessage);
       }
     } catch (error: any) {
       console.error('Login error details:', error);
-      
+
       // Clean up any partial state on error
       localStorage.removeItem('skillup_token');
       localStorage.removeItem('skillup_user');
-      
+
       // Provide more specific error messages
       if (error.code === 'auth/user-not-found') {
         return {
@@ -294,7 +312,7 @@ class AuthService {
           message: error.message,
         };
       }
-      
+
       return {
         success: false,
         message: error.message || 'Login failed. Please try again.',
@@ -307,26 +325,26 @@ class AuthService {
   async logout(): Promise<void> {
     try {
       console.log('Starting logout process...');
-      
+
       // Clear connection cache
       this.connectionCache = null;
-      
+
       // Clear localStorage
       localStorage.removeItem('skillup_token');
       localStorage.removeItem('skillup_user');
-      
+
       // Sign out from Firebase
       await signOut(auth);
-      
+
       console.log('Logout completed successfully');
     } catch (error) {
       console.error('Logout error:', error);
-      
+
       // Even if Firebase logout fails, clear local state
       localStorage.removeItem('skillup_token');
       localStorage.removeItem('skillup_user');
       this.connectionCache = null;
-      
+
       // Re-throw error for caller to handle
       throw error;
     }
@@ -341,21 +359,21 @@ class AuthService {
         return null;
       }
 
-      console.log('Fetching profile with token:', token.substring(0, 20) + '...');
-      
+      console.log('Fetching profile with token:', `${token.substring(0, 20)}...`);
+
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
-      
+
       const response = await fetch(`/auth/profile`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         signal: controller.signal,
       });
 
       clearTimeout(timeoutId);
       console.log('Profile response status:', response.status);
-      
+
       if (response.ok) {
         const data = await response.json();
         console.log('Profile response data:', data);
@@ -367,7 +385,7 @@ class AuthService {
             email: data.user.email || '',
             role: data.user.role || 'student',
             username: data.user.username || data.user.email || '',
-            ...data.user // Include any additional fields
+            ...data.user, // Include any additional fields
           };
           console.log('Safe user object:', safeUser);
           console.log('User role from profile:', safeUser.role);
@@ -405,9 +423,9 @@ class AuthService {
       console.error('Auth state validation error:', error);
       // Clear invalid state
       await this.logout();
-      return { 
-        isValid: false, 
-        error: error instanceof Error ? error.message : 'Validation failed' 
+      return {
+        isValid: false,
+        error: error instanceof Error ? error.message : 'Validation failed',
       };
     }
   }
@@ -416,14 +434,14 @@ class AuthService {
     const hasToken = localStorage.getItem('skillup_token') !== null;
     const hasUser = localStorage.getItem('skillup_user') !== null;
     const hasFirebaseUser = auth.currentUser !== null;
-    
+
     console.log('Authentication state check:', {
       hasToken,
       hasUser,
       hasFirebaseUser,
-      firebaseUser: auth.currentUser?.email
+      firebaseUser: auth.currentUser?.email,
     });
-    
+
     // All three must be present for valid authentication
     return hasToken && hasUser && hasFirebaseUser;
   }
@@ -434,4 +452,4 @@ class AuthService {
 }
 
 export const authService = new AuthService();
-export type { AuthService }; 
+export type { AuthService };

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import type { Student, StudentClass } from './types';
 import './PotentialStudentsPanel.css';
 
@@ -26,7 +26,11 @@ interface PotentialStudentsPanelProps {
   onDataRefresh?: () => void;
 }
 
-const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, onDataRefresh }: PotentialStudentsPanelProps) => {
+const PotentialStudentsPanel = ({
+  classes: _classes,
+  currentUser: _currentUser,
+  onDataRefresh,
+}: PotentialStudentsPanelProps) => {
   const [potentialStudents, setPotentialStudents] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -43,12 +47,12 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
 
   useEffect(() => {
     fetchPotentialStudents();
-  }, []);
+  }, [fetchPotentialStudents]);
 
   const fetchPotentialStudents = async () => {
     setLoading(true);
     setError(null);
-    
+
     const token = localStorage.getItem('skillup_token');
     if (!token) {
       setError('No authentication token found');
@@ -60,7 +64,7 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
       // Fetch users with status 'potential' or 'contacted'
       const response = await fetch(`${API_BASE_URL}/users?status=potential,contacted`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -90,13 +94,13 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
       for (const id of selectedIds) {
         const response = await fetch(`${API_BASE_URL}/users/${id}`, {
           method: 'PUT',
-          headers: { 
+          headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ status: bulkStatus }),
         });
-        
+
         if (!response.ok) {
           throw new Error(`Failed to update user ${id} status`);
         }
@@ -114,11 +118,11 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
 
   // Individual select
   const toggleSelect = (id: string) => {
-    setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   };
 
   // Select all
-  const selectAll = () => setSelectedIds(potentialStudents.map(s => s._id));
+  const selectAll = () => setSelectedIds(potentialStudents.map((s) => s._id));
   const clearAll = () => setSelectedIds([]);
 
   // Move to Waiting List (changes status to 'studying')
@@ -132,13 +136,13 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
     try {
       const response = await fetch(`${API_BASE_URL}/users/${studentId}`, {
         method: 'PUT',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ status: 'studying' }),
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to move student to waiting list');
       }
@@ -163,19 +167,19 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
     try {
       const response = await fetch(`${API_BASE_URL}/users/sync-potential-students`, {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to sync existing students');
       }
 
       const result = await response.json();
       alert(`Sync completed! ${result.created} new records created, ${result.skipped} skipped.`);
-      
+
       // Refresh the potential students list
       fetchPotentialStudents();
     } catch (error) {
@@ -185,14 +189,15 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
   };
 
   // Filtered students
-  const filteredStudents = potentialStudents.filter(s => {
-    const matchesSearch = s.name.toLowerCase().includes(search.toLowerCase()) ||
-      (s.englishName && s.englishName.toLowerCase().includes(search.toLowerCase())) ||
-      (s.phone && s.phone.includes(search)) ||
-      (s.studentCode && s.studentCode.toLowerCase().includes(search.toLowerCase()));
-    
+  const filteredStudents = potentialStudents.filter((s) => {
+    const matchesSearch =
+      s.name.toLowerCase().includes(search.toLowerCase()) ||
+      s.englishName?.toLowerCase().includes(search.toLowerCase()) ||
+      s.phone?.includes(search) ||
+      s.studentCode?.toLowerCase().includes(search.toLowerCase());
+
     const matchesStatus = statusFilter === 'all' || s.status === statusFilter;
-    
+
     return matchesSearch && matchesStatus;
   });
 
@@ -213,10 +218,7 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
         <div className="potential-students-error">
           <h3>Error Loading Potential Students</h3>
           <p>{error}</p>
-          <button 
-            className="potential-students-retry-btn"
-            onClick={fetchPotentialStudents}
-          >
+          <button className="potential-students-retry-btn" onClick={fetchPotentialStudents}>
             Try Again
           </button>
         </div>
@@ -227,35 +229,42 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
   return (
     <div className="potential-students-panel">
       <div className="potential-students-header">
-      <h2 className="potential-students-title">Potential Students</h2>
-      <p className="potential-students-subtitle">Students who need evaluation - move to Waiting List or Records</p>
+        <h2 className="potential-students-title">Potential Students</h2>
+        <p className="potential-students-subtitle">
+          Students who need evaluation - move to Waiting List or Records
+        </p>
       </div>
-      
+
       <div className="potential-students-search">
         <div className="search-controls">
           <div className="search-bar-container">
-        <input
-          type="text"
+            <input
+              type="text"
               className="search-bar-input"
               placeholder="Search by name, phone, or student ID..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          onKeyPress={e => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              (e.target as HTMLInputElement).focus();
-            }
-          }}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  (e.target as HTMLInputElement).focus();
+                }
+              }}
             />
             <button className="search-bar-button">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
               </svg>
             </button>
           </div>
           <select
             value={statusFilter}
-            onChange={e => setStatusFilter(e.target.value as 'all' | 'potential' | 'contacted')}
+            onChange={(e) => setStatusFilter(e.target.value as 'all' | 'potential' | 'contacted')}
             className="status-filter-select"
           >
             <option value="all">All Status</option>
@@ -264,28 +273,30 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
           </select>
         </div>
       </div>
-      
+
       <div className="potential-students-table-container">
-      <table className="potential-students-table">
-        <thead>
-          <tr>
+        <table className="potential-students-table">
+          <thead>
+            <tr>
               <th className="checkbox-header">
                 <input
                   type="checkbox"
-                  checked={selectedIds.length === potentialStudents.length && potentialStudents.length > 0}
+                  checked={
+                    selectedIds.length === potentialStudents.length && potentialStudents.length > 0
+                  }
                   onChange={selectedIds.length === potentialStudents.length ? clearAll : selectAll}
                   className="select-all-checkbox"
                 />
               </th>
-            <th>Name</th>
+              <th>Name</th>
               <th>Gender</th>
-            <th>Status</th>
+              <th>Status</th>
               <th>Parent's Name</th>
               <th>Parent's Phone</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredStudents.length === 0 && (
+            </tr>
+          </thead>
+          <tbody>
+            {filteredStudents.length === 0 && (
               <tr>
                 <td colSpan={6} className="empty-table">
                   <div className="empty-state">
@@ -294,16 +305,24 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
                     <p className="empty-subtitle">
                       Students with "potential" or "contacted" status will appear here.
                       {potentialStudents.length === 0 && (
-                        <span> If you have existing students with "potential" status, click "Sync Existing Students" below.</span>
+                        <span>
+                          {' '}
+                          If you have existing students with "potential" status, click "Sync
+                          Existing Students" below.
+                        </span>
                       )}
                     </p>
                   </div>
                 </td>
               </tr>
-          )}
-          {filteredStudents.map(student => (
-            <tr key={student._id} onClick={() => setSelectedStudent(student)} className="clickable-row">
-                <td onClick={e => e.stopPropagation()} className="checkbox-cell">
+            )}
+            {filteredStudents.map((student) => (
+              <tr
+                key={student._id}
+                onClick={() => setSelectedStudent(student)}
+                className="clickable-row"
+              >
+                <td onClick={(e) => e.stopPropagation()} className="checkbox-cell">
                   <input
                     type="checkbox"
                     checked={selectedIds.includes(student._id)}
@@ -319,23 +338,23 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
                 </td>
                 <td className="gender-cell">{student.gender || 'N/A'}</td>
                 <td className="status-cell">
-                  <span className={`status-badge status-${student.status}`}>
-                    {student.status}
-                  </span>
-              </td>
+                  <span className={`status-badge status-${student.status}`}>{student.status}</span>
+                </td>
                 <td className="parent-name-cell">{student.parentName || 'N/A'}</td>
                 <td className="parent-phone-cell">{student.parentPhone || 'N/A'}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
       {/* Details Modal/Panel */}
       {selectedStudent && (
         <div className="student-details-modal">
           <div className="modal-content">
-            <button className="close-btn" onClick={() => setSelectedStudent(null)}>×</button>
+            <button className="close-btn" onClick={() => setSelectedStudent(null)}>
+              ×
+            </button>
             <h3>Student Details</h3>
             <div className="student-details-grid">
               <div className="detail-item">
@@ -384,10 +403,10 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
           </div>
         </div>
       )}
-      
+
       <div className="potential-students-actions">
         {selectedIds.length > 0 && (
-        <button
+          <button
             className="potential-students-btn potential-students-btn-secondary"
             onClick={() => setShowBulkUpdate(true)}
           >
@@ -430,22 +449,22 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
           Sync Existing Students
         </button>
       </div>
-      
+
       {showBulkUpdate && (
         <div className="potential-students-bulk-section">
-            <select
-              className="potential-students-select"
-              value={bulkStatus}
-              onChange={e => setBulkStatus(e.target.value)}
-            >
-              <option value="">Select status...</option>
+          <select
+            className="potential-students-select"
+            value={bulkStatus}
+            onChange={(e) => setBulkStatus(e.target.value)}
+          >
+            <option value="">Select status...</option>
             <option value="potential">Potential</option>
-              <option value="contacted">Contacted</option>
+            <option value="contacted">Contacted</option>
             <option value="studying">Studying (Move to Waiting List)</option>
             <option value="postponed">Postponed (Move to Records)</option>
             <option value="off">Off (Move to Records)</option>
             <option value="alumni">Alumni (Move to Records)</option>
-            </select>
+          </select>
           <div className="potential-students-confirm-buttons">
             <button
               className="potential-students-confirm-btn potential-students-confirm-btn-success"
@@ -456,7 +475,10 @@ const PotentialStudentsPanel = ({ classes: _classes, currentUser: _currentUser, 
             </button>
             <button
               className="potential-students-confirm-btn potential-students-confirm-btn-cancel"
-              onClick={() => { setShowBulkUpdate(false); setBulkStatus(''); }}
+              onClick={() => {
+                setShowBulkUpdate(false);
+                setBulkStatus('');
+              }}
             >
               Cancel
             </button>

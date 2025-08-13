@@ -1,12 +1,13 @@
 // frontend/services/userRegistrationService.ts - User Registration Service
 // This service handles user registration in the Firebase-only architecture:
-// - Firebase Authentication for user accounts  
+// - Firebase Authentication for user accounts
 // - Firestore for user data storage
 // - VStorage only for assignment files (not user data)
 // - Username format: fullName + @role.skillup (e.g., "john-doe@student.skillup")
-import { auth } from './firebase';
+
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { generateVietnameseUsername } from '../../utils/stringUtils';
+import { auth } from './firebase';
 
 const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
 
@@ -61,7 +62,12 @@ export const userRegistrationService = {
       const email = generateEmail(username, data.role);
       const password = data.password || generatePassword(data.role);
 
-      console.log('Generated credentials:', { username, email, role: data.role, hasPassword: !!password });
+      console.log('Generated credentials:', {
+        username,
+        email,
+        role: data.role,
+        hasPassword: !!password,
+      });
 
       // 2. Create user in Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -73,12 +79,12 @@ export const userRegistrationService = {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
-          ...data, 
-          email, 
-          username, 
+        body: JSON.stringify({
+          ...data,
+          email,
+          username,
           firebaseUid,
-          status: data.status || 'potential' // Pass status from form
+          status: data.status || 'potential', // Pass status from form
         }),
       });
 
@@ -88,7 +94,7 @@ export const userRegistrationService = {
       }
 
       const result = await response.json();
-      
+
       // 4. Return enhanced response with generated credentials
       return {
         ...result,
@@ -96,8 +102,8 @@ export const userRegistrationService = {
           ...result.user,
           username,
           email,
-          generatedPassword: password
-        }
+          generatedPassword: password,
+        },
       };
     } catch (error) {
       console.error('Registration error:', error);
@@ -121,5 +127,5 @@ export const userRegistrationService = {
       console.error('Email check error:', error);
       return false;
     }
-  }
-}; 
+  },
+};

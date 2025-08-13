@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import './ReportsPanel.css';
 
 interface StudentReport {
@@ -15,7 +15,13 @@ interface StudentReport {
   solution?: string;
 }
 
-const ReportsPanel = ({ isAdmin: _isAdmin, onDataRefresh: _onDataRefresh }: { isAdmin: boolean, onDataRefresh?: () => void }) => {
+const ReportsPanel = ({
+  isAdmin: _isAdmin,
+  onDataRefresh: _onDataRefresh,
+}: {
+  isAdmin: boolean;
+  onDataRefresh?: () => void;
+}) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reports, setReports] = useState<StudentReport[]>([]);
@@ -24,12 +30,12 @@ const ReportsPanel = ({ isAdmin: _isAdmin, onDataRefresh: _onDataRefresh }: { is
 
   useEffect(() => {
     fetchReports();
-  }, []);
+  }, [fetchReports]);
 
   const fetchReports = async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const token = localStorage.getItem('skillup_token');
       if (!token) {
@@ -40,10 +46,10 @@ const ReportsPanel = ({ isAdmin: _isAdmin, onDataRefresh: _onDataRefresh }: { is
 
       const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
       console.log('Fetching reports from:', `${apiUrl}/student-records/reports`);
-      
+
       const response = await fetch(`${apiUrl}/student-records/reports`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -58,7 +64,7 @@ const ReportsPanel = ({ isAdmin: _isAdmin, onDataRefresh: _onDataRefresh }: { is
 
       const data = await response.json();
       console.log('Reports data:', data);
-      
+
       if (data.success && Array.isArray(data.records)) {
         setReports(data.records);
       } else {
@@ -73,7 +79,11 @@ const ReportsPanel = ({ isAdmin: _isAdmin, onDataRefresh: _onDataRefresh }: { is
     }
   };
 
-  const handleUpdateReportStatus = async (reportId: string, status: '!!!' | 'solved', solution?: string) => {
+  const handleUpdateReportStatus = async (
+    reportId: string,
+    status: '!!!' | 'solved',
+    solution?: string
+  ) => {
     try {
       const token = localStorage.getItem('skillup_token');
       if (!token) {
@@ -86,7 +96,7 @@ const ReportsPanel = ({ isAdmin: _isAdmin, onDataRefresh: _onDataRefresh }: { is
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ status, solution }),
       });
@@ -96,11 +106,13 @@ const ReportsPanel = ({ isAdmin: _isAdmin, onDataRefresh: _onDataRefresh }: { is
       }
 
       // Update local state
-      setReports(prev => prev.map(report => 
-        report.id === reportId 
-          ? { ...report, status, solution: solution || report.solution }
-          : report
-      ));
+      setReports((prev) =>
+        prev.map((report) =>
+          report.id === reportId
+            ? { ...report, status, solution: solution || report.solution }
+            : report
+        )
+      );
 
       setSelectedReport(null);
       setSolutionNote('');
@@ -128,10 +140,7 @@ const ReportsPanel = ({ isAdmin: _isAdmin, onDataRefresh: _onDataRefresh }: { is
         <div className="reports-error">
           <h3>Error Loading Reports</h3>
           <p>{error}</p>
-          <button 
-            className="reports-retry-btn"
-            onClick={fetchReports}
-          >
+          <button className="reports-retry-btn" onClick={fetchReports}>
             Try Again
           </button>
         </div>
@@ -169,7 +178,7 @@ const ReportsPanel = ({ isAdmin: _isAdmin, onDataRefresh: _onDataRefresh }: { is
                 </td>
               </tr>
             ) : (
-              reports.map(report => (
+              reports.map((report) => (
                 <tr key={report.id} className="report-row">
                   <td>{new Date(report.reportedAt).toLocaleString()}</td>
                   <td>{report.reportedBy}</td>
@@ -179,12 +188,14 @@ const ReportsPanel = ({ isAdmin: _isAdmin, onDataRefresh: _onDataRefresh }: { is
                   <td>{report.level}</td>
                   <td>{report.className}</td>
                   <td>
-                    <span className={`status-badge ${report.status === '!!!' ? 'urgent' : 'solved'}`}>
+                    <span
+                      className={`status-badge ${report.status === '!!!' ? 'urgent' : 'solved'}`}
+                    >
                       {report.status}
                     </span>
                   </td>
                   <td>
-                    <button 
+                    <button
                       className="action-btn view-btn"
                       onClick={() => setSelectedReport(report)}
                     >
@@ -202,12 +213,21 @@ const ReportsPanel = ({ isAdmin: _isAdmin, onDataRefresh: _onDataRefresh }: { is
       {selectedReport && (
         <div className="report-details-modal">
           <div className="modal-content">
-            <button className="close-btn" onClick={() => { setSelectedReport(null); setSolutionNote(''); }}>×</button>
+            <button
+              className="close-btn"
+              onClick={() => {
+                setSelectedReport(null);
+                setSolutionNote('');
+              }}
+            >
+              ×
+            </button>
             <h3>Report Details</h3>
-            
+
             <div className="report-info">
               <div className="info-row">
-                <strong>Student:</strong> {selectedReport.studentName} {selectedReport.englishName ? `(${selectedReport.englishName})` : ''}
+                <strong>Student:</strong> {selectedReport.studentName}{' '}
+                {selectedReport.englishName ? `(${selectedReport.englishName})` : ''}
               </div>
               <div className="info-row">
                 <strong>Level:</strong> {selectedReport.level}
@@ -222,13 +242,15 @@ const ReportsPanel = ({ isAdmin: _isAdmin, onDataRefresh: _onDataRefresh }: { is
                 <strong>Date:</strong> {new Date(selectedReport.reportedAt).toLocaleString()}
               </div>
               <div className="info-row">
-                <strong>Status:</strong> 
-                <span className={`status-badge ${selectedReport.status === '!!!' ? 'urgent' : 'solved'}`}>
+                <strong>Status:</strong>
+                <span
+                  className={`status-badge ${selectedReport.status === '!!!' ? 'urgent' : 'solved'}`}
+                >
                   {selectedReport.status}
                 </span>
               </div>
             </div>
-            
+
             <div className="problem-section">
               <h4>Problem:</h4>
               <p>{selectedReport.problem}</p>
@@ -252,15 +274,20 @@ const ReportsPanel = ({ isAdmin: _isAdmin, onDataRefresh: _onDataRefresh }: { is
                   className="solution-textarea"
                 />
                 <div className="modal-actions">
-                  <button 
+                  <button
                     className="action-btn solve-btn"
-                    onClick={() => handleUpdateReportStatus(selectedReport.id, 'solved', solutionNote)}
+                    onClick={() =>
+                      handleUpdateReportStatus(selectedReport.id, 'solved', solutionNote)
+                    }
                   >
                     Mark as Solved
                   </button>
-                  <button 
+                  <button
                     className="action-btn cancel-btn"
-                    onClick={() => { setSelectedReport(null); setSolutionNote(''); }}
+                    onClick={() => {
+                      setSelectedReport(null);
+                      setSolutionNote('');
+                    }}
                   >
                     Cancel
                   </button>
@@ -274,4 +301,4 @@ const ReportsPanel = ({ isAdmin: _isAdmin, onDataRefresh: _onDataRefresh }: { is
   );
 };
 
-export default ReportsPanel; 
+export default ReportsPanel;

@@ -1,4 +1,5 @@
-import React, { useEffect, useState, Suspense, lazy, useMemo, useCallback } from "react";
+import type React from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { authService } from './frontend/services/authService';
 import './App.css';
 
@@ -9,7 +10,7 @@ const StudentDashboard = lazy(() => import('./StudentDashboard'));
 const Sidebar = lazy(() => import('./Sidebar'));
 const AdminDashboard = lazy(() => import('./AdminDashboard')); // Added AdminDashboard
 
-import type { Assignment, Submission, Student, StudentClass } from "./types";
+import type { Assignment, Student, StudentClass, Submission } from './types';
 
 // Loading component for better UX
 const LoadingSpinner = () => (
@@ -21,31 +22,28 @@ const LoadingSpinner = () => (
 
 const App: React.FC = () => {
   console.log('App component loaded - version:', new Date().toISOString());
-  
-  const [user, setUser] = useState<any>(null);
+
+  const [user, setUser] = useState<Student | null>(null);
   const [loading, setLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
   const [students, setStudents] = useState<Student[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
-  const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [_submissions, setSubmissions] = useState<Submission[]>([]);
   const [classes, setClasses] = useState<StudentClass[]>([]);
-  const [dataLoading, setDataLoading] = useState(false);
-  const [dataError, setDataError] = useState<string | null>(null);
+  const [_dataLoading, setDataLoading] = useState(false);
+  const [_dataError, setDataError] = useState<string | null>(null);
   const [navKey, setNavKey] = useState('dashboard');
 
   // Memoize API URL to avoid recalculation
-  const apiUrl = useMemo(() => 
-    import.meta.env.VITE_API_BASE_URL || '/api', 
-    []
-  );
+  const apiUrl = useMemo(() => import.meta.env.VITE_API_BASE_URL || '/api', []);
 
   // Memoize fetch options to avoid recreation
-  const fetchOptions = useMemo(() => {
+  const _fetchOptions = useMemo(() => {
     const token = localStorage.getItem('skillup_token');
     return {
       headers: {
         'Content-Type': 'application/json',
-        ...(token && { 'Authorization': `Bearer ${token}` }),
+        ...(token && { Authorization: `Bearer ${token}` }),
       },
     };
   }, []);
@@ -53,7 +51,7 @@ const App: React.FC = () => {
   useEffect(() => {
     const initializeAuth = async () => {
       setLoading(true);
-      
+
       // Add timeout to prevent infinite loading
       const timeoutId = setTimeout(() => {
         console.warn('Authentication initialization timeout, showing login screen');
@@ -61,17 +59,17 @@ const App: React.FC = () => {
         setUser(null);
         setAuthError(null);
       }, 10000); // 10 second timeout
-      
+
       try {
         console.log('Initializing authentication...');
-        
+
         // Check if we have both token and user data in localStorage
         const token = localStorage.getItem('skillup_token');
         const storedUser = localStorage.getItem('skillup_user');
-        
+
         console.log('Stored token exists:', !!token);
         console.log('Stored user exists:', !!storedUser);
-        
+
         if (!token || !storedUser) {
           console.log('No stored authentication data, user not authenticated');
           setUser(null);
@@ -79,11 +77,11 @@ const App: React.FC = () => {
           clearTimeout(timeoutId);
           return;
         }
-        
+
         // Verify the token is still valid by getting profile
         const profile = await authService.getProfile();
         console.log('Auth profile received:', profile);
-        
+
         if (profile && typeof profile === 'object' && profile.email && profile.role) {
           // Ensure profile has all required fields with safe defaults
           const safeProfile = {
@@ -91,7 +89,7 @@ const App: React.FC = () => {
             email: profile.email || '',
             role: profile.role || 'student',
             name: profile.name || profile.fullname || '',
-            id: profile.id || profile._id || ''
+            id: profile.id || profile._id || '',
           };
           console.log('Original profile role:', profile.role);
           console.log('Safe profile role:', safeProfile.role);
@@ -103,14 +101,18 @@ const App: React.FC = () => {
           console.log('User authenticated successfully:', safeProfile);
         } else {
           console.log('Invalid profile, logging out');
-          console.log('Profile validation failed:', { profile, hasEmail: !!profile?.email, hasRole: !!profile?.role });
+          console.log('Profile validation failed:', {
+            profile,
+            hasEmail: !!profile?.email,
+            hasRole: !!profile?.role,
+          });
           await authService.logout();
           setUser(null);
           setAuthError('Authentication expired. Please log in again.');
         }
       } catch (error) {
         console.error('Auth initialization error:', error);
-        setAuthError("Error initializing authentication. Please try again.");
+        setAuthError('Error initializing authentication. Please try again.');
         setUser(null);
         // Clear invalid authentication data
         localStorage.removeItem('skillup_token');
@@ -123,7 +125,7 @@ const App: React.FC = () => {
     initializeAuth();
   }, []);
 
-  const handleLoginSuccess = useCallback((userData: any) => {
+  const handleLoginSuccess = useCallback((userData: Student) => {
     console.log('Login successful, userData:', userData);
     // Ensure userData is safe before setting
     if (userData && typeof userData === 'object') {
@@ -131,8 +133,8 @@ const App: React.FC = () => {
         ...userData,
         email: userData.email || '',
         role: userData.role || 'student',
-        name: userData.name || userData.fullname || '',
-        id: userData.id || userData._id || ''
+        name: userData.name || userData.displayName || '',
+        id: userData.id || userData._id || '',
       };
       setUser(safeUserData);
       setAuthError(null);
@@ -164,28 +166,28 @@ const App: React.FC = () => {
       const token = localStorage.getItem('skillup_token');
       console.log('Token for students request:', token ? 'Present' : 'Missing');
       if (token) {
-        console.log('Token preview for students:', token.substring(0, 20) + '...');
+        console.log('Token preview for students:', `${token.substring(0, 20)}...`);
       }
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-      
+
       const headers = {
         'Content-Type': 'application/json',
-        ...(token && { 'Authorization': `Bearer ${token}` }),
+        ...(token && { Authorization: `Bearer ${token}` }),
       };
       console.log('Request headers for students:', headers);
-      
+
       const response = await fetch(`${apiUrl}/users`, {
         headers,
         signal: controller.signal,
       });
-      
+
       clearTimeout(timeoutId);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
       if (data.success && Array.isArray(data.users)) {
         setStudents(data.users);
@@ -198,7 +200,7 @@ const App: React.FC = () => {
       console.error('Error fetching students:', error);
       setDataError('Failed to fetch students');
     }
-  }, [user, apiUrl, fetchOptions]);
+  }, [user, apiUrl]);
 
   const fetchAssignments = useCallback(async () => {
     if (!user) return;
@@ -207,21 +209,21 @@ const App: React.FC = () => {
       const token = localStorage.getItem('skillup_token');
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
-      
+
       const response = await fetch(`${apiUrl}/assignments`, {
         headers: {
           'Content-Type': 'application/json',
-          ...(token && { 'Authorization': `Bearer ${token}` }),
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
         signal: controller.signal,
       });
-      
+
       clearTimeout(timeoutId);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
       if (data.success && Array.isArray(data.assignments)) {
         setAssignments(data.assignments);
@@ -234,7 +236,7 @@ const App: React.FC = () => {
       console.error('Error fetching assignments:', error);
       setDataError('Failed to fetch assignments');
     }
-  }, [user, apiUrl, fetchOptions]);
+  }, [user, apiUrl]);
 
   const fetchSubmissions = useCallback(async () => {
     if (!user) return;
@@ -243,21 +245,21 @@ const App: React.FC = () => {
       const token = localStorage.getItem('skillup_token');
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
-      
+
       const response = await fetch(`${apiUrl}/submissions`, {
         headers: {
           'Content-Type': 'application/json',
-          ...(token && { 'Authorization': `Bearer ${token}` }),
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
         signal: controller.signal,
       });
-      
+
       clearTimeout(timeoutId);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
       if (data.success && Array.isArray(data.submissions)) {
         setSubmissions(data.submissions);
@@ -270,7 +272,7 @@ const App: React.FC = () => {
       console.error('Error fetching submissions:', error);
       setDataError('Failed to fetch submissions');
     }
-  }, [user, apiUrl, fetchOptions]);
+  }, [user, apiUrl]);
 
   const fetchClasses = useCallback(async () => {
     if (!user) return;
@@ -279,21 +281,21 @@ const App: React.FC = () => {
       const token = localStorage.getItem('skillup_token');
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
-      
+
       const response = await fetch(`${apiUrl}/classes`, {
         headers: {
           'Content-Type': 'application/json',
-          ...(token && { 'Authorization': `Bearer ${token}` }),
+          ...(token && { Authorization: `Bearer ${token}` }),
         },
         signal: controller.signal,
       });
-      
+
       clearTimeout(timeoutId);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
       if (data.success && Array.isArray(data.classes)) {
         setClasses(data.classes);
@@ -306,34 +308,29 @@ const App: React.FC = () => {
       console.error('Error fetching classes:', error);
       setDataError('Failed to fetch classes');
     }
-  }, [user, apiUrl, fetchOptions]);
+  }, [user, apiUrl]);
 
   // Optimized data fetching with parallel execution
   useEffect(() => {
     if (!user) return;
-    
+
     const fetchData = async () => {
       setDataLoading(true);
       setDataError(null);
-      
+
       try {
         console.log('Starting parallel data fetch...');
-        
+
         // Execute all fetches in parallel with timeout
-        const timeoutPromise = new Promise<void>((_, reject) => 
+        const timeoutPromise = new Promise<void>((_, reject) =>
           setTimeout(() => reject(new Error('Data fetch timeout')), 15000)
         );
 
         await Promise.race([
-          Promise.all([
-            fetchStudents(),
-            fetchAssignments(),
-            fetchSubmissions(),
-            fetchClasses()
-          ]),
-          timeoutPromise
+          Promise.all([fetchStudents(), fetchAssignments(), fetchSubmissions(), fetchClasses()]),
+          timeoutPromise,
         ]);
-        
+
         console.log('All data fetched successfully');
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -348,17 +345,12 @@ const App: React.FC = () => {
 
   const refreshData = useCallback(async () => {
     if (!user) return;
-    
+
     setDataLoading(true);
     setDataError(null);
-    
+
     try {
-      await Promise.all([
-        fetchStudents(),
-        fetchAssignments(),
-        fetchSubmissions(),
-        fetchClasses()
-      ]);
+      await Promise.all([fetchStudents(), fetchAssignments(), fetchSubmissions(), fetchClasses()]);
       console.log('Data refreshed successfully');
     } catch (error) {
       console.error('Error refreshing data:', error);
@@ -379,7 +371,9 @@ const App: React.FC = () => {
         <div className="error-container">
           <h2>Authentication Error</h2>
           <p>{authError}</p>
-          <button onClick={() => window.location.reload()}>Retry</button>
+          <button type="button" onClick={() => window.location.reload()}>
+            Retry
+          </button>
         </div>
       );
     }
@@ -397,8 +391,15 @@ const App: React.FC = () => {
     console.log('Dashboard selection - User role:', user.role);
     console.log('Dashboard selection - User object:', user);
     console.log('Dashboard selection - Role comparison:', user.role === 'student');
-    
-    let DashboardComponent;
+
+    let DashboardComponent: React.ComponentType<{
+      user: Student;
+      students: Student[];
+      assignments: Assignment[];
+      classes: StudentClass[];
+      activeKey: string;
+      onDataRefresh?: () => void;
+    }>;
     if (user.role === 'student') {
       DashboardComponent = StudentDashboard;
     } else if (user.role === 'admin') {
@@ -406,19 +407,24 @@ const App: React.FC = () => {
     } else {
       DashboardComponent = TeacherDashboard; // Teachers and staff get teacher dashboard
     }
-    
-    console.log('Dashboard selection - Selected component:', 
-      DashboardComponent === StudentDashboard ? 'StudentDashboard' : 
-      DashboardComponent === AdminDashboard ? 'AdminDashboard' : 'TeacherDashboard');
-    
+
+    console.log(
+      'Dashboard selection - Selected component:',
+      DashboardComponent === StudentDashboard
+        ? 'StudentDashboard'
+        : DashboardComponent === AdminDashboard
+          ? 'AdminDashboard'
+          : 'TeacherDashboard'
+    );
+
     return (
       <div className="app-container">
         <Suspense fallback={<LoadingSpinner />}>
-          <Sidebar 
+          <Sidebar
             role={user.role}
             activeKey={navKey}
             onNavigate={setNavKey}
-            onLogout={handleLogout} 
+            onLogout={handleLogout}
             user={user}
           />
         </Suspense>
@@ -436,13 +442,20 @@ const App: React.FC = () => {
         </main>
       </div>
     );
-  }, [loading, authError, user, students, assignments, submissions, classes, dataLoading, dataError, navKey, handleLoginSuccess, handleLogout, refreshData]);
+  }, [
+    loading,
+    authError,
+    user,
+    students,
+    assignments,
+    classes,
+    navKey,
+    handleLoginSuccess,
+    handleLogout,
+    refreshData,
+  ]);
 
-  return (
-    <div className="App">
-      {mainContent}
-    </div>
-  );
+  return <div className="App">{mainContent}</div>;
 };
 
 export default App;

@@ -3,13 +3,13 @@
 
 const testLoginProcess = async () => {
   console.log('🧪 Starting login process test...');
-  
+
   const testResults = {
     firebaseConfig: false,
     authService: false,
     tokenStorage: false,
     profileFetch: false,
-    logout: false
+    logout: false,
   };
 
   try {
@@ -35,11 +35,11 @@ const testLoginProcess = async () => {
     console.log('3️⃣ Testing localStorage state...');
     const token = localStorage.getItem('skillup_token');
     const user = localStorage.getItem('skillup_user');
-    
+
     if (token && user) {
       testResults.tokenStorage = true;
       console.log('✅ Authentication tokens found in localStorage');
-      console.log('Token preview:', token.substring(0, 20) + '...');
+      console.log('Token preview:', `${token.substring(0, 20)}...`);
       console.log('User data:', JSON.parse(user));
     } else {
       console.log('ℹ️ No authentication tokens found (user not logged in)');
@@ -67,7 +67,7 @@ const testLoginProcess = async () => {
       await authService.logout();
       const tokenAfterLogout = localStorage.getItem('skillup_token');
       const userAfterLogout = localStorage.getItem('skillup_user');
-      
+
       if (!tokenAfterLogout && !userAfterLogout) {
         testResults.logout = true;
         console.log('✅ Logout successful - localStorage cleared');
@@ -77,7 +77,6 @@ const testLoginProcess = async () => {
     } catch (error) {
       console.log('❌ Logout error:', error.message);
     }
-
   } catch (error) {
     console.error('Test execution error:', error);
   }
@@ -90,9 +89,9 @@ const testLoginProcess = async () => {
 
   const passedTests = Object.values(testResults).filter(Boolean).length;
   const totalTests = Object.keys(testResults).length;
-  
+
   console.log(`\n🎯 Overall Result: ${passedTests}/${totalTests} tests passed`);
-  
+
   if (passedTests === totalTests) {
     console.log('🎉 All tests passed! Login process is working correctly.');
   } else {
@@ -109,4 +108,4 @@ if (typeof module !== 'undefined' && module.exports) {
   window.testLoginProcess = testLoginProcess;
 }
 
-console.log('🧪 Login process test script loaded. Run testLoginProcess() to start testing.'); 
+console.log('🧪 Login process test script loaded. Run testLoginProcess() to start testing.');

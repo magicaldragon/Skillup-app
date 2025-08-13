@@ -7,20 +7,20 @@ const ManualToolsPanel = () => {
   const handleClearCache = async () => {
     setClearingCache(true);
     setCacheMessage(null);
-    
+
     // Clear browser cache
     if ('caches' in window) {
       try {
         const cacheNames = await caches.keys();
-        await Promise.all(cacheNames.map(name => caches.delete(name)));
+        await Promise.all(cacheNames.map((name) => caches.delete(name)));
         setCacheMessage('Browser cache cleared successfully');
-      } catch (error) {
+      } catch (_error) {
         setCacheMessage('Failed to clear browser cache');
       }
     } else {
       setCacheMessage('Cache API not available');
     }
-    
+
     setClearingCache(false);
   };
 
@@ -43,13 +43,15 @@ const ManualToolsPanel = () => {
               {clearingCache ? 'Clearing...' : 'Clear Browser Cache'}
             </button>
             {cacheMessage && (
-              <div className={`text-sm ${cacheMessage.includes('successfully') ? 'text-green-600' : 'text-red-600'}`}>
+              <div
+                className={`text-sm ${cacheMessage.includes('successfully') ? 'text-green-600' : 'text-red-600'}`}
+              >
                 {cacheMessage}
               </div>
             )}
           </div>
         </div>
-        
+
         <div className="bg-white p-4 rounded-lg shadow">
           <h3 className="font-semibold mb-2">Data Refresh</h3>
           <button
@@ -59,7 +61,7 @@ const ManualToolsPanel = () => {
             Refresh Page Data
           </button>
         </div>
-        
+
         <div className="bg-white p-4 rounded-lg shadow">
           <h3 className="font-semibold mb-2">System Information</h3>
           <div className="text-sm space-y-1">
@@ -74,4 +76,4 @@ const ManualToolsPanel = () => {
   );
 };
 
-export default ManualToolsPanel; 
+export default ManualToolsPanel;

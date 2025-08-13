@@ -7,8 +7,8 @@ const UserSyncStatusPanel = () => {
 
   useEffect(() => {
     fetch('/api/users/admin/user-sync-status', { credentials: 'include' })
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         if (data.success) setStatus(data);
         else setError('Failed to fetch sync status');
         setLoading(false);
@@ -27,13 +27,20 @@ const UserSyncStatusPanel = () => {
       {error && <div className="text-red-600">{error}</div>}
       {status && (
         <div>
-          <div>MongoDB Users: <span className="font-bold">{status.mongoCount}</span></div>
-          <div>Firebase Users: <span className="font-bold">{status.firebaseCount}</span></div>
-          <div>Discrepancies: <span className="font-bold text-red-600">{status.discrepancies.length}</span></div>
+          <div>
+            MongoDB Users: <span className="font-bold">{status.mongoCount}</span>
+          </div>
+          <div>
+            Firebase Users: <span className="font-bold">{status.firebaseCount}</span>
+          </div>
+          <div>
+            Discrepancies:{' '}
+            <span className="font-bold text-red-600">{status.discrepancies.length}</span>
+          </div>
         </div>
       )}
     </div>
   );
 };
 
-export default UserSyncStatusPanel; 
+export default UserSyncStatusPanel;

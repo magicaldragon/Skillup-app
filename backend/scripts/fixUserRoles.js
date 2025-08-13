@@ -9,17 +9,11 @@ async function fixRoles() {
   });
 
   // Update admin
-  await User.updateOne(
-    { email: 'admin@admin.skillup' },
-    { $set: { role: 'admin' } }
-  );
+  await User.updateOne({ email: 'admin@admin.skillup' }, { $set: { role: 'admin' } });
   console.log('Updated admin@admin.skillup to admin');
 
   // Update teacher
-  await User.updateOne(
-    { email: 'teacher-jenny@teacher.skillup' },
-    { $set: { role: 'teacher' } }
-  );
+  await User.updateOne({ email: 'teacher-jenny@teacher.skillup' }, { $set: { role: 'teacher' } });
   console.log('Updated teacher-jenny@teacher.skillup to teacher');
 
   await mongoose.disconnect();

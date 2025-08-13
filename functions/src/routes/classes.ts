@@ -1,7 +1,7 @@
 // functions/src/routes/classes.ts - Classes API Routes
-import { Router, Response } from 'express';
+import { type Response, Router } from 'express';
 import * as admin from 'firebase-admin';
-import { AuthenticatedRequest, verifyToken, requireAdmin } from '../middleware/auth';
+import { type AuthenticatedRequest, requireAdmin, verifyToken } from '../middleware/auth';
 
 const router = Router();
 
@@ -10,24 +10,24 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
   try {
     const { role } = req.user!;
     const { isActive, teacherId } = req.query;
-    
+
     let query: any = admin.firestore().collection('classes');
 
     // Role-based filtering
     if (role === 'student') {
       // Students see only classes they're enrolled in
-      const userDoc = await admin.firestore().collection('users').doc(req.user!.userId).get();
+      const userDoc = await admin.firestore().collection('users').doc(req.user?.userId).get();
       const userData = userDoc.data();
       const classIds = userData?.classIds || [];
-      
+
       if (classIds.length === 0) {
         return res.json([]);
       }
-      
+
       query = query.where(admin.firestore.FieldPath.documentId(), 'in', classIds);
     } else if (role === 'teacher') {
       // Teachers see classes they teach
-      query = query.where('teacherId', '==', req.user!.userId);
+      query = query.where('teacherId', '==', req.user?.userId);
     }
     // Admin and staff see all classes
 
@@ -35,7 +35,7 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
     if (isActive !== undefined) {
       query = query.where('isActive', '==', isActive === 'true');
     }
-    
+
     if (teacherId && role !== 'student') {
       query = query.where('teacherId', '==', teacherId);
     }
@@ -43,7 +43,7 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
     const snapshot = await query.orderBy('createdAt', 'desc').get();
     const classes = snapshot.docs.map((doc: any) => ({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
     }));
 
     console.log(`Fetched ${classes.length} classes for role: ${role}`);
@@ -57,27 +57,28 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
 // Create new class
 router.post('/', verifyToken, requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { 
-      name, 
-      classCode, 
-      levelId, 
-      description, 
-      teacherId, 
+    const {
+      name,
+      classCode,
+      levelId,
+      description,
+      teacherId,
       studentIds = [],
-      isActive = true 
+      isActive = true,
     } = req.body;
 
     // Check if class code already exists
-    const existingClass = await admin.firestore()
+    const existingClass = await admin
+      .firestore()
       .collection('classes')
       .where('classCode', '==', classCode)
       .limit(1)
       .get();
 
     if (!existingClass.empty) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: 'Class with this code already exists' 
+        message: 'Class with this code already exists',
       });
     }
 
@@ -91,7 +92,7 @@ router.post('/', verifyToken, requireAdmin, async (req: AuthenticatedRequest, re
       studentIds,
       isActive,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     };
 
     const docRef = await admin.firestore().collection('classes').add(classData);
@@ -100,29 +101,28 @@ router.post('/', verifyToken, requireAdmin, async (req: AuthenticatedRequest, re
     // Update students' classIds if provided
     if (studentIds.length > 0) {
       const batch = admin.firestore().batch();
-      
+
       for (const studentId of studentIds) {
         const studentRef = admin.firestore().collection('users').doc(studentId);
         batch.update(studentRef, {
           classIds: admin.firestore.FieldValue.arrayUnion(docRef.id),
-          updatedAt: admin.firestore.FieldValue.serverTimestamp()
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
       }
-      
+
       await batch.commit();
     }
 
     return res.status(201).json({
       success: true,
       message: 'Class created successfully',
-      class: newClass
+      class: newClass,
     });
-
   } catch (error) {
     console.error('Error creating class:', error);
     return res.status(500).json({
       success: false,
-      message: 'Failed to create class'
+      message: 'Failed to create class',
     });
   }
 });
@@ -135,22 +135,22 @@ router.get('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response)
 
     // Check if user has access to this class
     if (role === 'student') {
-      const userDoc = await admin.firestore().collection('users').doc(req.user!.userId).get();
+      const userDoc = await admin.firestore().collection('users').doc(req.user?.userId).get();
       const userData = userDoc.data();
       const classIds = userData?.classIds || [];
-      
+
       if (!classIds.includes(id)) {
         return res.status(403).json({ message: 'Access denied' });
       }
     } else if (role === 'teacher') {
       const classDoc = await admin.firestore().collection('classes').doc(id).get();
-      if (!classDoc.exists || classDoc.data()?.teacherId !== req.user!.userId) {
+      if (!classDoc.exists || classDoc.data()?.teacherId !== req.user?.userId) {
         return res.status(403).json({ message: 'Access denied' });
       }
     }
 
     const doc = await admin.firestore().collection('classes').doc(id).get();
-    
+
     if (!doc.exists) {
       return res.status(404).json({ message: 'Class not found' });
     }
@@ -181,7 +181,9 @@ router.put('/:id', verifyToken, requireAdmin, async (req: AuthenticatedRequest, 
 
       // Find students to add and remove
       const studentsToAdd = newStudentIds.filter((sid: string) => !currentStudentIds.includes(sid));
-      const studentsToRemove = currentStudentIds.filter((sid: string) => !newStudentIds.includes(sid));
+      const studentsToRemove = currentStudentIds.filter(
+        (sid: string) => !newStudentIds.includes(sid)
+      );
 
       const batch = admin.firestore().batch();
 
@@ -190,7 +192,7 @@ router.put('/:id', verifyToken, requireAdmin, async (req: AuthenticatedRequest, 
         const studentRef = admin.firestore().collection('users').doc(studentId);
         batch.update(studentRef, {
           classIds: admin.firestore.FieldValue.arrayUnion(id),
-          updatedAt: admin.firestore.FieldValue.serverTimestamp()
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
       }
 
@@ -199,7 +201,7 @@ router.put('/:id', verifyToken, requireAdmin, async (req: AuthenticatedRequest, 
         const studentRef = admin.firestore().collection('users').doc(studentId);
         batch.update(studentRef, {
           classIds: admin.firestore.FieldValue.arrayRemove(id),
-          updatedAt: admin.firestore.FieldValue.serverTimestamp()
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
       }
 
@@ -216,84 +218,115 @@ router.put('/:id', verifyToken, requireAdmin, async (req: AuthenticatedRequest, 
 });
 
 // Delete class
-router.delete('/:id', verifyToken, requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
-  try {
-    const { id } = req.params;
+router.delete(
+  '/:id',
+  verifyToken,
+  requireAdmin,
+  async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { id } = req.params;
 
-    // Remove class from all students' classIds
-    const classDoc = await admin.firestore().collection('classes').doc(id).get();
-    const classData = classDoc.data();
-    const studentIds = classData?.studentIds || [];
+      // Remove class from all students' classIds
+      const classDoc = await admin.firestore().collection('classes').doc(id).get();
+      const classData = classDoc.data();
+      const studentIds = classData?.studentIds || [];
 
-    if (studentIds.length > 0) {
-      const batch = admin.firestore().batch();
-      
-      for (const studentId of studentIds) {
-        const studentRef = admin.firestore().collection('users').doc(studentId);
-        batch.update(studentRef, {
-          classIds: admin.firestore.FieldValue.arrayRemove(id),
-          updatedAt: admin.firestore.FieldValue.serverTimestamp()
-        });
+      if (studentIds.length > 0) {
+        const batch = admin.firestore().batch();
+
+        for (const studentId of studentIds) {
+          const studentRef = admin.firestore().collection('users').doc(studentId);
+          batch.update(studentRef, {
+            classIds: admin.firestore.FieldValue.arrayRemove(id),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+        }
+
+        await batch.commit();
       }
-      
-      await batch.commit();
+
+      await admin.firestore().collection('classes').doc(id).delete();
+
+      return res.json({ success: true, message: 'Class deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting class:', error);
+      return res.status(500).json({ message: 'Failed to delete class' });
     }
-
-    await admin.firestore().collection('classes').doc(id).delete();
-
-    return res.json({ success: true, message: 'Class deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting class:', error);
-    return res.status(500).json({ message: 'Failed to delete class' });
   }
-});
+);
 
 // Add student to class
-router.post('/:id/students/:studentId', verifyToken, requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
-  try {
-    const { id: classId, studentId } = req.params;
+router.post(
+  '/:id/students/:studentId',
+  verifyToken,
+  requireAdmin,
+  async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { id: classId, studentId } = req.params;
 
-    // Add student to class
-    await admin.firestore().collection('classes').doc(classId).update({
-      studentIds: admin.firestore.FieldValue.arrayUnion(studentId),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp()
-    });
+      // Add student to class
+      await admin
+        .firestore()
+        .collection('classes')
+        .doc(classId)
+        .update({
+          studentIds: admin.firestore.FieldValue.arrayUnion(studentId),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
 
-    // Add class to student's classIds
-    await admin.firestore().collection('users').doc(studentId).update({
-      classIds: admin.firestore.FieldValue.arrayUnion(classId),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp()
-    });
+      // Add class to student's classIds
+      await admin
+        .firestore()
+        .collection('users')
+        .doc(studentId)
+        .update({
+          classIds: admin.firestore.FieldValue.arrayUnion(classId),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
 
-    return res.json({ success: true, message: 'Student added to class successfully' });
-  } catch (error) {
-    console.error('Error adding student to class:', error);
-    return res.status(500).json({ message: 'Failed to add student to class' });
+      return res.json({ success: true, message: 'Student added to class successfully' });
+    } catch (error) {
+      console.error('Error adding student to class:', error);
+      return res.status(500).json({ message: 'Failed to add student to class' });
+    }
   }
-});
+);
 
 // Remove student from class
-router.delete('/:id/students/:studentId', verifyToken, requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
-  try {
-    const { id: classId, studentId } = req.params;
+router.delete(
+  '/:id/students/:studentId',
+  verifyToken,
+  requireAdmin,
+  async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { id: classId, studentId } = req.params;
 
-    // Remove student from class
-    await admin.firestore().collection('classes').doc(classId).update({
-      studentIds: admin.firestore.FieldValue.arrayRemove(studentId),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp()
-    });
+      // Remove student from class
+      await admin
+        .firestore()
+        .collection('classes')
+        .doc(classId)
+        .update({
+          studentIds: admin.firestore.FieldValue.arrayRemove(studentId),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
 
-    // Remove class from student's classIds
-    await admin.firestore().collection('users').doc(studentId).update({
-      classIds: admin.firestore.FieldValue.arrayRemove(classId),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp()
-    });
+      // Remove class from student's classIds
+      await admin
+        .firestore()
+        .collection('users')
+        .doc(studentId)
+        .update({
+          classIds: admin.firestore.FieldValue.arrayRemove(classId),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
 
-    return res.json({ success: true, message: 'Student removed from class successfully' });
-  } catch (error) {
-    console.error('Error removing student from class:', error);
-    return res.status(500).json({ message: 'Failed to remove student from class' });
+      return res.json({ success: true, message: 'Student removed from class successfully' });
+    } catch (error) {
+      console.error('Error removing student from class:', error);
+      return res.status(500).json({ message: 'Failed to remove student from class' });
+    }
   }
-});
+);
 
-export { router as classesRouter }; 
+export { router as classesRouter };

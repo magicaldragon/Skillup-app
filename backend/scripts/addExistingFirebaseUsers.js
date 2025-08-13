@@ -9,15 +9,15 @@ const existingUsers = [
     email: 'admin@admin.skillup',
     role: 'admin',
     username: 'skillup-admin',
-    firebaseUid: 'qkHQ4gopbTgJdv9Pf0QSZkiGs222'
+    firebaseUid: 'qkHQ4gopbTgJdv9Pf0QSZkiGs222',
   },
   {
     name: 'Jenny Teacher',
     email: 'teacher-jenny@teacher.skillup',
     role: 'teacher',
     username: 'teacher-jenny',
-    firebaseUid: 'YCqXqLV1JacLMsmkgOoCrJQORtE2'
-  }
+    firebaseUid: 'YCqXqLV1JacLMsmkgOoCrJQORtE2',
+  },
 ];
 
 async function addExistingFirebaseUsers() {
@@ -29,15 +29,12 @@ async function addExistingFirebaseUsers() {
     console.log('✅ Connected to MongoDB');
 
     console.log('\n📋 Adding existing Firebase users to MongoDB...');
-    
+
     for (const userData of existingUsers) {
       try {
         // Check if user already exists
-        const existingUser = await User.findOne({ 
-          $or: [
-            { email: userData.email },
-            { firebaseUid: userData.firebaseUid }
-          ]
+        const existingUser = await User.findOne({
+          $or: [{ email: userData.email }, { firebaseUid: userData.firebaseUid }],
         });
 
         if (existingUser) {
@@ -51,12 +48,11 @@ async function addExistingFirebaseUsers() {
           email: userData.email,
           role: userData.role,
           username: userData.username,
-          firebaseUid: userData.firebaseUid
+          firebaseUid: userData.firebaseUid,
         });
 
         await user.save();
         console.log(`✅ Added ${userData.name} (${userData.role}) to MongoDB`);
-        
       } catch (error) {
         console.error(`❌ Error adding ${userData.email}:`, error.message);
       }
@@ -64,10 +60,9 @@ async function addExistingFirebaseUsers() {
 
     console.log('\n📊 Current users in MongoDB:');
     const allUsers = await User.find().select('-password');
-    allUsers.forEach(user => {
+    allUsers.forEach((user) => {
       console.log(`- ${user.name} (${user.role}): ${user.email}`);
     });
-
   } catch (error) {
     console.error('❌ Error:', error.message);
   } finally {
@@ -76,4 +71,4 @@ async function addExistingFirebaseUsers() {
   }
 }
 
-addExistingFirebaseUsers(); 
+addExistingFirebaseUsers();

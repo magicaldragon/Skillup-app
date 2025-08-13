@@ -1,6 +1,7 @@
-import React, { useState, useMemo } from 'react';
-import type { Student, StudentClass } from './types';
+import type React from 'react';
+import { useMemo, useState } from 'react';
 import DiceBearAvatar from './DiceBearAvatar';
+import type { Student, StudentClass } from './types';
 import './SettingsPanel.css';
 
 const DICEBEAR_STYLES = [
@@ -35,7 +36,9 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [avatarStyle, setAvatarStyle] = useState(currentUser.diceBearStyle || 'avataaars');
-  const [avatarSeed, setAvatarSeed] = useState(currentUser.diceBearSeed || currentUser.name || currentUser.email || currentUser.id || 'User');
+  const [avatarSeed, setAvatarSeed] = useState(
+    currentUser.diceBearSeed || currentUser.name || currentUser.email || currentUser.id || 'User'
+  );
   const [avatarUrl, setAvatarUrl] = useState(currentUser.avatarUrl || '');
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
@@ -43,10 +46,12 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
 
   const currentClasses = useMemo(() => {
     if (!currentUser.classIds || !classes.length) return [];
-    return classes.filter(c => {
-      const classId = c._id || c.id;
-      return classId && currentUser.classIds?.includes(classId);
-    }).map(c => c.classCode || c.name || 'Unnamed Class');
+    return classes
+      .filter((c) => {
+        const classId = c._id || c.id;
+        return classId && currentUser.classIds?.includes(classId);
+      })
+      .map((c) => c.classCode || c.name || 'Unnamed Class');
   }, [currentUser.classIds, classes]);
 
   // Check if user can edit their information - allow all users to edit their own profile
@@ -56,8 +61,10 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
     setAvatarSeed(Math.random().toString(36).substring(2, 10));
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
   };
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,7 +80,7 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
         method: 'POST',
         body: formData,
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('skillup_token')}`,
+          Authorization: `Bearer ${localStorage.getItem('skillup_token')}`,
         },
       });
       const data = await res.json();
@@ -97,21 +104,21 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
       const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
       const res = await fetch(`${apiUrl}/users/${currentUser.id || currentUser._id}`, {
         method: 'PUT',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('skillup_token')}`,
+          Authorization: `Bearer ${localStorage.getItem('skillup_token')}`,
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           name: form.name,
           englishName: form.englishName,
           gender: form.gender,
-          dob: form.dob, 
+          dob: form.dob,
           phone: form.phone,
           parentName: form.parentName,
           parentPhone: form.parentPhone,
           notes: form.notes,
-          diceBearStyle: avatarStyle, 
-          diceBearSeed: avatarSeed 
+          diceBearStyle: avatarStyle,
+          diceBearSeed: avatarSeed,
         }),
       });
       if (!res.ok) {
@@ -119,7 +126,7 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
         console.error('Update failed:', res.status, errorData);
         throw new Error(`Failed to update user: ${res.status} - ${errorData}`);
       }
-      
+
       const result = await res.json();
       console.log('Update successful:', result);
       setSuccess('Profile updated successfully!');
@@ -127,7 +134,7 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
       onDataRefresh?.();
     } catch (err: any) {
       console.error('Update error:', err);
-      setError('Failed to update profile: ' + (err.message || ''));
+      setError(`Failed to update profile: ${err.message || ''}`);
     } finally {
       setLoading(false);
     }
@@ -139,7 +146,7 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
       <div className="settings-panel-wrapper">
         <div className="settings-id-card">
           <h2>User Profile</h2>
-          
+
           {/* Avatar and badge */}
           <div className="avatar-section">
             <div className="avatar-container">
@@ -151,15 +158,21 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
               <span className="role-badge">{currentUser.role}</span>
             </div>
           </div>
-          
+
           {/* User Name Section */}
           <div className="user-name-section">
             <div className="user-name">{currentUser.name}</div>
-            {currentUser.englishName && <div className="user-english-name">{currentUser.englishName}</div>}
-            {!currentUser.englishName && <div className="user-english-name">{currentUser.name}</div>}
-            {currentUser.studentCode && <div className="user-student-code">Student Code: {currentUser.studentCode}</div>}
+            {currentUser.englishName && (
+              <div className="user-english-name">{currentUser.englishName}</div>
+            )}
+            {!currentUser.englishName && (
+              <div className="user-english-name">{currentUser.name}</div>
+            )}
+            {currentUser.studentCode && (
+              <div className="user-student-code">Student Code: {currentUser.studentCode}</div>
+            )}
           </div>
-          
+
           {/* Information Grid */}
           <div className="info-grid">
             <div className="info-row">
@@ -207,7 +220,7 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
               </div>
             )}
           </div>
-          
+
           {/* Action Buttons */}
           <div className="action-buttons">
             {canEdit && (
@@ -216,26 +229,60 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
               </button>
             )}
           </div>
-          
+
           {/* Debug Info (only show in development) */}
           {import.meta.env.DEV && (
-            <div className="debug-info" style={{ marginTop: '20px', padding: '10px', backgroundColor: '#f5f5f5', borderRadius: '5px', fontSize: '12px' }}>
+            <div
+              className="debug-info"
+              style={{
+                marginTop: '20px',
+                padding: '10px',
+                backgroundColor: '#f5f5f5',
+                borderRadius: '5px',
+                fontSize: '12px',
+              }}
+            >
               <h4>Debug Info:</h4>
-              <p><strong>User ID:</strong> {currentUser.id || currentUser._id}</p>
-              <p><strong>Role:</strong> {currentUser.role}</p>
-              <p><strong>Can Edit:</strong> {canEdit ? 'Yes' : 'No'}</p>
-              <p><strong>API URL:</strong> {import.meta.env.VITE_API_BASE_URL || ''}</p>
+              <p>
+                <strong>User ID:</strong> {currentUser.id || currentUser._id}
+              </p>
+              <p>
+                <strong>Role:</strong> {currentUser.role}
+              </p>
+              <p>
+                <strong>Can Edit:</strong> {canEdit ? 'Yes' : 'No'}
+              </p>
+              <p>
+                <strong>API URL:</strong> {import.meta.env.VITE_API_BASE_URL || ''}
+              </p>
             </div>
           )}
-          
+
           {/* Admin Email Change Notice */}
           {currentUser.role === 'admin' && currentUser.email?.includes('@teacher.skillup') && (
-            <div className="admin-notice" style={{ marginTop: '20px', padding: '15px', backgroundColor: '#fff3cd', border: '1px solid #ffeaa7', borderRadius: '5px', color: '#856404' }}>
+            <div
+              className="admin-notice"
+              style={{
+                marginTop: '20px',
+                padding: '15px',
+                backgroundColor: '#fff3cd',
+                border: '1px solid #ffeaa7',
+                borderRadius: '5px',
+                color: '#856404',
+              }}
+            >
               <h4>⚠️ Important: Admin Email Update Needed</h4>
-              <p>Your admin account is currently using <code>@teacher.skillup</code> domain, which may cause role confusion. 
-              To fix this, please change your email to <code>admin@admin.skillup</code> in the edit form above.</p>
-              <p><strong>Current email:</strong> {currentUser.email}</p>
-              <p><strong>Recommended:</strong> admin@admin.skillup</p>
+              <p>
+                Your admin account is currently using <code>@teacher.skillup</code> domain, which
+                may cause role confusion. To fix this, please change your email to{' '}
+                <code>admin@admin.skillup</code> in the edit form above.
+              </p>
+              <p>
+                <strong>Current email:</strong> {currentUser.email}
+              </p>
+              <p>
+                <strong>Recommended:</strong> admin@admin.skillup
+              </p>
             </div>
           )}
         </div>
@@ -260,7 +307,7 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
     <div className="settings-panel-wrapper">
       <div className="settings-id-card">
         <h2>Edit Profile</h2>
-        
+
         <form onSubmit={handleSave} className="edit-form">
           {/* Avatar Section */}
           <div className="avatar-section">
@@ -272,44 +319,50 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
               )}
               <span className="role-badge">{currentUser.role}</span>
             </div>
-            
+
             {/* Avatar Controls */}
             <div className="avatar-controls">
               <select
                 value={avatarStyle}
-                onChange={e => { setAvatarStyle(e.target.value); }}
+                onChange={(e) => {
+                  setAvatarStyle(e.target.value);
+                }}
                 className="avatar-select"
                 disabled={!!avatarUrl}
               >
-                {DICEBEAR_STYLES.map(opt => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                {DICEBEAR_STYLES.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
                 ))}
               </select>
               <button
                 type="button"
-                onClick={() => { handleRandomize(); }}
+                onClick={() => {
+                  handleRandomize();
+                }}
                 className="btn-randomize"
                 disabled={!!avatarUrl}
               >
                 Randomize
               </button>
             </div>
-            
+
             {/* Upload Section */}
             <div className="upload-section">
               <label className="upload-label">Upload your own avatar:</label>
-              <input 
-                type="file" 
-                accept="image/*" 
-                onChange={handleAvatarUpload} 
-                disabled={avatarUploading} 
-                className="upload-input" 
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarUpload}
+                disabled={avatarUploading}
+                className="upload-input"
               />
               {avatarUploading && <span className="status-message status-info">Uploading...</span>}
               {avatarError && <span className="status-message status-error">{avatarError}</span>}
             </div>
           </div>
-          
+
           {/* Form Fields */}
           <div className="form-fields">
             <div className="form-group">
@@ -323,9 +376,9 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
                 required
               />
             </div>
-            
+
             {/* Username and Email fields removed - not editable by users */}
-            
+
             <div className="form-group">
               <label className="form-label">English Name</label>
               <input
@@ -336,7 +389,7 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
                 className="form-input"
               />
             </div>
-            
+
             <div className="form-group">
               <label className="form-label">Gender</label>
               <select
@@ -351,7 +404,7 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
                 <option value="other">Other</option>
               </select>
             </div>
-            
+
             <div className="form-group">
               <label className="form-label">Phone Number</label>
               <input
@@ -362,7 +415,7 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
                 className="form-input"
               />
             </div>
-            
+
             <div className="form-group">
               <label className="form-label">Date of Birth</label>
               <input
@@ -373,7 +426,7 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
                 className="form-input"
               />
             </div>
-            
+
             {currentUser.role === 'student' && (
               <>
                 <div className="form-group">
@@ -386,7 +439,7 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
                     className="form-input"
                   />
                 </div>
-                
+
                 <div className="form-group">
                   <label className="form-label">Parent's Phone</label>
                   <input
@@ -397,7 +450,7 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
                     className="form-input"
                   />
                 </div>
-                
+
                 <div className="form-group">
                   <label className="form-label">Notes</label>
                   <textarea
@@ -411,24 +464,24 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
               </>
             )}
           </div>
-          
+
           {/* Status Messages */}
           {error && <div className="status-message status-error">{error}</div>}
           {success && <div className="status-message status-success">{success}</div>}
-          
+
           {/* Action Buttons */}
           <div className="action-buttons">
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={loading}
-            >
+            <button type="submit" className="btn btn-primary" disabled={loading}>
               {loading ? 'Saving...' : 'Save Changes'}
             </button>
             <button
               type="button"
               className="btn btn-secondary"
-              onClick={() => { setEditMode(false); setError(null); setSuccess(null); }}
+              onClick={() => {
+                setEditMode(false);
+                setError(null);
+                setSuccess(null);
+              }}
               disabled={loading}
             >
               Cancel
@@ -440,4 +493,4 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
   );
 };
 
-export default SettingsPanel; 
+export default SettingsPanel;

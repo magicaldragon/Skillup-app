@@ -12,4 +12,4 @@ const ChangeLogSchema = new mongoose.Schema({
   ip: { type: String }, // optional
 });
 
-module.exports = mongoose.model('ChangeLog', ChangeLogSchema); 
+module.exports = mongoose.model('ChangeLog', ChangeLogSchema);

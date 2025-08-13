@@ -1,32 +1,40 @@
 // TeacherDashboard.tsx
 // Professional dashboard layout for teachers/admins with sidebar, summary cards, and IELTS focus
 // [NOTE] Created as part of 2024-05-XX dashboard refactor
-import AddNewMembers from './AddNewMembers';
-import PotentialStudentsPanel from './PotentialStudentsPanel';
-import WaitingListPanel from './WaitingListPanel';
-import ClassesPanel from './ClassesPanel';
-import TeacherScoresFeedbackPanel from './TeacherScoresFeedbackPanel';
-import ReportsPanel from './ReportsPanel';
-import LevelsPanel from './LevelsPanel';
-import RecordsPanel from './RecordsPanel';
+
 import AccountsPanel from './AccountsPanel';
-import SettingsPanel from './SettingsPanel';
+import AddNewMembers from './AddNewMembers';
 import ChangeLogPanel from './ChangeLogPanel';
+import ClassesPanel from './ClassesPanel';
+import LevelsPanel from './LevelsPanel';
+import PotentialStudentsPanel from './PotentialStudentsPanel';
+import RecordsPanel from './RecordsPanel';
+import ReportsPanel from './ReportsPanel';
+import SettingsPanel from './SettingsPanel';
+import TeacherScoresFeedbackPanel from './TeacherScoresFeedbackPanel';
+import WaitingListPanel from './WaitingListPanel';
 import './TeacherDashboard.css';
 
-const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onDataRefresh }: {
-  user: any,
-  students: any[],
-  assignments: any[],
-  classes: any[],
-  activeKey: string,
-  onDataRefresh?: () => void
+const TeacherDashboard = ({
+  user,
+  students,
+  assignments,
+  classes,
+  activeKey,
+  onDataRefresh,
+}: {
+  user: any;
+  students: any[];
+  assignments: any[];
+  classes: any[];
+  activeKey: string;
+  onDataRefresh?: () => void;
 }) => {
-  const totalStudents = students.filter(s => s.role === 'student').length;
-  const activeAssignments = assignments.filter(a => a.status === 'active').length;
+  const totalStudents = students.filter((s) => s.role === 'student').length;
+  const activeAssignments = assignments.filter((a) => a.status === 'active').length;
   const totalClasses = classes.length;
   // userRole variable removed as it's not used
-  
+
   return (
     <div className="teacher-dashboard">
       {/* Show avatar at the top of the dashboard */}
@@ -41,12 +49,16 @@ const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onD
           </div>
         </div>
       ) : null}
-      
+
       {/* Management Submenu Items */}
       {activeKey === 'add-student' ? (
         <AddNewMembers />
       ) : activeKey === 'potential-students' ? (
-        <PotentialStudentsPanel classes={classes} currentUser={user} onDataRefresh={onDataRefresh} />
+        <PotentialStudentsPanel
+          classes={classes}
+          currentUser={user}
+          onDataRefresh={onDataRefresh}
+        />
       ) : activeKey === 'waiting-list' ? (
         <WaitingListPanel classes={classes} onDataRefresh={onDataRefresh} />
       ) : activeKey === 'classes' ? (
@@ -108,12 +120,14 @@ const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onD
               Welcome back, {user.englishName || user.name}!
             </h1>
             <p className="teacher-dashboard-subtitle">
-              {user.role === 'teacher' ? 'Here\'s your IELTS teaching dashboard overview' : 
-               user.role === 'staff' ? 'Here\'s your staff management dashboard overview' : 
-               'Here\'s your dashboard overview'}
+              {user.role === 'teacher'
+                ? "Here's your IELTS teaching dashboard overview"
+                : user.role === 'staff'
+                  ? "Here's your staff management dashboard overview"
+                  : "Here's your dashboard overview"}
             </p>
           </div>
-          
+
           {/* Summary Cards */}
           <div className="teacher-dashboard-summary">
             <div className="teacher-dashboard-card">
@@ -123,7 +137,7 @@ const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onD
                 <p className="teacher-dashboard-card-value">{totalStudents}</p>
               </div>
             </div>
-            
+
             <div className="teacher-dashboard-card">
               <div className="teacher-dashboard-card-icon">📚</div>
               <div className="teacher-dashboard-card-content">
@@ -131,7 +145,7 @@ const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onD
                 <p className="teacher-dashboard-card-value">{totalClasses}</p>
               </div>
             </div>
-            
+
             <div className="teacher-dashboard-card">
               <div className="teacher-dashboard-card-icon">📝</div>
               <div className="teacher-dashboard-card-content">
@@ -139,7 +153,7 @@ const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onD
                 <p className="teacher-dashboard-card-value">{activeAssignments}</p>
               </div>
             </div>
-            
+
             <div className="teacher-dashboard-card">
               <div className="teacher-dashboard-card-icon">📊</div>
               <div className="teacher-dashboard-card-content">
@@ -154,4 +168,4 @@ const TeacherDashboard = ({ user, students, assignments, classes, activeKey, onD
   );
 };
 
-export default TeacherDashboard; 
+export default TeacherDashboard;

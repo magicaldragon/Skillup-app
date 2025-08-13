@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import './Sidebar.css';
 import AdminAccountCreator from './AdminAccountCreator';
 
@@ -15,22 +15,16 @@ const AdminDebugPanel = ({ activeKey }: { activeKey: string }) => {
   const [serviceUsage, setServiceUsage] = useState<ServiceUsage | null>(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (activeKey === 'admin-debug-api-usage') {
-      fetchServiceUsage();
-    }
-  }, [activeKey]);
-
-  const fetchServiceUsage = async () => {
+  const fetchServiceUsage = useCallback(async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('skillup_token');
       const response = await fetch(`${API_BASE_URL}/usage`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setServiceUsage(data.usage);
@@ -40,7 +34,13 @@ const AdminDebugPanel = ({ activeKey }: { activeKey: string }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (activeKey === 'admin-debug-api-usage') {
+      fetchServiceUsage();
+    }
+  }, [activeKey, fetchServiceUsage]);
 
   if (activeKey === 'admin-debug-api-usage') {
     return (
@@ -76,7 +76,7 @@ const AdminDebugPanel = ({ activeKey }: { activeKey: string }) => {
           ) : (
             <p>Failed to load usage data</p>
           )}
-          <button onClick={fetchServiceUsage} disabled={loading} className="form-btn">
+          <button type="button" onClick={fetchServiceUsage} disabled={loading} className="form-btn">
             Refresh Usage Data
           </button>
         </div>
@@ -91,4 +91,4 @@ const AdminDebugPanel = ({ activeKey }: { activeKey: string }) => {
   return null;
 };
 
-export default AdminDebugPanel; 
+export default AdminDebugPanel;

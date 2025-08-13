@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { Student, Submission, Assignment } from './types';
+import type { Assignment, Student, Submission } from './types';
 
 const StudentScoresFeedbackPanel = ({ user }: { user: Student }) => {
   const [assignments, setAssignments] = useState<Assignment[]>([]);
@@ -24,24 +24,29 @@ const StudentScoresFeedbackPanel = ({ user }: { user: Student }) => {
     fetchData();
   }, []);
 
-  const mySubs = submissions.filter(s => s.studentId === user.id);
-  const rows = mySubs.map(sub => {
-    const a = assignments.find(a => a.id === sub.assignmentId);
-    return {
-      ...sub,
-      assignmentTitle: a?.title || '',
-      assignmentType: a?.skill || '',
-      date: a?.dueDate || '',
-    };
-  }).filter(row =>
-    (!typeFilter || row.assignmentType === typeFilter) &&
-    (!search || row.assignmentTitle.toLowerCase().includes(search.toLowerCase()))
-  ).sort((a, b) => sortOrder === 'newest'
-    ? (b.date || '').localeCompare(a.date || '')
-    : (a.date || '').localeCompare(b.date || '')
-  );
+  const mySubs = submissions.filter((s) => s.studentId === user.id);
+  const rows = mySubs
+    .map((sub) => {
+      const a = assignments.find((a) => a.id === sub.assignmentId);
+      return {
+        ...sub,
+        assignmentTitle: a?.title || '',
+        assignmentType: a?.skill || '',
+        date: a?.dueDate || '',
+      };
+    })
+    .filter(
+      (row) =>
+        (!typeFilter || row.assignmentType === typeFilter) &&
+        (!search || row.assignmentTitle.toLowerCase().includes(search.toLowerCase()))
+    )
+    .sort((a, b) =>
+      sortOrder === 'newest'
+        ? (b.date || '').localeCompare(a.date || '')
+        : (a.date || '').localeCompare(b.date || '')
+    );
 
-  const uniqueTypes = Array.from(new Set(assignments.map(a => a.skill)));
+  const uniqueTypes = Array.from(new Set(assignments.map((a) => a.skill)));
 
   if (loading) return <div className="p-8 text-center text-lg">Loading scores and feedback...</div>;
 
@@ -53,13 +58,25 @@ const StudentScoresFeedbackPanel = ({ user }: { user: Student }) => {
           className="p-2 border rounded flex-1"
           placeholder="Search assignments..."
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={(e) => setSearch(e.target.value)}
         />
-        <select className="p-2 border rounded" value={typeFilter} onChange={e => setTypeFilter(e.target.value)}>
+        <select
+          className="p-2 border rounded"
+          value={typeFilter}
+          onChange={(e) => setTypeFilter(e.target.value)}
+        >
           <option value="">All Types</option>
-          {uniqueTypes.map(t => <option key={t} value={t}>{t}</option>)}
+          {uniqueTypes.map((t) => (
+            <option key={t} value={t}>
+              {t}
+            </option>
+          ))}
         </select>
-        <select className="p-2 border rounded" value={sortOrder} onChange={e => setSortOrder(e.target.value as 'newest' | 'oldest')}>
+        <select
+          className="p-2 border rounded"
+          value={sortOrder}
+          onChange={(e) => setSortOrder(e.target.value as 'newest' | 'oldest')}
+        >
           <option value="newest">Newest to Oldest</option>
           <option value="oldest">Oldest to Newest</option>
         </select>
@@ -76,8 +93,14 @@ const StudentScoresFeedbackPanel = ({ user }: { user: Student }) => {
             </tr>
           </thead>
           <tbody>
-            {rows.length === 0 && <tr><td colSpan={5} className="text-center text-slate-400">No results found.</td></tr>}
-            {rows.map(row => (
+            {rows.length === 0 && (
+              <tr>
+                <td colSpan={5} className="text-center text-slate-400">
+                  No results found.
+                </td>
+              </tr>
+            )}
+            {rows.map((row) => (
               <tr key={row.id} className="hover:bg-slate-100 transition">
                 <td className="p-2 font-semibold">{row.assignmentTitle}</td>
                 <td className="p-2">{row.assignmentType}</td>
@@ -93,4 +116,4 @@ const StudentScoresFeedbackPanel = ({ user }: { user: Student }) => {
   );
 };
 
-export default StudentScoresFeedbackPanel; 
+export default StudentScoresFeedbackPanel;

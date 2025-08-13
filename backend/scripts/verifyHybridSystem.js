@@ -14,7 +14,7 @@ async function verifyHybridSystem() {
     // Step 1: Check current users in MongoDB
     console.log('\n📊 Current Users in MongoDB:');
     const mongoUsers = await User.find().select('-password');
-    mongoUsers.forEach(user => {
+    mongoUsers.forEach((user) => {
       console.log(`- ${user.name} (${user.role}): ${user.email}`);
       console.log(`  Username: ${user.username}`);
       console.log(`  Firebase UID: ${user.firebaseUid}`);
@@ -24,14 +24,14 @@ async function verifyHybridSystem() {
 
     // Step 2: Verify hybrid system requirements
     console.log('🔍 Verifying Hybrid System Requirements:');
-    
+
     let allGood = true;
-    
+
     // Check if all users have Firebase UIDs
-    const usersWithoutFirebaseUID = mongoUsers.filter(user => !user.firebaseUid);
+    const usersWithoutFirebaseUID = mongoUsers.filter((user) => !user.firebaseUid);
     if (usersWithoutFirebaseUID.length > 0) {
       console.log('❌ Users without Firebase UID:');
-      usersWithoutFirebaseUID.forEach(user => {
+      usersWithoutFirebaseUID.forEach((user) => {
         console.log(`  - ${user.name} (${user.email})`);
       });
       allGood = false;
@@ -41,11 +41,11 @@ async function verifyHybridSystem() {
 
     // Check for duplicate emails
     const emailCounts = {};
-    mongoUsers.forEach(user => {
+    mongoUsers.forEach((user) => {
       emailCounts[user.email] = (emailCounts[user.email] || 0) + 1;
     });
-    
-    const duplicateEmails = Object.entries(emailCounts).filter(([email, count]) => count > 1);
+
+    const duplicateEmails = Object.entries(emailCounts).filter(([_email, count]) => count > 1);
     if (duplicateEmails.length > 0) {
       console.log('❌ Duplicate emails found:');
       duplicateEmails.forEach(([email, count]) => {
@@ -58,13 +58,13 @@ async function verifyHybridSystem() {
 
     // Check for duplicate Firebase UIDs
     const uidCounts = {};
-    mongoUsers.forEach(user => {
+    mongoUsers.forEach((user) => {
       if (user.firebaseUid) {
         uidCounts[user.firebaseUid] = (uidCounts[user.firebaseUid] || 0) + 1;
       }
     });
-    
-    const duplicateUIDs = Object.entries(uidCounts).filter(([uid, count]) => count > 1);
+
+    const duplicateUIDs = Object.entries(uidCounts).filter(([_uid, count]) => count > 1);
     if (duplicateUIDs.length > 0) {
       console.log('❌ Duplicate Firebase UIDs found:');
       duplicateUIDs.forEach(([uid, count]) => {
@@ -77,19 +77,19 @@ async function verifyHybridSystem() {
 
     // Step 3: Test API endpoints
     console.log('\n🌐 Testing API Endpoints:');
-    
+
     // Test user creation endpoint
     console.log('📝 User Creation Endpoint: /api/users (POST)');
     console.log('   - Requires admin authentication');
     console.log('   - Creates user in MongoDB with Firebase UID');
     console.log('   - Validates email uniqueness');
     console.log('   - Validates Firebase UID uniqueness');
-    
+
     // Test user retrieval by Firebase UID
     console.log('📖 User Retrieval Endpoint: /api/users/firebase/:firebaseUid (GET)');
     console.log('   - Used by hybrid authentication service');
     console.log('   - Returns user data for login');
-    
+
     // Test email check endpoint
     console.log('🔍 Email Check Endpoint: /api/users/check-email/:email (GET)');
     console.log('   - Used for registration validation');
@@ -120,7 +120,7 @@ async function verifyHybridSystem() {
       console.log('✅ No duplicates or missing data');
       console.log('✅ API endpoints are properly configured');
       console.log('✅ Registration and login flows are verified');
-      
+
       console.log('\n🎯 Ready to test:');
       console.log('1. Login with existing users');
       console.log('2. Use "Add New Member" to create new users');
@@ -132,9 +132,8 @@ async function verifyHybridSystem() {
 
     console.log(`\n📊 Summary:`);
     console.log(`- Total users in MongoDB: ${mongoUsers.length}`);
-    console.log(`- Users with Firebase UIDs: ${mongoUsers.filter(u => u.firebaseUid).length}`);
+    console.log(`- Users with Firebase UIDs: ${mongoUsers.filter((u) => u.firebaseUid).length}`);
     console.log(`- System status: ${allGood ? 'READY' : 'NEEDS FIXES'}`);
-
   } catch (error) {
     console.error('❌ Error during verification:', error.message);
   } finally {
@@ -143,4 +142,4 @@ async function verifyHybridSystem() {
   }
 }
 
-verifyHybridSystem(); 
+verifyHybridSystem();
