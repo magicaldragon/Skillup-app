@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import './RecordsPanel.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
@@ -47,11 +47,7 @@ const RecordsPanel = () => {
     pages: 0,
   });
 
-  useEffect(() => {
-    fetchRecords();
-  }, [fetchRecords]);
-
-  const fetchRecords = async () => {
+  const fetchRecords = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -99,7 +95,11 @@ const RecordsPanel = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.page, pagination.limit, filter]);
+
+  useEffect(() => {
+    fetchRecords();
+  }, [fetchRecords]);
 
   const filteredRecords = records.filter((record) => {
     const matchesSearch =

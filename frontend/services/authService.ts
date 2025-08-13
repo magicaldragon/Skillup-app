@@ -47,7 +47,7 @@ class AuthService {
     // Return cached result if still valid
     if (this.isConnectionCacheValid()) {
       console.log('Using cached backend connection status:', this.connectionCache?.status);
-      return this.connectionCache?.status;
+      return this.connectionCache?.status ?? false;
     }
 
     try {

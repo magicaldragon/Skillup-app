@@ -265,7 +265,7 @@ class FirestoreService {
 
   async updateUser(
     userId: string,
-    userName: string,
+    _userName: string,
     changes?: Partial<FirestoreUser>
   ): Promise<void> {
     return this.update(this.collections.users, userId, changes || {});

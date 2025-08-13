@@ -37,17 +37,6 @@ const App: React.FC = () => {
   // Memoize API URL to avoid recalculation
   const apiUrl = useMemo(() => import.meta.env.VITE_API_BASE_URL || '/api', []);
 
-  // Memoize fetch options to avoid recreation
-  const _fetchOptions = useMemo(() => {
-    const token = localStorage.getItem('skillup_token');
-    return {
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token && { Authorization: `Bearer ${token}` }),
-      },
-    };
-  }, []);
-
   useEffect(() => {
     const initializeAuth = async () => {
       setLoading(true);

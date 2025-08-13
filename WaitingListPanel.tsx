@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import type { StudentClass } from './types';
 import './WaitingListPanel.css';
 
@@ -39,11 +39,7 @@ const WaitingListPanel = ({
   const [bulkClassId, setBulkClassId] = useState<string>('');
   const [showBulkAssign, setShowBulkAssign] = useState(false);
 
-  useEffect(() => {
-    fetchWaitingStudents();
-  }, [fetchWaitingStudents]);
-
-  const fetchWaitingStudents = async () => {
+  const fetchWaitingStudents = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -74,7 +70,11 @@ const WaitingListPanel = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchWaitingStudents();
+  }, [fetchWaitingStudents]);
 
   // Individual select
   const toggleSelect = (id: string) => {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import './ReportsPanel.css';
 
 interface StudentReport {
@@ -28,11 +28,7 @@ const ReportsPanel = ({
   const [selectedReport, setSelectedReport] = useState<StudentReport | null>(null);
   const [solutionNote, setSolutionNote] = useState('');
 
-  useEffect(() => {
-    fetchReports();
-  }, [fetchReports]);
-
-  const fetchReports = async () => {
+  const fetchReports = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -77,7 +73,11 @@ const ReportsPanel = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchReports();
+  }, [fetchReports]);
 
   const handleUpdateReportStatus = async (
     reportId: string,

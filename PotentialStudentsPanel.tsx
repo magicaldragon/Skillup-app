@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import type { Student, StudentClass } from './types';
 import './PotentialStudentsPanel.css';
 
@@ -45,11 +45,7 @@ const PotentialStudentsPanel = ({
   const [statusFilter, setStatusFilter] = useState<'all' | 'potential' | 'contacted'>('all');
   const [selectedStudent, setSelectedStudent] = useState<User | null>(null);
 
-  useEffect(() => {
-    fetchPotentialStudents();
-  }, [fetchPotentialStudents]);
-
-  const fetchPotentialStudents = async () => {
+  const fetchPotentialStudents = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -80,7 +76,11 @@ const PotentialStudentsPanel = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchPotentialStudents();
+  }, [fetchPotentialStudents]);
 
   // Bulk update status
   const handleBulkUpdateStatus = async () => {
