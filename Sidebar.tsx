@@ -333,6 +333,7 @@ const Sidebar = ({
           return (
             <div key={item.key}>
               <button
+                type="button"
                 className={`sidebar-btn${activeKey === item.key ? ' active' : ''}`}
                 onClick={() => handleMenuClick(item.key, hasChildren)}
               >
@@ -352,12 +353,9 @@ const Sidebar = ({
                       return (
                         <div key={child.key}>
                           <button
+                            type="button"
                             className={`sidebar-submenu-btn${activeKey === child.key ? ' active' : ''}`}
-                            onClick={() =>
-                              hasGrandChildren
-                                ? handleMenuClick(child.key, true)
-                                : onNavigate(child.key)
-                            }
+                            onClick={() => onNavigate(child.key)}
                           >
                             <span className="sidebar-menu-icon">{child.icon}</span> {child.label}
                             {hasGrandChildren && (
@@ -374,6 +372,7 @@ const Sidebar = ({
                                 .filter((grandChild) => grandChild.visible)
                                 .map((grandChild) => (
                                   <button
+                                    type="button"
                                     key={grandChild.key}
                                     className={`sidebar-submenu-btn${activeKey === grandChild.key ? ' active' : ''}`}
                                     onClick={() => onNavigate(grandChild.key)}
