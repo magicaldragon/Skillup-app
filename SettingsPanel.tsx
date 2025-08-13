@@ -68,7 +68,7 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
     const formData = new FormData();
     formData.append('avatar', file);
     try {
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
       const res = await fetch(`${apiUrl}/users/${currentUser.id || currentUser._id}/avatar`, {
         method: 'POST',
         body: formData,
@@ -94,7 +94,7 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
     setSuccess(null);
     setError(null);
     try {
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
       const res = await fetch(`${apiUrl}/users/${currentUser.id || currentUser._id}`, {
         method: 'PUT',
         headers: { 
@@ -226,7 +226,7 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
               <p><strong>User ID:</strong> {currentUser.id || currentUser._id}</p>
               <p><strong>Role:</strong> {currentUser.role}</p>
               <p><strong>Can Edit:</strong> {canEdit ? 'Yes' : 'No'}</p>
-              <p><strong>API URL:</strong> {import.meta.env.VITE_API_BASE_URL || '/api'}</p>
+              <p><strong>API URL:</strong> {import.meta.env.VITE_API_BASE_URL || ''}</p>
             </div>
           )}
           
