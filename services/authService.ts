@@ -9,7 +9,7 @@ export interface LoginResponse {
     id: string;
     name: string;
     email: string;
-    role: 'admin' | 'teacher' | 'student';
+    role: 'admin' | 'teacher' | 'staff' | 'student';
     avatarUrl?: string;
     status: string;
   };
@@ -19,7 +19,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'admin' | 'teacher' | 'student';
+  role: 'admin' | 'teacher' | 'staff' | 'student';
   avatarUrl?: string;
   status: string;
   phone?: string;

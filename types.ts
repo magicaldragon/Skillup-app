@@ -174,7 +174,7 @@ export interface ProfileUpdateData {
 export interface UserCreateData {
   name: string;
   email: string;
-  role: 'admin' | 'teacher' | 'student';
+  role: 'admin' | 'teacher' | 'staff' | 'student';
   password?: string;
   phone?: string;
   englishName?: string;

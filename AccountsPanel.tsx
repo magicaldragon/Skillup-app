@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { usersAPI } from './services/apiService';
+import { authService } from './services/authService';
 import { UserUpdateData } from './types';
 import './AccountsPanel.css';
 
@@ -32,6 +33,90 @@ const AccountsPanel = () => {
   const [passwordChangeId, setPasswordChangeId] = useState<string | null>(null);
   const [newPassword, setNewPassword] = useState('');
   const [passwordChanging, setPasswordChanging] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  // Get current user for permission checks
+  useEffect(() => {
+    const user = authService.getCurrentUser();
+    setCurrentUser(user);
+  }, []);
+
+  // Permission checking functions
+  const canManageUser = (targetUser: User): boolean => {
+    if (!currentUser) return false;
+    
+    const currentUserRole = currentUser.role;
+    const targetUserRole = targetUser.role;
+    
+    // Admin can manage all users
+    if (currentUserRole === 'admin') return true;
+    
+    // Teacher can manage staff and students, but not admins or other teachers
+    if (currentUserRole === 'teacher') {
+      return targetUserRole === 'staff' || targetUserRole === 'student';
+    }
+    
+    // Staff can only manage students
+    if (currentUserRole === 'staff') {
+      return targetUserRole === 'student';
+    }
+    
+    // Students cannot manage any users
+    return false;
+  };
+
+  const canChangeRole = (targetUser: User, newRole: string): boolean => {
+    if (!currentUser) return false;
+    
+    const currentUserRole = currentUser.role;
+    const targetUserRole = targetUser.role;
+    
+    // Admin can change any role
+    if (currentUserRole === 'admin') return true;
+    
+    // Teacher can only change staff and student roles
+    if (currentUserRole === 'teacher') {
+      return (targetUserRole === 'staff' || targetUserRole === 'student') && 
+             (newRole === 'staff' || newRole === 'student');
+    }
+    
+    // Staff can only change student roles
+    if (currentUserRole === 'staff') {
+      return targetUserRole === 'student' && newRole === 'student';
+    }
+    
+    return false;
+  };
+
+  const canDeleteUser = (targetUser: User): boolean => {
+    if (!currentUser) return false;
+    
+    const currentUserRole = currentUser.role;
+    const targetUserRole = targetUser.role;
+    
+    // Admin can delete any user
+    if (currentUserRole === 'admin') return true;
+    
+    // Teacher can delete staff and students
+    if (currentUserRole === 'teacher') {
+      return targetUserRole === 'staff' || targetUserRole === 'student';
+    }
+    
+    // Staff can only delete students
+    if (currentUserRole === 'staff') {
+      return targetUserRole === 'student';
+    }
+    
+    return false;
+  };
+
+  const canEditUser = (targetUser: User): boolean => {
+    return canManageUser(targetUser);
+  };
+
+  const canChangePassword = (targetUser: User): boolean => {
+    return canManageUser(targetUser);
+  };
 
   const fetchAccounts = useCallback(async () => {
     try {
@@ -79,6 +164,11 @@ const AccountsPanel = () => {
   }, [fetchAccounts]);
 
   const handleEdit = (user: User) => {
+    if (!canEditUser(user)) {
+      alert('You do not have permission to edit this user.');
+      return;
+    }
+    
     setEditingId(user._id);
     setEditForm({
       name: user.name,
@@ -104,7 +194,7 @@ const AccountsPanel = () => {
         id: editingId,
         ...(editForm.name && { name: editForm.name }),
         ...(editForm.email && { email: editForm.email }),
-        ...(editForm.role && { role: editForm.role as 'admin' | 'teacher' | 'student' }),
+        ...(editForm.role && { role: editForm.role as 'admin' | 'teacher' | 'staff' | 'student' }),
         ...(editForm.gender && { gender: editForm.gender }),
         ...(editForm.englishName && { englishName: editForm.englishName }),
         ...(editForm.dob && { dob: editForm.dob }),
@@ -112,6 +202,13 @@ const AccountsPanel = () => {
         ...(editForm.notes && { note: editForm.notes }),
         ...(editForm.status && { status: editForm.status }),
       };
+      
+      // Check if role change is allowed
+      if (editForm.role && !canChangeRole(accounts.find(acc => acc._id === editingId)!, editForm.role)) {
+        alert('You do not have permission to change this user\'s role.');
+        return;
+      }
+      
       await usersAPI.updateUser(editingId, updateData);
 
       setAccounts((prev) =>
@@ -127,6 +224,14 @@ const AccountsPanel = () => {
   };
 
   const handleRemove = async (id: string) => {
+    const userToDelete = accounts.find(acc => acc._id === id);
+    if (!userToDelete) return;
+    
+    if (!canDeleteUser(userToDelete)) {
+      alert('You do not have permission to delete this user.');
+      return;
+    }
+    
     if (!confirm('Are you sure you want to delete this user?')) return;
 
     try {
@@ -141,6 +246,14 @@ const AccountsPanel = () => {
 
   const handlePasswordChange = async () => {
     if (!passwordChangeId || !newPassword.trim()) return;
+
+    const userToChangePassword = accounts.find(acc => acc._id === passwordChangeId);
+    if (!userToChangePassword) return;
+    
+    if (!canChangePassword(userToChangePassword)) {
+      alert('You do not have permission to change this user\'s password.');
+      return;
+    }
 
     try {
       setPasswordChanging(true);
@@ -178,6 +291,21 @@ const AccountsPanel = () => {
   return (
     <div className="accounts-panel-container">
       <h2 className="accounts-title">USER ACCOUNTS</h2>
+      
+      {/* Permission indicator */}
+      {currentUser && (
+        <div className="permission-indicator">
+          <span className="current-user-info">
+            Logged in as: <strong>{currentUser.name}</strong> ({currentUser.role})
+          </span>
+          <span className="permission-level">
+            {currentUser.role === 'admin' && 'Full access to all users'}
+            {currentUser.role === 'teacher' && 'Can manage staff and students'}
+            {currentUser.role === 'staff' && 'Can only manage students'}
+            {currentUser.role === 'student' && 'Read-only access'}
+          </span>
+        </div>
+      )}
 
       {loading ? (
         <div className="accounts-loading">Loading accounts...</div>
@@ -237,10 +365,30 @@ const AccountsPanel = () => {
                   className="filter-select"
                 >
                   <option value="all">All Roles</option>
-                  <option value="admin">Admin</option>
-                  <option value="teacher">Teacher</option>
-                  <option value="staff">Staff</option>
-                  <option value="student">Student</option>
+                  {currentUser?.role === 'admin' && (
+                    <>
+                      <option value="admin">Admin</option>
+                      <option value="teacher">Teacher</option>
+                      <option value="staff">Staff</option>
+                      <option value="student">Student</option>
+                    </>
+                  )}
+                  {currentUser?.role === 'teacher' && (
+                    <>
+                      <option value="teacher">Teacher</option>
+                      <option value="staff">Staff</option>
+                      <option value="student">Student</option>
+                    </>
+                  )}
+                  {currentUser?.role === 'staff' && (
+                    <>
+                      <option value="staff">Staff</option>
+                      <option value="student">Student</option>
+                    </>
+                  )}
+                  {currentUser?.role === 'student' && (
+                    <option value="student">Student</option>
+                  )}
                 </select>
 
                 {/* Only show status filter when "Students" role is selected */}
@@ -263,6 +411,34 @@ const AccountsPanel = () => {
             </div>
 
             <div className="table-wrapper">
+              {/* Permissions Summary */}
+              {currentUser && (
+                <div className="permissions-summary">
+                  <div className="summary-item">
+                    <span className="summary-label">Your Role:</span>
+                    <span className="summary-value">{currentUser.role}</span>
+                  </div>
+                  <div className="summary-item">
+                    <span className="summary-label">Can Manage:</span>
+                    <span className="summary-value">
+                      {currentUser.role === 'admin' && 'All users (Admin, Teacher, Staff, Student)'}
+                      {currentUser.role === 'teacher' && 'Staff and Students only'}
+                      {currentUser.role === 'staff' && 'Students only'}
+                      {currentUser.role === 'student' && 'No users (Read-only)'}
+                    </span>
+                  </div>
+                  <div className="summary-item">
+                    <span className="summary-label">Can Delete:</span>
+                    <span className="summary-value">
+                      {currentUser.role === 'admin' && 'All users'}
+                      {currentUser.role === 'teacher' && 'Staff and Students'}
+                      {currentUser.role === 'staff' && 'Students only'}
+                      {currentUser.role === 'student' && 'No users'}
+                    </span>
+                  </div>
+                </div>
+              )}
+              
               <table className="accounts-table">
                 <thead>
                   <tr>
@@ -285,7 +461,10 @@ const AccountsPanel = () => {
                 </thead>
                 <tbody>
                   {filteredAccounts.map((account) => (
-                    <tr key={account._id}>
+                    <tr 
+                      key={account._id} 
+                      className={!canManageUser(account) ? 'no-permission-row' : ''}
+                    >
                       <td>
                         {editingId === account._id ? (
                           <input
@@ -336,11 +515,28 @@ const AccountsPanel = () => {
                               setEditForm((prev) => ({ ...prev, role: e.target.value }))
                             }
                             className="edit-select"
+                            disabled={!canChangeRole(account, editForm.role || '')}
                           >
-                            <option value="student">Student</option>
-                            <option value="teacher">Teacher</option>
-                            <option value="staff">Staff</option>
-                            <option value="admin">Admin</option>
+                            {currentUser?.role === 'admin' && (
+                              <>
+                                <option value="admin">Admin</option>
+                                <option value="teacher">Teacher</option>
+                                <option value="staff">Staff</option>
+                                <option value="student">Student</option>
+                              </>
+                            )}
+                            {currentUser?.role === 'teacher' && (
+                              <>
+                                <option value="staff">Staff</option>
+                                <option value="student">Student</option>
+                              </>
+                            )}
+                            {currentUser?.role === 'staff' && (
+                              <option value="student">Student</option>
+                            )}
+                            {currentUser?.role === 'student' && (
+                              <option value="student">Student</option>
+                            )}
                           </select>
                         ) : (
                           account.role
@@ -488,27 +684,36 @@ const AccountsPanel = () => {
                           </div>
                         ) : (
                           <div className="action-buttons">
-                            <button
-                              type="button"
-                              onClick={() => handleEdit(account)}
-                              className="edit-btn"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setPasswordChangeId(account._id)}
-                              className="password-btn"
-                            >
-                              Password
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleRemove(account._id)}
-                              className="delete-btn"
-                            >
-                              Delete
-                            </button>
+                            {canEditUser(account) && (
+                              <button
+                                type="button"
+                                onClick={() => handleEdit(account)}
+                                className="edit-btn"
+                              >
+                                Edit
+                              </button>
+                            )}
+                            {canChangePassword(account) && (
+                              <button
+                                type="button"
+                                onClick={() => setPasswordChangeId(account._id)}
+                                className="password-btn"
+                              >
+                                Password
+                              </button>
+                            )}
+                            {canDeleteUser(account) && (
+                              <button
+                                type="button"
+                                onClick={() => handleRemove(account._id)}
+                                className="delete-btn"
+                              >
+                                Delete
+                              </button>
+                            )}
+                            {!canEditUser(account) && !canChangePassword(account) && !canDeleteUser(account) && (
+                              <span className="no-permission">No permissions</span>
+                            )}
                           </div>
                         )}
                       </td>
