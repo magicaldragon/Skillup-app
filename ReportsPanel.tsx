@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import './ReportsPanel.css';
 
 interface StudentReport {
@@ -67,9 +67,9 @@ const ReportsPanel = ({
         console.error('Invalid reports data structure:', data);
         setReports([]);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Fetch reports error:', err);
-      setError(`Failed to load reports: ${err.message}`);
+      setError(`Failed to load reports: ${err instanceof Error ? err.message : 'Unknown error'}`);
     } finally {
       setLoading(false);
     }
@@ -140,7 +140,7 @@ const ReportsPanel = ({
         <div className="reports-error">
           <h3>Error Loading Reports</h3>
           <p>{error}</p>
-          <button className="reports-retry-btn" onClick={fetchReports}>
+          <button type="button" className="reports-retry-btn" onClick={fetchReports}>
             Try Again
           </button>
         </div>
@@ -196,6 +196,7 @@ const ReportsPanel = ({
                   </td>
                   <td>
                     <button
+                      type="button"
                       className="action-btn view-btn"
                       onClick={() => setSelectedReport(report)}
                     >
@@ -214,6 +215,7 @@ const ReportsPanel = ({
         <div className="report-details-modal">
           <div className="modal-content">
             <button
+              type="button"
               className="close-btn"
               onClick={() => {
                 setSelectedReport(null);
@@ -275,6 +277,7 @@ const ReportsPanel = ({
                 />
                 <div className="modal-actions">
                   <button
+                    type="button"
                     className="action-btn solve-btn"
                     onClick={() =>
                       handleUpdateReportStatus(selectedReport.id, 'solved', solutionNote)
@@ -283,6 +286,7 @@ const ReportsPanel = ({
                     Mark as Solved
                   </button>
                   <button
+                    type="button"
                     className="action-btn cancel-btn"
                     onClick={() => {
                       setSelectedReport(null);
