@@ -1,6 +1,6 @@
 // ClassesPanel.tsx
 // Professional panel to show and manage classes with code names (SU-001, SU-002, ...)
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { Level, Student, StudentClass } from './types';
 import './ClassesPanel.css';
 import { safeTrim } from './utils/stringUtils';
@@ -88,8 +88,64 @@ const ClassesPanel = ({
   // Add state for showing action buttons
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
 
+  // Open class edit modal
+  const handleEditClass = useCallback(
+    (classId: string) => {
+      const classObj = classes.find((c) => (c._id || c.id) === classId);
+      if (!classObj) return;
+
+      // Handle both populated levelId object and string levelId
+      const levelName = classObj.levelId
+        ? typeof classObj.levelId === 'object'
+          ? classObj.levelId.name
+          : levels.find((l) => l._id === classObj.levelId)?.name || 'N/A'
+        : 'N/A';
+      const classStudents = students.filter((s) => (s.classIds || []).includes(classId));
+      const displayName = classObj.classCode || classObj.name || 'Unnamed Class';
+
+      setClassEditModal({
+        isOpen: true,
+        classId,
+        className: displayName,
+        levelName,
+        students: classStudents,
+      });
+      setSelectedStudentIds([]);
+    },
+    [classes, levels, students]
+  );
+
+  // Close class edit modal
+  const handleCloseClassEditModal = useCallback(() => {
+    setClassEditModal({
+      isOpen: false,
+      classId: null,
+      className: '',
+      levelName: '',
+      students: [],
+    });
+    setSelectedStudentIds([]);
+  }, []);
+
+  // Toggle student selection for bulk actions
+  const toggleStudentSelection = useCallback((studentId: string) => {
+    setSelectedStudentIds((prev) =>
+      prev.includes(studentId) ? prev.filter((id) => id !== studentId) : [...prev, studentId]
+    );
+  }, []);
+
+  // Select all students
+  const selectAllStudents = useCallback(() => {
+    setSelectedStudentIds(classEditModal.students.map((s) => s.id));
+  }, [classEditModal.students]);
+
+  // Clear all selections
+  const clearAllSelections = useCallback(() => {
+    setSelectedStudentIds([]);
+  }, []);
+
   // Fetch levels from backend
-  const fetchLevels = async () => {
+  const fetchLevels = useCallback(async () => {
     setLevelsLoading(true);
     try {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
@@ -129,7 +185,7 @@ const ClassesPanel = ({
     } finally {
       setLevelsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchLevels();
@@ -154,29 +210,33 @@ const ClassesPanel = ({
   });
 
   // Handle single click to show action buttons
-  const handleClassClick = (classId: string) => {
-    console.log('handleClassClick called with classId:', classId);
-    console.log('Current selectedClassId:', selectedClassId);
-    // Toggle selection: if same class is clicked, deselect it; otherwise select the new one
-    setSelectedClassId((prevId) => {
-      const newId = prevId === classId ? null : classId;
-      console.log('Setting selectedClassId to:', newId);
-      return newId;
-    });
-  };
+  const handleClassClick = useCallback(
+    (classId: string) => {
+      console.log('handleClassClick called with classId:', classId);
+      console.log('Current selectedClassId:', selectedClassId);
+      // Toggle selection: if same class is clicked, deselect it; otherwise select the new one
+      setSelectedClassId((prevId) => {
+        const newId = prevId === classId ? null : classId;
+        console.log('Setting selectedClassId to:', newId);
+        return newId;
+      });
+    },
+    [selectedClassId]
+  );
 
   // Handle keyboard events for accessibility
-  const handleKeyDown = (e: React.KeyboardEvent, classId: string) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      handleClassClick(classId);
-    }
-  };
-
-  // Removed double click behavior; Show button will handle details view
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent, classId: string) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        handleClassClick(classId);
+      }
+    },
+    [handleClassClick]
+  );
 
   // Add new class
-  const handleAddClass = async () => {
+  const handleAddClass = useCallback(async () => {
     if (!newClassLevelId) {
       alert('Please select a level');
       return;
@@ -216,98 +276,48 @@ const ClassesPanel = ({
     } finally {
       setAdding(false);
     }
-  };
-
-  // Open class edit modal
-  const handleEditClass = (classId: string) => {
-    const classObj = classes.find((c) => (c._id || c.id) === classId);
-    if (!classObj) return;
-
-    // Handle both populated levelId object and string levelId
-    const levelName = classObj.levelId
-      ? typeof classObj.levelId === 'object'
-        ? classObj.levelId.name
-        : levels.find((l) => l._id === classObj.levelId)?.name || 'N/A'
-      : 'N/A';
-    const classStudents = students.filter((s) => (s.classIds || []).includes(classId));
-    const displayName = classObj.classCode || classObj.name || 'Unnamed Class';
-
-    setClassEditModal({
-      isOpen: true,
-      classId,
-      className: displayName,
-      levelName,
-      students: classStudents,
-    });
-    setSelectedStudentIds([]);
-  };
-
-  // Close class edit modal
-  const handleCloseClassEditModal = () => {
-    setClassEditModal({
-      isOpen: false,
-      classId: null,
-      className: '',
-      levelName: '',
-      students: [],
-    });
-    setSelectedStudentIds([]);
-  };
-
-  // Toggle student selection for bulk actions
-  const toggleStudentSelection = (studentId: string) => {
-    setSelectedStudentIds((prev) =>
-      prev.includes(studentId) ? prev.filter((id) => id !== studentId) : [...prev, studentId]
-    );
-  };
-
-  // Select all students
-  const selectAllStudents = () => {
-    setSelectedStudentIds(classEditModal.students.map((s) => s.id));
-  };
-
-  // Clear all selections
-  const clearAllSelections = () => {
-    setSelectedStudentIds([]);
-  };
+  }, [newClassLevelId, onDataRefresh]);
 
   // Bulk assign students to another class
-  const handleBulkAssign = async (targetClassId: string) => {
-    if (selectedStudentIds.length === 0) {
-      alert('Please select students to assign');
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
-
-      for (const studentId of selectedStudentIds) {
-        const res = await fetch(`${apiUrl}/classes/${targetClassId}/students`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ studentId }),
-        });
-
-        if (!res.ok) {
-          throw new Error(`Failed to assign student ${studentId}`);
-        }
+  const handleBulkAssign = useCallback(
+    async (targetClassId: string) => {
+      if (selectedStudentIds.length === 0) {
+        alert('Please select students to assign');
+        return;
       }
 
-      alert('Students assigned successfully!');
-      onDataRefresh?.();
-      handleCloseClassEditModal();
-    } catch (error) {
-      console.error('Error bulk assigning students:', error);
-      alert('Failed to assign students. Please try again.');
-    }
-  };
+      try {
+        const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+        const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+
+        for (const studentId of selectedStudentIds) {
+          const res = await fetch(`${apiUrl}/classes/${targetClassId}/students`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ studentId }),
+          });
+
+          if (!res.ok) {
+            throw new Error(`Failed to assign student ${studentId}`);
+          }
+        }
+
+        alert('Students assigned successfully!');
+        onDataRefresh?.();
+        handleCloseClassEditModal();
+      } catch (error) {
+        console.error('Error bulk assigning students:', error);
+        alert('Failed to assign students. Please try again.');
+      }
+    },
+    [selectedStudentIds, onDataRefresh, handleCloseClassEditModal]
+  );
 
   // Bulk remove students to waiting list
-  const handleBulkRemove = async () => {
+  const handleBulkRemove = useCallback(async () => {
     if (selectedStudentIds.length === 0) {
       alert('Please select students to remove');
       return;
@@ -340,7 +350,7 @@ const ClassesPanel = ({
           throw new Error(`Failed to remove student ${studentId}`);
         }
 
-        // Update student status to "studying" (waiting list)
+        // Update student status to 'studying' (waiting list)
         const updateRes = await fetch(`${apiUrl}/users/${studentId}`, {
           method: 'PUT',
           headers: {
@@ -351,7 +361,7 @@ const ClassesPanel = ({
         });
 
         if (!updateRes.ok) {
-          throw new Error(`Failed to update student ${studentId} status`);
+          console.warn(`Failed to update student ${studentId} status`);
         }
       }
 
@@ -362,24 +372,27 @@ const ClassesPanel = ({
       console.error('Error bulk removing students:', error);
       alert('Failed to remove students. Please try again.');
     }
-  };
+  }, [selectedStudentIds, classEditModal.classId, onDataRefresh, handleCloseClassEditModal]);
 
   // Report a student
-  const handleReportStudent = (studentId: string, studentName: string) => {
-    if (!classEditModal.classId) return;
+  const handleReportStudent = useCallback(
+    (studentId: string, studentName: string) => {
+      if (!classEditModal.classId) return;
 
-    setReportModal({
-      isOpen: true,
-      studentId,
-      studentName,
-      classId: classEditModal.classId,
-      className: classEditModal.className,
-    });
-    setReportProblem('');
-  };
+      setReportModal({
+        isOpen: true,
+        studentId,
+        studentName,
+        classId: classEditModal.classId,
+        className: classEditModal.className,
+      });
+      setReportProblem('');
+    },
+    [classEditModal.classId, classEditModal.className]
+  );
 
   // Close report modal
-  const handleCloseReportModal = () => {
+  const handleCloseReportModal = useCallback(() => {
     setReportModal({
       isOpen: false,
       studentId: null,
@@ -388,10 +401,10 @@ const ClassesPanel = ({
       className: '',
     });
     setReportProblem('');
-  };
+  }, []);
 
   // Send report
-  const handleSendReport = async () => {
+  const handleSendReport = useCallback(async () => {
     if (!safeTrim(reportProblem)) {
       alert('Please describe the problem');
       return;
@@ -434,10 +447,16 @@ const ClassesPanel = ({
     } finally {
       setReportSending(false);
     }
-  };
+  }, [
+    reportProblem,
+    reportModal.studentId,
+    reportModal.classId,
+    handleCloseReportModal,
+    onDataRefresh,
+  ]);
 
   // Close class info edit modal
-  const handleCloseClassInfoEditModal = () => {
+  const handleCloseClassInfoEditModal = useCallback(() => {
     setClassInfoEditModal({
       isOpen: false,
       classId: '',
@@ -445,10 +464,10 @@ const ClassesPanel = ({
       levelId: null,
       description: '',
     });
-  };
+  }, []);
 
   // Update class information
-  const handleUpdateClassInfo = async () => {
+  const handleUpdateClassInfo = useCallback(async () => {
     if (!classInfoEditModal.classId) return;
 
     const confirmUpdate = window.confirm(
@@ -486,62 +505,65 @@ const ClassesPanel = ({
       console.error('Error updating class info:', error);
       alert('❌ Failed to update class information. Please try again.');
     }
-  };
+  }, [classInfoEditModal, levels, handleCloseClassInfoEditModal, onDataRefresh]);
 
   // Delete class
-  const handleDeleteClass = async (classId: string) => {
-    const classObj = classes.find((c) => (c._id || c.id) === classId);
-    if (!classObj) return;
+  const handleDeleteClass = useCallback(
+    async (classId: string) => {
+      const classObj = classes.find((c) => (c._id || c.id) === classId);
+      if (!classObj) return;
 
-    const displayName = classObj.classCode || classObj.name || 'this class';
-    const levelName = classObj.levelId
-      ? typeof classObj.levelId === 'object'
-        ? classObj.levelId.name
-        : levels.find((l) => l._id === classObj.levelId)?.name || 'N/A'
-      : 'N/A';
+      const displayName = classObj.classCode || classObj.name || 'this class';
+      const levelName = classObj.levelId
+        ? typeof classObj.levelId === 'object'
+          ? classObj.levelId.name
+          : levels.find((l) => l._id === classObj.levelId)?.name || 'N/A'
+        : 'N/A';
 
-    const confirmDelete = window.confirm(
-      `Are you sure you want to delete class "${displayName}" (Level: ${levelName})?\n\n` +
-        `⚠️  WARNING: This action cannot be undone!\n` +
-        `• All students will be removed from this class\n` +
-        `• Class assignments will be lost\n` +
-        `• This will affect student progress tracking\n\n` +
-        `Type "DELETE" to confirm:`
-    );
+      const confirmDelete = window.confirm(
+        `Are you sure you want to delete class "${displayName}" (Level: ${levelName})?\n\n` +
+          `⚠️  WARNING: This action cannot be undone!\n` +
+          `• All students will be removed from this class\n` +
+          `• Class assignments will be lost\n` +
+          `• This will affect student progress tracking\n\n` +
+          `Type "DELETE" to confirm:`
+      );
 
-    if (!confirmDelete) return;
+      if (!confirmDelete) return;
 
-    // Additional confirmation step
-    const userInput = prompt('Please type "DELETE" to confirm deletion:');
-    if (userInput !== 'DELETE') {
-      alert('Deletion cancelled. Class was not deleted.');
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
-
-      const res = await fetch(`${apiUrl}/classes/${classId}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
+      // Additional confirmation step
+      const userInput = prompt('Please type "DELETE" to confirm deletion:');
+      if (userInput !== 'DELETE') {
+        alert('Deletion cancelled. Class was not deleted.');
+        return;
       }
 
-      alert(`✅ Class "${displayName}" has been successfully deleted.`);
-      onDataRefresh?.();
-      // Clear selection after deletion
-      setSelectedClassId(null);
-    } catch (error) {
-      console.error('Error deleting class:', error);
-      alert('❌ Failed to delete class. Please try again.');
-    }
-  };
+      try {
+        const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+        const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+
+        const res = await fetch(`${apiUrl}/classes/${classId}`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+
+        alert(`✅ Class "${displayName}" has been successfully deleted.`);
+        onDataRefresh?.();
+        // Clear selection after deletion
+        setSelectedClassId(null);
+      } catch (error) {
+        console.error('Error deleting class:', error);
+        alert('❌ Failed to delete class. Please try again.');
+      }
+    },
+    [classes, levels, onDataRefresh]
+  );
 
   // Handle ESC key to close modals
   useEffect(() => {
@@ -589,8 +611,9 @@ const ClassesPanel = ({
                 }
               }}
             />
-            <button className="search-bar-button">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button type="button" className="search-bar-button">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-label="Search">
+                <title>Search</title>
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -684,8 +707,6 @@ const ClassesPanel = ({
                   className={`clickable-row ${isSelected ? 'selected-row' : ''}`}
                   title="Click this row to reveal actions"
                   tabIndex={0}
-                  aria-selected={isSelected}
-                  role="button"
                 >
                   <td className="class-name-cell">
                     <div className="class-name">{displayName}</div>
@@ -723,6 +744,7 @@ const ClassesPanel = ({
                       }}
                     >
                       <button
+                        type="button"
                         style={{
                           padding: '8px 16px',
                           border: '2px solid rgba(255, 255, 255, 0.3)',
@@ -766,6 +788,7 @@ const ClassesPanel = ({
                         Show
                       </button>
                       <button
+                        type="button"
                         style={{
                           padding: '8px 16px',
                           border: '2px solid rgba(255, 255, 255, 0.3)',
@@ -821,6 +844,7 @@ const ClassesPanel = ({
                         Edit
                       </button>
                       <button
+                        type="button"
                         style={{
                           padding: '8px 16px',
                           border: '2px solid rgba(255, 255, 255, 0.3)',
@@ -895,6 +919,7 @@ const ClassesPanel = ({
                 ))}
               </select>
               <button
+                type="button"
                 onClick={handleAddClass}
                 disabled={adding || !newClassLevelId}
                 className="add-class-btn"
@@ -906,7 +931,10 @@ const ClassesPanel = ({
             <div className="no-levels-message">
               <p>No levels available. Please create levels first in the Levels tab.</p>
               <button
-                onClick={() => (window.location.hash = '#levels')}
+                type="button"
+                onClick={() => {
+                  window.location.hash = '#levels';
+                }}
                 className="go-to-levels-btn"
               >
                 Go to Levels
@@ -924,7 +952,7 @@ const ClassesPanel = ({
               <h3 className="modal-title">
                 CLASS: {classEditModal.className} / LEVEL: {classEditModal.levelName}
               </h3>
-              <button className="close-btn" onClick={handleCloseClassEditModal}>
+              <button type="button" className="close-btn" onClick={handleCloseClassEditModal}>
                 ×
               </button>
             </div>
@@ -934,10 +962,18 @@ const ClassesPanel = ({
                 <div className="section-header">
                   <h4>List of Students ({classEditModal.students.length})</h4>
                   <div className="bulk-actions">
-                    <button className="bulk-btn select-all-btn" onClick={selectAllStudents}>
+                    <button
+                      type="button"
+                      className="bulk-btn select-all-btn"
+                      onClick={selectAllStudents}
+                    >
                       Select All
                     </button>
-                    <button className="bulk-btn clear-all-btn" onClick={clearAllSelections}>
+                    <button
+                      type="button"
+                      className="bulk-btn clear-all-btn"
+                      onClick={clearAllSelections}
+                    >
                       Clear All
                     </button>
                   </div>
@@ -993,6 +1029,7 @@ const ClassesPanel = ({
                             <td>{student.gender || 'N/A'}</td>
                             <td className="student-actions">
                               <button
+                                type="button"
                                 onClick={() => handleReportStudent(student.id, student.name)}
                                 className="action-btn report-btn"
                               >
@@ -1012,8 +1049,9 @@ const ClassesPanel = ({
                   <h4>Bulk Actions for {selectedStudentIds.length} selected student(s):</h4>
                   <div className="bulk-actions-buttons">
                     <div className="bulk-action-group">
-                      <label>Assign to another class:</label>
+                      <label htmlFor="target-class-select">Assign to another class:</label>
                       <select
+                        id="target-class-select"
                         className="target-class-select"
                         onChange={(e) => {
                           if (e.target.value) {
@@ -1042,7 +1080,11 @@ const ClassesPanel = ({
                             })}
                       </select>
                     </div>
-                    <button onClick={handleBulkRemove} className="bulk-btn remove-btn">
+                    <button
+                      type="button"
+                      onClick={handleBulkRemove}
+                      className="bulk-btn remove-btn"
+                    >
                       Remove to Waiting List
                     </button>
                   </div>
@@ -1059,7 +1101,7 @@ const ClassesPanel = ({
           <div className="modal-content">
             <div className="modal-header">
               <h3>Edit Class Level</h3>
-              <button className="close-btn" onClick={handleCloseClassInfoEditModal}>
+              <button type="button" className="close-btn" onClick={handleCloseClassInfoEditModal}>
                 ×
               </button>
             </div>
@@ -1107,10 +1149,14 @@ const ClassesPanel = ({
                 />
               </div>
               <div className="modal-actions">
-                <button onClick={handleUpdateClassInfo} className="save-btn">
+                <button type="button" onClick={handleUpdateClassInfo} className="save-btn">
                   Update Class
                 </button>
-                <button onClick={handleCloseClassInfoEditModal} className="cancel-btn">
+                <button
+                  type="button"
+                  onClick={handleCloseClassInfoEditModal}
+                  className="cancel-btn"
+                >
                   Cancel
                 </button>
               </div>
@@ -1125,7 +1171,7 @@ const ClassesPanel = ({
           <div className="report-modal-content">
             <div className="modal-header">
               <h3>Report Student: {reportModal.studentName}</h3>
-              <button className="close-btn" onClick={handleCloseReportModal}>
+              <button type="button" className="close-btn" onClick={handleCloseReportModal}>
                 ×
               </button>
             </div>
@@ -1154,13 +1200,14 @@ const ClassesPanel = ({
 
               <div className="modal-actions">
                 <button
+                  type="button"
                   onClick={handleSendReport}
                   disabled={reportSending || !safeTrim(reportProblem)}
                   className="save-btn"
                 >
                   {reportSending ? 'Sending...' : 'Confirm'}
                 </button>
-                <button onClick={handleCloseReportModal} className="cancel-btn">
+                <button type="button" onClick={handleCloseReportModal} className="cancel-btn">
                   Cancel
                 </button>
               </div>
