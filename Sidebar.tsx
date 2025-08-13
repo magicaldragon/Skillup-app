@@ -98,6 +98,12 @@ const menuConfig = (role: string) => [
         visible: true,
       },
       {
+        label: 'Create Admin Account',
+        key: 'admin-debug-account-creator',
+        icon: <FaUserShield />,
+        visible: true,
+      },
+      {
         label: 'Frontend/Backend',
         key: 'admin-debug-fb',
         icon: <FaClipboardList />,

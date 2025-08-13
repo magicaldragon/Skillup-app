@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import './Sidebar.css';
+import AdminAccountCreator from './AdminAccountCreator';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
@@ -81,6 +82,10 @@ const AdminDebugPanel = ({ activeKey }: { activeKey: string }) => {
         </div>
       </div>
     );
+  }
+
+  if (activeKey === 'admin-debug-account-creator') {
+    return <AdminAccountCreator />;
   }
 
   return null;
