@@ -111,6 +111,39 @@
   }
 }
 
+/* ===== SIDEBAR NOTIFICATIONS ===== */
+.sidebar-notifications {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: var(--space-4);
+}
+
+.sidebar-notifications .notification-bell {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-full);
+  padding: var(--space-3);
+  transition: all 0.3s ease;
+}
+
+.sidebar-notifications .notification-bell:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+.sidebar-notifications .bell-icon {
+  color: white;
+  font-size: 1.25rem;
+}
+
+.sidebar-notifications .notification-badge {
+  background: var(--accent-red);
+  border: 2px solid white;
+}
+
+/* ===== SIDEBAR PROFILE ===== */
 .sidebar-profile {
   background: rgba(255, 255, 255, 0.95) !important;
   border-radius: 1.125rem !important;

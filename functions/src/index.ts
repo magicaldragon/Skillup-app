@@ -33,8 +33,10 @@ import { authRouter } from './routes/auth';
 import { changeLogsRouter } from './routes/changeLogs';
 import { classesRouter } from './routes/classes';
 import { levelsRouter } from './routes/levels';
+import { notificationsRouter } from './routes/notifications';
 import { potentialStudentsRouter } from './routes/potentialStudents';
 import { studentRecordsRouter } from './routes/studentRecords';
+import { studentReportsRouter } from './routes/student-reports';
 import submissionsRouter from './routes/submissions';
 import { usersRouter } from './routes/users';
 
@@ -114,6 +116,8 @@ app.use('/assignments', assignmentsRouter);
 app.use('/submissions', submissionsRouter);
 app.use('/potential-students', potentialStudentsRouter);
 app.use('/student-records', studentRecordsRouter);
+app.use('/student-reports', studentReportsRouter);
+app.use('/notifications', notificationsRouter);
 app.use('/change-logs', changeLogsRouter);
 
 // Error handling middleware

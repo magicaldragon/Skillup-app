@@ -33,6 +33,7 @@ import {
   FaUserTie,
 } from 'react-icons/fa';
 import DiceBearAvatar from './DiceBearAvatar';
+import NotificationBell from './NotificationBell';
 
 const menuConfig = (role: string) => [
   {
@@ -298,6 +299,12 @@ const Sidebar = ({
     <aside className={`sidebar${className ? ` ${className}` : ''}`}>
       {/* Logo section */}
       <div className="sidebar-logo">{/* You can place your logo image or text here */}</div>
+      
+      {/* Notification Bell */}
+      <div className="sidebar-notifications">
+        <NotificationBell />
+      </div>
+      
       {/* User profile section */}
       <div className="sidebar-profile">
         <div className="sidebar-profile-avatar">

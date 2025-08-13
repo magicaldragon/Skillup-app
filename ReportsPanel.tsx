@@ -1,75 +1,68 @@
 import { useCallback, useEffect, useState } from 'react';
 import './ReportsPanel.css';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+
 interface StudentReport {
-  id: string;
+  _id: string;
+  caseNo: string;
+  date: string;
+  reporterId: string;
+  reporterName: string;
+  reporterEnglishName?: string;
   studentId: string;
   studentName: string;
-  englishName?: string;
-  level: string;
+  studentEnglishName?: string;
+  classId: string;
   className: string;
-  problem: string;
-  reportedBy: string;
-  reportedAt: string;
-  status: '!!!' | 'solved';
+  levelName?: string;
+  problems: string;
   solution?: string;
+  status: 'pending' | 'observing' | 'solved';
+  createdAt: string;
+  updatedAt: string;
 }
 
-const ReportsPanel = ({
-  isAdmin: _isAdmin,
-  onDataRefresh: _onDataRefresh,
-}: {
-  isAdmin: boolean;
-  onDataRefresh?: () => void;
-}) => {
+const ReportsPanel = () => {
+  const [reports, setReports] = useState<StudentReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [reports, setReports] = useState<StudentReport[]>([]);
-  const [selectedReport, setSelectedReport] = useState<StudentReport | null>(null);
-  const [solutionNote, setSolutionNote] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'observing' | 'solved'>('all');
+  const [editingReportId, setEditingReportId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<Partial<StudentReport>>({});
 
   const fetchReports = useCallback(async () => {
     setLoading(true);
     setError(null);
 
+    const token = localStorage.getItem('skillup_token');
+    if (!token) {
+      setError('No authentication token found');
+      setLoading(false);
+      return;
+    }
+
     try {
-      const token = localStorage.getItem('skillup_token');
-      if (!token) {
-        setError('No authentication token found');
-        setLoading(false);
-        return;
-      }
-
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
-      console.log('Fetching reports from:', `${apiUrl}/student-records/reports`);
-
-      const response = await fetch(`${apiUrl}/student-records/reports`, {
+      const response = await fetch(`${API_BASE_URL}/student-reports`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      console.log('Reports response status:', response.status);
-      console.log('Reports response ok:', response.ok);
-
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Reports response error:', errorText);
-        throw new Error(`Failed to fetch reports: ${response.status} ${errorText}`);
+        throw new Error('Failed to fetch reports');
       }
 
       const data = await response.json();
-      console.log('Reports data:', data);
-
-      if (data.success && Array.isArray(data.records)) {
-        setReports(data.records);
+      if (data.success) {
+        setReports(data.reports || []);
       } else {
-        console.error('Invalid reports data structure:', data);
-        setReports([]);
+        throw new Error(data.message || 'Failed to fetch reports');
       }
-    } catch (err: unknown) {
-      console.error('Fetch reports error:', err);
-      setError(`Failed to load reports: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    } catch (error) {
+      console.error('Fetch reports error:', error);
+      setError('Failed to load reports. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -79,26 +72,21 @@ const ReportsPanel = ({
     fetchReports();
   }, [fetchReports]);
 
-  const handleUpdateReportStatus = async (
-    reportId: string,
-    status: '!!!' | 'solved',
-    solution?: string
-  ) => {
-    try {
-      const token = localStorage.getItem('skillup_token');
-      if (!token) {
-        alert('No authentication token found');
-        return;
-      }
+  const handleStatusChange = async (reportId: string, newStatus: 'observing' | 'solved') => {
+    const token = localStorage.getItem('skillup_token');
+    if (!token) {
+      alert('No authentication token found');
+      return;
+    }
 
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
-      const response = await fetch(`${apiUrl}/student-records/${reportId}`, {
-        method: 'PUT',
+    try {
+      const response = await fetch(`${API_BASE_URL}/student-reports/${reportId}/status`, {
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ status, solution }),
+        body: JSON.stringify({ status: newStatus }),
       });
 
       if (!response.ok) {
@@ -108,18 +96,96 @@ const ReportsPanel = ({
       // Update local state
       setReports((prev) =>
         prev.map((report) =>
-          report.id === reportId
-            ? { ...report, status, solution: solution || report.solution }
+          report._id === reportId ? { ...report, status: newStatus } : report
+        )
+      );
+
+      alert(`Report status updated to ${newStatus}`);
+    } catch (error) {
+      console.error('Status update error:', error);
+      alert('Failed to update report status. Please try again.');
+    }
+  };
+
+  const handleEditSolution = async () => {
+    if (!editingReportId || !editForm.solution?.trim()) return;
+
+    const token = localStorage.getItem('skillup_token');
+    if (!token) {
+      alert('No authentication token found');
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/student-reports/${editingReportId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ solution: editForm.solution }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update report solution');
+      }
+
+      // Update local state
+      setReports((prev) =>
+        prev.map((report) =>
+          report._id === editingReportId 
+            ? { ...report, solution: editForm.solution } 
             : report
         )
       );
 
-      setSelectedReport(null);
-      setSolutionNote('');
-      alert('Report status updated successfully!');
+      setEditingReportId(null);
+      setEditForm({});
+      alert('Report solution updated successfully');
     } catch (error) {
-      console.error('Update report status error:', error);
-      alert('Failed to update report status. Please try again.');
+      console.error('Solution update error:', error);
+      alert('Failed to update report solution. Please try again.');
+    }
+  };
+
+  const filteredReports = reports.filter((report) => {
+    const matchesSearch =
+      report.caseNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      report.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      report.studentEnglishName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      report.reporterName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      report.reporterEnglishName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      report.problems.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      report.solution?.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesStatus = statusFilter === 'all' || report.status === statusFilter;
+
+    return matchesSearch && matchesStatus;
+  });
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return 'status-pending';
+      case 'observing':
+        return 'status-observing';
+      case 'solved':
+        return 'status-solved';
+      default:
+        return 'status-pending';
+    }
+  };
+
+  const getStatusDisplayName = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return 'Pending';
+      case 'observing':
+        return 'Observing';
+      case 'solved':
+        return 'Solved';
+      default:
+        return 'Pending';
     }
   };
 
@@ -152,56 +218,188 @@ const ReportsPanel = ({
     <div className="reports-panel">
       <div className="reports-header">
         <h2 className="reports-title">Student Reports</h2>
-        <p className="reports-subtitle">Manage student behavior and academic reports</p>
+        <p className="reports-subtitle">Track and manage student behavior reports</p>
+      </div>
+
+      <div className="reports-controls">
+        <div className="search-section">
+          <div className="search-bar-container">
+            <input
+              type="text"
+              className="search-bar-input"
+              placeholder="Search by case number, student name, reporter, problems, or solution..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              aria-label="Search reports"
+              title="Search by case number, student name, reporter, problems, or solution"
+            />
+            <button type="button" className="search-bar-button">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-label="Search">
+                <title>Search</title>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div className="filter-section">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as any)}
+            className="status-filter-select"
+          >
+            <option value="all">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="observing">Observing</option>
+            <option value="solved">Solved</option>
+          </select>
+        </div>
       </div>
 
       <div className="reports-table-container">
         <table className="reports-table">
           <thead>
             <tr>
-              <th>Date & Time</th>
-              <th>Reported By</th>
+              <th>Case No.</th>
+              <th>Date</th>
+              <th>Reporter</th>
               <th>Student ID</th>
-              <th>Full Name</th>
               <th>English Name</th>
-              <th>Level</th>
               <th>Class</th>
-              <th>Status</th>
+              <th>Level</th>
+              <th>Problems</th>
+              <th>Solution</th>
+              <th>Report Status</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {reports.length === 0 ? (
+            {filteredReports.length === 0 ? (
               <tr>
-                <td colSpan={9} className="empty-table">
-                  <p>No reports found.</p>
+                <td colSpan={11} className="empty-table">
+                  <div className="empty-state">
+                    <div className="empty-icon">📋</div>
+                    <p>No reports found matching your criteria.</p>
+                  </div>
                 </td>
               </tr>
             ) : (
-              reports.map((report) => (
-                <tr key={report.id} className="report-row">
-                  <td>{new Date(report.reportedAt).toLocaleString()}</td>
-                  <td>{report.reportedBy}</td>
-                  <td>{report.studentId}</td>
-                  <td>{report.studentName}</td>
-                  <td>{report.englishName || 'N/A'}</td>
-                  <td>{report.level}</td>
-                  <td>{report.className}</td>
-                  <td>
-                    <span
-                      className={`status-badge ${report.status === '!!!' ? 'urgent' : 'solved'}`}
-                    >
-                      {report.status}
-                    </span>
+              filteredReports.map((report) => (
+                <tr key={report._id}>
+                  <td className="case-no-cell">
+                    <strong>{report.caseNo}</strong>
+                  </td>
+                  <td>{new Date(report.date).toLocaleDateString()}</td>
+                  <td className="reporter-cell">
+                    <div className="reporter-name">{report.reporterName}</div>
+                    {report.reporterEnglishName && (
+                      <div className="english-name">({report.reporterEnglishName})</div>
+                    )}
+                  </td>
+                  <td className="student-id-cell">
+                    <strong>{report.studentId}</strong>
+                  </td>
+                  <td className="english-name-cell">
+                    {report.studentEnglishName || 'N/A'}
+                  </td>
+                  <td className="class-cell">{report.className}</td>
+                  <td className="level-cell">{report.levelName || 'Unknown'}</td>
+                  <td className="problems-cell">
+                    <div className="problems-text">{report.problems}</div>
+                  </td>
+                  <td className="solution-cell">
+                    {editingReportId === report._id ? (
+                      <div className="edit-solution">
+                        <textarea
+                          value={editForm.solution || ''}
+                          onChange={(e) => setEditForm({ solution: e.target.value })}
+                          className="solution-textarea"
+                          placeholder="Enter solution..."
+                          rows={3}
+                        />
+                        <div className="solution-actions">
+                          <button
+                            type="button"
+                            onClick={handleEditSolution}
+                            className="save-solution-btn"
+                          >
+                            Save
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingReportId(null);
+                              setEditForm({});
+                            }}
+                            className="cancel-solution-btn"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="solution-display">
+                        {report.solution ? (
+                          <div className="solution-text">{report.solution}</div>
+                        ) : (
+                          <span className="no-solution">No solution yet</span>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingReportId(report._id);
+                            setEditForm({ solution: report.solution || '' });
+                          }}
+                          className="edit-solution-btn"
+                        >
+                          Edit
+                        </button>
+                      </div>
+                    )}
                   </td>
                   <td>
-                    <button
-                      type="button"
-                      className="action-btn view-btn"
-                      onClick={() => setSelectedReport(report)}
-                    >
-                      View Details
-                    </button>
+                    <span className={`status-badge ${getStatusColor(report.status)}`}>
+                      {getStatusDisplayName(report.status)}
+                    </span>
+                  </td>
+                  <td className="actions-cell">
+                    <div className="status-actions">
+                      {report.status === 'pending' && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => handleStatusChange(report._id, 'observing')}
+                            className="status-btn observing-btn"
+                            title="Mark as Observing"
+                          >
+                            Observing
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleStatusChange(report._id, 'solved')}
+                            className="status-btn solved-btn"
+                            title="Mark as Solved"
+                          >
+                            Solved
+                          </button>
+                        </>
+                      )}
+                      {report.status === 'observing' && (
+                        <button
+                          type="button"
+                          onClick={() => handleStatusChange(report._id, 'solved')}
+                          className="status-btn solved-btn"
+                          title="Mark as Solved"
+                        >
+                          Solved
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))
@@ -210,95 +408,12 @@ const ReportsPanel = ({
         </table>
       </div>
 
-      {/* Report Details Modal */}
-      {selectedReport && (
-        <div className="report-details-modal">
-          <div className="modal-content">
-            <button
-              type="button"
-              className="close-btn"
-              onClick={() => {
-                setSelectedReport(null);
-                setSolutionNote('');
-              }}
-            >
-              ×
-            </button>
-            <h3>Report Details</h3>
-
-            <div className="report-info">
-              <div className="info-row">
-                <strong>Student:</strong> {selectedReport.studentName}{' '}
-                {selectedReport.englishName ? `(${selectedReport.englishName})` : ''}
-              </div>
-              <div className="info-row">
-                <strong>Level:</strong> {selectedReport.level}
-              </div>
-              <div className="info-row">
-                <strong>Class:</strong> {selectedReport.className}
-              </div>
-              <div className="info-row">
-                <strong>Reported By:</strong> {selectedReport.reportedBy}
-              </div>
-              <div className="info-row">
-                <strong>Date:</strong> {new Date(selectedReport.reportedAt).toLocaleString()}
-              </div>
-              <div className="info-row">
-                <strong>Status:</strong>
-                <span
-                  className={`status-badge ${selectedReport.status === '!!!' ? 'urgent' : 'solved'}`}
-                >
-                  {selectedReport.status}
-                </span>
-              </div>
-            </div>
-
-            <div className="problem-section">
-              <h4>Problem:</h4>
-              <p>{selectedReport.problem}</p>
-            </div>
-
-            {selectedReport.solution && (
-              <div className="solution-section">
-                <h4>Solution:</h4>
-                <p>{selectedReport.solution}</p>
-              </div>
-            )}
-
-            {selectedReport.status === '!!!' && (
-              <div className="solution-input-section">
-                <h4>Add Solution:</h4>
-                <textarea
-                  value={solutionNote}
-                  onChange={(e) => setSolutionNote(e.target.value)}
-                  placeholder="Enter solution or resolution..."
-                  rows={4}
-                  className="solution-textarea"
-                />
-                <div className="modal-actions">
-                  <button
-                    type="button"
-                    className="action-btn solve-btn"
-                    onClick={() =>
-                      handleUpdateReportStatus(selectedReport.id, 'solved', solutionNote)
-                    }
-                  >
-                    Mark as Solved
-                  </button>
-                  <button
-                    type="button"
-                    className="action-btn cancel-btn"
-                    onClick={() => {
-                      setSelectedReport(null);
-                      setSolutionNote('');
-                    }}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+      {filteredReports.length > 0 && (
+        <div className="reports-summary">
+          <p>
+            Showing {filteredReports.length} of {reports.length} reports
+            {statusFilter !== 'all' && ` (${statusFilter} status)`}
+          </p>
         </div>
       )}
     </div>
