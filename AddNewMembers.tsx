@@ -250,6 +250,19 @@ const AddNewMembers = () => {
               </div>
             )}
 
+            {/* Real-time username preview */}
+            {previewUsername && (
+              <div className="username-preview">
+                <small className="preview-label">Generated Username:</small>
+                <span className="preview-username">{previewUsername}</span>
+                <small className="preview-email">{previewEmail}</small>
+                <div className="username-info">
+                  <small>Original: "{form.name}"</small>
+                  <small>Length: {previewUsername.length} characters</small>
+                </div>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="registration-form">
               {/* Debug Info - Remove in production */}
               {process.env.NODE_ENV === 'development' && (

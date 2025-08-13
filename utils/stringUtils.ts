@@ -31,77 +31,23 @@ export const generateVietnameseUsername = (fullName: string): string => {
   // Vietnamese character mappings for better pronunciation
   const vietnameseMap: { [key: string]: string } = {
     // Vowels with diacritics
-    à: 'a',
-    á: 'a',
-    ả: 'a',
-    ã: 'a',
-    ạ: 'a',
-    ă: 'a',
-    ằ: 'a',
-    ắ: 'a',
-    ẳ: 'a',
-    ẵ: 'a',
-    ặ: 'a',
-    â: 'a',
-    ầ: 'a',
-    ấ: 'a',
-    ẩ: 'a',
-    ẫ: 'a',
-    ậ: 'a',
-    è: 'e',
-    é: 'e',
-    ẻ: 'e',
-    ẽ: 'e',
-    ẹ: 'e',
-    ê: 'e',
-    ề: 'e',
-    ế: 'e',
-    ể: 'e',
-    ễ: 'e',
-    ệ: 'e',
-    ì: 'i',
-    í: 'i',
-    ỉ: 'i',
-    ĩ: 'i',
-    ị: 'i',
-    ò: 'o',
-    ó: 'o',
-    ỏ: 'o',
-    õ: 'o',
-    ọ: 'o',
-    ô: 'o',
-    ồ: 'o',
-    ố: 'o',
-    ổ: 'o',
-    ỗ: 'o',
-    ộ: 'o',
-    ơ: 'o',
-    ờ: 'o',
-    ớ: 'o',
-    ở: 'o',
-    ỡ: 'o',
-    ợ: 'o',
-    ù: 'u',
-    ú: 'u',
-    ủ: 'u',
-    ũ: 'u',
-    ụ: 'u',
-    ư: 'u',
-    ừ: 'u',
-    ứ: 'u',
-    ử: 'u',
-    ữ: 'u',
-    ự: 'u',
-    ỳ: 'y',
-    ý: 'y',
-    ỷ: 'y',
-    ỹ: 'y',
-    ỵ: 'y',
+    à: 'a', á: 'a', ả: 'a', ã: 'a', ạ: 'a',
+    ă: 'a', ằ: 'a', ắ: 'a', ẳ: 'a', ẵ: 'a', ặ: 'a',
+    â: 'a', ầ: 'a', ấ: 'a', ẩ: 'a', ẫ: 'a', ậ: 'a',
+    è: 'e', é: 'e', ẻ: 'e', ẽ: 'e', ẹ: 'e',
+    ê: 'e', ề: 'e', ế: 'e', ể: 'e', ễ: 'e', ệ: 'e',
+    ì: 'i', í: 'i', ỉ: 'i', ĩ: 'i', ị: 'i',
+    ò: 'o', ó: 'o', ỏ: 'o', õ: 'o', ọ: 'o',
+    ô: 'o', ồ: 'o', ố: 'o', ổ: 'o', ỗ: 'o', ộ: 'o',
+    ơ: 'o', ờ: 'o', ớ: 'o', ở: 'o', ỡ: 'o', ợ: 'o',
+    ù: 'u', ú: 'u', ủ: 'u', ũ: 'u', ụ: 'u',
+    ư: 'u', ừ: 'u', ứ: 'u', ử: 'u', ữ: 'u', ự: 'u',
+    ỳ: 'y', ý: 'y', ỷ: 'y', ỹ: 'y', ỵ: 'y',
 
     // Consonants with diacritics
     đ: 'd',
 
-    // Common Vietnamese name patterns
+    // Common Vietnamese name patterns (keep these for better pronunciation)
     thị: 'thi',
     văn: 'van',
     đức: 'duc',
@@ -118,26 +64,32 @@ export const generateVietnameseUsername = (fullName: string): string => {
 
   let processedName = fullName.toLowerCase().trim();
 
-  // Apply Vietnamese character mappings
+  // Step 1: Apply Vietnamese character mappings first
   Object.entries(vietnameseMap).forEach(([vietnamese, latin]) => {
     processedName = processedName.replace(new RegExp(vietnamese, 'g'), latin);
   });
 
-  // Remove remaining diacritics and special characters, but preserve vowels
-  processedName = processedName
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '') // Remove combining diacritical marks
-    .replace(/[^a-z0-9\s]/g, '') // Keep only letters, numbers, and spaces
-    .replace(/\s+/g, '') // Remove spaces
-    .replace(/[aeiou]+/g, (match) => match) // Preserve vowel sequences
-    .replace(/[bcdfghjklmnpqrstvwxyz]+/g, (match) => match); // Preserve consonant sequences
+  // Step 2: Remove combining diacritical marks (NFD normalization)
+  processedName = processedName.normalize('NFD');
 
-  // Ensure minimum length and add numbers if too short
+  // Step 3: Remove all remaining diacritical marks
+  processedName = processedName.replace(/[\u0300-\u036f]/g, '');
+
+  // Step 4: Remove special characters and keep only letters, numbers, and spaces
+  processedName = processedName.replace(/[^a-z0-9\s]/g, '');
+
+  // Step 5: Remove extra spaces and convert to single spaces
+  processedName = processedName.replace(/\s+/g, ' ').trim();
+
+  // Step 6: Remove all spaces to create username
+  processedName = processedName.replace(/\s/g, '');
+
+  // Step 7: Ensure minimum length
   if (processedName.length < 3) {
     processedName += 'user';
   }
 
-  // Limit length for usability
+  // Step 8: Limit length for usability
   if (processedName.length > 20) {
     processedName = processedName.substring(0, 20);
   }
