@@ -212,6 +212,26 @@
   transform: translateY(-1px) scale(1.02);
 }
 
+.password-btn {
+  background: linear-gradient(135deg, #ffa726 0%, #ff9800 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(255, 167, 38, 0.3);
+  margin: 0 0.25rem;
+}
+
+.password-btn:hover, .password-btn:focus {
+  background: linear-gradient(135deg, #ff9800 0%, #ffa726 100%);
+  box-shadow: 0 4px 12px rgba(255, 167, 38, 0.18);
+  transform: translateY(-1px) scale(1.02);
+}
+
 .delete-btn {
   background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
   color: white;
@@ -321,4 +341,81 @@
     width: 100%;
     min-width: auto;
   }
-} 
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  max-width: 400px;
+  width: 90%;
+}
+
+.modal-content h3 {
+  margin: 0 0 1.5rem 0;
+  color: #307637;
+  text-align: center;
+}
+
+.modal-content .form-group {
+  margin-bottom: 1.5rem;
+}
+
+.modal-content label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.modal-content .form-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #e0f7fa;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+.modal-content .form-input:focus {
+  border-color: #307637;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(48, 118, 55, 0.1);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.modal-actions button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modal-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

@@ -211,6 +211,8 @@ router.put('/:id', auth_1.verifyToken, async (req, res) => {
         const currentUserData = currentUserDoc.data();
         const newEmail = updateData.email;
         const currentEmail = currentUserData.email;
+        // Prepare Firebase Auth update data
+        const authUpdateData = {};
         // If email is being changed, update Firebase Auth as well
         if (newEmail && newEmail !== currentEmail) {
             try {
@@ -224,18 +226,63 @@ router.put('/:id', auth_1.verifyToken, async (req, res) => {
                 if (!emailCheck.empty) {
                     return res.status(400).json({ message: 'Email already exists' });
                 }
-                // Update Firebase Auth user
+                authUpdateData.email = newEmail;
+                console.log(`Email change detected for user ${id}: ${currentEmail} → ${newEmail}`);
+            }
+            catch (authError) {
+                console.error('Error checking email uniqueness:', authError);
+                return res.status(500).json({
+                    message: 'Failed to verify email uniqueness',
+                    error: authError.message
+                });
+            }
+        }
+        // If display name is being changed, update Firebase Auth as well
+        if (updateData.name && updateData.name !== currentUserData.name) {
+            authUpdateData.displayName = updateData.name;
+            console.log(`Display name change detected for user ${id}: ${currentUserData.name} → ${updateData.name}`);
+        }
+        // If username is being changed, update Firebase Auth custom claims
+        if (updateData.username && updateData.username !== currentUserData.username) {
+            try {
+                // Check if username already exists
+                const usernameCheck = await admin.firestore()
+                    .collection('users')
+                    .where('username', '==', updateData.username)
+                    .where('firebaseUid', '!=', currentUserData.firebaseUid)
+                    .limit(1)
+                    .get();
+                if (!usernameCheck.empty) {
+                    return res.status(400).json({ message: 'Username already exists' });
+                }
+                // Update custom claims with new username
                 if (currentUserData.firebaseUid) {
-                    await admin.auth().updateUser(currentUserData.firebaseUid, {
-                        email: newEmail
-                    });
-                    console.log(`Updated Firebase Auth email for user ${id}: ${currentEmail} → ${newEmail}`);
+                    const customClaims = {
+                        username: updateData.username,
+                        role: currentUserData.role
+                    };
+                    await admin.auth().setCustomUserClaims(currentUserData.firebaseUid, customClaims);
+                    console.log(`Updated Firebase Auth custom claims for user ${id} with username: ${updateData.username}`);
                 }
             }
             catch (authError) {
-                console.error('Error updating Firebase Auth email:', authError);
+                console.error('Error updating Firebase Auth custom claims:', authError);
                 return res.status(500).json({
-                    message: 'Failed to update email in authentication system',
+                    message: 'Failed to update username in authentication system',
+                    error: authError.message
+                });
+            }
+        }
+        // Update Firebase Auth user if there are changes
+        if (Object.keys(authUpdateData).length > 0 && currentUserData.firebaseUid) {
+            try {
+                await admin.auth().updateUser(currentUserData.firebaseUid, authUpdateData);
+                console.log(`Updated Firebase Auth for user ${id}:`, authUpdateData);
+            }
+            catch (authError) {
+                console.error('Error updating Firebase Auth user:', authError);
+                return res.status(500).json({
+                    message: 'Failed to update user in authentication system',
                     error: authError.message
                 });
             }
@@ -257,7 +304,27 @@ router.put('/:id', auth_1.verifyToken, async (req, res) => {
 router.delete('/:id', auth_1.verifyToken, auth_1.requireAdmin, async (req, res) => {
     try {
         const { id } = req.params;
+        // Get user data before deletion to remove from Firebase Auth
+        const userDoc = await admin.firestore().collection('users').doc(id).get();
+        if (!userDoc.exists) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        const userData = userDoc.data();
+        // Delete from Firestore first
         await admin.firestore().collection('users').doc(id).delete();
+        // Delete from Firebase Auth if firebaseUid exists
+        if (userData.firebaseUid) {
+            try {
+                await admin.auth().deleteUser(userData.firebaseUid);
+                console.log(`Deleted Firebase Auth user: ${userData.firebaseUid}`);
+            }
+            catch (authError) {
+                console.error('Error deleting Firebase Auth user:', authError);
+                // Don't fail the request if Auth deletion fails, but log it
+                console.warn(`Firebase Auth user ${userData.firebaseUid} could not be deleted:`, authError.message);
+            }
+        }
+        console.log(`Deleted user ${id} from Firestore and Firebase Auth`);
         return res.json({ success: true, message: 'User deleted successfully' });
     }
     catch (error) {
@@ -295,6 +362,35 @@ router.get('/check-username/:username', async (req, res) => {
     catch (error) {
         console.error('Error checking username:', error);
         return res.status(500).json({ exists: false });
+    }
+});
+// Change user password
+router.put('/:id/password', auth_1.verifyToken, auth_1.requireAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { newPassword } = req.body;
+        if (!newPassword || newPassword.length < 6) {
+            return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+        }
+        // Get user data to find firebaseUid
+        const userDoc = await admin.firestore().collection('users').doc(id).get();
+        if (!userDoc.exists) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        const userData = userDoc.data();
+        if (!userData.firebaseUid) {
+            return res.status(400).json({ message: 'User has no Firebase Auth account' });
+        }
+        // Update password in Firebase Auth
+        await admin.auth().updateUser(userData.firebaseUid, {
+            password: newPassword
+        });
+        console.log(`Password updated for Firebase Auth user: ${userData.firebaseUid}`);
+        return res.json({ success: true, message: 'Password updated successfully' });
+    }
+    catch (error) {
+        console.error('Error updating password:', error);
+        return res.status(500).json({ message: 'Failed to update password' });
     }
 });
 // Update user avatar

@@ -151,6 +151,14 @@ export const usersAPI = {
       method: 'DELETE',
     });
   },
+
+  // Change user password
+  async changePassword(id: string, newPassword: string) {
+    return apiCall(`/users/${id}/password`, {
+      method: 'PUT',
+      body: JSON.stringify({ newPassword }),
+    });
+  },
 };
 
 // Classes API

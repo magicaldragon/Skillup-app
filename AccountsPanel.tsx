@@ -28,6 +28,9 @@ const AccountsPanel = () => {
   const [filterStatus, setFilterStatus] = useState('all');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<User>>({});
+  const [passwordChangeId, setPasswordChangeId] = useState<string | null>(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [passwordChanging, setPasswordChanging] = useState(false);
 
   const fetchAccounts = async () => {
     try {
@@ -109,6 +112,26 @@ const AccountsPanel = () => {
     } catch (err: any) {
       console.error('Error deleting user:', err);
       setError(err.message || 'Failed to delete user');
+    }
+  };
+
+  const handlePasswordChange = async () => {
+    if (!passwordChangeId || !newPassword.trim()) return;
+
+    try {
+      setPasswordChanging(true);
+      await usersAPI.changePassword(passwordChangeId, newPassword);
+      
+      setPasswordChangeId(null);
+      setNewPassword('');
+      setError(null);
+      // Show success message
+      alert('Password changed successfully!');
+    } catch (err: any) {
+      console.error('Error changing password:', err);
+      setError(err.message || 'Failed to change password');
+    } finally {
+      setPasswordChanging(false);
     }
   };
 
@@ -404,6 +427,7 @@ const AccountsPanel = () => {
                         ) : (
                           <div className="action-buttons">
                             <button onClick={() => handleEdit(account)} className="edit-btn">Edit</button>
+                            <button onClick={() => setPasswordChangeId(account._id)} className="password-btn">Password</button>
                             <button onClick={() => handleRemove(account._id)} className="delete-btn">Delete</button>
                           </div>
                         )}
@@ -421,6 +445,43 @@ const AccountsPanel = () => {
                   : 'No accounts found.'}
             </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Password Change Modal */}
+      {passwordChangeId && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Change Password</h3>
+            <div className="form-group">
+              <label>New Password:</label>
+              <input
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Enter new password"
+                className="form-input"
+              />
+            </div>
+            <div className="modal-actions">
+              <button 
+                onClick={handlePasswordChange} 
+                disabled={passwordChanging || !newPassword.trim()}
+                className="save-btn"
+              >
+                {passwordChanging ? 'Changing...' : 'Change Password'}
+              </button>
+              <button 
+                onClick={() => {
+                  setPasswordChangeId(null);
+                  setNewPassword('');
+                }} 
+                className="cancel-btn"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
