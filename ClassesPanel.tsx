@@ -84,6 +84,8 @@ const ClassesPanel = ({
 
   // Add new class with level selection
   const [newClassLevelId, setNewClassLevelId] = useState<string>('');
+  const [availableClassCodes, setAvailableClassCodes] = useState<string[]>([]);
+  const [checkingCodes, setCheckingCodes] = useState(false);
 
   // Add state for showing action buttons
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
@@ -624,6 +626,44 @@ const ClassesPanel = ({
     handleCloseReportModal,
   ]);
 
+  // Check available class codes when level is selected
+  const checkAvailableClassCodes = useCallback(async (levelId: string) => {
+    if (!levelId) return;
+    
+    setCheckingCodes(true);
+    try {
+      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+      const response = await fetch(`${apiUrl}/classes/check-gaps/${levelId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setAvailableClassCodes(data.gaps || []);
+        }
+      }
+    } catch (error) {
+      console.error('Error checking class codes:', error);
+      setAvailableClassCodes([]);
+    } finally {
+      setCheckingCodes(false);
+    }
+  }, []);
+
+  // Handle level selection change
+  const handleLevelChange = (levelId: string) => {
+    setNewClassLevelId(levelId);
+    if (levelId) {
+      checkAvailableClassCodes(levelId);
+    } else {
+      setAvailableClassCodes([]);
+    }
+  };
+
   return (
     <div className="classes-panel">
       <div className="classes-header">
@@ -952,7 +992,7 @@ const ClassesPanel = ({
             <>
               <select
                 value={newClassLevelId}
-                onChange={(e) => setNewClassLevelId(e.target.value)}
+                onChange={(e) => handleLevelChange(e.target.value)}
                 className="level-select"
               >
                 <option value="">Select Level</option>
@@ -962,6 +1002,22 @@ const ClassesPanel = ({
                   </option>
                 ))}
               </select>
+              {checkingCodes && (
+                <div className="checking-codes-message">
+                  <p>Checking available class codes for {levels.find((l) => l._id === newClassLevelId)?.name || 'this level'}...</p>
+                  <div className="loading-spinner"></div>
+                </div>
+              )}
+              {availableClassCodes.length > 0 && (
+                <div className="available-codes-message">
+                  <p>Available class codes for this level:</p>
+                  <ul>
+                    {availableClassCodes.map((code) => (
+                      <li key={code}>{code}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               <button
                 type="button"
                 onClick={handleAddClass}
