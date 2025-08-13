@@ -1,4 +1,0 @@
-node_modules
-.env
-# Ignore Firebase service account key
-firebase-service-account.json
