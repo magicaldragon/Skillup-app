@@ -396,8 +396,6 @@ const AccountsPanel = () => {
 
   return (
     <div className="accounts-panel-container">
-      <h2 className="accounts-title">USER ACCOUNTS</h2>
-
       {loading ? (
         <div className="accounts-loading">Loading accounts...</div>
       ) : error ? (
@@ -417,9 +415,7 @@ const AccountsPanel = () => {
       ) : (
         <div className="accounts-table-wrapper">
           <div className="table-container" style={{ maxWidth: '1200px', margin: '0 auto' }}>
-            <h2 className="panel-title" style={{ marginBottom: '1.5rem' }}>
-              USER ACCOUNTS
-            </h2>
+            <h2 className="accounts-title">USER ACCOUNTS</h2>
 
             {error && <div className="error-message">{error}</div>}
 
