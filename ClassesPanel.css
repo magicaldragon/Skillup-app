@@ -527,6 +527,16 @@
   box-shadow: 0 4px 16px rgba(48, 118, 55, 0.1);
 }
 
+.add-class-title {
+  text-align: center;
+  color: #307637;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
 .add-class-form {
   display: flex;
   gap: 1rem;

@@ -174,26 +174,36 @@ const ClassesPanel = ({
     try {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
       const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+      
+      console.log('Fetching levels from:', `${apiUrl}/levels`);
+      console.log('Token available:', !!token);
+      
       const response = await fetch(`${apiUrl}/levels`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
+      console.log('Levels response status:', response.status);
+      console.log('Levels response ok:', response.ok);
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
+      console.log('Levels response data:', data);
       
       // Handle both new structured response and legacy array response
       let levelsData: Level[] = [];
       if (data && typeof data === 'object' && 'success' in data && data.success) {
         // New structured response: { success: true, levels: [...] }
         levelsData = data.levels || [];
+        console.log('Using structured response, levels count:', levelsData.length);
       } else if (Array.isArray(data)) {
         // Legacy array response
         levelsData = data;
+        console.log('Using legacy array response, levels count:', levelsData.length);
       } else {
         console.warn('Unexpected levels response format:', data);
         levelsData = [];
@@ -207,11 +217,13 @@ const ClassesPanel = ({
       }));
 
       setLevels(levelsData);
+      console.log('Levels state updated:', levelsData);
     } catch (error) {
       console.error('Error fetching levels:', error);
       setLevels([]);
     } finally {
       setLevelsLoading(false);
+      console.log('Levels loading finished');
     }
   }, []);
 
@@ -1044,7 +1056,7 @@ const ClassesPanel = ({
 
       {/* Add Class Form */}
       <div className="add-class-section">
-        <h3>Add New Class</h3>
+        <h3 className="add-class-title">ADD A NEW CLASS</h3>
         <div className="add-class-form">
           <select
             value={newClassLevelId}
@@ -1052,14 +1064,41 @@ const ClassesPanel = ({
             className="level-select"
           >
             <option value="">Select Level</option>
-            {levels &&
-              Array.isArray(levels) &&
+            {levelsLoading ? (
+              <option value="" disabled>Loading levels...</option>
+            ) : levels && Array.isArray(levels) && levels.length > 0 ? (
               levels.map((level) => (
                 <option key={level._id} value={level._id}>
                   {level.name}
                 </option>
-              ))}
+              ))
+            ) : (
+              <option value="" disabled>No levels available</option>
+            )}
           </select>
+          
+          {/* Debug info for levels */}
+          <div className="debug-info" style={{ fontSize: '0.8rem', color: '#666', marginTop: '0.5rem', textAlign: 'center', width: '100%' }}>
+            <p>Levels loading: {levelsLoading ? 'Yes' : 'No'}</p>
+            <p>Levels count: {levels ? levels.length : 'undefined'}</p>
+            <p>Levels data: {JSON.stringify(levels?.slice(0, 2))}</p>
+            <p>API URL: {import.meta.env.VITE_API_BASE_URL || '/api'}</p>
+            <p>Token available: {!!(localStorage.getItem('skillup_token') || localStorage.getItem('authToken'))}</p>
+            <button 
+              onClick={() => fetchLevels()} 
+              style={{ 
+                padding: '0.5rem 1rem', 
+                margin: '0.5rem', 
+                backgroundColor: '#307637', 
+                color: 'white', 
+                border: 'none', 
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              Test Fetch Levels
+            </button>
+          </div>
           
           <input
             type="date"
