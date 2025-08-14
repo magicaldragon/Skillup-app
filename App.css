@@ -6,6 +6,26 @@
   box-sizing: border-box;
 }
 
+/* Global content optimization */
+.panel, .dashboard-panel, .content-panel {
+  height: 100%;
+  max-height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel > *, .dashboard-panel > *, .content-panel > * {
+  flex-shrink: 0;
+}
+
+.panel > *:last-child, .dashboard-panel > *:last-child, .content-panel > *:last-child {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
 html,
 body {
   height: 100%;
@@ -49,7 +69,19 @@ body {
   overflow-x: hidden;
   padding: 0.5rem;
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  min-height: 100vh;
+  height: 100vh;
+  max-height: 100vh;
+  /* Optimize content fitting */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ensure content panels fit within viewport */
+.main-content > * {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 /* Optimized Loading Spinner */

@@ -542,12 +542,38 @@ router.put(
 // Update user avatar
 router.post('/:id/avatar', verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+    
     const { id } = req.params;
-    // This would typically handle file upload to Firebase Storage
-    // For now, we'll just return a success message with the user ID
+    const { role } = req.user;
+    
+    // Students can only update their own avatar
+    if (role === 'student' && req.user.userId !== id) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    // For now, we'll handle the avatar URL from the request body
+    // In a full implementation, this would handle file upload to Firebase Storage
+    const { avatarUrl } = req.body;
+    
+    if (!avatarUrl) {
+      return res.status(400).json({ message: 'Avatar URL is required' });
+    }
+
+    // Update the user's avatar in Firestore
+    await admin.firestore().collection('users').doc(id).update({
+      avatarUrl,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    console.log(`Updated avatar for user ${id}: ${avatarUrl}`);
+    
     return res.json({
+      success: true,
       message: 'Avatar updated successfully',
-      avatarUrl: 'placeholder-url',
+      avatarUrl,
       userId: id,
     });
   } catch (error) {

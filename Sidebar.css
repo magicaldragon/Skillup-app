@@ -16,6 +16,9 @@
   overflow-x: hidden !important;
   min-width: 20rem !important;
   max-width: 20rem !important;
+  /* Prevent duplicate scrollbars */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
 }
 
 /* MOBILE RESPONSIVE */

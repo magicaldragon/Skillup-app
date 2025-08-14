@@ -1,12 +1,14 @@
 /* SettingsPanel.css - Professional ID Card Design */
 
 .settings-panel-wrapper {
-  padding: 2rem;
+  padding: 1rem;
   background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
-  min-height: 100vh;
+  height: 100%;
+  max-height: 100%;
   display: flex;
   justify-content: center;
   align-items: flex-start;
+  overflow-y: auto;
 }
 
 .settings-id-card {
@@ -16,7 +18,7 @@
     0 20px 40px rgba(48, 118, 55, 0.15),
     0 8px 16px rgba(48, 118, 55, 0.1),
     0 0 0 1px rgba(48, 118, 55, 0.05);
-  padding: 3.5rem;
+  padding: 2rem;
   max-width: 650px;
   width: 100%;
   position: relative;
@@ -37,10 +39,10 @@
 
 .settings-id-card h2 {
   color: #307637;
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: 900;
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
   text-transform: uppercase;
   letter-spacing: 2px;
   text-shadow: 0 2px 4px rgba(48, 118, 55, 0.1);
@@ -51,7 +53,7 @@
   position: relative;
   display: flex;
   justify-content: center;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
 }
 
 .avatar-container {

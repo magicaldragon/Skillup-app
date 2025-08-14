@@ -72,25 +72,48 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
     if (!file) return;
     setAvatarUploading(true);
     setAvatarError(null);
-    const formData = new FormData();
-    formData.append('avatar', file);
+    
     try {
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
-      const res = await fetch(`${apiUrl}/users/${currentUser.id || currentUser._id}/avatar`, {
-        method: 'POST',
-        body: formData,
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('skillup_token')}`,
-        },
-      });
-      const data = await res.json();
-      if (!res.ok || !data.avatarUrl) throw new Error(data.message || 'Upload failed');
-      setAvatarUrl(data.avatarUrl);
-      setSuccess('Avatar updated!');
-      onDataRefresh?.();
+      // For now, we'll create a data URL for the file
+      // In a full implementation, this would upload to Firebase Storage
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const dataUrl = event.target?.result as string;
+        
+        try {
+          const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
+          const res = await fetch(`${apiUrl}/users/${currentUser.id || currentUser._id}/avatar`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${localStorage.getItem('skillup_token')}`,
+            },
+            body: JSON.stringify({ avatarUrl: dataUrl }),
+          });
+          
+          const data = await res.json();
+          if (!res.ok || !data.avatarUrl) throw new Error(data.message || 'Upload failed');
+          
+          setAvatarUrl(data.avatarUrl);
+          setSuccess('Avatar updated!');
+          
+          // Trigger data refresh to update the sidebar avatar
+          onDataRefresh?.();
+          
+          // Force a page reload to ensure all components update
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+        } catch (err: unknown) {
+          setAvatarError(err instanceof Error ? err.message : 'Failed to upload avatar');
+        } finally {
+          setAvatarUploading(false);
+        }
+      };
+      
+      reader.readAsDataURL(file);
     } catch (err: unknown) {
-      setAvatarError(err instanceof Error ? err.message : 'Failed to upload avatar');
-    } finally {
+      setAvatarError(err instanceof Error ? err.message : 'Failed to process file');
       setAvatarUploading(false);
     }
   };
@@ -131,7 +154,14 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
       console.log('Update successful:', result);
       setSuccess('Profile updated successfully!');
       setEditMode(false);
+      
+      // Trigger data refresh to update the sidebar avatar
       onDataRefresh?.();
+      
+      // Force a page reload to ensure all components update
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (err: unknown) {
       console.error('Update error:', err);
       setError(`Failed to update profile: ${err instanceof Error ? err.message : ''}`);
