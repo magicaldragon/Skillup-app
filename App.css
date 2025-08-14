@@ -31,7 +31,7 @@ body {
   height: 100%;
   overflow-x: hidden;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: #ffffff;
 }
 
 body {
@@ -68,7 +68,7 @@ body {
   overflow-y: auto;
   overflow-x: hidden;
   padding: 0.5rem;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: #ffffff;
   height: 100vh;
   max-height: 100vh;
   /* Optimize content fitting */

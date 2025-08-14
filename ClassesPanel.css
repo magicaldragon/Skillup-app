@@ -2,7 +2,7 @@
 
 .classes-panel {
   padding: 1rem;
-  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+  background: #ffffff;
   border-radius: 12px;
   box-shadow:
     0 4px 16px 0 rgba(48, 118, 55, 0.08),

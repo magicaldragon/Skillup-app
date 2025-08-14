@@ -65,7 +65,7 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(135deg, var(--neutral-50) 0%, #eff6ff 100%);
+  background: #ffffff;
   overflow-y: auto;
   overflow-x: hidden;
   font-family: var(--font-sans);
