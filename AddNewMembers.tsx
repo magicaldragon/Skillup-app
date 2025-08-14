@@ -213,7 +213,7 @@ const AddNewMembers = () => {
       email: previewEmail || 'test@student.skillup',
       role: form.role,
       username: previewUsername || 'testuser',
-      studentCode: form.role === 'student' ? 'STU001' : undefined,
+      studentCode: form.role === 'student' ? 'STU-001' : undefined,
       generatedPassword: getPassword({ role: form.role } as CreatedUser),
       status: form.status,
       gender: form.gender,
@@ -250,18 +250,7 @@ const AddNewMembers = () => {
               </div>
             )}
 
-            {/* Real-time username preview */}
-            {previewUsername && (
-              <div className="username-preview">
-                <small className="preview-label">Generated Username:</small>
-                <span className="preview-username">{previewUsername}</span>
-                <small className="preview-email">{previewEmail}</small>
-                <div className="username-info">
-                  <small>Original: "{form.name}"</small>
-                  <small>Length: {previewUsername.length} characters</small>
-                </div>
-              </div>
-            )}
+
 
             <form onSubmit={handleSubmit} className="registration-form">
               {/* Debug Info - Remove in production */}
@@ -388,11 +377,7 @@ const AddNewMembers = () => {
                   className="form-input"
                   placeholder={previewEmail || "Enter email address (optional)"}
                 />
-                {!form.email && previewEmail && (
-                  <small className="email-hint">
-                    💡 A default email will be generated: {previewEmail}
-                  </small>
-                )}
+
               </div>
 
               {/* Status - Only for students */}
@@ -497,7 +482,7 @@ const AddNewMembers = () => {
         {createdUser && (
           <div className="success-info-section">
             <div className="success-info-box">
-              <h3 className="success-title">✅ THE ACCOUNT HAS BEEN CREATED SUCCESSFULLY!</h3>
+              <h3 className="success-title">THE ACCOUNT HAS BEEN CREATED SUCCESSFULLY!</h3>
               <div className="account-details">
                 <div className="account-detail">
                   <span className="detail-label">FULL NAME:</span>
