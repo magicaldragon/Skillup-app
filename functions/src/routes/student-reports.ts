@@ -133,7 +133,6 @@ router.post('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =
         .get();
 
       adminUsersSnapshot.docs.forEach((adminDoc) => {
-        const adminData = adminDoc.data();
         createNotification(
           adminDoc.id,
           'student_report',
@@ -151,7 +150,6 @@ router.post('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =
         .get();
 
       staffUsersSnapshot.docs.forEach((staffDoc) => {
-        const staffData = staffDoc.data();
         createNotification(
           staffDoc.id,
           'student_report',
