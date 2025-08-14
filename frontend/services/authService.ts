@@ -3,7 +3,8 @@ import { performanceMonitor } from '../../utils/performanceMonitor';
 import { safeTrim } from '../../utils/stringUtils';
 import { auth } from './firebase';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+// Authentication service for Firebase Functions backend
+const API_BASE_URL = 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
 const FUNCTIONS_BASE = 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
 
 export interface LoginCredentials {

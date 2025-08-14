@@ -9,68 +9,55 @@
     "rewrites": [
       {
         "source": "/api/**",
-        "function": "api",
-        "region": "us-central1"
+        "function": "api"
       },
       {
         "source": "/api",
-        "function": "api",
-        "region": "us-central1"
+        "function": "api"
       },
       {
         "source": "/auth/**",
-        "function": "api",
-        "region": "us-central1"
+        "function": "api"
       },
       {
         "source": "/users/**",
-        "function": "api",
-        "region": "us-central1"
+        "function": "api"
       },
       {
         "source": "/classes/**",
-        "function": "api",
-        "region": "us-central1"
+        "function": "api"
       },
       {
         "source": "/levels/**",
-        "function": "api",
-        "region": "us-central1"
+        "function": "api"
       },
       {
         "source": "/assignments/**",
-        "function": "api",
-        "region": "us-central1"
+        "function": "api"
       },
       {
         "source": "/submissions/**",
-        "function": "api",
-        "region": "us-central1"
+        "function": "api"
       },
       {
         "source": "/potential-students/**",
-        "function": "api",
-        "region": "us-central1"
+        "function": "api"
       },
       {
         "source": "/student-records/**",
-        "function": "api",
-        "region": "us-central1"
+        "function": "api"
       },
       {
         "source": "/change-logs/**",
-        "function": "api",
-        "region": "us-central1"
+        "function": "api"
       },
       {
         "source": "/health",
-        "function": "api",
-        "region": "us-central1"
+        "function": "api"
       },
       {
         "source": "/test",
-        "function": "api",
-        "region": "us-central1"
+        "function": "api"
       },
       {
         "source": "**",
