@@ -297,14 +297,6 @@ const Sidebar = ({
 
   return (
     <aside className={`sidebar${className ? ` ${className}` : ''}`}>
-      {/* Logo section */}
-      <div className="sidebar-logo">{/* You can place your logo image or text here */}</div>
-      
-      {/* Notification Bell */}
-      <div className="sidebar-notifications">
-        <NotificationBell />
-      </div>
-      
       {/* User profile section */}
       <div className="sidebar-profile">
         <div className="sidebar-profile-avatar">
@@ -330,6 +322,11 @@ const Sidebar = ({
                   ? 'Student'
                   : role}
         </div>
+      </div>
+
+      {/* Notification Bell */}
+      <div className="sidebar-notifications">
+        <NotificationBell />
       </div>
       {/* Main menu */}
       <div className="sidebar-menu">
