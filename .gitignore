@@ -30,6 +30,10 @@ firebase-debug.log
 firestore-debug.log
 ui-debug.log
 
+# Firebase Functions compiled output
+functions/lib/
+functions/lib/**/*
+
 # Environment variables
 .env
 .env.local
