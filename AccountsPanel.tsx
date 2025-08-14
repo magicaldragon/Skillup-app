@@ -28,7 +28,7 @@ const AccountsPanel = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterRole, setFilterRole] = useState('all');
+  const [filterRole, setFilterRole] = useState('admin');
   const [filterStatus, setFilterStatus] = useState('all');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<User>>({});
@@ -37,6 +37,8 @@ const AccountsPanel = () => {
   const [passwordChanging, setPasswordChanging] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [syncStatus, setSyncStatus] = useState<string>('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
 
   // Get current user for permission checks
   useEffect(() => {
@@ -385,7 +387,7 @@ const AccountsPanel = () => {
       account.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       account.studentCode?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesRole = filterRole === 'all' || account.role === filterRole;
+    const matchesRole = account.role === filterRole;
 
     // Only apply status filtering when "Students" role is selected
     const matchesStatus =
@@ -393,6 +395,17 @@ const AccountsPanel = () => {
 
     return matchesSearch && matchesRole && matchesStatus;
   });
+
+  // Pagination derived data
+  const totalPages = Math.max(1, Math.ceil(filteredAccounts.length / pageSize));
+  const safePage = Math.min(currentPage, totalPages);
+  const startIdx = (safePage - 1) * pageSize;
+  const visibleAccounts = filteredAccounts.slice(startIdx, startIdx + pageSize);
+
+  useEffect(() => {
+    // Reset to first page whenever filters/search change
+    setCurrentPage(1);
+  }, [searchTerm, filterRole, filterStatus, accounts.length]);
 
   // Clear sync status after a delay
   useEffect(() => {
@@ -407,28 +420,6 @@ const AccountsPanel = () => {
   return (
     <div className="accounts-panel-container">
       <h2 className="accounts-title">USER ACCOUNTS</h2>
-      
-      {/* Sync Status Indicator */}
-      {syncStatus && (
-        <div className={`sync-status ${syncStatus.includes('successfully') ? 'success' : syncStatus.includes('Failed') ? 'error' : 'info'}`}>
-          {syncStatus}
-        </div>
-      )}
-      
-      {/* Permission indicator */}
-      {currentUser && (
-        <div className="permission-indicator">
-          <span className="current-user-info">
-            Logged in as: <strong>{currentUser.name}</strong> ({currentUser.role})
-          </span>
-          <span className="permission-level">
-            {currentUser.role === 'admin' && 'Full access to all users'}
-            {currentUser.role === 'teacher' && 'Can manage staff and students'}
-            {currentUser.role === 'staff' && 'Can only manage students'}
-            {currentUser.role === 'student' && 'Read-only access'}
-          </span>
-        </div>
-      )}
 
       {loading ? (
         <div className="accounts-loading">Loading accounts...</div>
@@ -448,7 +439,7 @@ const AccountsPanel = () => {
         <div className="accounts-empty">No users found.</div>
       ) : (
         <div className="accounts-table-wrapper">
-          <div className="table-container">
+          <div className="table-container" style={{ maxWidth: '1200px', margin: '0 auto' }}>
             <h2 className="panel-title" style={{ marginBottom: '1.5rem' }}>
               USER ACCOUNTS
             </h2>
@@ -457,7 +448,7 @@ const AccountsPanel = () => {
 
             <div className="filters-section">
               <div className="search-box">
-                <div className="search-bar-container">
+                <div className="search-bar-container" style={{ position: 'relative' }}>
                   <input
                     type="text"
                     className="search-bar-input"
@@ -486,8 +477,8 @@ const AccountsPanel = () => {
                   value={filterRole}
                   onChange={(e) => setFilterRole(e.target.value)}
                   className="filter-select"
+                  title="Filter by role"
                 >
-                  <option value="all">All Roles</option>
                   {currentUser?.role === 'admin' && (
                     <>
                       <option value="admin">Admin</option>
@@ -583,7 +574,7 @@ const AccountsPanel = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredAccounts.map((account) => (
+                  {visibleAccounts.map((account) => (
                     <tr 
                       key={account._id} 
                       className={!canManageUser(account) ? 'no-permission-row' : ''}
@@ -863,6 +854,19 @@ const AccountsPanel = () => {
                   ))}
                 </tbody>
               </table>
+
+              {/* Pagination controls */}
+              <div className="pagination-container">
+                <button type="button" disabled={safePage <= 1} onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}>
+                  Prev
+                </button>
+                <span>
+                  Page {safePage} / {totalPages}
+                </span>
+                <button type="button" disabled={safePage >= totalPages} onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}>
+                  Next
+                </button>
+              </div>
             </div>
 
             {filteredAccounts.length === 0 && (
