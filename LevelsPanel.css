@@ -249,144 +249,119 @@
   border-color: #e0f7fa;
 }
 
-/* Enhanced Level Card Styling */
+/* Enhanced Level Card Styling - Dashboard Style */
 .levels-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
   max-height: none;
 }
 
 .levels-card {
-  background:
-    radial-gradient(1200px circle at -20% -20%, rgba(76, 175, 80, 0.06), transparent 40%),
-    radial-gradient(900px circle at 120% 0%, rgba(255, 140, 66, 0.06), transparent 45%),
-    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-  border-radius: 16px;
-  padding: 1.5rem 1.25rem 1.25rem 1.25rem;
-  box-shadow: 0 6px 22px rgba(48, 118, 55, 0.1);
-  transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease,
-    border-color 0.25s ease;
-  border: 2px solid #1e4d2b;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  border: 1px solid #e5e5e5;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   cursor: pointer;
-  min-height: 140px;
+  min-height: 160px;
   display: flex;
   flex-direction: column;
   user-select: none;
+  overflow: hidden;
 }
 
-.levels-card::after {
-  /* subtle top highlight */
+.levels-card::before {
   content: "";
   position: absolute;
-  left: 12px;
-  right: 12px;
-  top: 8px;
-  height: 2px;
-  background: linear-gradient(
-    90deg,
-    rgba(48, 118, 55, 0),
-    rgba(48, 118, 55, 0.25),
-    rgba(48, 118, 55, 0)
-  );
-  pointer-events: none;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #1e40af, #6366f1);
 }
 
 .levels-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 14px 34px rgba(48, 118, 55, 0.18);
-  border-color: #4caf50;
-  background:
-    radial-gradient(1200px circle at -20% -20%, rgba(76, 175, 80, 0.08), transparent 40%),
-    radial-gradient(900px circle at 120% 0%, rgba(255, 140, 66, 0.08), transparent 45%),
-    linear-gradient(180deg, #fffefb 0%, #f9fff8 100%);
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  border-color: #3b82f6;
 }
 
-/* Level-specific color schemes - removed left borders */
-.levels-card-blue {
-  /* No special styling needed */
-}
-
-.levels-card-green {
-  /* No special styling needed */
-}
-
-.levels-card-yellow {
-  /* No special styling needed */
-}
-
-.levels-card-orange {
-  /* No special styling needed */
-}
-
-.levels-card-purple {
-  /* No special styling needed */
-}
-
-.levels-card-pink {
-  /* No special styling needed */
-}
-
-.levels-card-red {
-  /* No special styling needed */
-}
-
+/* Level-specific color schemes - unified dashboard style */
+.levels-card-blue,
+.levels-card-green,
+.levels-card-yellow,
+.levels-card-orange,
+.levels-card-purple,
+.levels-card-pink,
+.levels-card-red,
 .levels-card-gray {
-  /* No special styling needed */
+  /* All levels now use the same dashboard styling */
 }
 
 .levels-card-header {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 0.75rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin-bottom: 1rem;
+  flex: 1;
 }
 
 .levels-card-info {
-  flex: 1;
-  text-align: left;
+  width: 100%;
+  text-align: center;
+  margin-bottom: 1rem;
 }
 
 .levels-card-title {
-  font-size: 1.25rem;
-  font-weight: 800;
-  margin: 0 0 0.35rem 0;
-  color: #1e4d2b;
-  letter-spacing: 0.3px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 0.75rem 0;
+  color: #404040;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .levels-card-stats {
   display: flex;
-  gap: 0.5rem;
+  flex-direction: column;
   align-items: center;
+  gap: 0.5rem;
   font-size: 0.9rem;
   color: #475569;
 }
 
 .levels-card-class-count {
-  background: linear-gradient(135deg, #307637 0%, #4caf50 100%);
-  color: white;
-  padding: 0.35rem 0.65rem;
-  border-radius: 999px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  box-shadow: 0 2px 6px rgba(48, 118, 55, 0.2);
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #1e40af;
+  margin: 0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.levels-card-hint {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-style: italic;
+  margin-top: 0.25rem;
 }
 
 .levels-card-code {
-  font-size: 0.85rem;
-  font-weight: 800;
-  color: #2e7d32;
-  background: rgba(46, 125, 50, 0.1);
-  padding: 0.35rem 0.6rem;
-  border-radius: 8px;
-  border: 1px solid rgba(46, 125, 50, 0.22);
+  font-size: 1rem;
+  font-weight: 600;
+  color: #6366f1;
+  background: rgba(99, 102, 241, 0.1);
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+  display: inline-block;
 }
 
 /* Expanded Level View */
@@ -682,36 +657,7 @@
   }
 }
 
-.levels-card-actions {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.levels-card:hover .levels-card-actions {
-  opacity: 1;
-}
-
-.levels-card-edit-btn {
-  background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 12px;
-  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.2);
-}
-
-.levels-card-edit-btn:hover {
-  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-}
+/* Removed actions section for clean dashboard style */
 
 .level-expanded-actions {
   display: flex;
@@ -769,34 +715,7 @@
   font-weight: 500;
 }
 
-.levels-card-preview {
-  margin-top: 0.5rem;
-  padding-top: 0.6rem;
-  border-top: 1px dashed rgba(48, 118, 55, 0.18);
-}
-
-.levels-card-classes-preview {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem 0.5rem;
-}
-
-.levels-card-class-preview {
-  background: rgba(48, 118, 55, 0.08);
-  color: #1e4d2b;
-  padding: 0.25rem 0.5rem;
-  border-radius: 6px;
-  font-size: 0.78rem;
-  font-weight: 700;
-  border: 1px solid rgba(48, 118, 55, 0.18);
-}
-
-.levels-card-more {
-  color: #648f6a;
-  font-size: 0.78rem;
-  font-weight: 600;
-  font-style: italic;
-}
+/* Removed preview section for clean dashboard style */
 
 /* Enhanced class item styles */
 .level-expanded-class-item {

@@ -341,6 +341,11 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
     }
   };
 
+  // Handle level card double-click to edit
+  const handleLevelDoubleClick = (level: Level) => {
+    handleEditLevel(level);
+  };
+
   // Handle modal close
   const handleCloseModal = () => {
     setSelectedLevel(null);
@@ -639,50 +644,22 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
                 key={level._id}
                 className={`levels-card ${colorClass}`}
                 onClick={() => handleLevelClick(level)}
-                aria-label={`View details for ${level.name} level`}
+                onDoubleClick={() => handleLevelDoubleClick(level)}
+                aria-label={`View details for ${level.name} level. Double-click to edit.`}
               >
                 <div className="levels-card-header">
                   <div className="levels-card-info">
                     <h3 className="levels-card-title">{level.name}</h3>
+                    <span className="levels-card-code">{level.code}</span>
                     <div className="levels-card-stats">
                       <span className="levels-card-class-count">
                         {assignedClasses.length} class{assignedClasses.length !== 1 ? 'es' : ''}
                       </span>
-                      {totalStudents > 0 && (
-                        <span className="levels-card-student-count">
-                          • {totalStudents} student{totalStudents !== 1 ? 's' : ''}
-                        </span>
-                      )}
+                      <span className="levels-card-hint">Double-click to edit</span>
                     </div>
                   </div>
-                  <span className="levels-card-code">{level.code}</span>
                 </div>
-                {assignedClasses.length > 0 && (
-                  <div className="levels-card-preview">
-                    <div className="levels-card-classes-preview">
-                      {assignedClasses.slice(0, 3).map((cls: StudentClass) => (
-                        <span key={cls._id || cls.id} className="levels-card-class-preview">
-                          {cls.classCode || cls.name}
-                        </span>
-                      ))}
-                      {assignedClasses.length > 3 && (
-                        <span className="levels-card-more">+{assignedClasses.length - 3} more</span>
-                      )}
-                    </div>
-                  </div>
-                )}
-                <div className="levels-card-actions">
-                  <button
-                    type="button"
-                    className="levels-card-edit-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleEditLevel(level);
-                    }}
-                  >
-                    Edit
-                  </button>
-                </div>
+                {/* Removed preview and actions for clean dashboard style */}
               </button>
             );
           })
