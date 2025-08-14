@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
 import { usersAPI, APIError } from './services/apiService';
-import { syncUsers } from './services/dataSyncService';
 import { authService } from './services/authService';
 import { UserUpdateData } from './types';
 import './AccountsPanel.css';

@@ -77,7 +77,7 @@ const TeacherDashboard = ({
       ) : activeKey === 'scores' ? (
         <TeacherScoresFeedbackPanel />
       ) : activeKey === 'reports' ? (
-        <ReportsPanel isAdmin={user.role === 'admin'} onDataRefresh={onDataRefresh} />
+        <ReportsPanel />
       ) : activeKey === 'levels' ? (
         <LevelsPanel onDataRefresh={onDataRefresh} />
       ) : activeKey === 'records' ? (

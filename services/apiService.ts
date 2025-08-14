@@ -124,22 +124,24 @@ async function apiCall<T>(
       throw error;
     }
     
-    if (error.name === 'AbortError') {
+    if (error instanceof Error && error.name === 'AbortError') {
       throw new APIError('Request timeout', 408, 'TIMEOUT');
     }
 
     // Network or other errors
     if (retryCount < API_CONFIG.maxRetries) {
-      console.warn(`API call failed with error: ${error.message}, retrying... (${retryCount + 1}/${API_CONFIG.maxRetries})`);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.warn(`API call failed with error: ${errorMessage}, retrying... (${retryCount + 1}/${API_CONFIG.maxRetries})`);
       await new Promise(resolve => setTimeout(resolve, API_CONFIG.retryDelay * (retryCount + 1)));
       return apiCall<T>(endpoint, options, retryCount + 1);
     }
 
+    const errorMessage = error instanceof Error ? error.message : 'Network error';
     throw new APIError(
-      error.message || 'Network error',
+      errorMessage,
       0,
       'NETWORK_ERROR',
-      error
+      error instanceof Error ? error : undefined
     );
   }
 }
@@ -148,31 +150,31 @@ async function apiCall<T>(
 function normalizeResponse<T>(data: any, expectedStructure: 'array' | 'object' | 'any' = 'any'): T {
   if (expectedStructure === 'array') {
     if (Array.isArray(data)) {
-      return data;
+      return data as T;
     }
     if (data && typeof data === 'object' && Array.isArray(data.items)) {
-      return data.items;
+      return data.items as T;
     }
     if (data && typeof data === 'object' && Array.isArray(data.users)) {
-      return data.users;
+      return data.users as T;
     }
     if (data && typeof data === 'object' && Array.isArray(data.classes)) {
-      return data.classes;
+      return data.classes as T;
     }
     if (data && typeof data === 'object' && Array.isArray(data.assignments)) {
-      return data.assignments;
+      return data.assignments as T;
     }
-    return [];
+    return [] as unknown as T;
   }
   
   if (expectedStructure === 'object') {
     if (data && typeof data === 'object' && !Array.isArray(data)) {
-      return data;
+      return data as T;
     }
-    return {} as T;
+    return {} as unknown as T;
   }
   
-  return data;
+  return data as T;
 }
 
 // Auth API with enhanced error handling

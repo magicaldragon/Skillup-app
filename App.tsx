@@ -390,6 +390,7 @@ const App: React.FC = () => {
       classes: StudentClass[];
       activeKey: string;
       onDataRefresh?: () => void;
+      isAdmin?: boolean;
     }>;
     if (user.role === 'student') {
       DashboardComponent = StudentDashboard;
@@ -430,6 +431,7 @@ const App: React.FC = () => {
               classes={classes}
               activeKey={navKey}
               onDataRefresh={refreshData}
+              isAdmin={user.role === 'admin'}
             />
           </Suspense>
         </main>

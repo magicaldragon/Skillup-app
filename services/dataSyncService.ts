@@ -1,14 +1,7 @@
 // dataSyncService.ts - Comprehensive data synchronization service for Firebase/Firestore
-import { usersAPI, classesAPI, levelsAPI, assignmentsAPI, submissionsAPI } from './apiService';
-import type { APIError } from './apiService';
+import { usersAPI, classesAPI, levelsAPI, assignmentsAPI } from './apiService';
 
-// Data synchronization configuration
-const SYNC_CONFIG = {
-  maxRetries: 3,
-  retryDelay: 1000,
-  batchSize: 100,
-  timeout: 30000,
-};
+// Data synchronization configuration - removed unused constants
 
 // Synchronization status tracking
 interface SyncStatus {
@@ -47,8 +40,6 @@ export class DataSyncError extends Error {
 export class DataSyncService {
   private static instance: DataSyncService;
   private syncStatus: Map<string, SyncStatus> = new Map();
-  private operationQueue: Array<() => Promise<void>> = [];
-  private isProcessing = false;
 
   private constructor() {}
 
@@ -112,37 +103,7 @@ export class DataSyncService {
     };
   }
 
-  // Queue operation for processing
-  private async queueOperation(operation: () => Promise<void>): Promise<void> {
-    this.operationQueue.push(operation);
-    
-    if (!this.isProcessing) {
-      await this.processQueue();
-    }
-  }
-
-  // Process operation queue
-  private async processQueue(): Promise<void> {
-    if (this.isProcessing) return;
-    
-    this.isProcessing = true;
-    
-    try {
-      while (this.operationQueue.length > 0) {
-        const operation = this.operationQueue.shift();
-        if (operation) {
-          try {
-            await operation();
-          } catch (error) {
-            console.error('Operation failed:', error);
-            // Continue processing other operations
-          }
-        }
-      }
-    } finally {
-      this.isProcessing = false;
-    }
-  }
+  // Queue operation for processing - removed unused methods
 
   // Create entity with rollback support
   async createEntity<T>(
@@ -227,6 +188,9 @@ export class DataSyncService {
 
     this.syncStatus.set(syncId, syncStatus);
 
+    // Declare currentData outside try block so it's accessible in catch block
+    let currentData: any = null;
+
     try {
       // Validate data
       const validation = this.validateData(data, entity);
@@ -239,7 +203,7 @@ export class DataSyncService {
       }
 
       // Get current data for rollback
-      const currentData = await this.getCurrentData(entity, id);
+      currentData = await this.getCurrentData(entity, id);
 
       // Update status
       syncStatus.status = 'in_progress';
@@ -296,9 +260,6 @@ export class DataSyncService {
     this.syncStatus.set(syncId, syncStatus);
 
     try {
-      // Get current data for rollback
-      const currentData = await this.getCurrentData(entity, id);
-
       // Update status
       syncStatus.status = 'in_progress';
       syncStatus.progress = 50;
@@ -578,8 +539,8 @@ export const syncUsers = {
   bulk: (operations: Array<{ type: 'create' | 'update' | 'delete'; data: any; id?: string }>) =>
     dataSyncService.bulkOperation('user', operations, {
       create: usersAPI.createUser,
-      update: usersAPI.updateUser,
-      delete: usersAPI.deleteUser,
+      update: (id: string, data: any) => usersAPI.updateUser(id, data),
+      delete: (id: string) => usersAPI.deleteUser(id),
     }),
 };
 
@@ -590,8 +551,8 @@ export const syncClasses = {
   bulk: (operations: Array<{ type: 'create' | 'update' | 'delete'; data: any; id?: string }>) =>
     dataSyncService.bulkOperation('class', operations, {
       create: classesAPI.createClass,
-      update: classesAPI.updateClass,
-      delete: classesAPI.deleteClass,
+      update: (id: string, data: any) => classesAPI.updateClass(id, data),
+      delete: (id: string) => classesAPI.deleteClass(id),
     }),
 };
 
@@ -602,7 +563,7 @@ export const syncAssignments = {
   bulk: (operations: Array<{ type: 'create' | 'update' | 'delete'; data: any; id?: string }>) =>
     dataSyncService.bulkOperation('assignment', operations, {
       create: assignmentsAPI.createAssignment,
-      update: assignmentsAPI.updateAssignment,
-      delete: assignmentsAPI.deleteAssignment,
+      update: (id: string, data: any) => assignmentsAPI.updateAssignment(id, data),
+      delete: (id: string) => assignmentsAPI.deleteAssignment(id),
     }),
 }; 

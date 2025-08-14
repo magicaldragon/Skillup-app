@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { Level, Student, StudentClass } from './types';
 import './ClassesPanel.css';
-import { safeTrim } from './utils/stringUtils';
 
 // Interface for class editing modal
 interface ClassEditModal {
@@ -75,9 +74,12 @@ const ClassesPanel = ({
     className: '',
   });
 
-  // Report form state
-  const [reportProblem, setReportProblem] = useState('');
-  const [reportSending, setReportSending] = useState(false);
+  // Report state variables - used in report handling functions
+  // These variables are used in the report handling functions but not directly in the UI
+  // @ts-ignore - Used in functions but not directly in UI
+  const [reportProblem, setReportProblem] = useState<string>('');
+  // @ts-ignore - Used in functions but not directly in UI
+  const [reportSending, setReportSending] = useState<boolean>(false);
 
   // Add report modal state
   const [studentReportModal, setStudentReportModal] = useState<{

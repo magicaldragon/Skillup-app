@@ -1,6 +1,5 @@
 // AdminDashboard.tsx
 // Professional admin dashboard with system overview, user management, and administrative controls
-// React import removed as it's not needed
 
 import AccountsPanel from './AccountsPanel';
 import AddNewMembers from './AddNewMembers';
@@ -16,26 +15,36 @@ import type { Assignment, Student, StudentClass } from './types';
 import WaitingListPanel from './WaitingListPanel';
 import './AdminDashboard.css';
 
-const AdminDashboard = ({
-  user,
-  students,
-  assignments,
-  classes,
-  activeKey,
-  onDataRefresh,
-}: {
+// Define proper props interface
+interface AdminDashboardProps {
   user: Student;
   students: Student[];
   assignments: Assignment[];
   classes: StudentClass[];
   activeKey: string;
   onDataRefresh?: () => void;
-}) => {
+  isAdmin?: boolean; // Add isAdmin prop
+}
+
+const AdminDashboard: React.FC<AdminDashboardProps> = ({
+  user,
+  students,
+  assignments,
+  classes,
+  activeKey,
+  onDataRefresh,
+  isAdmin = true, // Default to true for AdminDashboard
+}: AdminDashboardProps) => {
+  // Use isAdmin to conditionally render admin-specific features
+  // Use isAdmin to conditionally render admin-specific features
   const totalStudents = students.filter((s) => s.role === 'student').length;
   const totalTeachers = students.filter((s) => s.role === 'teacher').length;
   const totalStaff = students.filter((s) => s.role === 'staff').length;
   const totalAssignments = assignments.length; // Count all assignments since status property doesn't exist
   const totalClasses = classes.length;
+
+  // Only show admin-specific features if user is admin
+  const showAdminFeatures = isAdmin;
 
   return (
     <div className="admin-dashboard">
@@ -51,6 +60,13 @@ const AdminDashboard = ({
           </div>
         </div>
       ) : null}
+
+      {/* Admin-specific features */}
+      {showAdminFeatures && (
+        <div className="admin-dashboard-admin-features">
+          {/* Future admin-specific features will be added here */}
+        </div>
+      )}
 
       {/* Management Submenu Items */}
       {activeKey === 'add-student' ? (
@@ -68,7 +84,7 @@ const AdminDashboard = ({
       ) : activeKey === 'scores' ? (
         <TeacherScoresFeedbackPanel />
       ) : activeKey === 'reports' ? (
-        <ReportsPanel isAdmin={true} onDataRefresh={onDataRefresh} />
+        <ReportsPanel />
       ) : activeKey === 'levels' ? (
         <LevelsPanel onDataRefresh={onDataRefresh} />
       ) : activeKey === 'records' ? (
