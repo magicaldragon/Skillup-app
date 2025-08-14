@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
-import { usersAPI } from './services/apiService';
+import { usersAPI, APIError } from './services/apiService';
+import { syncUsers } from './services/dataSyncService';
 import { authService } from './services/authService';
 import { UserUpdateData } from './types';
 import './AccountsPanel.css';
 
 interface User {
   _id: string;
+  id?: string;
   name: string;
   email: string;
   role: string;
@@ -19,6 +21,7 @@ interface User {
   status?: string;
   studentCode?: string;
   createdAt: string;
+  updatedAt?: string;
 }
 
 const AccountsPanel = () => {
@@ -34,6 +37,7 @@ const AccountsPanel = () => {
   const [newPassword, setNewPassword] = useState('');
   const [passwordChanging, setPasswordChanging] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [syncStatus, setSyncStatus] = useState<string>('');
 
   // Get current user for permission checks
   useEffect(() => {
@@ -118,42 +122,48 @@ const AccountsPanel = () => {
     return canManageUser(targetUser);
   };
 
+  // Enhanced fetch accounts with better error handling
   const fetchAccounts = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
+      setSyncStatus('Fetching accounts...');
 
-      console.log('🔍 DEBUG: Fetching users via API service...');
+      console.log('🔍 DEBUG: Fetching users via enhanced API service...');
       const data = await usersAPI.getUsers();
 
       console.log('🔍 DEBUG: Users response data:', data);
       console.log('🔍 DEBUG: Data type:', typeof data);
       console.log('🔍 DEBUG: Is array:', Array.isArray(data));
 
-      // Accept both array and { users: [...] }
-      if (Array.isArray(data)) {
-        console.log('🔍 DEBUG: Setting accounts from array, count:', data.length);
-        setAccounts(data);
-      } else if (
-        data &&
-        typeof data === 'object' &&
-        'users' in data &&
-        Array.isArray((data as { users: User[] }).users)
-      ) {
-        console.log(
-          '🔍 DEBUG: Setting accounts from users object, count:',
-          (data as { users: User[] }).users.length
-        );
-        setAccounts((data as { users: User[] }).users);
-      } else {
-        console.log('🔍 DEBUG: No valid data found, setting empty array');
-        setAccounts([]);
-      }
+      // Normalize data structure - ensure consistent ID handling
+      const normalizedAccounts = Array.isArray(data) ? data : [];
+      const accountsWithConsistentIds = normalizedAccounts.map(account => ({
+        ...account,
+        _id: account._id || account.id || '',
+        id: account.id || account._id || '',
+      }));
+
+      console.log('🔍 DEBUG: Setting normalized accounts, count:', accountsWithConsistentIds.length);
+      setAccounts(accountsWithConsistentIds);
+      setSyncStatus('Accounts fetched successfully');
+      
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch accounts';
-      console.error('🔍 DEBUG: Error fetching accounts:', err);
+      let errorMessage = 'Failed to fetch accounts';
+      
+      if (err instanceof APIError) {
+        errorMessage = `API Error (${err.status}): ${err.message}`;
+        console.error('🔍 DEBUG: API Error fetching accounts:', err);
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+        console.error('🔍 DEBUG: Error fetching accounts:', err);
+      } else {
+        console.error('🔍 DEBUG: Unknown error fetching accounts:', err);
+      }
+      
       setError(errorMessage);
       setAccounts([]);
+      setSyncStatus('Failed to fetch accounts');
     } finally {
       setLoading(false);
     }
@@ -186,10 +196,13 @@ const AccountsPanel = () => {
     });
   };
 
+  // Enhanced edit save with data synchronization
   const handleEditSave = async () => {
     if (!editingId) return;
 
     try {
+      setSyncStatus('Updating user...');
+      
       const updateData: UserUpdateData = {
         id: editingId,
         ...(editForm.name && { name: editForm.name }),
@@ -204,25 +217,55 @@ const AccountsPanel = () => {
       };
       
       // Check if role change is allowed
-      if (editForm.role && !canChangeRole(accounts.find(acc => acc._id === editingId)!, editForm.role)) {
+      const targetUser = accounts.find(acc => acc._id === editingId);
+      if (!targetUser) {
+        throw new Error('User not found');
+      }
+      
+      if (editForm.role && !canChangeRole(targetUser, editForm.role)) {
         alert('You do not have permission to change this user\'s role.');
         return;
       }
       
+      // Use enhanced API service with retry and error handling
       await usersAPI.updateUser(editingId, updateData);
 
+      // Update local state with consistent ID handling
       setAccounts((prev) =>
-        prev.map((acc) => (acc._id === editingId ? { ...acc, ...editForm } : acc))
+        prev.map((acc) => 
+          acc._id === editingId 
+            ? { 
+                ...acc, 
+                ...editForm,
+                updatedAt: new Date().toISOString()
+              } 
+            : acc
+        )
       );
+      
       setEditingId(null);
       setEditForm({});
+      setSyncStatus('User updated successfully');
+      
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to update user';
-      console.error('Error updating user:', err);
+      let errorMessage = 'Failed to update user';
+      
+      if (err instanceof APIError) {
+        errorMessage = `API Error (${err.status}): ${err.message}`;
+        console.error('Error updating user:', err);
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+        console.error('Error updating user:', err);
+      } else {
+        console.error('Unknown error updating user:', err);
+      }
+      
       setError(errorMessage);
+      setSyncStatus('Failed to update user');
     }
   };
 
+  // Enhanced remove with data synchronization
   const handleRemove = async (id: string) => {
     const userToDelete = accounts.find(acc => acc._id === id);
     if (!userToDelete) return;
@@ -235,15 +278,34 @@ const AccountsPanel = () => {
     if (!confirm('Are you sure you want to delete this user?')) return;
 
     try {
+      setSyncStatus('Deleting user...');
+      
+      // Use enhanced API service
       await usersAPI.deleteUser(id);
+      
+      // Update local state
       setAccounts((prev) => prev.filter((acc) => acc._id !== id));
+      setSyncStatus('User deleted successfully');
+      
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to delete user';
-      console.error('Error deleting user:', err);
+      let errorMessage = 'Failed to delete user';
+      
+      if (err instanceof APIError) {
+        errorMessage = `API Error (${err.status}): ${err.message}`;
+        console.error('Error deleting user:', err);
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+        console.error('Error deleting user:', err);
+      } else {
+        console.error('Unknown error deleting user:', err);
+      }
+      
       setError(errorMessage);
+      setSyncStatus('Failed to delete user');
     }
   };
 
+  // Enhanced password change with data synchronization
   const handlePasswordChange = async () => {
     if (!passwordChangeId || !newPassword.trim()) return;
 
@@ -257,22 +319,40 @@ const AccountsPanel = () => {
 
     try {
       setPasswordChanging(true);
+      setSyncStatus('Changing password...');
+      
+      // Use enhanced API service
       await usersAPI.changePassword(passwordChangeId, newPassword);
 
       setPasswordChangeId(null);
       setNewPassword('');
       setError(null);
+      setSyncStatus('Password changed successfully');
+      
       // Show success message
       alert('Password changed successfully!');
+      
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to change password';
-      console.error('Error changing password:', err);
+      let errorMessage = 'Failed to change password';
+      
+      if (err instanceof APIError) {
+        errorMessage = `API Error (${err.status}): ${err.message}`;
+        console.error('Error changing password:', err);
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+        console.error('Error changing password:', err);
+      } else {
+        console.error('Unknown error changing password:', err);
+      }
+      
       setError(errorMessage);
+      setSyncStatus('Failed to change password');
     } finally {
       setPasswordChanging(false);
     }
   };
 
+  // Enhanced filtered accounts with consistent ID handling
   const filteredAccounts = accounts.filter((account) => {
     const matchesSearch =
       account.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -283,14 +363,31 @@ const AccountsPanel = () => {
 
     // Only apply status filtering when "Students" role is selected
     const matchesStatus =
-      filterRole === 'student' ? filterStatus === 'all' || account.status === filterStatus : true; // Don't filter by status for non-student roles
+      filterRole === 'student' ? filterStatus === 'all' || account.status === filterStatus : true;
 
     return matchesSearch && matchesRole && matchesStatus;
   });
 
+  // Clear sync status after a delay
+  useEffect(() => {
+    if (syncStatus && !syncStatus.includes('Fetching') && !syncStatus.includes('Updating') && !syncStatus.includes('Deleting') && !syncStatus.includes('Changing')) {
+      const timer = setTimeout(() => {
+        setSyncStatus('');
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [syncStatus]);
+
   return (
     <div className="accounts-panel-container">
       <h2 className="accounts-title">USER ACCOUNTS</h2>
+      
+      {/* Sync Status Indicator */}
+      {syncStatus && (
+        <div className={`sync-status ${syncStatus.includes('successfully') ? 'success' : syncStatus.includes('Failed') ? 'error' : 'info'}`}>
+          {syncStatus}
+        </div>
+      )}
       
       {/* Permission indicator */}
       {currentUser && (
