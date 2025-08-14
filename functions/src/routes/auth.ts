@@ -129,13 +129,13 @@ router.post('/firebase-login', async (req: AuthenticatedRequest, res: Response) 
       });
     }
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // Validate email format - must include @role.skillup
+    const emailRegex = /^[^\s@]+@(admin|teacher|student|staff)\.skillup$/;
     if (!emailRegex.test(email)) {
-      console.error('Invalid email format:', email);
+      console.error('Invalid email format - must be username@role.skillup:', email);
       return res.status(400).json({
         success: false,
-        message: 'Invalid email format',
+        message: 'Email must be in format: username@role.skillup (e.g., admin@admin.skillup)',
       });
     }
 
@@ -182,13 +182,11 @@ router.post('/firebase-login', async (req: AuthenticatedRequest, res: Response) 
         // Get user details from Firebase Auth
         const firebaseUser = await admin.auth().getUser(decodedToken.uid);
 
-        // Determine role based on email domain or existing logic
-        let role = 'student'; // default
-        if (email.includes('@teacher.skillup')) {
-          role = 'teacher';
-        } else if (email.includes('@admin.skillup') || email.includes('admin@admin.skillup')) {
-          role = 'admin';
-        }
+        // Extract role from email domain (username@role.skillup)
+        const roleMatch = email.match(/@(admin|teacher|student|staff)\.skillup$/);
+        const role = roleMatch ? roleMatch[1] : 'student';
+        
+        console.log(`Role determined from email: ${role} (from ${email})`);
 
         const newUserData = {
           email: firebaseUser.email || email,
@@ -207,12 +205,15 @@ router.post('/firebase-login', async (req: AuthenticatedRequest, res: Response) 
         console.log(`Synced user from Firebase Auth with ID: ${userDoc.id}, role: ${role}`);
       } catch (syncError) {
         console.error('Error syncing user from Firebase Auth:', syncError);
-        // Fallback to basic user creation
+        // Fallback to basic user creation with proper role extraction
+        const roleMatch = email.match(/@(admin|teacher|student|staff)\.skillup$/);
+        const role = roleMatch ? roleMatch[1] : 'student';
+        
         const fallbackUserData = {
           email: email,
           firebaseUid: decodedToken.uid,
           name: email.split('@')[0],
-          role: 'student',
+          role: role,
           status: 'active',
           createdAt: admin.firestore.FieldValue.serverTimestamp(),
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -445,15 +446,10 @@ router.post('/sync-users', async (_req: AuthenticatedRequest, res: Response) => 
 
         if (existingUserQuery.empty) {
           // User doesn't exist in Firestore, create them
-          let role = 'student'; // default
-          if (firebaseUser.email?.includes('@teacher.skillup')) {
-            role = 'teacher';
-          } else if (
-            firebaseUser.email?.includes('@admin.skillup') ||
-            firebaseUser.email?.includes('admin@admin.skillup')
-          ) {
-            role = 'admin';
-          }
+          const roleMatch = firebaseUser.email?.match(/@(admin|teacher|student|staff)\.skillup$/);
+          const role = roleMatch ? roleMatch[1] : 'student';
+          
+          console.log(`Creating user with role: ${role} (from ${firebaseUser.email})`);
 
           const newUserData = {
             email: firebaseUser.email || '',

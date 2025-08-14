@@ -98,15 +98,9 @@ app.get('/health', async (_req, res) => {
                 auth: 'connected',
             },
             vstorage: {
-                accessKey: process.env.VSTORAGE_ACCESS_KEY ||
-                    process.env.VITE_VSTORAGE_ACCESS_KEY ||
-                    'cb1d2453d51a5936b5eee3be7685d1dc'
-                    ? 'configured'
-                    : 'not configured',
-                bucket: process.env.VSTORAGE_BUCKET || process.env.VITE_VSTORAGE_BUCKET || 'skillup',
-                endpoint: process.env.VSTORAGE_ENDPOINT ||
-                    process.env.VITE_VSTORAGE_ENDPOINT ||
-                    'https://s3.vngcloud.vn',
+                accessKey: process.env.VSTORAGE_ACCESS_KEY ? 'configured' : 'not configured',
+                bucket: process.env.VSTORAGE_BUCKET || 'skillup',
+                endpoint: process.env.VSTORAGE_ENDPOINT || 'https://s3.vngcloud.vn',
             },
         });
     }
