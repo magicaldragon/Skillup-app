@@ -99,18 +99,24 @@ app.get('/test', (_req, res) => {
   });
 });
 
-// API routes
-app.use('/auth', authRouter);
-app.use('/users', usersRouter);
-app.use('/classes', classesRouter);
-app.use('/levels', levelsRouter);
-app.use('/assignments', assignmentsRouter);
-app.use('/submissions', submissionsRouter);
-app.use('/potential-students', potentialStudentsRouter);
-app.use('/student-records', studentRecordsRouter);
-app.use('/student-reports', studentReportsRouter);
-app.use('/notifications', notificationsRouter);
-app.use('/change-logs', changeLogsRouter);
+// Helper to mount all API routes under a base path ('' or '/api')
+function mountApiRoutes(basePath: string): void {
+  app.use(`${basePath}/auth`, authRouter);
+  app.use(`${basePath}/users`, usersRouter);
+  app.use(`${basePath}/classes`, classesRouter);
+  app.use(`${basePath}/levels`, levelsRouter);
+  app.use(`${basePath}/assignments`, assignmentsRouter);
+  app.use(`${basePath}/submissions`, submissionsRouter);
+  app.use(`${basePath}/potential-students`, potentialStudentsRouter);
+  app.use(`${basePath}/student-records`, studentRecordsRouter);
+  app.use(`${basePath}/student-reports`, studentReportsRouter);
+  app.use(`${basePath}/notifications`, notificationsRouter);
+  app.use(`${basePath}/change-logs`, changeLogsRouter);
+}
+
+// Mount routes for both direct function invocation ('') and Hosting rewrite ('/api')
+mountApiRoutes('');
+mountApiRoutes('/api');
 
 // Error handling middleware
 app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
