@@ -317,18 +317,7 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
     setEditLevel({ name: '', code: '', description: '' });
   };
 
-  // Get level color class
-  const getLevelColor = (levelName: string) => {
-    const name = levelName.toLowerCase();
-    if (name.includes('starters') || name.includes('pre')) return 'levels-card-yellow';
-    if (name.includes('movers') || name.includes('a1')) return 'levels-card-blue';
-    if (name.includes('flyers') || name.includes('a2')) return 'levels-card-yellow';
-    if (name.includes('ket') || name.includes('a2b')) return 'levels-card-orange';
-    if (name.includes('pet') || name.includes('b1')) return 'levels-card-purple';
-    if (name.includes('pre-ielts') || name.includes('b2pre')) return 'levels-card-pink';
-    if (name.includes('ielts')) return 'levels-card-red';
-    return 'levels-card-gray';
-  };
+  // Level color classes are no longer used with unified dashboard styling
 
   // Handle level card click
   const handleLevelClick = (level: Level) => {
@@ -632,17 +621,12 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
           // Show all levels in grid
           displayLevels.map((level) => {
             const assignedClasses = classesByLevel[level._id] || [];
-            const colorClass = getLevelColor(level.name);
-            const totalStudents = assignedClasses.reduce(
-              (total, cls) => total + (cls.studentIds?.length || 0),
-              0
-            );
 
             return (
               <button
                 type="button"
                 key={level._id}
-                className={`levels-card ${colorClass}`}
+                className="levels-card"
                 onClick={() => handleLevelClick(level)}
                 onDoubleClick={() => handleLevelDoubleClick(level)}
                 aria-label={`View details for ${level.name} level. Double-click to edit.`}
