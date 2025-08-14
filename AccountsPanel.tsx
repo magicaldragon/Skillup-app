@@ -304,6 +304,33 @@ const AccountsPanel = () => {
     }
   };
 
+  // Toggle activation (activate/deactivate)
+  const handleActivationToggle = async (id: string, disable: boolean) => {
+    const target = accounts.find(acc => acc._id === id);
+    if (!target) return;
+    if (!canManageUser(target)) {
+      alert('You do not have permission to change this user\'s activation state.');
+      return;
+    }
+
+    try {
+      setSyncStatus(disable ? 'Deactivating user...' : 'Activating user...');
+      await usersAPI.setActivation(id, disable);
+
+      setAccounts(prev => prev.map(acc => acc._id === id ? { ...acc, status: acc.role === 'student' ? acc.status : acc.status, /* preserve student status */ } : acc));
+      setSyncStatus(disable ? 'User deactivated successfully' : 'User activated successfully');
+    } catch (err: unknown) {
+      let errorMessage = 'Failed to update activation state';
+      if (err instanceof APIError) {
+        errorMessage = `API Error (${err.status}): ${err.message}`;
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+      setError(errorMessage);
+      setSyncStatus('Failed to update activation state');
+    }
+  };
+
   // Enhanced password change with data synchronization
   const handlePasswordChange = async () => {
     if (!passwordChangeId || !newPassword.trim()) return;
@@ -806,6 +833,25 @@ const AccountsPanel = () => {
                               >
                                 Delete
                               </button>
+                            )}
+                            {canManageUser(account) && (
+                              account.status === 'off' || (account as any).isActive === false ? (
+                                <button
+                                  type="button"
+                                  onClick={() => handleActivationToggle(account._id, false)}
+                                  className="save-btn"
+                                >
+                                  Activate
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => handleActivationToggle(account._id, true)}
+                                  className="cancel-btn"
+                                >
+                                  Deactivate
+                                </button>
+                              )
                             )}
                             {!canEditUser(account) && !canChangePassword(account) && !canDeleteUser(account) && (
                               <span className="no-permission">No permissions</span>

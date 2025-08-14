@@ -280,6 +280,15 @@ export const usersAPI = {
     return normalizeResponse(data, 'object');
   },
 
+  // Activate or deactivate a user
+  async setActivation(id: string, disabled: boolean) {
+    const data = await apiCall(`/users/${id}/activation`, {
+      method: 'PUT',
+      body: JSON.stringify({ disabled }),
+    });
+    return normalizeResponse(data, 'object');
+  },
+
   // Check if email exists
   async checkEmail(email: string) {
     const data = await apiCall(`/users/check-email/${email}`);
