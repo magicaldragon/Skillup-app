@@ -4,9 +4,8 @@
   border-radius: 16px;
   box-shadow: 0 4px 24px rgba(48, 118, 55, 0.13);
   padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
   border: 1.5px solid #f5b802;
+  width: 100%;
 }
 .records-title {
   font-size: 2rem;

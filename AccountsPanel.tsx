@@ -414,7 +414,7 @@ const AccountsPanel = () => {
         <div className="accounts-empty">No users found.</div>
       ) : (
         <div className="accounts-table-wrapper">
-          <div className="table-container" style={{ maxWidth: '1200px', margin: '0 auto' }}>
+          <div className="table-container">
             <h2 className="accounts-title">USER ACCOUNTS</h2>
 
             {error && <div className="error-message">{error}</div>}
