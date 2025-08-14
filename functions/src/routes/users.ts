@@ -427,6 +427,75 @@ router.get('/check-username/:username', async (req: AuthenticatedRequest, res: R
   }
 });
 
+// Sync existing students with potential status to PotentialStudents collection
+router.post('/sync-potential-students', async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    // Find all users with potential or contacted status
+    const snapshot = await admin
+      .firestore()
+      .collection('users')
+      .where('status', 'in', ['potential', 'contacted'])
+      .get();
+
+    let created = 0;
+    let skipped = 0;
+
+    for (const doc of snapshot.docs) {
+      const userData = doc.data();
+      
+      // Check if PotentialStudent record already exists
+      const existingPotentialStudent = await admin
+        .firestore()
+        .collection('potentialStudents')
+        .where('email', '==', userData.email)
+        .limit(1)
+        .get();
+
+      if (existingPotentialStudent.empty) {
+        // Create new PotentialStudent record
+        const potentialStudentData = {
+          name: userData.name,
+          englishName: userData.englishName,
+          email: userData.email,
+          phone: userData.phone,
+          gender: userData.gender,
+          dob: userData.dob,
+          parentName: userData.parentName,
+          parentPhone: userData.parentPhone,
+          source: 'sync_existing_users',
+          status: 'pending',
+          notes: userData.notes || `Synced from existing user. Student Code: ${userData.studentCode}`,
+          assignedTo: null,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        };
+
+        await admin.firestore().collection('potentialStudents').add(potentialStudentData);
+        created++;
+        console.log(`Created PotentialStudent record for user: ${doc.id}`);
+      } else {
+        skipped++;
+        console.log(`PotentialStudent record already exists for user: ${doc.id}`);
+      }
+    }
+
+    return res.json({
+      success: true,
+      message: 'Sync completed successfully',
+      created,
+      skipped,
+      total: snapshot.size,
+    });
+  } catch (error) {
+    console.error('Error syncing potential students:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to sync potential students',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
 // Change user password
 router.put(
   '/:id/password',

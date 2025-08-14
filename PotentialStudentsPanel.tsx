@@ -296,6 +296,7 @@ const PotentialStudentsPanel = ({
                   className="select-all-checkbox"
                 />
               </th>
+              <th>Student ID</th>
               <th>Name</th>
               <th>Gender</th>
               <th>Status</th>
@@ -306,7 +307,7 @@ const PotentialStudentsPanel = ({
           <tbody>
             {filteredStudents.length === 0 && (
               <tr>
-                <td colSpan={6} className="empty-table">
+                <td colSpan={7} className="empty-table">
                   <div className="empty-state">
                     <div className="empty-icon">📋</div>
                     <p>No potential students found.</p>
@@ -346,6 +347,9 @@ const PotentialStudentsPanel = ({
                     onChange={() => toggleSelect(student._id)}
                     className="row-checkbox"
                   />
+                </td>
+                <td className="student-id-cell">
+                  <span className="student-id">{student.studentCode || 'N/A'}</span>
                 </td>
                 <td className="name-cell">
                   <div className="student-name">{student.name}</div>

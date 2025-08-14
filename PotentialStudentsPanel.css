@@ -219,6 +219,24 @@
   cursor: pointer;
 }
 
+/* Student ID Styling */
+.student-id-cell {
+  min-width: 120px;
+  text-align: center;
+}
+
+.student-id {
+  font-family: "Courier New", monospace;
+  font-weight: 700;
+  color: #ff8c42;
+  background: rgba(255, 140, 66, 0.1);
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 140, 66, 0.3);
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+}
+
 /* Cell Styling */
 .name-cell {
   min-width: 200px;
