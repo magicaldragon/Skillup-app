@@ -98,64 +98,82 @@
 
 .action-buttons button {
 	padding: 6px 12px;
-	border: none;
-	border-radius: 4px;
+	border: 2px solid #1a5f3a;
+	border-radius: 2px;
 	font-size: 12px;
-	font-weight: 500;
+	font-weight: 700;
 	cursor: pointer;
 	transition: all 0.2s ease;
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
+	color: #1a5f3a;
+	background-color: #ffffff;
+}
+
+.action-buttons button:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 2px 4px rgba(26, 95, 58, 0.2);
 }
 
 .edit-btn {
-	background-color: #007bff;
-	color: white;
+	background-color: #28a745;
+	color: #ffffff;
+	border-color: #1e7e34;
 }
 
 .edit-btn:hover {
-	background-color: #0056b3;
-	transform: translateY(-1px);
+	background-color: #1e7e34;
+	border-color: #155724;
+	color: #ffffff;
 }
 
 .save-btn {
 	background-color: #28a745;
-	color: white;
+	color: #ffffff;
+	border-color: #1e7e34;
 }
 
 .save-btn:hover {
 	background-color: #1e7e34;
-	transform: translateY(-1px);
+	border-color: #155724;
+	color: #ffffff;
 }
 
 .cancel-btn {
 	background-color: #6c757d;
-	color: white;
+	color: #ffffff;
+	border-color: #545b62;
 }
 
 .cancel-btn:hover {
 	background-color: #545b62;
-	transform: translateY(-1px);
+	border-color: #495057;
+	color: #ffffff;
 }
 
 .password-btn {
 	background-color: #ffc107;
-	color: #212529;
+	color: #1a5f3a;
+	border-color: #e0a800;
+	font-weight: 700;
 }
 
 .password-btn:hover {
 	background-color: #e0a800;
-	transform: translateY(-1px);
+	border-color: #d39e00;
+	color: #1a5f3a;
 }
 
 .delete-btn {
 	background-color: #dc3545;
-	color: white;
+	color: #ffffff;
+	border-color: #c82333;
 }
 
 .delete-btn:hover {
 	background-color: #c82333;
-	transform: translateY(-1px);
+	border-color: #bd2130;
+	color: #ffffff;
 }
 
 /* Enhanced permission indicator */

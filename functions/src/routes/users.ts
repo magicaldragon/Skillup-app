@@ -594,64 +594,7 @@ router.delete('/:id/avatar', verifyToken, async (req: AuthenticatedRequest, res:
   }
 });
 
-// Activate/Deactivate user
-router.put(
-  '/:id/activation',
-  verifyToken,
-  requireAdmin,
-  async (req: AuthenticatedRequest, res: Response) => {
-    try {
-      const { id } = req.params;
-      const { disabled } = req.body as { disabled?: boolean };
 
-      if (typeof disabled !== 'boolean') {
-        return res.status(400).json({ message: '"disabled" must be a boolean' });
-      }
-
-      const userDoc = await admin.firestore().collection('users').doc(id).get();
-      if (!userDoc.exists) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-
-      const userData = userDoc.data();
-      if (!userData) {
-        return res.status(404).json({ message: 'User data not found' });
-      }
-
-      // Update Firebase Auth disabled flag if firebaseUid exists
-      if (userData.firebaseUid) {
-        try {
-          await admin.auth().updateUser(userData.firebaseUid, { disabled });
-          console.log(`Set Firebase Auth disabled=${disabled} for UID: ${userData.firebaseUid}`);
-        } catch (authError: unknown) {
-          const errorMessage = authError instanceof Error ? authError.message : 'Unknown error';
-          console.error('Error updating Firebase Auth disabled flag:', authError);
-          return res.status(500).json({
-            message: 'Failed to update authentication status',
-            error: errorMessage,
-          });
-        }
-      }
-
-      // Update Firestore account activity
-      const updates: Record<string, any> = {
-        isActive: !disabled,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      };
-
-      await admin.firestore().collection('users').doc(id).update(updates);
-      console.log(`Updated user ${id} activation: ${!disabled ? 'active' : 'inactive'}`);
-
-      return res.json({
-        success: true,
-        message: disabled ? 'User deactivated successfully' : 'User activated successfully',
-      });
-    } catch (error) {
-      console.error('Error toggling user activation:', error);
-      return res.status(500).json({ message: 'Failed to update user activation state' });
-    }
-  }
-);
 
 // Helper function to generate student code with gap filling (STU-001, STU-002, etc.)
 async function generateStudentCode(): Promise<string> {
