@@ -29,14 +29,14 @@
 /* ===== CONTROLS SECTION ===== */
 .reports-controls {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   margin-bottom: var(--space-6);
   gap: var(--space-4);
 }
 
 .search-section {
-  flex: 1;
+  flex: 0 1 auto;
   max-width: 600px;
 }
 
@@ -89,6 +89,7 @@
 .filter-section {
   display: flex;
   gap: var(--space-3);
+  flex: 0 0 auto;
 }
 
 .status-filter-select {
