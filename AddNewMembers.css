@@ -84,9 +84,9 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  padding: var(--space-4);
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
   margin: 0;
   background: #ffffff;
   overflow-y: auto;
@@ -98,23 +98,23 @@
 /* ===== CONTENT WRAPPER ===== */
 .add-student-content {
   width: 100%;
+  max-width: 1400px;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  justify-content: flex-start;
+  justify-content: center;
   gap: var(--space-8);
-  padding: 0;
+  padding: var(--space-4);
   box-sizing: border-box;
   min-width: 0;
-  max-width: 100%;
-  min-height: calc(100vh - 2rem);
+  min-height: calc(100vh - 3rem);
 }
 
 /* ===== REGISTRATION FORM SECTION ===== */
 .registration-form-section {
   flex: 1;
-  max-width: 900px;
-  min-width: 0;
+  max-width: 800px;
+  min-width: 600px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -510,9 +510,11 @@
 .success-info-section {
   position: sticky;
   top: var(--space-6);
-  width: 450px;
-  min-width: 450px;
+  width: 400px;
+  min-width: 400px;
+  max-width: 400px;
   box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .success-info-box {
@@ -715,15 +717,18 @@
     flex-direction: column;
     align-items: center;
     gap: var(--space-8);
+    max-width: 900px;
   }
 
   .registration-form-section {
     max-width: 100%;
+    min-width: 0;
   }
 
   .success-info-section {
     width: 100%;
     max-width: 600px;
+    min-width: 0;
     position: static;
   }
 }
