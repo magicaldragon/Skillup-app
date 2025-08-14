@@ -127,18 +127,23 @@ app.get('/test', (_req, res) => {
         message: 'Backend is reachable',
     });
 });
-// API routes
-app.use('/auth', auth_1.authRouter);
-app.use('/users', users_1.usersRouter);
-app.use('/classes', classes_1.classesRouter);
-app.use('/levels', levels_1.levelsRouter);
-app.use('/assignments', assignments_1.assignmentsRouter);
-app.use('/submissions', submissions_1.default);
-app.use('/potential-students', potentialStudents_1.potentialStudentsRouter);
-app.use('/student-records', studentRecords_1.studentRecordsRouter);
-app.use('/student-reports', student_reports_1.studentReportsRouter);
-app.use('/notifications', notifications_1.notificationsRouter);
-app.use('/change-logs', changeLogs_1.changeLogsRouter);
+// Helper to mount all API routes under a base path ('' or '/api')
+function mountApiRoutes(basePath) {
+    app.use(`${basePath}/auth`, auth_1.authRouter);
+    app.use(`${basePath}/users`, users_1.usersRouter);
+    app.use(`${basePath}/classes`, classes_1.classesRouter);
+    app.use(`${basePath}/levels`, levels_1.levelsRouter);
+    app.use(`${basePath}/assignments`, assignments_1.assignmentsRouter);
+    app.use(`${basePath}/submissions`, submissions_1.default);
+    app.use(`${basePath}/potential-students`, potentialStudents_1.potentialStudentsRouter);
+    app.use(`${basePath}/student-records`, studentRecords_1.studentRecordsRouter);
+    app.use(`${basePath}/student-reports`, student_reports_1.studentReportsRouter);
+    app.use(`${basePath}/notifications`, notifications_1.notificationsRouter);
+    app.use(`${basePath}/change-logs`, changeLogs_1.changeLogsRouter);
+}
+// Mount routes for both direct function invocation ('') and Hosting rewrite ('/api')
+mountApiRoutes('');
+mountApiRoutes('/api');
 // Error handling middleware
 app.use((err, _req, res, _next) => {
     const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';

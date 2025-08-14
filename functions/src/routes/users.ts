@@ -21,10 +21,10 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
     // Role-based filtering
     if (role === 'admin' || role === 'teacher' || role === 'staff') {
       // Admin, teachers, and staff see all users
-    } else if (role === 'student') {
-      // Students see only themselves
-      query = query.where('firebaseUid', '==', req.user.uid);
-    }
+          } else if (role === 'student') {
+        // Students see only themselves
+        query = query.where('firebaseUid', '==', req.user.uid);
+      }
 
     // Add status filtering if provided
     if (status) {
@@ -558,14 +558,14 @@ router.put(
   }
 );
 
-// Helper function to generate student code with gap filling (ST-001, ST-002, etc.)
+// Helper function to generate student code with gap filling (STU-001, STU-002, etc.)
 async function generateStudentCode(): Promise<string> {
-  // Find all existing student codes (ST-001, ST-002, etc.)
+  // Find all existing student codes (STU-001, STU-002, etc.)
   const snapshot = await admin
     .firestore()
     .collection('users')
-    .where('studentCode', '>=', 'ST-001')
-    .where('studentCode', '<=', 'ST-999')
+    .where('studentCode', '>=', 'STU-001')
+    .where('studentCode', '<=', 'STU-999')
     .orderBy('studentCode', 'asc')
     .get();
 
@@ -597,10 +597,10 @@ async function generateStudentCode(): Promise<string> {
       console.log(`No gaps found in student codes, incrementing from highest: ${highestNumber} -> ${nextNumber}`);
     }
   } else {
-    console.log('No existing student codes, starting with ST-001');
+    console.log('No existing student codes, starting with STU-001');
   }
 
-  const studentCode = `ST-${nextNumber.toString().padStart(3, '0')}`;
+  const studentCode = `STU-${nextNumber.toString().padStart(3, '0')}`;
   console.log(`Generated student code: ${studentCode}`);
   return studentCode;
 }

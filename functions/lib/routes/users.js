@@ -450,14 +450,62 @@ router.delete('/:id/avatar', auth_1.verifyToken, async (req, res) => {
         return res.status(500).json({ message: 'Failed to remove avatar' });
     }
 });
-// Helper function to generate student code with gap filling (ST-001, ST-002, etc.)
+// Activate/Deactivate user
+router.put('/:id/activation', auth_1.verifyToken, auth_1.requireAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { disabled } = req.body;
+        if (typeof disabled !== 'boolean') {
+            return res.status(400).json({ message: '"disabled" must be a boolean' });
+        }
+        const userDoc = await admin.firestore().collection('users').doc(id).get();
+        if (!userDoc.exists) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        const userData = userDoc.data();
+        if (!userData) {
+            return res.status(404).json({ message: 'User data not found' });
+        }
+        // Update Firebase Auth disabled flag if firebaseUid exists
+        if (userData.firebaseUid) {
+            try {
+                await admin.auth().updateUser(userData.firebaseUid, { disabled });
+                console.log(`Set Firebase Auth disabled=${disabled} for UID: ${userData.firebaseUid}`);
+            }
+            catch (authError) {
+                const errorMessage = authError instanceof Error ? authError.message : 'Unknown error';
+                console.error('Error updating Firebase Auth disabled flag:', authError);
+                return res.status(500).json({
+                    message: 'Failed to update authentication status',
+                    error: errorMessage,
+                });
+            }
+        }
+        // Update Firestore account activity
+        const updates = {
+            isActive: !disabled,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        };
+        await admin.firestore().collection('users').doc(id).update(updates);
+        console.log(`Updated user ${id} activation: ${!disabled ? 'active' : 'inactive'}`);
+        return res.json({
+            success: true,
+            message: disabled ? 'User deactivated successfully' : 'User activated successfully',
+        });
+    }
+    catch (error) {
+        console.error('Error toggling user activation:', error);
+        return res.status(500).json({ message: 'Failed to update user activation state' });
+    }
+});
+// Helper function to generate student code with gap filling (STU-001, STU-002, etc.)
 async function generateStudentCode() {
-    // Find all existing student codes (ST-001, ST-002, etc.)
+    // Find all existing student codes (STU-001, STU-002, etc.)
     const snapshot = await admin
         .firestore()
         .collection('users')
-        .where('studentCode', '>=', 'ST-001')
-        .where('studentCode', '<=', 'ST-999')
+        .where('studentCode', '>=', 'STU-001')
+        .where('studentCode', '<=', 'STU-999')
         .orderBy('studentCode', 'asc')
         .get();
     let nextNumber = 1;
@@ -487,9 +535,9 @@ async function generateStudentCode() {
         }
     }
     else {
-        console.log('No existing student codes, starting with ST-001');
+        console.log('No existing student codes, starting with STU-001');
     }
-    const studentCode = `ST-${nextNumber.toString().padStart(3, '0')}`;
+    const studentCode = `STU-${nextNumber.toString().padStart(3, '0')}`;
     console.log(`Generated student code: ${studentCode}`);
     return studentCode;
 }

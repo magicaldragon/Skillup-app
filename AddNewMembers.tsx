@@ -213,7 +213,7 @@ const AddNewMembers = () => {
       email: previewEmail || 'test@student.skillup',
       role: form.role,
       username: previewUsername || 'testuser',
-      studentCode: form.role === 'student' ? 'STU25001' : undefined,
+      studentCode: form.role === 'student' ? 'STU001' : undefined,
       generatedPassword: getPassword({ role: form.role } as CreatedUser),
       status: form.status,
       gender: form.gender,
@@ -271,7 +271,6 @@ const AddNewMembers = () => {
                 </div>
               )}
 
-              {/* Left Column */}
               {/* Full Name */}
               <div className="form-group">
                 <label htmlFor="name" className="form-label">
@@ -289,7 +288,6 @@ const AddNewMembers = () => {
                 />
               </div>
 
-              {/* Right Column */}
               {/* Role */}
               <div className="form-group">
                 <label htmlFor="role" className="form-label">
@@ -310,7 +308,6 @@ const AddNewMembers = () => {
                 </select>
               </div>
 
-              {/* Left Column */}
               {/* Gender */}
               <div className="form-group">
                 <label htmlFor="gender" className="form-label">
@@ -330,7 +327,6 @@ const AddNewMembers = () => {
                 </select>
               </div>
 
-              {/* Right Column */}
               {/* English Name */}
               <div className="form-group">
                 <label htmlFor="englishName" className="form-label">
@@ -347,7 +343,6 @@ const AddNewMembers = () => {
                 />
               </div>
 
-              {/* Left Column */}
               {/* Date of Birth */}
               <div className="form-group">
                 <label htmlFor="dob" className="form-label">
@@ -363,7 +358,6 @@ const AddNewMembers = () => {
                 />
               </div>
 
-              {/* Right Column */}
               {/* Phone Number */}
               <div className="form-group">
                 <label htmlFor="phone" className="form-label">
@@ -380,7 +374,6 @@ const AddNewMembers = () => {
                 />
               </div>
 
-              {/* Left Column */}
               {/* Email */}
               <div className="form-group">
                 <label htmlFor="email" className="form-label">
@@ -402,7 +395,6 @@ const AddNewMembers = () => {
                 )}
               </div>
 
-              {/* Right Column */}
               {/* Status - Only for students */}
               {form.role === 'student' && (
                 <div className="form-group">
@@ -421,10 +413,6 @@ const AddNewMembers = () => {
                     <option value="contacted">Contacted</option>
                     <option value="studying">Studying</option>
                   </select>
-                  <small className="status-hint">
-                    💡 <strong>Potential/Contacted:</strong> Will appear in Potential Students tab<br/>
-                    💡 <strong>Studying:</strong> Will appear in Waiting List for class assignment
-                  </small>
                 </div>
               )}
 
@@ -512,22 +500,16 @@ const AddNewMembers = () => {
               <h3 className="success-title">✅ THE ACCOUNT HAS BEEN CREATED SUCCESSFULLY!</h3>
               <div className="account-details">
                 <div className="account-detail">
-                  <span className="detail-label">
-                    {createdUser.role === 'student' ? 'STUDENT ID' : 'MEMBER ID'}:
-                  </span>
-                  <span className="detail-value">{getStudentId(createdUser)}</span>
-                </div>
-                <div className="account-detail">
                   <span className="detail-label">FULL NAME:</span>
                   <span className="detail-value">{createdUser.name || 'N/A'}</span>
                 </div>
                 <div className="account-detail">
-                  <span className="detail-label">ENGLISH NAME:</span>
-                  <span className="detail-value">{createdUser.englishName || 'N/A'}</span>
-                </div>
-                <div className="account-detail">
                   <span className="detail-label">ROLE:</span>
                   <span className="detail-value">{createdUser.role?.toUpperCase() || 'N/A'}</span>
+                </div>
+                <div className="account-detail">
+                  <span className="detail-label">STUDENT ID:</span>
+                  <span className="detail-value">{getStudentId(createdUser)}</span>
                 </div>
                 <div className="account-detail">
                   <span className="detail-label">USERNAME:</span>
@@ -536,34 +518,15 @@ const AddNewMembers = () => {
                   </span>
                 </div>
                 <div className="account-detail">
-                  <span className="detail-label">EMAIL:</span>
-                  <span className="detail-value">{createdUser.email || previewEmail || 'N/A'}</span>
-                </div>
-                <div className="account-detail">
                   <span className="detail-label">PASSWORD:</span>
                   <span className="detail-value password-display">
                     {createdUser.generatedPassword || getPassword(createdUser)}
                   </span>
                 </div>
-                {createdUser.role === 'student' && createdUser.studentCode && (
-                  <div className="account-detail">
-                    <span className="detail-label">STUDENT CODE:</span>
-                    <span className="detail-value student-code">{createdUser.studentCode}</span>
-                  </div>
-                )}
               </div>
               <div className="success-instructions">
                 <p>
-                  📋 Please copy or take a screenshot of this information and send it to the new
-                  member.
-                </p>
-                <p>🔐 They can use these credentials to log in to their account.</p>
-                <p>
-                  💡 The username is automatically generated from their Vietnamese name for easy
-                  memorization.
-                </p>
-                <p>
-                  📧 The email format is: username@role.skillup (e.g., nguyenvana@student.skillup)
+                  Please copy or take a screenshot of this information and send it to the new member.
                 </p>
               </div>
             </div>

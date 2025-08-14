@@ -502,11 +502,11 @@
 }
 
 .success-info-box {
-  background: linear-gradient(135deg, var(--accent-green) 0%, #059669 50%, #047857 100%);
+  background: linear-gradient(135deg, #ffffff 0%, var(--primary-50) 50%, var(--primary-100) 100%);
   border-radius: var(--radius-3xl);
   padding: var(--space-8);
   box-shadow: var(--shadow-2xl);
-  border: 3px solid var(--dark-green-700);
+  border: 3px solid #dc2626;
   position: relative;
   overflow: hidden;
   backdrop-filter: blur(20px);
@@ -545,20 +545,20 @@
 }
 
 .success-title {
-  color: #ffffff;
+  color: var(--dark-green-800);
   font-size: 1.5rem;
   font-weight: 800;
   text-align: center;
   margin-bottom: var(--space-6);
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   position: relative;
   z-index: 1;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.9);
   padding: var(--space-4);
   border-radius: var(--radius-xl);
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid var(--dark-green-300);
 }
 
 .success-title::before {
@@ -581,10 +581,10 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.9);
   padding: var(--space-4) var(--space-5);
   border-radius: var(--radius-xl);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--dark-green-300);
   box-shadow: var(--shadow-md);
   backdrop-filter: blur(10px);
   transition: all var(--transition-fast);
@@ -599,12 +599,12 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  background: linear-gradient(90deg, transparent, rgba(5, 150, 105, 0.1), transparent);
   transition: left var(--transition-slow);
 }
 
 .account-detail:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 1);
   transform: translateX(4px);
   box-shadow: var(--shadow-lg);
 }
@@ -614,7 +614,7 @@
 }
 
 .detail-label {
-  color: #ffffff;
+  color: var(--dark-green-800);
   font-weight: 700;
   font-size: 0.85rem;
   text-transform: uppercase;
@@ -626,24 +626,17 @@
   gap: var(--space-2);
 }
 
-.detail-label::before {
-  content: "•";
-  color: var(--accent-orange);
-  font-weight: 900;
-  font-size: 1.2rem;
-}
-
 .detail-value {
-  color: #ffffff;
+  color: var(--dark-green-800);
   font-weight: 600;
   font-size: 1rem;
   text-align: right;
   word-break: break-all;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.8);
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-md);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--dark-green-300);
   min-width: 120px;
   text-align: center;
 }
@@ -653,25 +646,16 @@
   font-family: var(--font-mono);
   font-size: 1.1rem;
   font-weight: 800;
-  color: #ffffff;
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.4), rgba(239, 68, 68, 0.6));
+  color: var(--dark-green-800);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.2));
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-lg);
-  border: 2px solid rgba(239, 68, 68, 0.7);
+  border: 2px solid rgba(239, 68, 68, 0.3);
   letter-spacing: 0.1em;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.1);
   position: relative;
   overflow: hidden;
-}
-
-.password-display::before {
-  content: "🔐";
-  position: absolute;
-  left: var(--space-2);
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 0.9rem;
 }
 
 .password-display::after {
@@ -691,94 +675,24 @@
   100% { left: 100%; }
 }
 
-.student-code {
-  font-family: var(--font-mono);
-  font-size: 1.1rem;
-  font-weight: 800;
-  color: #ffffff;
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.4), rgba(245, 158, 11, 0.6));
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-lg);
-  border: 2px solid rgba(245, 158, 11, 0.7);
-  letter-spacing: 0.1em;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-  position: relative;
-  overflow: hidden;
-}
-
-.student-code::before {
-  content: "🎓";
-  position: absolute;
-  left: var(--space-2);
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 0.9rem;
-}
-
-.student-code::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  animation: studentCodeShine 2.5s infinite;
-}
-
-@keyframes studentCodeShine {
-  0% { left: -100%; }
-  50% { left: 100%; }
-  100% { left: 100%; }
-}
-
 .success-instructions {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.9);
   border-radius: var(--radius-xl);
   padding: var(--space-6);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--dark-green-300);
   position: relative;
   z-index: 1;
   backdrop-filter: blur(10px);
 }
 
-.success-instructions::before {
-  content: "📋";
-  position: absolute;
-  top: -15px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 2rem;
-  background: var(--accent-green);
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 3px solid #ffffff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
 .success-instructions p {
-  color: #ffffff;
-  font-size: 0.95rem;
-  font-weight: 500;
+  color: #dc2626;
+  font-size: 1.2rem;
+  font-weight: 700;
   line-height: 1.6;
   margin: var(--space-2) 0;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  padding-left: var(--space-4);
-  position: relative;
-}
-
-.success-instructions p::before {
-  content: "→";
-  position: absolute;
-  left: 0;
-  color: var(--accent-orange);
-  font-weight: 900;
-  font-size: 1.1rem;
+  text-align: center;
 }
 
 /* ===== RESPONSIVE DESIGN ===== */
