@@ -1,0 +1,164 @@
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.notificationsRouter = exports.createNotification = void 0;
+// functions/src/routes/notifications.ts - Notifications API Routes
+const express_1 = require("express");
+const admin = __importStar(require("firebase-admin"));
+const auth_1 = require("../middleware/auth");
+const router = (0, express_1.Router)();
+exports.notificationsRouter = router;
+// Get all notifications for the current user
+router.get('/', auth_1.verifyToken, async (req, res) => {
+    try {
+        if (!req.user) {
+            return res.status(401).json({ message: 'User not authenticated' });
+        }
+        const snapshot = await admin
+            .firestore()
+            .collection('notifications')
+            .where('userId', '==', req.user.userId)
+            .orderBy('createdAt', 'desc')
+            .limit(50)
+            .get();
+        const notifications = snapshot.docs.map((doc) => (Object.assign({ _id: doc.id }, doc.data())));
+        return res.json({
+            success: true,
+            notifications,
+        });
+    }
+    catch (error) {
+        console.error('Error fetching notifications:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to fetch notifications',
+        });
+    }
+});
+// Mark notification as read
+router.patch('/:id/read', auth_1.verifyToken, async (req, res) => {
+    try {
+        if (!req.user) {
+            return res.status(401).json({ message: 'User not authenticated' });
+        }
+        const { id } = req.params;
+        const notificationRef = admin.firestore().collection('notifications').doc(id);
+        const notificationDoc = await notificationRef.get();
+        if (!notificationDoc.exists) {
+            return res.status(404).json({
+                success: false,
+                message: 'Notification not found',
+            });
+        }
+        // Verify the notification belongs to the current user
+        const notificationData = notificationDoc.data();
+        if ((notificationData === null || notificationData === void 0 ? void 0 : notificationData.userId) !== req.user.userId) {
+            return res.status(403).json({
+                success: false,
+                message: 'Access denied',
+            });
+        }
+        await notificationRef.update({
+            isRead: true,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+        return res.json({
+            success: true,
+            message: 'Notification marked as read',
+        });
+    }
+    catch (error) {
+        console.error('Error marking notification as read:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to mark notification as read',
+        });
+    }
+});
+// Mark all notifications as read for the current user
+router.patch('/mark-all-read', auth_1.verifyToken, async (req, res) => {
+    try {
+        if (!req.user) {
+            return res.status(401).json({ message: 'User not authenticated' });
+        }
+        const batch = admin.firestore().batch();
+        const notificationsSnapshot = await admin
+            .firestore()
+            .collection('notifications')
+            .where('userId', '==', req.user.userId)
+            .where('isRead', '==', false)
+            .get();
+        notificationsSnapshot.docs.forEach((doc) => {
+            batch.update(doc.ref, {
+                isRead: true,
+                updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            });
+        });
+        await batch.commit();
+        return res.json({
+            success: true,
+            message: 'All notifications marked as read',
+        });
+    }
+    catch (error) {
+        console.error('Error marking all notifications as read:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to mark all notifications as read',
+        });
+    }
+});
+// Create notification (internal use - called by other services)
+const createNotification = async (userId, type, title, message, relatedId) => {
+    try {
+        const notificationData = {
+            userId,
+            type,
+            title,
+            message,
+            isRead: false,
+            relatedId,
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        };
+        await admin.firestore().collection('notifications').add(notificationData);
+        console.log(`Notification created for user ${userId}: ${title}`);
+    }
+    catch (error) {
+        console.error('Error creating notification:', error);
+    }
+};
+exports.createNotification = createNotification;
+//# sourceMappingURL=notifications.js.map

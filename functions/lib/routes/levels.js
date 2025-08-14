@@ -50,9 +50,12 @@ router.get('/', auth_1.verifyToken, async (req, res) => {
             query = query.where('isActive', '==', isActive === 'true');
         }
         const snapshot = await query.orderBy('order', 'asc').get();
-        const levels = snapshot.docs.map((doc) => (Object.assign({ id: doc.id }, doc.data())));
+        const levels = snapshot.docs.map((doc) => (Object.assign({ _id: doc.id, id: doc.id }, doc.data())));
         console.log(`Fetched ${levels.length} levels`);
-        return res.json(levels);
+        return res.json({
+            success: true,
+            levels: levels
+        });
     }
     catch (error) {
         console.error('Error fetching levels:', error);

@@ -85,9 +85,82 @@ router.get('/', auth_1.verifyToken, async (req, res) => {
 });
 // Create new class
 router.post('/', auth_1.verifyToken, auth_1.requireAdmin, async (req, res) => {
+    var _a;
     try {
-        const { name, classCode, levelId, description, teacherId, studentIds = [], isActive = true, } = req.body;
-        // Check if class code already exists
+        const { levelId, startingDate, description = '', teacherId, studentIds = [], isActive = true, } = req.body;
+        if (!levelId) {
+            return res.status(400).json({
+                success: false,
+                message: 'Level ID is required',
+            });
+        }
+        if (!startingDate) {
+            return res.status(400).json({
+                success: false,
+                message: 'Starting date is required',
+            });
+        }
+        // Validate starting date (must be in the future)
+        const startDate = new Date(startingDate);
+        const now = new Date();
+        if (startDate <= now) {
+            return res.status(400).json({
+                success: false,
+                message: 'Starting date must be in the future',
+            });
+        }
+        // Get level information to generate class code
+        const levelDoc = await admin.firestore().collection('levels').doc(levelId).get();
+        if (!levelDoc.exists) {
+            return res.status(400).json({
+                success: false,
+                message: 'Level not found',
+            });
+        }
+        const levelData = levelDoc.data();
+        const levelCode = (levelData === null || levelData === void 0 ? void 0 : levelData.code) || ((_a = levelData === null || levelData === void 0 ? void 0 : levelData.name) === null || _a === void 0 ? void 0 : _a.substring(0, 2).toUpperCase()) || 'SU';
+        // Generate unique class code with gap filling logic (SU-001, SU-002, etc.)
+        // Find all existing class codes for this level
+        const existingClassesSnapshot = await admin
+            .firestore()
+            .collection('classes')
+            .where('classCode', '>=', `${levelCode}-001`)
+            .where('classCode', '<=', `${levelCode}-999`)
+            .orderBy('classCode', 'asc')
+            .get();
+        let nextNumber = 1;
+        if (!existingClassesSnapshot.empty) {
+            const existingCodes = existingClassesSnapshot.docs.map(doc => doc.data().classCode).sort();
+            console.log(`Existing class codes for ${levelCode}:`, existingCodes);
+            // Find the first missing number in the sequence
+            let expectedNumber = 1;
+            for (const existingCode of existingCodes) {
+                const existingNumber = parseInt(existingCode.slice(-3));
+                if (existingNumber === expectedNumber) {
+                    expectedNumber++;
+                }
+                else {
+                    // Found a gap, use this number
+                    nextNumber = expectedNumber;
+                    console.log(`Found gap in sequence, using number: ${nextNumber}`);
+                    break;
+                }
+            }
+            // If no gaps found, use the next number after the highest existing
+            if (nextNumber === 1) {
+                const highestCode = existingCodes[existingCodes.length - 1];
+                const highestNumber = parseInt(highestCode.slice(-3));
+                nextNumber = highestNumber + 1;
+                console.log(`No gaps found, incrementing from highest: ${highestNumber} -> ${nextNumber}`);
+            }
+        }
+        else {
+            console.log(`No existing classes for ${levelCode}, starting with 001`);
+        }
+        const classCode = `${levelCode}-${nextNumber.toString().padStart(3, '0')}`;
+        console.log(`Generated class code: ${classCode}`);
+        const className = `${(levelData === null || levelData === void 0 ? void 0 : levelData.name) || 'Unknown Level'} - Class ${nextNumber}`;
+        // Check if class code already exists (shouldn't happen with our generation, but safety check)
         const existingClass = await admin
             .firestore()
             .collection('classes')
@@ -102,9 +175,10 @@ router.post('/', auth_1.verifyToken, auth_1.requireAdmin, async (req, res) => {
         }
         // Create class in Firestore
         const classData = {
-            name,
+            name: className,
             classCode,
             levelId,
+            startingDate: startDate,
             description,
             teacherId,
             studentIds,
@@ -113,7 +187,7 @@ router.post('/', auth_1.verifyToken, auth_1.requireAdmin, async (req, res) => {
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         };
         const docRef = await admin.firestore().collection('classes').add(classData);
-        const newClass = Object.assign({ id: docRef.id }, classData);
+        const newClass = Object.assign({ id: docRef.id, _id: docRef.id }, classData);
         // Update students' classIds if provided
         if (studentIds.length > 0) {
             const batch = admin.firestore().batch();
@@ -168,11 +242,73 @@ router.get('/:id', auth_1.verifyToken, async (req, res) => {
         if (!doc.exists) {
             return res.status(404).json({ message: 'Class not found' });
         }
-        return res.json(Object.assign({ id: doc.id }, doc.data()));
+        const classData = Object.assign({ id: doc.id, _id: doc.id }, doc.data());
+        return res.json(classData);
     }
     catch (error) {
         console.error('Error fetching class:', error);
         return res.status(500).json({ message: 'Failed to fetch class' });
+    }
+});
+// Check for gaps in class code sequence
+router.get('/check-gaps/:levelId', auth_1.verifyToken, auth_1.requireAdmin, async (req, res) => {
+    var _a;
+    try {
+        const { levelId } = req.params;
+        // Get level information
+        const levelDoc = await admin.firestore().collection('levels').doc(levelId).get();
+        if (!levelDoc.exists) {
+            return res.status(400).json({
+                success: false,
+                message: 'Level not found',
+            });
+        }
+        const levelData = levelDoc.data();
+        const levelCode = (levelData === null || levelData === void 0 ? void 0 : levelData.code) || ((_a = levelData === null || levelData === void 0 ? void 0 : levelData.name) === null || _a === void 0 ? void 0 : _a.substring(0, 2).toUpperCase()) || 'SU';
+        // Find all existing class codes for this level (SU-001, SU-002, etc.)
+        const existingClassesSnapshot = await admin
+            .firestore()
+            .collection('classes')
+            .where('classCode', '>=', `${levelCode}-001`)
+            .where('classCode', '<=', `${levelCode}-999`)
+            .orderBy('classCode', 'asc')
+            .get();
+        const existingCodes = existingClassesSnapshot.docs.map(doc => doc.data().classCode).sort();
+        const gaps = [];
+        // Find gaps in the sequence
+        let expectedNumber = 1;
+        for (const existingCode of existingCodes) {
+            const existingNumber = parseInt(existingCode.slice(-3));
+            while (expectedNumber < existingNumber) {
+                const gapCode = `${levelCode}-${expectedNumber.toString().padStart(3, '0')}`;
+                gaps.push(gapCode);
+                expectedNumber++;
+            }
+            expectedNumber++;
+        }
+        // Check if there's a gap after the last existing code
+        if (existingCodes.length > 0) {
+            const lastNumber = parseInt(existingCodes[existingCodes.length - 1].slice(-3));
+            const nextAvailable = lastNumber + 1;
+            if (nextAvailable <= 999) {
+                const nextCode = `${levelCode}-${nextAvailable.toString().padStart(3, '0')}`;
+                gaps.push(nextCode);
+            }
+        }
+        return res.json({
+            success: true,
+            levelCode,
+            existingCodes,
+            gaps,
+            nextAvailable: gaps.length > 0 ? gaps[0] : `${levelCode}-001`
+        });
+    }
+    catch (error) {
+        console.error('Error checking class code gaps:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to check class code gaps',
+        });
     }
 });
 // Update class

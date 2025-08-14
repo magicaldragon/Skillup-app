@@ -67,8 +67,10 @@ const auth_1 = require("./routes/auth");
 const changeLogs_1 = require("./routes/changeLogs");
 const classes_1 = require("./routes/classes");
 const levels_1 = require("./routes/levels");
+const notifications_1 = require("./routes/notifications");
 const potentialStudents_1 = require("./routes/potentialStudents");
 const studentRecords_1 = require("./routes/studentRecords");
+const student_reports_1 = require("./routes/student-reports");
 const submissions_1 = __importDefault(require("./routes/submissions"));
 const users_1 = require("./routes/users");
 const app = (0, express_1.default)();
@@ -140,6 +142,8 @@ app.use('/assignments', assignments_1.assignmentsRouter);
 app.use('/submissions', submissions_1.default);
 app.use('/potential-students', potentialStudents_1.potentialStudentsRouter);
 app.use('/student-records', studentRecords_1.studentRecordsRouter);
+app.use('/student-reports', student_reports_1.studentReportsRouter);
+app.use('/notifications', notifications_1.notificationsRouter);
 app.use('/change-logs', changeLogs_1.changeLogsRouter);
 // Error handling middleware
 app.use((err, _req, res, _next) => {
