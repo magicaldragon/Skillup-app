@@ -112,7 +112,7 @@
 
 /* ===== REGISTRATION FORM SECTION ===== */
 .registration-form-section {
-  flex: 1;
+  flex: 0 0 800px;
   max-width: 800px;
   min-width: 600px;
   box-sizing: border-box;
@@ -120,6 +120,7 @@
   flex-direction: column;
   position: relative;
   z-index: 1;
+  margin-right: auto;
 }
 
 /* ===== FORM CONTAINER ===== */
@@ -555,6 +556,7 @@
   align-items: center;
   justify-content: center;
   height: 100%;
+  margin-left: auto;
 }
 
 .success-info-section.show {
