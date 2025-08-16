@@ -1232,13 +1232,10 @@ const ClassesPanel = ({
           </div>
           
           <input
-            type="text"
+            type="date"
             value={newClassStartingDate}
             onChange={(e) => setNewClassStartingDate(e.target.value)}
             className="starting-date-input"
-            placeholder="dd/mm/yyyy"
-            pattern="^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/\d{4}$"
-            title="Please enter date in dd/mm/yyyy format"
           />
           
           {checkingCodes && (

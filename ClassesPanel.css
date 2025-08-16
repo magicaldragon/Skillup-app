@@ -1893,7 +1893,26 @@
   transform: translateY(-1px);
 }
 
-/* Custom date input styling for dd/mm/yyyy format */
+/* Custom date input styling for date picker */
 .starting-date-input {
-  /* Text input styling for dd/mm/yyyy format */
+  position: relative;
+}
+
+.starting-date-input::-webkit-calendar-picker-indicator {
+  background: transparent;
+  bottom: 0;
+  color: transparent;
+  cursor: pointer;
+  height: auto;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: auto;
+}
+
+.starting-date-input::-webkit-inner-spin-button,
+.starting-date-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
