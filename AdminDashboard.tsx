@@ -37,11 +37,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
 }: AdminDashboardProps) => {
   // Use isAdmin to conditionally render admin-specific features
   // Use isAdmin to conditionally render admin-specific features
-  const totalStudents = students.filter((s) => s.role === 'student').length;
-  const totalTeachers = students.filter((s) => s.role === 'teacher').length;
-  const totalStaff = students.filter((s) => s.role === 'staff').length;
-  const totalAssignments = assignments.length; // Count all assignments since status property doesn't exist
-  const totalClasses = classes.length;
+  const totalStudents = students.filter((s) => s && s.role === 'student').length;
+  const totalTeachers = students.filter((s) => s && s.role === 'teacher').length;
+  const totalStaff = students.filter((s) => s && s.role === 'staff').length;
+  const totalAssignments = assignments.filter((a) => a && a.id).length; // Count valid assignments
+  const totalClasses = classes.filter((c) => c && c.id).length; // Count valid classes
 
   // Only show admin-specific features if user is admin
   const showAdminFeatures = isAdmin;
@@ -135,7 +135,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
         <div className="admin-dashboard-content">
           <div className="admin-dashboard-welcome">
             <h1 className="admin-dashboard-title">
-              Welcome back, {user.englishName || user.name}!
+              Welcome back, {user.englishName || user.name || 'Admin'}!
             </h1>
             <p className="admin-dashboard-subtitle">
               Here's your system administration dashboard overview
