@@ -265,41 +265,6 @@
   box-sizing: border-box;
 }
 
-/* Custom date input styling for dd/mm/yyyy format */
-.form-input[type="date"] {
-  position: relative;
-}
-
-.form-input[type="date"]::-webkit-calendar-picker-indicator {
-  background: transparent;
-  bottom: 0;
-  color: transparent;
-  cursor: pointer;
-  height: auto;
-  left: 0;
-  position: absolute;
-  right: 0;
-  top: 0;
-  width: auto;
-}
-
-.form-input[type="date"]::before {
-  content: "dd/mm/yyyy";
-  color: var(--neutral-400);
-  font-style: italic;
-  position: absolute;
-  left: var(--space-4);
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none;
-  z-index: 1;
-}
-
-.form-input[type="date"]:focus::before,
-.form-input[type="date"]:valid::before {
-  display: none;
-}
-
 .form-input:focus,
 .form-select:focus,
 .form-textarea:focus {

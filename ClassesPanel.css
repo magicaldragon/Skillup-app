@@ -1895,35 +1895,5 @@
 
 /* Custom date input styling for dd/mm/yyyy format */
 .starting-date-input {
-  position: relative;
-}
-
-.starting-date-input::-webkit-calendar-picker-indicator {
-  background: transparent;
-  bottom: 0;
-  color: transparent;
-  cursor: pointer;
-  height: auto;
-  left: 0;
-  position: absolute;
-  right: 0;
-  top: 0;
-  width: auto;
-}
-
-.starting-date-input::before {
-  content: "dd/mm/yyyy";
-  color: #666;
-  font-style: italic;
-  position: absolute;
-  left: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none;
-  z-index: 1;
-}
-
-.starting-date-input:focus::before,
-.starting-date-input:valid::before {
-  display: none;
+  /* Text input styling for dd/mm/yyyy format */
 }
