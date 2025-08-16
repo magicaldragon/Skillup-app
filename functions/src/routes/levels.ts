@@ -38,7 +38,7 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
 // Create new level
 router.post('/', verifyToken, requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { name, description, order, isActive = true } = req.body;
+    const { name, description, code, order, isActive = true } = req.body;
 
     // Check if level name already exists
     const existingLevel = await admin
@@ -53,6 +53,23 @@ router.post('/', verifyToken, requireAdmin, async (req: AuthenticatedRequest, re
         success: false,
         message: 'Level with this name already exists',
       });
+    }
+
+    // Check if level code already exists
+    if (code) {
+      const existingCode = await admin
+        .firestore()
+        .collection('levels')
+        .where('code', '==', code)
+        .limit(1)
+        .get();
+
+      if (!existingCode.empty) {
+        return res.status(400).json({
+          success: false,
+          message: 'Level with this code already exists',
+        });
+      }
     }
 
     // If order is not provided, get the next order number
@@ -72,6 +89,7 @@ router.post('/', verifyToken, requireAdmin, async (req: AuthenticatedRequest, re
     const levelData = {
       name,
       description,
+      code: code || '',
       order: levelOrder,
       isActive,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -91,6 +109,112 @@ router.post('/', verifyToken, requireAdmin, async (req: AuthenticatedRequest, re
     return res.status(500).json({
       success: false,
       message: 'Failed to create level',
+    });
+  }
+});
+
+// Seed levels with predefined data
+router.post('/seed', verifyToken, requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    // Predefined levels from constants
+    const predefinedLevels = [
+      {
+        name: 'STARTERS (PRE)',
+        description: 'Cambridge English Qualifications Pre A1 Starters.',
+        code: 'PRE',
+        order: 1,
+        isActive: true,
+      },
+      {
+        name: 'MOVERS (A1)',
+        description: 'Cambridge English Qualifications A1 Movers.',
+        code: 'A1',
+        order: 2,
+        isActive: true,
+      },
+      {
+        name: 'FLYERS (A2A)',
+        description: 'Cambridge English Qualifications A2 Flyers.',
+        code: 'A2A',
+        order: 3,
+        isActive: true,
+      },
+      {
+        name: 'KET (A2B)',
+        description: 'Cambridge English Qualifications A2 Key for Schools.',
+        code: 'A2B',
+        order: 4,
+        isActive: true,
+      },
+      {
+        name: 'PET (B1)',
+        description: 'Cambridge English Qualifications B1 Preliminary for Schools.',
+        code: 'B1',
+        order: 5,
+        isActive: true,
+      },
+      {
+        name: 'PRE-IELTS (B2PRE)',
+        description: 'Foundation for IELTS.',
+        code: 'B2PRE',
+        order: 6,
+        isActive: true,
+      },
+      {
+        name: 'IELTS',
+        description: 'International English Language Testing System.',
+        code: 'I',
+        order: 7,
+        isActive: true,
+      },
+    ];
+
+    let created = 0;
+    let skipped = 0;
+
+    for (const levelData of predefinedLevels) {
+      try {
+        // Check if level already exists by name
+        const existingLevel = await admin
+          .firestore()
+          .collection('levels')
+          .where('name', '==', levelData.name)
+          .limit(1)
+          .get();
+
+        if (!existingLevel.empty) {
+          console.log(`Level "${levelData.name}" already exists, skipping...`);
+          skipped++;
+          continue;
+        }
+
+        // Create level in Firestore
+        const newLevelData = {
+          ...levelData,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        };
+
+        await admin.firestore().collection('levels').add(newLevelData);
+        console.log(`Created level: ${levelData.name}`);
+        created++;
+      } catch (error) {
+        console.error(`Error creating level ${levelData.name}:`, error);
+      }
+    }
+
+    return res.json({
+      success: true,
+      message: 'Levels seeding completed',
+      created,
+      skipped,
+      total: predefinedLevels.length,
+    });
+  } catch (error) {
+    console.error('Error seeding levels:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to seed levels',
     });
   }
 });

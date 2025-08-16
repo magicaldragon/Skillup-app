@@ -243,6 +243,7 @@ const ClassesPanel = ({
     }
 
     const levelDescription = prompt('Enter level description (optional):') || '';
+    const levelCode = prompt('Enter level code (e.g., PRE, A1, B1):') || '';
 
     try {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
@@ -257,6 +258,7 @@ const ClassesPanel = ({
         body: JSON.stringify({
           name: levelName.trim(),
           description: levelDescription.trim(),
+          code: levelCode.trim(),
           isActive: true,
         }),
       });
@@ -277,6 +279,47 @@ const ClassesPanel = ({
       console.error('Error creating level:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to create level';
       alert(`Error creating level: ${errorMessage}`);
+    }
+  }, [fetchLevels]);
+
+  // Seed levels with predefined data
+  const handleSeedLevels = useCallback(async () => {
+    const confirmed = confirm(
+      'This will create the standard levels (STARTERS, MOVERS, FLYERS, KET, PET, PRE-IELTS, IELTS) if they don\'t exist. Continue?'
+    );
+    
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+      
+      const response = await fetch(`${apiUrl}/levels/seed`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to seed levels');
+      }
+
+      const result = await response.json();
+      console.log('Levels seeded successfully:', result);
+      
+      // Refresh levels to show the new levels
+      await fetchLevels();
+      
+      alert(`Levels seeding completed!\nCreated: ${result.created}\nSkipped: ${result.skipped}\nTotal: ${result.total}`);
+    } catch (error) {
+      console.error('Error seeding levels:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to seed levels';
+      alert(`Error seeding levels: ${errorMessage}`);
     }
   }, [fetchLevels]);
 
@@ -1171,6 +1214,22 @@ const ClassesPanel = ({
               >
                 ➕ Create Level
               </button>
+              <button 
+                type="button"
+                onClick={handleSeedLevels}
+                style={{ 
+                  padding: '0.5rem 1rem', 
+                  backgroundColor: '#f59e0b', 
+                  color: 'white', 
+                  border: 'none', 
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '0.8rem'
+                }}
+                title="Seed predefined levels"
+              >
+                🌱 Seed Levels
+              </button>
             </div>
             
             {/* Level status info */}
@@ -1187,12 +1246,17 @@ const ClassesPanel = ({
               {levelsLoading ? (
                 <p>🔄 Loading levels...</p>
               ) : levels && Array.isArray(levels) && levels.length > 0 ? (
-                <p>✅ {levels.length} level{levels.length !== 1 ? 's' : ''} available</p>
+                <div>
+                  <p>✅ {levels.length} level{levels.length !== 1 ? 's' : ''} available</p>
+                  <p style={{ fontSize: '0.7rem', marginTop: '0.25rem', color: '#888' }}>
+                    {levels.length < 7 ? 'Click "Seed Levels" to add standard levels' : 'All standard levels loaded'}
+                  </p>
+                </div>
               ) : (
                 <div>
                   <p>⚠️ No levels found</p>
                   <p style={{ fontSize: '0.7rem', marginTop: '0.25rem' }}>
-                    Click "Create Level" to add your first level
+                    Click "Seed Levels" to add standard levels or "Create Level" for custom ones
                   </p>
                 </div>
               )}
