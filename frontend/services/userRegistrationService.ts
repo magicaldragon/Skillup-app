@@ -27,7 +27,7 @@ function generatePassword(role: string): string {
 
 export interface RegistrationData {
   name: string;
-  email?: string; // Optional since we generate it
+  email?: string; // Personal email (optional) - separate from Firebase email
   role: 'student' | 'teacher' | 'admin' | 'staff';
   gender?: 'male' | 'female' | 'other';
   englishName?: string;
@@ -44,7 +44,8 @@ export interface RegistrationResponse {
   user: {
     id: string;
     name: string;
-    email: string;
+    email: string; // This will be the Firebase email
+    personalEmail?: string; // This will be the personal email if provided
     role: string;
     status: string;
     studentCode?: string;
@@ -58,28 +59,30 @@ export const userRegistrationService = {
     try {
       console.log('userRegistrationService.registerNewUser called with:', data);
       
-      // 1. Generate username and email based on full name and role
+      // 1. Generate username and Firebase email based on full name and role
       const username = generateUsername(data.name);
-      const email = data.email || generateEmail(username, data.role);
+      const firebaseEmail = generateEmail(username, data.role);
       const password = generatePassword(data.role);
 
       console.log('Generated credentials:', {
         username,
-        email,
+        firebaseEmail,
+        personalEmail: data.email,
         role: data.role,
         hasPassword: !!password,
       });
 
-      // 2. Create user in Firebase Auth
+      // 2. Create user in Firebase Auth with the generated email
       console.log('Creating Firebase Auth user...');
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, firebaseEmail, password);
       const firebaseUid = userCredential.user.uid;
       console.log('Firebase Auth user created with UID:', firebaseUid);
 
-      // 3. Send registration data to backend, including firebaseUid, username, and generated email
+      // 3. Send registration data to backend, including firebaseUid, username, and both emails
       const backendData = {
         ...data,
-        email,
+        email: firebaseEmail, // Firebase email for authentication
+        personalEmail: data.email, // Personal email for contact
         username,
         firebaseUid,
         status: data.status || 'potential', // Pass status from form
@@ -114,7 +117,8 @@ export const userRegistrationService = {
         user: {
           ...result.user,
           username,
-          email,
+          email: firebaseEmail, // Firebase email for display
+          personalEmail: data.email, // Personal email for reference
           generatedPassword: password,
         },
       };

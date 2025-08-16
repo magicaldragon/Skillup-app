@@ -21,10 +21,10 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
     // Role-based filtering
     if (role === 'admin' || role === 'teacher' || role === 'staff') {
       // Admin, teachers, and staff see all users
-          } else if (role === 'student') {
-        // Students see only themselves
-        query = query.where('firebaseUid', '==', req.user.uid);
-      }
+    } else if (role === 'student') {
+      // Students see only themselves
+      query = query.where('firebaseUid', '==', req.user.uid);
+    }
 
     // Add status filtering if provided
     if (status) {
@@ -53,7 +53,8 @@ router.post('/', async (req: AuthenticatedRequest, res: Response) => {
   try {
     const {
       name,
-      email,
+      email, // This is now the Firebase email
+      personalEmail, // This is the personal email (optional)
       role,
       gender,
       englishName,
@@ -67,7 +68,7 @@ router.post('/', async (req: AuthenticatedRequest, res: Response) => {
       username,
     } = req.body;
 
-    // Check if user already exists
+    // Check if user already exists with Firebase email
     const existingUser = await admin
       .firestore()
       .collection('users')
@@ -78,7 +79,7 @@ router.post('/', async (req: AuthenticatedRequest, res: Response) => {
     if (!existingUser.empty) {
       return res.status(400).json({
         success: false,
-        message: 'User with this email already exists',
+        message: 'User with this Firebase email already exists',
       });
     }
 
@@ -118,7 +119,8 @@ router.post('/', async (req: AuthenticatedRequest, res: Response) => {
     const userData = {
       username,
       name,
-      email,
+      email, // Firebase email for authentication
+      personalEmail, // Personal email for contact (optional)
       role,
       gender,
       englishName,
@@ -143,7 +145,7 @@ router.post('/', async (req: AuthenticatedRequest, res: Response) => {
         const potentialStudentData = {
           name,
           englishName,
-          email,
+          email: personalEmail || email, // Use personal email if available, otherwise Firebase email
           phone,
           gender,
           dob,

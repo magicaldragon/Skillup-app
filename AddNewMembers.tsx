@@ -16,7 +16,7 @@ import './AddNewMembers.css';
 const AddNewMembers = () => {
   const [form, setForm] = useState({
     name: '',
-    email: '',
+    email: '', // This is now separate from the generated Firebase email
     role: 'student' as 'student' | 'teacher' | 'admin' | 'staff',
     gender: 'male' as 'male' | 'female' | 'other',
     englishName: '',
@@ -80,7 +80,7 @@ const AddNewMembers = () => {
   const handleReset = () => {
     setForm({
       name: '',
-      email: '',
+      email: '', // Reset to empty, don't auto-fill
       role: 'student',
       gender: 'male',
       englishName: '',
@@ -370,7 +370,7 @@ const AddNewMembers = () => {
                 />
               </div>
 
-              {/* Email */}
+              {/* Email - Now separate from generated Firebase email */}
               <div className="form-group">
                 <label htmlFor="email" className="form-label">
                   Email
@@ -382,8 +382,13 @@ const AddNewMembers = () => {
                   value={form.email}
                   onChange={handleChange}
                   className="form-input"
-                  placeholder={previewEmail || 'Enter email address (optional)'}
+                  placeholder="Enter email address (optional)"
                 />
+                <div className="email-hint">
+                  <small>
+                    <strong>Note:</strong> This is your personal email. A separate Firebase account will be created with username: <code>{previewUsername || 'username'}@{form.role}.skillup</code>
+                  </small>
+                </div>
               </div>
 
               {/* Status - Only for students */}
