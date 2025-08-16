@@ -687,9 +687,9 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
                     <span className="levels-card-code">{level.code}</span>
                     <div className="levels-card-stats">
                       <span className="levels-card-class-count">
-                        {assignedClasses.length} class{assignedClasses.length !== 1 ? 'es' : ''}
+                        {assignedClasses.length === 0 ? 'EMPTY' : `${assignedClasses.length} class${assignedClasses.length !== 1 ? 'es' : ''}`}
                       </span>
-                      <span className="levels-card-hint">Double-click to edit</span>
+                      <span className="levels-card-hint">Click to edit</span>
                     </div>
                   </div>
                 </div>

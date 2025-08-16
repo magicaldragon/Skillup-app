@@ -282,47 +282,6 @@ const ClassesPanel = ({
     }
   }, [fetchLevels]);
 
-  // Seed levels with predefined data
-  const handleSeedLevels = useCallback(async () => {
-    const confirmed = confirm(
-      'This will create the standard levels (STARTERS, MOVERS, FLYERS, KET, PET, PRE-IELTS, IELTS) if they don\'t exist. Continue?'
-    );
-    
-    if (!confirmed) {
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
-      
-      const response = await fetch(`${apiUrl}/levels/seed`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to seed levels');
-      }
-
-      const result = await response.json();
-      console.log('Levels seeded successfully:', result);
-      
-      // Refresh levels to show the new levels
-      await fetchLevels();
-      
-      alert(`Levels seeding completed!\nCreated: ${result.created}\nSkipped: ${result.skipped}\nTotal: ${result.total}`);
-    } catch (error) {
-      console.error('Error seeding levels:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to seed levels';
-      alert(`Error seeding levels: ${errorMessage}`);
-    }
-  }, [fetchLevels]);
-
   useEffect(() => {
     fetchLevels();
   }, [fetchLevels]);
@@ -915,13 +874,18 @@ const ClassesPanel = ({
       </div>
 
       <div className="classes-info">
-        Showing {filteredClasses.length} of {classes && Array.isArray(classes) ? classes.length : 0}{' '}
-        classes
-        {(classSearch || levelFilter) && (
-          <span className="filter-info">
-            {classSearch && ` matching "${classSearch}"`}
-            {levelFilter && ` in ${levels.find((l) => l._id === levelFilter)?.name || 'Unknown Level'}`}
-          </span>
+        {classes && Array.isArray(classes) && classes.length > 0 ? (
+          <>
+            Showing {filteredClasses.length} of {classes.length} classes
+            {(classSearch || levelFilter) && (
+              <span className="filter-info">
+                {classSearch && ` matching "${classSearch}"`}
+                {levelFilter && ` in ${levels.find((l) => l._id === levelFilter)?.name || 'Unknown Level'}`}
+              </span>
+            )}
+          </>
+        ) : (
+          <span style={{ fontSize: '0.8rem', color: '#666' }}>EMPTY</span>
         )}
       </div>
 
@@ -1205,53 +1169,34 @@ const ClassesPanel = ({
               <button 
                 type="button"
                 onClick={handleRefreshLevels}
-                disabled={levelsLoading}
                 style={{ 
                   padding: '0.5rem 1rem', 
-                  backgroundColor: '#307637', 
+                  backgroundColor: '#3b82f6', 
                   color: 'white', 
                   border: 'none', 
                   borderRadius: '4px',
-                  cursor: levelsLoading ? 'not-allowed' : 'pointer',
-                  opacity: levelsLoading ? 0.6 : 1,
+                  cursor: 'pointer',
                   fontSize: '0.8rem'
                 }}
-                title="Refresh the list of available levels"
+                title="Refresh levels"
               >
-                {levelsLoading ? 'Loading...' : '🔄 Refresh'}
+                🔄 Refresh
               </button>
-              
               <button 
                 type="button"
                 onClick={handleCreateLevel}
                 style={{ 
                   padding: '0.5rem 1rem', 
-                  backgroundColor: '#1e40af', 
+                  backgroundColor: '#10b981', 
                   color: 'white', 
                   border: 'none', 
                   borderRadius: '4px',
                   cursor: 'pointer',
                   fontSize: '0.8rem'
                 }}
-                title="Create a new level"
+                title="Create new level"
               >
                 ➕ Create Level
-              </button>
-              <button 
-                type="button"
-                onClick={handleSeedLevels}
-                style={{ 
-                  padding: '0.5rem 1rem', 
-                  backgroundColor: '#f59e0b', 
-                  color: 'white', 
-                  border: 'none', 
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontSize: '0.8rem'
-                }}
-                title="Seed predefined levels"
-              >
-                🌱 Seed Levels
               </button>
             </div>
             
@@ -1272,14 +1217,14 @@ const ClassesPanel = ({
                 <div>
                   <p>✅ {levels.length} level{levels.length !== 1 ? 's' : ''} available</p>
                   <p style={{ fontSize: '0.7rem', marginTop: '0.25rem', color: '#888' }}>
-                    {levels.length < 7 ? 'Click "Seed Levels" to add standard levels' : 'All standard levels loaded'}
+                    All levels loaded successfully
                   </p>
                 </div>
               ) : (
                 <div>
                   <p>⚠️ No levels found</p>
                   <p style={{ fontSize: '0.7rem', marginTop: '0.25rem' }}>
-                    Click "Seed Levels" to add standard levels or "Create Level" for custom ones
+                    Click "Create Level" to add new levels
                   </p>
                 </div>
               )}

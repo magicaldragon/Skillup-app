@@ -318,12 +318,13 @@
 }
 
 .levels-card-title {
-  font-size: 1.1rem;
-  font-weight: 600;
+  font-size: 1.5rem;
+  font-weight: 700;
   margin: 0 0 0.75rem 0;
-  color: #404040;
+  color: #307637;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  line-height: 1.2;
 }
 
 .levels-card-stats {
@@ -336,8 +337,8 @@
 }
 
 .levels-card-class-count {
-  font-size: 2.5rem;
-  font-weight: 800;
+  font-size: 1.8rem;
+  font-weight: 700;
   color: #1e40af;
   margin: 0;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
@@ -348,6 +349,12 @@
   color: #6b7280;
   font-style: italic;
   margin-top: 0.25rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.levels-card:hover .levels-card-hint {
+  opacity: 1;
 }
 
 .levels-card-code {
