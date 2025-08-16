@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
-import { usersAPI, APIError } from './services/apiService';
+import { APIError, usersAPI } from './services/apiService';
 import { authService } from './services/authService';
-import { UserUpdateData } from './types';
+import type { UserUpdateData } from './types';
 import './AccountsPanel.css';
 
 interface User {
@@ -35,7 +35,9 @@ const AccountsPanel = () => {
   const [passwordChangeId, setPasswordChangeId] = useState<string | null>(null);
   const [newPassword, setNewPassword] = useState('');
   const [passwordChanging, setPasswordChanging] = useState(false);
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [currentUser, setCurrentUser] = useState<ReturnType<
+    typeof authService.getCurrentUser
+  > | null>(null);
   const [syncStatus, setSyncStatus] = useState<string>('');
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
@@ -49,69 +51,71 @@ const AccountsPanel = () => {
   // Permission checking functions
   const canManageUser = (targetUser: User): boolean => {
     if (!currentUser) return false;
-    
+
     const currentUserRole = currentUser.role;
     const targetUserRole = targetUser.role;
-    
+
     // Admin can manage all users
     if (currentUserRole === 'admin') return true;
-    
+
     // Teacher can manage staff and students, but not admins or other teachers
     if (currentUserRole === 'teacher') {
       return targetUserRole === 'staff' || targetUserRole === 'student';
     }
-    
+
     // Staff can only manage students
     if (currentUserRole === 'staff') {
       return targetUserRole === 'student';
     }
-    
+
     // Students cannot manage any users
     return false;
   };
 
   const canChangeRole = (targetUser: User, newRole: string): boolean => {
     if (!currentUser) return false;
-    
+
     const currentUserRole = currentUser.role;
     const targetUserRole = targetUser.role;
-    
+
     // Admin can change any role
     if (currentUserRole === 'admin') return true;
-    
+
     // Teacher can only change staff and student roles
     if (currentUserRole === 'teacher') {
-      return (targetUserRole === 'staff' || targetUserRole === 'student') && 
-             (newRole === 'staff' || newRole === 'student');
+      return (
+        (targetUserRole === 'staff' || targetUserRole === 'student') &&
+        (newRole === 'staff' || newRole === 'student')
+      );
     }
-    
+
     // Staff can only change student roles
     if (currentUserRole === 'staff') {
       return targetUserRole === 'student' && newRole === 'student';
     }
-    
+
     return false;
   };
 
   const canDeleteUser = (targetUser: User): boolean => {
     if (!currentUser) return false;
-    
+
     const currentUserRole = currentUser.role;
     const targetUserRole = targetUser.role;
-    
+
     // Admin can delete any user
     if (currentUserRole === 'admin') return true;
-    
+
     // Teacher can delete staff and students
     if (currentUserRole === 'teacher') {
       return targetUserRole === 'staff' || targetUserRole === 'student';
     }
-    
+
     // Staff can only delete students
     if (currentUserRole === 'staff') {
       return targetUserRole === 'student';
     }
-    
+
     return false;
   };
 
@@ -139,19 +143,21 @@ const AccountsPanel = () => {
 
       // Normalize data structure - ensure consistent ID handling
       const normalizedAccounts = Array.isArray(data) ? data : [];
-      const accountsWithConsistentIds = normalizedAccounts.map(account => ({
+      const accountsWithConsistentIds = normalizedAccounts.map((account) => ({
         ...account,
         _id: account._id || account.id || '',
         id: account.id || account._id || '',
       }));
 
-      console.log('🔍 DEBUG: Setting normalized accounts, count:', accountsWithConsistentIds.length);
+      console.log(
+        '🔍 DEBUG: Setting normalized accounts, count:',
+        accountsWithConsistentIds.length
+      );
       setAccounts(accountsWithConsistentIds);
       setSyncStatus('Accounts fetched successfully');
-      
     } catch (err: unknown) {
       let errorMessage = 'Failed to fetch accounts';
-      
+
       if (err instanceof APIError) {
         errorMessage = `API Error (${err.status}): ${err.message}`;
         console.error('🔍 DEBUG: API Error fetching accounts:', err);
@@ -161,7 +167,7 @@ const AccountsPanel = () => {
       } else {
         console.error('🔍 DEBUG: Unknown error fetching accounts:', err);
       }
-      
+
       setError(errorMessage);
       setAccounts([]);
       setSyncStatus('Failed to fetch accounts');
@@ -179,7 +185,7 @@ const AccountsPanel = () => {
       alert('You do not have permission to edit this user.');
       return;
     }
-    
+
     setEditingId(user._id);
     setEditForm({
       name: user.name,
@@ -203,7 +209,7 @@ const AccountsPanel = () => {
 
     try {
       setSyncStatus('Updating user...');
-      
+
       const updateData: UserUpdateData = {
         id: editingId,
         ...(editForm.name && { name: editForm.name }),
@@ -219,42 +225,41 @@ const AccountsPanel = () => {
         ...(editForm.parentName && { parentName: editForm.parentName }),
         ...(editForm.parentPhone && { parentPhone: editForm.parentPhone }),
       };
-      
+
       // Check if role change is allowed
-      const targetUser = accounts.find(acc => acc._id === editingId);
+      const targetUser = accounts.find((acc) => acc._id === editingId);
       if (!targetUser) {
         throw new Error('User not found');
       }
-      
+
       if (editForm.role && !canChangeRole(targetUser, editForm.role)) {
-        alert('You do not have permission to change this user\'s role.');
+        alert("You do not have permission to change this user's role.");
         return;
       }
-      
+
       // Use enhanced API service with retry and error handling
       // This will update both Firebase Auth and Firestore
       await usersAPI.updateUser(editingId, updateData);
 
       // Update local state with consistent ID handling
       setAccounts((prev) =>
-        prev.map((acc) => 
-          acc._id === editingId 
-            ? { 
-                ...acc, 
+        prev.map((acc) =>
+          acc._id === editingId
+            ? {
+                ...acc,
                 ...editForm,
-                updatedAt: new Date().toISOString()
-              } 
+                updatedAt: new Date().toISOString(),
+              }
             : acc
         )
       );
-      
+
       setEditingId(null);
       setEditForm({});
       setSyncStatus('User updated successfully in both Firebase Auth and Firestore');
-      
     } catch (err: unknown) {
       let errorMessage = 'Failed to update user';
-      
+
       if (err instanceof APIError) {
         errorMessage = `API Error (${err.status}): ${err.message}`;
         console.error('Error updating user:', err);
@@ -264,7 +269,7 @@ const AccountsPanel = () => {
       } else {
         console.error('Unknown error updating user:', err);
       }
-      
+
       setError(errorMessage);
       setSyncStatus('Failed to update user');
     }
@@ -272,29 +277,28 @@ const AccountsPanel = () => {
 
   // Enhanced remove with data synchronization
   const handleRemove = async (id: string) => {
-    const userToDelete = accounts.find(acc => acc._id === id);
+    const userToDelete = accounts.find((acc) => acc._id === id);
     if (!userToDelete) return;
-    
+
     if (!canDeleteUser(userToDelete)) {
       alert('You do not have permission to delete this user.');
       return;
     }
-    
+
     if (!confirm('Are you sure you want to delete this user?')) return;
 
     try {
       setSyncStatus('Deleting user...');
-      
+
       // Use enhanced API service
       await usersAPI.deleteUser(id);
-      
+
       // Update local state
       setAccounts((prev) => prev.filter((acc) => acc._id !== id));
       setSyncStatus('User deleted successfully');
-      
     } catch (err: unknown) {
       let errorMessage = 'Failed to delete user';
-      
+
       if (err instanceof APIError) {
         errorMessage = `API Error (${err.status}): ${err.message}`;
         console.error('Error deleting user:', err);
@@ -304,7 +308,7 @@ const AccountsPanel = () => {
       } else {
         console.error('Unknown error deleting user:', err);
       }
-      
+
       setError(errorMessage);
       setSyncStatus('Failed to delete user');
     }
@@ -314,18 +318,18 @@ const AccountsPanel = () => {
   const handlePasswordChange = async () => {
     if (!passwordChangeId || !newPassword.trim()) return;
 
-    const userToChangePassword = accounts.find(acc => acc._id === passwordChangeId);
+    const userToChangePassword = accounts.find((acc) => acc._id === passwordChangeId);
     if (!userToChangePassword) return;
-    
+
     if (!canChangePassword(userToChangePassword)) {
-      alert('You do not have permission to change this user\'s password.');
+      alert("You do not have permission to change this user's password.");
       return;
     }
 
     try {
       setPasswordChanging(true);
       setSyncStatus('Changing password...');
-      
+
       // Use enhanced API service
       await usersAPI.changePassword(passwordChangeId, newPassword);
 
@@ -333,13 +337,12 @@ const AccountsPanel = () => {
       setNewPassword('');
       setError(null);
       setSyncStatus('Password changed successfully');
-      
+
       // Show success message
       alert('Password changed successfully!');
-      
     } catch (err: unknown) {
       let errorMessage = 'Failed to change password';
-      
+
       if (err instanceof APIError) {
         errorMessage = `API Error (${err.status}): ${err.message}`;
         console.error('Error changing password:', err);
@@ -349,7 +352,7 @@ const AccountsPanel = () => {
       } else {
         console.error('Unknown error changing password:', err);
       }
-      
+
       setError(errorMessage);
       setSyncStatus('Failed to change password');
     } finally {
@@ -382,11 +385,17 @@ const AccountsPanel = () => {
   useEffect(() => {
     // Reset to first page whenever filters/search change
     setCurrentPage(1);
-  }, [searchTerm, filterRole, filterStatus, accounts.length]);
+  }, []);
 
   // Clear sync status after a delay
   useEffect(() => {
-    if (syncStatus && !syncStatus.includes('Fetching') && !syncStatus.includes('Updating') && !syncStatus.includes('Deleting') && !syncStatus.includes('Changing')) {
+    if (
+      syncStatus &&
+      !syncStatus.includes('Fetching') &&
+      !syncStatus.includes('Updating') &&
+      !syncStatus.includes('Deleting') &&
+      !syncStatus.includes('Changing')
+    ) {
       const timer = setTimeout(() => {
         setSyncStatus('');
       }, 3000);
@@ -473,9 +482,7 @@ const AccountsPanel = () => {
                       <option value="student">Student</option>
                     </>
                   )}
-                  {currentUser?.role === 'student' && (
-                    <option value="student">Student</option>
-                  )}
+                  {currentUser?.role === 'student' && <option value="student">Student</option>}
                 </select>
 
                 {/* Only show status filter when "Students" role is selected */}
@@ -525,7 +532,7 @@ const AccountsPanel = () => {
                   </div>
                 </div>
               )}
-              
+
               <table className="accounts-table">
                 <thead>
                   <tr>
@@ -548,8 +555,8 @@ const AccountsPanel = () => {
                 </thead>
                 <tbody>
                   {visibleAccounts.map((account) => (
-                    <tr 
-                      key={account._id} 
+                    <tr
+                      key={account._id}
                       className={!canManageUser(account) ? 'no-permission-row' : ''}
                     >
                       <td>
@@ -799,9 +806,11 @@ const AccountsPanel = () => {
                               </button>
                             )}
                             {/* Removed deactivate button as requested */}
-                            {!canEditUser(account) && !canChangePassword(account) && !canDeleteUser(account) && (
-                              <span className="no-permission">No permissions</span>
-                            )}
+                            {!canEditUser(account) &&
+                              !canChangePassword(account) &&
+                              !canDeleteUser(account) && (
+                                <span className="no-permission">No permissions</span>
+                              )}
                           </div>
                         )}
                       </td>
@@ -812,13 +821,21 @@ const AccountsPanel = () => {
 
               {/* Pagination controls */}
               <div className="pagination-container">
-                <button type="button" disabled={safePage <= 1} onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}>
+                <button
+                  type="button"
+                  disabled={safePage <= 1}
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                >
                   Prev
                 </button>
                 <span>
                   Page {safePage} / {totalPages}
                 </span>
-                <button type="button" disabled={safePage >= totalPages} onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}>
+                <button
+                  type="button"
+                  disabled={safePage >= totalPages}
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                >
                   Next
                 </button>
               </div>

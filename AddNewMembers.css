@@ -180,11 +180,12 @@
 .title-decoration-line {
   width: 100%;
   height: 2px;
-  background: linear-gradient(90deg, 
-    transparent 0%, 
-    var(--dark-green-400) 20%, 
-    var(--dark-green-600) 50%, 
-    var(--dark-green-400) 80%, 
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--dark-green-400) 20%,
+    var(--dark-green-600) 50%,
+    var(--dark-green-400) 80%,
     transparent 100%
   );
   margin: 0 auto var(--space-8) auto;
@@ -445,7 +446,7 @@
 .submit-btn::before,
 .reset-btn::before,
 .test-btn::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
@@ -646,7 +647,7 @@
   color: var(--dark-green-800);
   font-weight: 600;
   font-size: 1rem;
-  text-align: right;
+  text-align: center;
   word-break: break-all;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   background: rgba(255, 255, 255, 0.8);
@@ -654,7 +655,6 @@
   border-radius: var(--radius-md);
   border: 1px solid var(--dark-green-300);
   min-width: 120px;
-  text-align: center;
 }
 
 /* ===== SPECIAL STYLING FOR PASSWORD AND STUDENT CODE ===== */
@@ -686,9 +686,15 @@
 }
 
 @keyframes passwordShine {
-  0% { left: -100%; }
-  50% { left: 100%; }
-  100% { left: 100%; }
+  0% {
+    left: -100%;
+  }
+  50% {
+    left: 100%;
+  }
+  100% {
+    left: 100%;
+  }
 }
 
 .success-instructions {
