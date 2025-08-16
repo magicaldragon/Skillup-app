@@ -199,36 +199,7 @@ const AddNewMembers = () => {
     return 'Skillup@123';
   };
 
-  // Test function to verify registration flow (remove in production)
-  const testRegistration = () => {
-    console.log('Testing registration flow...');
-    console.log('Current form state:', form);
-    console.log('Preview username:', previewUsername);
-    console.log('Preview email:', previewEmail);
 
-    // Simulate a successful registration for testing
-    const testUser: CreatedUser = {
-      id: 'test-123',
-      name: form.name || 'Test User',
-      email: previewEmail || 'test@student.skillup',
-      role: form.role,
-      username: previewUsername || 'testuser',
-      studentCode: form.role === 'student' ? 'STU-001' : undefined,
-      generatedPassword: getPassword({ role: form.role } as CreatedUser),
-      status: form.status,
-      gender: form.gender,
-      englishName: form.englishName,
-      dob: form.dob,
-      phone: form.phone,
-      parentName: form.parentName,
-      parentPhone: form.parentPhone,
-      notes: form.notes,
-    };
-
-    setCreatedUser(testUser);
-    setGeneratedStudentCode(testUser.studentCode || null);
-    setSuccess('Test registration completed successfully!');
-  };
 
   return (
     <div className="add-student-container">
@@ -239,14 +210,6 @@ const AddNewMembers = () => {
             <div className="title-decoration-line"></div>
 
             {error && <div className="error-message">{error}</div>}
-
-            {success && <div className="success-message">{success}</div>}
-
-            {generatedStudentCode && (
-              <div className="student-code-display">
-                <strong>Generated Student Code: {generatedStudentCode}</strong>
-              </div>
-            )}
 
             <form onSubmit={handleSubmit} className="registration-form">
               {/* Debug Info - Remove in production */}
@@ -470,14 +433,6 @@ const AddNewMembers = () => {
                   disabled={loading}
                 >
                   Reset
-                </button>
-                <button
-                  type="button"
-                  className="test-btn"
-                  onClick={testRegistration}
-                  disabled={loading}
-                >
-                  Test Registration
                 </button>
               </div>
             </form>
