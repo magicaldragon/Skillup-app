@@ -1,16 +1,10 @@
 // dataSyncService.ts - Comprehensive data synchronization service for Firebase/Firestore
-import { assignmentsAPI, classesAPI, levelsAPI, usersAPI } from './apiService';
-import type { 
-  APIResponse, 
-  EntityResponse, 
-  CreateMethod, 
-  UpdateMethod, 
+import type {
+  CreateMethod,
   DeleteMethod,
-  Student,
-  StudentClass,
-  Assignment,
-  Level
+  UpdateMethod,
 } from '../types';
+import { assignmentsAPI, classesAPI, levelsAPI, usersAPI } from './apiService';
 
 // Data synchronization configuration - removed unused constants
 
@@ -237,7 +231,7 @@ export class DataSyncService {
 
       // Attempt rollback
       if (currentData) {
-        await this.rollbackUpdate(entity, id, currentData);
+        await this.rollbackUpdate(entity, id, currentData, { update: apiMethod });
       }
 
       throw new DataSyncError(
@@ -445,30 +439,21 @@ export class DataSyncService {
   }
 
   // Rollback update operation
-  private async rollbackUpdate(entity: string, id: string, originalData: unknown): Promise<void> {
+  private async rollbackUpdate<T>(
+    entity: string,
+    id: string,
+    currentData: unknown,
+    apiMethods: {
+      update: UpdateMethod<T>;
+    }
+  ): Promise<void> {
     try {
-      // For update operations, we can restore the original data
-      console.log(`Rolling back ${entity} update operation:`, id, originalData);
-      
-      // This would require the original API method to restore the data
-      // For now, just log the rollback attempt
-      console.warn(`Rollback required for ${entity} update operation: ${id}`, originalData);
+      if (currentData) {
+        await apiMethods.update(id, currentData as T);
+        console.log(`Rolled back ${entity} update operation:`, id);
+      }
     } catch (error) {
       console.error(`Rollback failed for ${entity} update operation:`, error);
-    }
-  }
-
-  // Rollback delete operation
-  private async rollbackDelete(entity: string, id: string, deletedData: unknown): Promise<void> {
-    try {
-      // For delete operations, we can recreate the entity
-      console.log(`Rolling back ${entity} delete operation:`, id, deletedData);
-      
-      // This would require the original API method to recreate the data
-      // For now, just log the rollback attempt
-      console.warn(`Rollback required for ${entity} delete operation: ${id}`, deletedData);
-    } catch (error) {
-      console.error(`Rollback failed for ${entity} delete operation:`, error);
     }
   }
 

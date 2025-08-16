@@ -119,7 +119,6 @@ export interface EntityListResponse<T = unknown> extends APIResponse<T[]> {
 export type CreateMethod<T> = (data: T) => Promise<unknown>;
 export type UpdateMethod<T> = (id: string, data: T) => Promise<unknown>;
 export type DeleteMethod = (id: string) => Promise<unknown>;
-export type GetMethod<T> = (id: string) => Promise<unknown>;
 
 export interface AuditLogEntry {
   id: string;
