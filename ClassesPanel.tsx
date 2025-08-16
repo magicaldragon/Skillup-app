@@ -74,13 +74,6 @@ const ClassesPanel = ({
     className: '',
   });
 
-  // Report state variables - used in report handling functions
-  // These variables are used in the report handling functions but not directly in the UI
-  // @ts-ignore - Used in functions but not directly in UI
-  const [reportProblem, setReportProblem] = useState<string>('');
-  // @ts-ignore - Used in functions but not directly in UI
-  const [reportSending, setReportSending] = useState<boolean>(false);
-
   // Add report modal state
   const [studentReportModal, setStudentReportModal] = useState<{
     isOpen: boolean;
@@ -292,7 +285,6 @@ const ClassesPanel = ({
       return;
     }
 
-    setReportSending(true);
     try {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
       const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
@@ -339,8 +331,6 @@ const ClassesPanel = ({
     } catch (error) {
       console.error('Error submitting report:', error);
       alert(error instanceof Error ? error.message : 'Failed to submit report. Please try again.');
-    } finally {
-      setReportSending(false);
     }
   }, [studentReportModal, onDataRefresh]);
 
@@ -476,7 +466,6 @@ const ClassesPanel = ({
       classId: '',
       className: '',
     });
-    setReportProblem('');
   }, []);
 
   // Handle keyboard events for accessibility
@@ -1085,6 +1074,7 @@ const ClassesPanel = ({
             <p>API URL: {import.meta.env.VITE_API_BASE_URL || '/api'}</p>
             <p>Token available: {!!(localStorage.getItem('skillup_token') || localStorage.getItem('authToken'))}</p>
             <button 
+              type="button"
               onClick={() => fetchLevels()} 
               style={{ 
                 padding: '0.5rem 1rem', 

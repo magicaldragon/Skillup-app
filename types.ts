@@ -98,6 +98,29 @@ export interface Submission {
   feedback: string;
 }
 
+// API Response Types for dataSyncService
+export interface APIResponse<T = unknown> {
+  success: boolean;
+  data?: T;
+  message?: string;
+  error?: string;
+  status?: number;
+}
+
+export interface EntityResponse<T = unknown> extends APIResponse<T> {
+  data: T;
+}
+
+export interface EntityListResponse<T = unknown> extends APIResponse<T[]> {
+  data: T[];
+}
+
+// Generic API method types - using unknown for now since the actual API methods return unknown
+export type CreateMethod<T> = (data: T) => Promise<unknown>;
+export type UpdateMethod<T> = (id: string, data: T) => Promise<unknown>;
+export type DeleteMethod = (id: string) => Promise<unknown>;
+export type GetMethod<T> = (id: string) => Promise<unknown>;
+
 export interface AuditLogEntry {
   id: string;
   timestamp: string; // ISO string
