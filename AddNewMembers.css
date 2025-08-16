@@ -85,12 +85,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   padding: var(--space-6);
   margin: 0;
   background: #ffffff;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
   box-sizing: border-box;
   font-family: var(--font-sans);
 }
@@ -101,13 +100,13 @@
   max-width: 1400px;
   display: flex;
   flex-direction: row;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
   gap: var(--space-8);
   padding: var(--space-4);
   box-sizing: border-box;
   min-width: 0;
-  min-height: calc(100vh - 3rem);
+  height: 100%;
   position: relative;
 }
 
@@ -137,12 +136,10 @@
   position: relative;
   transition: all var(--transition-normal);
   backdrop-filter: blur(20px);
-  min-height: fit-content;
-  flex: 1;
+  height: fit-content;
   display: flex;
   flex-direction: column;
-  max-height: calc(100vh - 4rem);
-  overflow-y: auto;
+  overflow: visible;
 }
 
 .add-student-content .form-container:hover {
@@ -266,6 +263,41 @@
   box-shadow: var(--shadow-sm);
   width: 100%;
   box-sizing: border-box;
+}
+
+/* Custom date input styling for dd/mm/yyyy format */
+.form-input[type="date"] {
+  position: relative;
+}
+
+.form-input[type="date"]::-webkit-calendar-picker-indicator {
+  background: transparent;
+  bottom: 0;
+  color: transparent;
+  cursor: pointer;
+  height: auto;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: auto;
+}
+
+.form-input[type="date"]::before {
+  content: "dd/mm/yyyy";
+  color: var(--neutral-400);
+  font-style: italic;
+  position: absolute;
+  left: var(--space-4);
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.form-input[type="date"]:focus::before,
+.form-input[type="date"]:valid::before {
+  display: none;
 }
 
 .form-input:focus,
@@ -532,6 +564,10 @@
   z-index: 2;
   transform: none;
   transition: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
 }
 
 .success-info-section.show {
