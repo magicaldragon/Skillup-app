@@ -1,5 +1,5 @@
 // dataSyncService.ts - Comprehensive data synchronization service for Firebase/Firestore
-import { usersAPI, classesAPI, levelsAPI, assignmentsAPI } from './apiService';
+import { assignmentsAPI, classesAPI, levelsAPI, usersAPI } from './apiService';
 
 // Data synchronization configuration - removed unused constants
 
@@ -53,7 +53,7 @@ export class DataSyncService {
   // Get synchronization status
   getSyncStatus(entity?: string): SyncStatus[] {
     if (entity) {
-      return Array.from(this.syncStatus.values()).filter(status => status.entity === entity);
+      return Array.from(this.syncStatus.values()).filter((status) => status.entity === entity);
     }
     return Array.from(this.syncStatus.values());
   }
@@ -149,7 +149,6 @@ export class DataSyncService {
 
       console.log(`${entity} created successfully:`, result);
       return result;
-
     } catch (error) {
       // Update status
       syncStatus.status = 'failed';
@@ -219,7 +218,6 @@ export class DataSyncService {
 
       console.log(`${entity} updated successfully:`, result);
       return result;
-
     } catch (error) {
       // Update status
       syncStatus.status = 'failed';
@@ -274,7 +272,6 @@ export class DataSyncService {
 
       console.log(`${entity} deleted successfully:`, result);
       return result;
-
     } catch (error) {
       // Update status
       syncStatus.status = 'failed';
@@ -323,7 +320,7 @@ export class DataSyncService {
       // Process operations sequentially to maintain consistency
       for (let i = 0; i < operations.length; i++) {
         const operation = operations[i];
-        
+
         try {
           let result: any;
 
@@ -332,25 +329,26 @@ export class DataSyncService {
               result = await apiMethods.create(operation.data);
               rollbackData.push({ type: 'delete', data: result, id: result.id || result._id });
               break;
-            case 'update':
+            case 'update': {
               if (!operation.id) throw new Error('ID required for update operation');
               const currentData = await this.getCurrentData(entity, operation.id);
               rollbackData.push({ type: 'update', data: currentData, id: operation.id });
               result = await apiMethods.update(operation.id, operation.data);
               break;
-            case 'delete':
+            }
+            case 'delete': {
               if (!operation.id) throw new Error('ID required for delete operation');
               const deletedData = await this.getCurrentData(entity, operation.id);
               rollbackData.push({ type: 'create', data: deletedData, id: operation.id });
               result = await apiMethods.delete(operation.id);
               break;
+            }
           }
 
           results.push(result);
-          
+
           // Update progress
           syncStatus.progress = ((i + 1) / operations.length) * 100;
-
         } catch (error) {
           // Log error but continue with other operations
           const errorMsg = error instanceof Error ? error.message : 'Unknown error';
@@ -365,7 +363,6 @@ export class DataSyncService {
 
       console.log(`Bulk ${entity} operations completed:`, results.length, 'successful');
       return results;
-
     } catch (error) {
       // Update status
       syncStatus.status = 'failed';
@@ -448,7 +445,7 @@ export class DataSyncService {
   ): Promise<void> {
     try {
       console.log(`Starting rollback for ${entity} bulk operation...`);
-      
+
       for (const rollback of rollbackData) {
         try {
           switch (rollback.type) {
@@ -472,7 +469,7 @@ export class DataSyncService {
           console.error(`Rollback operation failed for ${rollback.type}:`, error);
         }
       }
-      
+
       console.log(`Rollback completed for ${entity} bulk operation`);
     } catch (error) {
       console.error(`Rollback failed for ${entity} bulk operation:`, error);
@@ -481,8 +478,8 @@ export class DataSyncService {
 
   // Clean up old sync status entries
   cleanupOldStatus(olderThanHours: number = 24): void {
-    const cutoffTime = Date.now() - (olderThanHours * 60 * 60 * 1000);
-    
+    const cutoffTime = Date.now() - olderThanHours * 60 * 60 * 1000;
+
     for (const [id, status] of this.syncStatus.entries()) {
       if (status.endTime && status.endTime < cutoffTime) {
         this.syncStatus.delete(id);
@@ -534,7 +531,8 @@ export const dataSyncService = DataSyncService.getInstance();
 // Convenience functions for common operations
 export const syncUsers = {
   create: (data: any) => dataSyncService.createEntity('user', data, usersAPI.createUser),
-  update: (id: string, data: any) => dataSyncService.updateEntity('user', id, data, usersAPI.updateUser),
+  update: (id: string, data: any) =>
+    dataSyncService.updateEntity('user', id, data, usersAPI.updateUser),
   delete: (id: string) => dataSyncService.deleteEntity('user', id, usersAPI.deleteUser),
   bulk: (operations: Array<{ type: 'create' | 'update' | 'delete'; data: any; id?: string }>) =>
     dataSyncService.bulkOperation('user', operations, {
@@ -546,7 +544,8 @@ export const syncUsers = {
 
 export const syncClasses = {
   create: (data: any) => dataSyncService.createEntity('class', data, classesAPI.createClass),
-  update: (id: string, data: any) => dataSyncService.updateEntity('class', id, data, classesAPI.updateClass),
+  update: (id: string, data: any) =>
+    dataSyncService.updateEntity('class', id, data, classesAPI.updateClass),
   delete: (id: string) => dataSyncService.deleteEntity('class', id, classesAPI.deleteClass),
   bulk: (operations: Array<{ type: 'create' | 'update' | 'delete'; data: any; id?: string }>) =>
     dataSyncService.bulkOperation('class', operations, {
@@ -557,13 +556,16 @@ export const syncClasses = {
 };
 
 export const syncAssignments = {
-  create: (data: any) => dataSyncService.createEntity('assignment', data, assignmentsAPI.createAssignment),
-  update: (id: string, data: any) => dataSyncService.updateEntity('assignment', id, data, assignmentsAPI.updateAssignment),
-  delete: (id: string) => dataSyncService.deleteEntity('assignment', id, assignmentsAPI.deleteAssignment),
+  create: (data: any) =>
+    dataSyncService.createEntity('assignment', data, assignmentsAPI.createAssignment),
+  update: (id: string, data: any) =>
+    dataSyncService.updateEntity('assignment', id, data, assignmentsAPI.updateAssignment),
+  delete: (id: string) =>
+    dataSyncService.deleteEntity('assignment', id, assignmentsAPI.deleteAssignment),
   bulk: (operations: Array<{ type: 'create' | 'update' | 'delete'; data: any; id?: string }>) =>
     dataSyncService.bulkOperation('assignment', operations, {
       create: assignmentsAPI.createAssignment,
       update: (id: string, data: any) => assignmentsAPI.updateAssignment(id, data),
       delete: (id: string) => assignmentsAPI.deleteAssignment(id),
     }),
-}; 
+};

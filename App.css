@@ -7,7 +7,9 @@
 }
 
 /* Global content optimization */
-.panel, .dashboard-panel, .content-panel {
+.panel,
+.dashboard-panel,
+.content-panel {
   height: 100%;
   max-height: 100%;
   overflow-y: auto;
@@ -16,11 +18,15 @@
   flex-direction: column;
 }
 
-.panel > *, .dashboard-panel > *, .content-panel > * {
+.panel > *,
+.dashboard-panel > *,
+.content-panel > * {
   flex-shrink: 0;
 }
 
-.panel > *:last-child, .dashboard-panel > *:last-child, .content-panel > *:last-child {
+.panel > *:last-child,
+.dashboard-panel > *:last-child,
+.content-panel > *:last-child {
   flex: 1;
   min-height: 0;
   overflow-y: auto;

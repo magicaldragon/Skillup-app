@@ -63,7 +63,7 @@ const AddNewMembers = () => {
       role: form.role,
       status: form.status,
       previewUsername,
-      previewEmail
+      previewEmail,
     });
   }, [form.name, form.role, form.status, previewUsername, previewEmail]);
 
@@ -123,7 +123,7 @@ const AddNewMembers = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate form
     const validationError = validateForm();
     if (validationError) {
@@ -149,11 +149,11 @@ const AddNewMembers = () => {
         ...form,
         status: userStatus,
       });
-      
+
       console.log('Registration result:', result);
-      
+
       // Ensure we have the user data
-      if (result && result.user) {
+      if (result?.user) {
         setSuccess(
           `User registered successfully! ${result.user.studentCode ? `Student Code: ${result.user.studentCode}` : ''}`
         );
@@ -205,7 +205,7 @@ const AddNewMembers = () => {
     console.log('Current form state:', form);
     console.log('Preview username:', previewUsername);
     console.log('Preview email:', previewEmail);
-    
+
     // Simulate a successful registration for testing
     const testUser: CreatedUser = {
       id: 'test-123',
@@ -224,7 +224,7 @@ const AddNewMembers = () => {
       parentPhone: form.parentPhone,
       notes: form.notes,
     };
-    
+
     setCreatedUser(testUser);
     setGeneratedStudentCode(testUser.studentCode || null);
     setSuccess('Test registration completed successfully!');
@@ -235,9 +235,7 @@ const AddNewMembers = () => {
       <div className="add-student-content">
         <div className="registration-form-section">
           <div className="form-container">
-            <h2 className="form-title">
-              REGISTRATION FORM
-            </h2>
+            <h2 className="form-title">REGISTRATION FORM</h2>
             <div className="title-decoration-line"></div>
 
             {error && <div className="error-message">{error}</div>}
@@ -250,13 +248,22 @@ const AddNewMembers = () => {
               </div>
             )}
 
-
-
             <form onSubmit={handleSubmit} className="registration-form">
               {/* Debug Info - Remove in production */}
               {process.env.NODE_ENV === 'development' && (
-                <div className="debug-info" style={{ gridColumn: '1 / -1', marginBottom: '1rem', padding: '0.5rem', background: '#f0f0f0', borderRadius: '0.5rem', fontSize: '0.8rem' }}>
-                  <strong>Debug Info:</strong> Name: "{form.name}" | Role: {form.role} | Status: {form.status} | Username: {previewUsername} | Email: {previewEmail}
+                <div
+                  className="debug-info"
+                  style={{
+                    gridColumn: '1 / -1',
+                    marginBottom: '1rem',
+                    padding: '0.5rem',
+                    background: '#f0f0f0',
+                    borderRadius: '0.5rem',
+                    fontSize: '0.8rem',
+                  }}
+                >
+                  <strong>Debug Info:</strong> Name: "{form.name}" | Role: {form.role} | Status:{' '}
+                  {form.status} | Username: {previewUsername} | Email: {previewEmail}
                 </div>
               )}
 
@@ -375,9 +382,8 @@ const AddNewMembers = () => {
                   value={form.email}
                   onChange={handleChange}
                   className="form-input"
-                  placeholder={previewEmail || "Enter email address (optional)"}
+                  placeholder={previewEmail || 'Enter email address (optional)'}
                 />
-
               </div>
 
               {/* Status - Only for students */}
@@ -511,7 +517,8 @@ const AddNewMembers = () => {
               </div>
               <div className="success-instructions">
                 <p>
-                  Please copy or take a screenshot of this information and send it to the new member.
+                  Please copy or take a screenshot of this information and send it to the new
+                  member.
                 </p>
               </div>
             </div>
