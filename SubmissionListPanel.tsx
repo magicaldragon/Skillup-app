@@ -8,7 +8,7 @@
 // - error?: string | null
 import type React from 'react';
 import type { Assignment, Student, Submission } from './types';
-import { formatDateTimeMMDDYYYY } from './utils/stringUtils';
+import { formatDateTimeDDMMYYYY } from './utils/stringUtils';
 
 interface SubmissionListPanelProps {
   assignment: Assignment;
@@ -60,7 +60,7 @@ const SubmissionListPanel: React.FC<SubmissionListPanelProps> = ({
                 <tr key={s.id}>
                   <td className="p-2">{student ? student.name : s.studentId}</td>
                   <td className="p-2">
-                    {s.submittedAt ? formatDateTimeMMDDYYYY(s.submittedAt) : '-'}
+                                         {s.submittedAt ? formatDateTimeDDMMYYYY(s.submittedAt) : '-'}
                   </td>
                   <td className="p-2">
                     {s.score !== null && s.score !== undefined ? s.score : '-'}

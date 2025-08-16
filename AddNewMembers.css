@@ -523,17 +523,15 @@
 
 /* ===== SUCCESS INFO SECTION ===== */
 .success-info-section {
-  position: absolute;
-  top: 0;
-  right: 0;
+  position: static;
   width: 450px;
   min-width: 450px;
   max-width: 500px;
   box-sizing: border-box;
   flex-shrink: 0;
   z-index: 2;
-  transform: translateX(100%);
-  transition: transform var(--transition-slow) ease-out;
+  transform: none;
+  transition: none;
 }
 
 .success-info-section.show {

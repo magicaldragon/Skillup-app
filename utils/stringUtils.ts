@@ -164,22 +164,22 @@ export const debounce = <T extends (...args: any[]) => any>(
 };
 
 /**
- * Format date to mm/dd/yyyy format
+ * Format date to dd/mm/yyyy format
  * @param dateString - Date string or Date object
- * @returns Formatted date string in mm/dd/yyyy format
+ * @returns Formatted date string in dd/mm/yyyy format
  */
-export const formatDateMMDDYYYY = (dateString: string | Date): string => {
+export const formatDateDDMMYYYY = (dateString: string | Date): string => {
   try {
     const date = new Date(dateString);
     if (isNaN(date.getTime())) {
       return '-';
     }
     
-    const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
     
-    return `${month}/${day}/${year}`;
+    return `${day}/${month}/${year}`;
   } catch (error) {
     console.error('Error formatting date:', error);
     return '-';
@@ -187,24 +187,24 @@ export const formatDateMMDDYYYY = (dateString: string | Date): string => {
 };
 
 /**
- * Format date to mm/dd/yyyy hh:mm format
+ * Format date to dd/mm/yyyy hh:mm format
  * @param dateString - Date string or Date object
- * @returns Formatted date string in mm/dd/yyyy hh:mm format
+ * @returns Formatted date string in dd/mm/yyyy hh:mm format
  */
-export const formatDateTimeMMDDYYYY = (dateString: string | Date): string => {
+export const formatDateTimeDDMMYYYY = (dateString: string | Date): string => {
   try {
     const date = new Date(dateString);
     if (isNaN(date.getTime())) {
       return '-';
     }
     
-    const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
     
-    return `${month}/${day}/${year} ${hours}:${minutes}`;
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
   } catch (error) {
     console.error('Error formatting date time:', error);
     return '-';

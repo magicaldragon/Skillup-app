@@ -603,24 +603,34 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
                 ×
               </button>
               <div className="level-expanded-info">
-                <h2>{selectedLevel.name}</h2>
-                <span className="level-expanded-code">{selectedLevel.code}</span>
-              </div>
-              <div className="level-expanded-actions">
-                <button
-                  type="button"
-                  className="level-expanded-edit-btn"
-                  onClick={() => handleEditLevel(selectedLevel)}
-                >
-                  Edit Level
-                </button>
-                <button
-                  type="button"
-                  className="level-expanded-delete-btn"
-                  onClick={() => handleDeleteLevel(selectedLevel._id)}
-                >
-                  Delete Level
-                </button>
+                <div className="level-expanded-title-row">
+                  <h2>{selectedLevel.name}</h2>
+                  <div className="level-expanded-actions">
+                    <button
+                      type="button"
+                      className="level-expanded-edit-btn"
+                      onClick={() => handleEditLevel(selectedLevel)}
+                    >
+                      Edit Level
+                    </button>
+                    <button
+                      type="button"
+                      className="level-expanded-delete-btn"
+                      onClick={() => handleDeleteLevel(selectedLevel._id)}
+                    >
+                      Delete Level
+                    </button>
+                  </div>
+                </div>
+                <div className="level-expanded-code-count">
+                  <span className="level-expanded-code">{selectedLevel.code}</span>
+                  <span className="level-expanded-class-count">
+                    {classesByLevel[selectedLevel._id] && classesByLevel[selectedLevel._id].length > 0 
+                      ? `${classesByLevel[selectedLevel._id].length} class${classesByLevel[selectedLevel._id].length !== 1 ? 'es' : ''}`
+                      : 'EMPTY'
+                    }
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -670,8 +680,6 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
         ) : (
           // Show all levels in grid
           displayLevels.map((level) => {
-            const assignedClasses = classesByLevel[level._id] || [];
-
             return (
               <button
                 type="button"
@@ -679,21 +687,15 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
                 className="levels-card"
                 onClick={() => handleLevelClick(level)}
                 onDoubleClick={() => handleLevelDoubleClick(level)}
-                aria-label={`View details for ${level.name} level. Double-click to edit.`}
+                aria-label={`View details for ${level.name} level. Click to edit.`}
               >
                 <div className="levels-card-header">
                   <div className="levels-card-info">
                     <h3 className="levels-card-title">{level.name}</h3>
                     <span className="levels-card-code">{level.code}</span>
-                    <div className="levels-card-stats">
-                      <span className="levels-card-class-count">
-                        {assignedClasses.length === 0 ? 'EMPTY' : `${assignedClasses.length} class${assignedClasses.length !== 1 ? 'es' : ''}`}
-                      </span>
-                      <span className="levels-card-hint">Click to edit</span>
-                    </div>
+                    <span className="levels-card-hint">Click to edit</span>
                   </div>
                 </div>
-                {/* Removed preview and actions for clean dashboard style */}
               </button>
             );
           })

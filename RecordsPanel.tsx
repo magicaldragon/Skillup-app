@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import './RecordsPanel.css';
-import { formatDateMMDDYYYY, formatDateTimeMMDDYYYY } from './utils/stringUtils';
+import { formatDateDDMMYYYY, formatDateTimeDDMMYYYY } from './utils/stringUtils';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
@@ -372,7 +372,7 @@ const RecordsPanel = () => {
                     <td>{student.studentCode || '—'}</td>
                     <td>{student.phone || '—'}</td>
                     <td>{student.parentName || '—'}</td>
-                    <td>{formatDateMMDDYYYY(student.createdAt)}</td>
+                    <td>{formatDateDDMMYYYY(student.createdAt)}</td>
                   </tr>
                 ))
               )}
@@ -414,7 +414,7 @@ const RecordsPanel = () => {
                       </span>
                     </td>
                     <td>{getCategoryDisplayName(record.category)}</td>
-                    <td>{formatDateTimeMMDDYYYY(record.timestamp)}</td>
+                    <td>{formatDateTimeDDMMYYYY(record.timestamp)}</td>
                     <td>{record.studentName}</td>
                     <td>
                       {record.details ? JSON.stringify(record.details) : 'No details available'}
