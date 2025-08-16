@@ -51,7 +51,7 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "collection",
+          "fieldPath": "entityId",
           "order": "ASCENDING"
         },
         {
@@ -65,21 +65,21 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "documentId",
+          "fieldPath": "timestamp",
           "order": "ASCENDING"
         },
-        {
-          "fieldPath": "timestamp",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "changeLogs",
-      "queryScope": "COLLECTION",
-      "fields": [
         {
           "fieldPath": "entityId",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "changeLogs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "collection",
           "order": "ASCENDING"
         },
         {
@@ -261,6 +261,16 @@
         {
           "fieldPath": "createdAt",
           "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "classIds",
+          "arrayConfig": "CONTAINS"
         }
       ]
     }
