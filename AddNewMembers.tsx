@@ -29,8 +29,6 @@ const AddNewMembers = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [generatedStudentCode, setGeneratedStudentCode] = useState<string | null>(null);
   const [createdUser, setCreatedUser] = useState<CreatedUser | null>(null);
   const [previewUsername, setPreviewUsername] = useState<string>('');
   const [previewEmail, setPreviewEmail] = useState<string>('');
@@ -73,7 +71,6 @@ const AddNewMembers = () => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
     setError(null);
-    setSuccess(null);
     setCreatedUser(null);
   };
 
@@ -92,8 +89,6 @@ const AddNewMembers = () => {
       status: 'potential',
     });
     setError(null);
-    setSuccess(null);
-    setGeneratedStudentCode(null);
     setCreatedUser(null);
     setPreviewUsername('');
     setPreviewEmail('');
@@ -133,7 +128,6 @@ const AddNewMembers = () => {
 
     setLoading(true);
     setError(null);
-    setSuccess(null);
     setCreatedUser(null);
 
     try {
@@ -154,10 +148,6 @@ const AddNewMembers = () => {
 
       // Ensure we have the user data
       if (result?.user) {
-        setSuccess(
-          `User registered successfully! ${result.user.studentCode ? `Student Code: ${result.user.studentCode}` : ''}`
-        );
-        setGeneratedStudentCode(result.user.studentCode || null);
         setCreatedUser(result.user);
         handleReset();
       } else {
