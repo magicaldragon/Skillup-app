@@ -384,11 +384,6 @@ const AddNewMembers = () => {
                   className="form-input"
                   placeholder="Enter email address (optional)"
                 />
-                <div className="email-hint">
-                  <small>
-                    <strong>Note:</strong> This is your personal email. A separate Firebase account will be created with username: <code>{previewUsername || 'username'}@{form.role}.skillup</code>
-                  </small>
-                </div>
               </div>
 
               {/* Status - Only for students */}
@@ -491,7 +486,7 @@ const AddNewMembers = () => {
 
         {/* Success Info Box - appears when account is created successfully */}
         {createdUser && (
-          <div className="success-info-section">
+          <div className="success-info-section show">
             <div className="success-info-box">
               <h3 className="success-title">THE ACCOUNT HAS BEEN CREATED SUCCESSFULLY!</h3>
               <div className="account-details">
