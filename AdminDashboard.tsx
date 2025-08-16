@@ -40,8 +40,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const totalStudents = students.filter((s) => s && s.role === 'student').length;
   const totalTeachers = students.filter((s) => s && s.role === 'teacher').length;
   const totalStaff = students.filter((s) => s && s.role === 'staff').length;
-  const totalAssignments = assignments.filter((a) => a && a.id).length; // Count valid assignments
-  const totalClasses = classes.filter((c) => c && c.id).length; // Count valid classes
+  const totalAssignments = assignments.filter((a) => a?.id).length; // Count valid assignments
+  const totalClasses = classes.filter((c) => c?.id).length; // Count valid classes
 
   // Only show admin-specific features if user is admin
   const showAdminFeatures = isAdmin;

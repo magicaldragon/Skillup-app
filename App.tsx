@@ -80,21 +80,23 @@ const App: React.FC = () => {
             email: profile.email || '',
             role: profile.role || 'student',
             username: profile.username || profile.email || '',
-            englishName: (profile as any).englishName || profile.name || profile.fullname || '',
-            gender: (profile as any).gender || '',
-            dob: (profile as any).dob || '',
-            phone: (profile as any).phone || '',
-            parentName: (profile as any).parentName || '',
-            parentPhone: (profile as any).parentPhone || '',
-            notes: (profile as any).notes || '',
-            status: (profile as any).status || '',
-            studentCode: (profile as any).studentCode || '',
-            avatarUrl: (profile as any).avatarUrl || '',
-            diceBearStyle: (profile as any).diceBearStyle || '',
-            diceBearSeed: (profile as any).diceBearSeed || '',
-            classIds: Array.isArray((profile as any).classIds) ? (profile as any).classIds : [],
-            createdAt: (profile as any).createdAt || '',
-            updatedAt: (profile as any).updatedAt || '',
+            englishName: (profile as Student).englishName || profile.name || profile.fullname || '',
+            gender: (profile as Student).gender || '',
+            dob: (profile as Student).dob || '',
+            phone: (profile as Student).phone || '',
+            parentName: (profile as Student).parentName || '',
+            parentPhone: (profile as Student).parentPhone || '',
+            notes: (profile as Student).notes || '',
+            status: (profile as Student).status || '',
+            studentCode: (profile as Student).studentCode || '',
+            avatarUrl: (profile as Student).avatarUrl || '',
+            diceBearStyle: (profile as Student).diceBearStyle || '',
+            diceBearSeed: (profile as Student).diceBearSeed || '',
+            classIds: Array.isArray((profile as Student).classIds)
+              ? (profile as Student).classIds
+              : [],
+            createdAt: (profile as Student).createdAt || '',
+            updatedAt: (profile as Student).updatedAt || '',
           };
           console.log('Original profile role:', profile.role);
           console.log('Safe profile role:', safeProfile.role);
@@ -141,21 +143,23 @@ const App: React.FC = () => {
         email: userData.email || '',
         role: userData.role || 'student',
         username: userData.username || userData.email || '',
-        englishName: (userData as any).englishName || userData.name || userData.fullname || '',
-        gender: (userData as any).gender || '',
-        dob: (userData as any).dob || '',
-        phone: (userData as any).phone || '',
-        parentName: (userData as any).parentName || '',
-        parentPhone: (userData as any).parentPhone || '',
-        notes: (userData as any).notes || '',
-        status: (userData as any).status || '',
-        studentCode: (userData as any).studentCode || '',
-        avatarUrl: (userData as any).avatarUrl || '',
-        diceBearStyle: (userData as any).diceBearStyle || '',
-        diceBearSeed: (userData as any).diceBearSeed || '',
-        classIds: Array.isArray((userData as any).classIds) ? (userData as any).classIds : [],
-        createdAt: (userData as any).createdAt || '',
-        updatedAt: (userData as any).updatedAt || '',
+        englishName: (userData as Student).englishName || userData.name || userData.fullname || '',
+        gender: (userData as Student).gender || '',
+        dob: (userData as Student).dob || '',
+        phone: (userData as Student).phone || '',
+        parentName: (userData as Student).parentName || '',
+        parentPhone: (userData as Student).parentPhone || '',
+        notes: (userData as Student).notes || '',
+        status: (userData as Student).status || '',
+        studentCode: (userData as Student).studentCode || '',
+        avatarUrl: (userData as Student).avatarUrl || '',
+        diceBearStyle: (userData as Student).diceBearStyle || '',
+        diceBearSeed: (userData as Student).diceBearSeed || '',
+        classIds: Array.isArray((userData as Student).classIds)
+          ? (userData as Student).classIds
+          : [],
+        createdAt: (userData as Student).createdAt || '',
+        updatedAt: (userData as Student).updatedAt || '',
       };
       setUser(safeUserData);
       setAuthError(null);
@@ -212,29 +216,31 @@ const App: React.FC = () => {
       const data = await response.json();
       if (data.success && Array.isArray(data.users)) {
         // Validate and sanitize student data to prevent trim() errors
-        const sanitizedStudents = data.users.map((student: any) => ({
-          id: student.id || student._id || '',
-          _id: student._id || student.id || '',
-          name: student.name || student.fullname || student.displayName || '',
-          email: student.email || '',
-          role: student.role || 'student',
-          username: student.username || student.email || '',
-          englishName: student.englishName || student.name || student.fullname || '',
-          gender: student.gender || '',
-          dob: student.dob || '',
-          phone: student.phone || '',
-          parentName: student.parentName || '',
-          parentPhone: student.parentPhone || '',
-          notes: student.notes || '',
-          status: student.status || '',
-          studentCode: student.studentCode || '',
-          avatarUrl: student.avatarUrl || '',
-          diceBearStyle: student.diceBearStyle || '',
-          diceBearSeed: student.diceBearSeed || '',
-          classIds: Array.isArray(student.classIds) ? student.classIds : [],
-          createdAt: student.createdAt || '',
-          updatedAt: student.updatedAt || '',
-        }));
+        const sanitizedStudents = data.users.map(
+          (student: Partial<Student> & { fullname?: string }) => ({
+            id: student.id || student._id || '',
+            _id: student._id || student.id || '',
+            name: student.name || student.fullname || student.displayName || '',
+            email: student.email || '',
+            role: student.role || 'student',
+            username: student.username || student.email || '',
+            englishName: student.englishName || student.name || student.fullname || '',
+            gender: student.gender || '',
+            dob: student.dob || '',
+            phone: student.phone || '',
+            parentName: student.parentName || '',
+            parentPhone: student.parentPhone || '',
+            notes: student.notes || '',
+            status: student.status || '',
+            studentCode: student.studentCode || '',
+            avatarUrl: student.avatarUrl || '',
+            diceBearStyle: student.diceBearStyle || '',
+            diceBearSeed: student.diceBearSeed || '',
+            classIds: Array.isArray(student.classIds) ? student.classIds : [],
+            createdAt: student.createdAt || '',
+            updatedAt: student.updatedAt || '',
+          })
+        );
         setStudents(sanitizedStudents);
         console.log('Students fetched and sanitized successfully:', sanitizedStudents.length);
       } else {
@@ -272,23 +278,25 @@ const App: React.FC = () => {
       const data = await response.json();
       if (data.success && Array.isArray(data.assignments)) {
         // Validate and sanitize assignment data to prevent trim() errors
-        const sanitizedAssignments = data.assignments.map((assignment: any) => ({
-          id: assignment.id || assignment._id || '',
-          title: assignment.title || '',
-          level: assignment.level || { name: '', code: '' },
-          skill: assignment.skill || 'Reading',
-          description: assignment.description || '',
-          questions: Array.isArray(assignment.questions) ? assignment.questions : [],
-          answerKey: assignment.answerKey || {},
-          audioUrl: assignment.audioUrl || '',
-          pdfUrl: assignment.pdfUrl || '',
-          publishDate: assignment.publishDate || '',
-          dueDate: assignment.dueDate || '',
-          classIds: Array.isArray(assignment.classIds) ? assignment.classIds : [],
-          createdBy: assignment.createdBy || '',
-          createdAt: assignment.createdAt || '',
-          templateId: assignment.templateId || '',
-        }));
+        const sanitizedAssignments = data.assignments.map(
+          (assignment: Partial<Assignment> & { _id?: string }) => ({
+            id: assignment.id || assignment._id || '',
+            title: assignment.title || '',
+            level: assignment.level || { name: '', code: '' },
+            skill: assignment.skill || 'Reading',
+            description: assignment.description || '',
+            questions: Array.isArray(assignment.questions) ? assignment.questions : [],
+            answerKey: assignment.answerKey || {},
+            audioUrl: assignment.audioUrl || '',
+            pdfUrl: assignment.pdfUrl || '',
+            publishDate: assignment.publishDate || '',
+            dueDate: assignment.dueDate || '',
+            classIds: Array.isArray(assignment.classIds) ? assignment.classIds : [],
+            createdBy: assignment.createdBy || '',
+            createdAt: assignment.createdAt || '',
+            templateId: assignment.templateId || '',
+          })
+        );
         setAssignments(sanitizedAssignments);
         console.log('Assignments fetched and sanitized successfully:', sanitizedAssignments.length);
       } else {
@@ -326,15 +334,17 @@ const App: React.FC = () => {
       const data = await response.json();
       if (data.success && Array.isArray(data.submissions)) {
         // Validate and sanitize submission data to prevent trim() errors
-        const sanitizedSubmissions = data.submissions.map((submission: any) => ({
-          id: submission.id || submission._id || '',
-          studentId: submission.studentId || '',
-          assignmentId: submission.assignmentId || '',
-          submittedAt: submission.submittedAt || '',
-          content: submission.content || '',
-          score: submission.score || null,
-          feedback: submission.feedback || '',
-        }));
+        const sanitizedSubmissions = data.submissions.map(
+          (submission: Partial<Submission> & { _id?: string }) => ({
+            id: submission.id || submission._id || '',
+            studentId: submission.studentId || '',
+            assignmentId: submission.assignmentId || '',
+            submittedAt: submission.submittedAt || '',
+            content: submission.content || '',
+            score: submission.score || null,
+            feedback: submission.feedback || '',
+          })
+        );
         setSubmissions(sanitizedSubmissions);
         console.log('Submissions fetched and sanitized successfully:', sanitizedSubmissions.length);
       } else {
@@ -372,19 +382,21 @@ const App: React.FC = () => {
       const data = await response.json();
       if (data.success && Array.isArray(data.classes)) {
         // Validate and sanitize class data to prevent trim() errors
-        const sanitizedClasses = data.classes.map((cls: any) => ({
-          _id: cls._id || cls.id || '',
-          id: cls.id || cls._id || '',
-          name: cls.name || '',
-          classCode: cls.classCode || '',
-          levelId: cls.levelId || null,
-          studentIds: Array.isArray(cls.studentIds) ? cls.studentIds : [],
-          teacherId: cls.teacherId || '',
-          description: cls.description || '',
-          isActive: cls.isActive !== undefined ? cls.isActive : true,
-          createdAt: cls.createdAt || '',
-          updatedAt: cls.updatedAt || '',
-        }));
+        const sanitizedClasses = data.classes.map(
+          (cls: Partial<StudentClass> & { _id?: string }) => ({
+            _id: cls._id || cls.id || '',
+            id: cls.id || cls._id || '',
+            name: cls.name || '',
+            classCode: cls.classCode || '',
+            levelId: cls.levelId || null,
+            studentIds: Array.isArray(cls.studentIds) ? cls.studentIds : [],
+            teacherId: cls.teacherId || '',
+            description: cls.description || '',
+            isActive: cls.isActive !== undefined ? cls.isActive : true,
+            createdAt: cls.createdAt || '',
+            updatedAt: cls.updatedAt || '',
+          })
+        );
         setClasses(sanitizedClasses);
         console.log('Classes fetched and sanitized successfully:', sanitizedClasses.length);
       } else {
@@ -495,7 +507,15 @@ const App: React.FC = () => {
     } else {
       // For now, use type assertion to handle the TeacherDashboard props mismatch
       // This is a temporary solution until we can properly align the types
-      DashboardComponent = TeacherDashboard as any; // Teachers and staff get teacher dashboard
+      DashboardComponent = TeacherDashboard as unknown as React.ComponentType<{
+        user: Student;
+        students: Student[];
+        assignments: Assignment[];
+        classes: StudentClass[];
+        activeKey: string;
+        onDataRefresh?: () => void;
+        isAdmin?: boolean;
+      }>; // Teachers and staff get teacher dashboard
     }
 
     console.log(
