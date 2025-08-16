@@ -346,14 +346,11 @@ const AddNewMembers = () => {
                 </label>
                 <input
                   id="dob"
-                  type="text"
+                  type="date"
                   name="dob"
                   value={form.dob}
                   onChange={handleChange}
                   className="form-input"
-                  placeholder="dd/mm/yyyy"
-                  pattern="^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/\d{4}$"
-                  title="Please enter date in dd/mm/yyyy format"
                 />
               </div>
 
