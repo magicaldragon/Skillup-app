@@ -181,7 +181,13 @@ const ClassesPanel = ({
       console.log('Levels response ok:', response.ok);
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        if (response.status === 401) {
+          throw new Error('Authentication required. Please log in again.');
+        } else if (response.status === 403) {
+          throw new Error('Access denied. You do not have permission to view levels.');
+        } else {
+          throw new Error(`Server error: ${response.status} ${response.statusText}`);
+        }
       }
 
       const data = await response.json();
@@ -214,11 +220,65 @@ const ClassesPanel = ({
     } catch (error) {
       console.error('Error fetching levels:', error);
       setLevels([]);
+      // Show user-friendly error message
+      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch levels';
+      alert(`Error loading levels: ${errorMessage}`);
     } finally {
       setLevelsLoading(false);
       console.log('Levels loading finished');
     }
   }, []);
+
+  // Refresh levels manually
+  const handleRefreshLevels = useCallback(async () => {
+    console.log('Manually refreshing levels...');
+    await fetchLevels();
+  }, [fetchLevels]);
+
+  // Create a new level
+  const handleCreateLevel = useCallback(async () => {
+    const levelName = prompt('Enter level name:');
+    if (!levelName || levelName.trim() === '') {
+      return;
+    }
+
+    const levelDescription = prompt('Enter level description (optional):') || '';
+
+    try {
+      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+      
+      const response = await fetch(`${apiUrl}/levels`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: levelName.trim(),
+          description: levelDescription.trim(),
+          isActive: true,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create level');
+      }
+
+      const result = await response.json();
+      console.log('Level created successfully:', result);
+      
+      // Refresh levels to show the new level
+      await fetchLevels();
+      
+      alert(`Level "${levelName}" created successfully!`);
+    } catch (error) {
+      console.error('Error creating level:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create level';
+      alert(`Error creating level: ${errorMessage}`);
+    }
+  }, [fetchLevels]);
 
   useEffect(() => {
     fetchLevels();
@@ -770,18 +830,19 @@ const ClassesPanel = ({
             value={levelFilter}
             onChange={(e) => setLevelFilter(e.target.value)}
             disabled={levelsLoading}
+            title={levelsLoading ? "Loading levels..." : "Filter by level"}
           >
             <option value="">All Levels</option>
             {levelsLoading ? (
               <option value="" disabled>Loading levels...</option>
-            ) : (
-              levels &&
-              Array.isArray(levels) &&
+            ) : levels && Array.isArray(levels) && levels.length > 0 ? (
               levels.map((level) => (
                 <option key={level._id} value={level._id}>
                   {level.name}
                 </option>
               ))
+            ) : (
+              <option value="" disabled>No levels available</option>
             )}
           </select>
         </div>
@@ -1047,47 +1108,95 @@ const ClassesPanel = ({
       <div className="add-class-section">
         <h3 className="add-class-title">ADD A NEW CLASS</h3>
         <div className="add-class-form">
-          <select
-            value={newClassLevelId}
-            onChange={(e) => handleLevelChange(e.target.value)}
-            className="level-select"
-          >
-            <option value="">Select Level</option>
-            {levelsLoading ? (
-              <option value="" disabled>Loading levels...</option>
-            ) : levels && Array.isArray(levels) && levels.length > 0 ? (
-              levels.map((level) => (
-                <option key={level._id} value={level._id}>
-                  {level.name}
-                </option>
-              ))
-            ) : (
-              <option value="" disabled>No levels available</option>
-            )}
-          </select>
-          
-          {/* Debug info for levels */}
-          <div className="debug-info" style={{ fontSize: '0.8rem', color: '#666', marginTop: '0.5rem', textAlign: 'center', width: '100%' }}>
-            <p>Levels loading: {levelsLoading ? 'Yes' : 'No'}</p>
-            <p>Levels count: {levels ? levels.length : 'undefined'}</p>
-            <p>Levels data: {JSON.stringify(levels?.slice(0, 2))}</p>
-            <p>API URL: {import.meta.env.VITE_API_BASE_URL || '/api'}</p>
-            <p>Token available: {!!(localStorage.getItem('skillup_token') || localStorage.getItem('authToken'))}</p>
-            <button 
-              type="button"
-              onClick={() => fetchLevels()} 
-              style={{ 
-                padding: '0.5rem 1rem', 
-                margin: '0.5rem', 
-                backgroundColor: '#307637', 
-                color: 'white', 
-                border: 'none', 
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
+          <div className="level-selection-container">
+            <select
+              value={newClassLevelId}
+              onChange={(e) => handleLevelChange(e.target.value)}
+              className="level-select"
+              disabled={levelsLoading}
             >
-              Test Fetch Levels
-            </button>
+              <option value="">Select Level</option>
+              {levelsLoading ? (
+                <option value="" disabled>Loading levels...</option>
+              ) : levels && Array.isArray(levels) && levels.length > 0 ? (
+                levels.map((level) => (
+                  <option key={level._id} value={level._id}>
+                    {level.name}
+                  </option>
+                ))
+              ) : (
+                <option value="" disabled>No levels available</option>
+              )}
+            </select>
+            
+            {/* Level management buttons */}
+            <div className="level-management-buttons" style={{ 
+              display: 'flex', 
+              gap: '0.5rem', 
+              marginTop: '0.5rem', 
+              justifyContent: 'center' 
+            }}>
+              <button 
+                type="button"
+                onClick={handleRefreshLevels}
+                disabled={levelsLoading}
+                style={{ 
+                  padding: '0.5rem 1rem', 
+                  backgroundColor: '#307637', 
+                  color: 'white', 
+                  border: 'none', 
+                  borderRadius: '4px',
+                  cursor: levelsLoading ? 'not-allowed' : 'pointer',
+                  opacity: levelsLoading ? 0.6 : 1,
+                  fontSize: '0.8rem'
+                }}
+                title="Refresh the list of available levels"
+              >
+                {levelsLoading ? 'Loading...' : '🔄 Refresh'}
+              </button>
+              
+              <button 
+                type="button"
+                onClick={handleCreateLevel}
+                style={{ 
+                  padding: '0.5rem 1rem', 
+                  backgroundColor: '#1e40af', 
+                  color: 'white', 
+                  border: 'none', 
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '0.8rem'
+                }}
+                title="Create a new level"
+              >
+                ➕ Create Level
+              </button>
+            </div>
+            
+            {/* Level status info */}
+            <div className="level-status-info" style={{ 
+              fontSize: '0.8rem', 
+              color: '#666', 
+              marginTop: '0.5rem', 
+              textAlign: 'center', 
+              padding: '0.5rem',
+              backgroundColor: '#f8f9fa',
+              borderRadius: '4px',
+              border: '1px solid #e9ecef'
+            }}>
+              {levelsLoading ? (
+                <p>🔄 Loading levels...</p>
+              ) : levels && Array.isArray(levels) && levels.length > 0 ? (
+                <p>✅ {levels.length} level{levels.length !== 1 ? 's' : ''} available</p>
+              ) : (
+                <div>
+                  <p>⚠️ No levels found</p>
+                  <p style={{ fontSize: '0.7rem', marginTop: '0.25rem' }}>
+                    Click "Create Level" to add your first level
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
           
           <input
