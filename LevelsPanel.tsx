@@ -164,6 +164,16 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
       const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
 
+      const levelData = {
+        name,
+        code,
+        description,
+        isActive: true,
+        order: levels.length + 1, // Add order field
+      };
+
+      console.log('Creating level with data:', levelData);
+
       const res = await fetch(`${apiUrl}/levels`, {
         method: 'POST',
         headers: {
@@ -171,25 +181,40 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
           Authorization: token ? `Bearer ${token}` : '',
         },
         credentials: 'include',
-        body: JSON.stringify({ name, code, description }),
+        body: JSON.stringify(levelData),
       });
 
+      console.log('Level creation response status:', res.status);
+
       if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
+        const errorData = await res.json().catch(() => ({ message: 'Failed to create level' }));
+        throw new Error(errorData.message || `HTTP error! status: ${res.status}`);
       }
 
       const data = await res.json();
+      console.log('Level creation response:', data);
+      
       if (data.success) {
-        setLevels((prev) => [...prev, data.level]);
+        const newLevelData = {
+          ...data.level,
+          _id: data.level.id || data.level._id,
+          id: data.level.id || data.level._id,
+        };
+        setLevels((prev) => [...prev, newLevelData]);
         setNewLevel({ name: '', code: '', description: '' });
         setShowAddForm(false);
         onDataRefresh?.();
+        alert('Level created successfully!');
+        
+        // Dispatch event to notify other components
+        window.dispatchEvent(new CustomEvent('levelUpdated'));
       } else {
         alert(data.message || 'Failed to add level');
       }
     } catch (error) {
       console.error('Error adding level:', error);
-      alert('Failed to add level. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      alert(`Failed to add level: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
@@ -226,14 +251,25 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
       const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
 
+      const updateData = {
+        name,
+        code,
+        description,
+        isActive: true,
+      };
+
+      console.log('Updating level with data:', updateData);
+
       const res = await fetch(`${apiUrl}/levels/${editingLevel._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           Authorization: token ? `Bearer ${token}` : '',
         },
-        body: JSON.stringify({ name, code, description }),
+        body: JSON.stringify(updateData),
       });
+
+      console.log('Level update response status:', res.status);
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({ message: 'Failed to update level' }));
@@ -241,12 +277,23 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
       }
 
       const data = await res.json();
+      console.log('Level update response:', data);
+      
       if (data.success) {
-        setLevels((prev) => prev.map((l) => (l._id === editingLevel._id ? data.level : l)));
+        const updatedLevelData = {
+          ...editingLevel,
+          name,
+          code,
+          description,
+        };
+        setLevels((prev) => prev.map((l) => (l._id === editingLevel._id ? updatedLevelData : l)));
         setEditingLevel(null);
         setEditLevel({ name: '', code: '', description: '' });
         onDataRefresh?.();
         alert('Level updated successfully!');
+        
+        // Dispatch event to notify other components
+        window.dispatchEvent(new CustomEvent('levelUpdated'));
       } else {
         alert(data.message || 'Failed to update level');
       }
@@ -289,6 +336,9 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
         setSelectedLevel(null);
         onDataRefresh?.();
         alert('Level deleted successfully!');
+        
+        // Dispatch event to notify other components
+        window.dispatchEvent(new CustomEvent('levelUpdated'));
       } else {
         alert(data.message || 'Failed to delete level');
       }

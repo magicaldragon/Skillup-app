@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import './ReportsPanel.css';
+import { formatDateMMDDYYYY } from './utils/stringUtils';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
@@ -294,7 +295,7 @@ const ReportsPanel = () => {
                   <td className="case-no-cell">
                     <strong>{report.caseNo}</strong>
                   </td>
-                  <td>{new Date(report.date).toLocaleDateString()}</td>
+                  <td>{formatDateMMDDYYYY(report.date)}</td>
                   <td className="reporter-cell">
                     <div className="reporter-name">{report.reporterName}</div>
                     {report.reporterEnglishName && (

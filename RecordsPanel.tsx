@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import './RecordsPanel.css';
+import { formatDateMMDDYYYY, formatDateTimeMMDDYYYY } from './utils/stringUtils';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
@@ -179,15 +180,7 @@ const RecordsPanel = () => {
     return categoryNames[category] || category;
   };
 
-  const formatDate = (dateString: string): string => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
+
 
   useEffect(() => {
     fetchRecords();
@@ -379,7 +372,7 @@ const RecordsPanel = () => {
                     <td>{student.studentCode || '—'}</td>
                     <td>{student.phone || '—'}</td>
                     <td>{student.parentName || '—'}</td>
-                    <td>{new Date(student.createdAt).toLocaleDateString()}</td>
+                    <td>{formatDateMMDDYYYY(student.createdAt)}</td>
                   </tr>
                 ))
               )}
@@ -421,7 +414,7 @@ const RecordsPanel = () => {
                       </span>
                     </td>
                     <td>{getCategoryDisplayName(record.category)}</td>
-                    <td>{formatDate(record.timestamp)}</td>
+                    <td>{formatDateTimeMMDDYYYY(record.timestamp)}</td>
                     <td>{record.studentName}</td>
                     <td>
                       {record.details ? JSON.stringify(record.details) : 'No details available'}

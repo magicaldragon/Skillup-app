@@ -97,7 +97,11 @@ router.post('/', verifyToken, requireAdmin, async (req: AuthenticatedRequest, re
     };
 
     const docRef = await admin.firestore().collection('levels').add(levelData);
-    const newLevel = { id: docRef.id, ...levelData };
+    const newLevel = { 
+      id: docRef.id, 
+      _id: docRef.id, // Add _id for frontend compatibility
+      ...levelData 
+    };
 
     return res.status(201).json({
       success: true,
@@ -267,7 +271,19 @@ router.put('/:id', verifyToken, requireAdmin, async (req: AuthenticatedRequest, 
 
     await admin.firestore().collection('levels').doc(id).update(updateData);
 
-    return res.json({ success: true, message: 'Level updated successfully' });
+    // Get the updated level data
+    const updatedDoc = await admin.firestore().collection('levels').doc(id).get();
+    const updatedLevel = { 
+      id: updatedDoc.id, 
+      _id: updatedDoc.id, // Add _id for frontend compatibility
+      ...updatedDoc.data() 
+    };
+
+    return res.json({ 
+      success: true, 
+      message: 'Level updated successfully',
+      level: updatedLevel
+    });
   } catch (error) {
     console.error('Error updating level:', error);
     return res.status(500).json({ message: 'Failed to update level' });

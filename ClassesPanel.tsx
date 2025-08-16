@@ -327,6 +327,29 @@ const ClassesPanel = ({
     fetchLevels();
   }, [fetchLevels]);
 
+  // Listen for level updates from other components
+  useEffect(() => {
+    const handleLevelUpdate = () => {
+      console.log('Level update event received, refreshing levels...');
+      fetchLevels();
+    };
+
+    // Add event listener for level updates
+    window.addEventListener('levelUpdated', handleLevelUpdate);
+
+    return () => {
+      window.removeEventListener('levelUpdated', handleLevelUpdate);
+    };
+  }, [fetchLevels]);
+
+  // Refresh levels when data is refreshed from parent
+  useEffect(() => {
+    if (onDataRefresh) {
+      // Refresh levels when parent triggers a data refresh
+      fetchLevels();
+    }
+  }, [onDataRefresh, fetchLevels]);
+
   // Filter classes based on search and level filter
   const filteredClasses = classes.filter((c) => {
     // Handle both populated levelId object and string levelId
