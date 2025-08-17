@@ -70,25 +70,19 @@
         "headers": [
           {
             "key": "Cache-Control",
-            "value": "no-cache, no-store, must-revalidate"
-          }
-        ]
-      },
-      {
-        "source": "**/*.@(js|css)",
-        "headers": [
+            "value": "no-cache, no-store, must-revalidate, max-age=0"
+          },
           {
             "key": "Pragma",
             "value": "no-cache"
-          }
-        ]
-      },
-      {
-        "source": "**/*.@(js|css)",
-        "headers": [
+          },
           {
             "key": "Expires",
             "value": "0"
+          },
+          {
+            "key": "ETag",
+            "value": "\"\""
           }
         ]
       },
@@ -97,25 +91,28 @@
         "headers": [
           {
             "key": "Cache-Control",
-            "value": "no-cache, no-store, must-revalidate"
-          }
-        ]
-      },
-      {
-        "source": "**/*.html",
-        "headers": [
+            "value": "no-cache, no-store, must-revalidate, max-age=0"
+          },
           {
             "key": "Pragma",
             "value": "no-cache"
+          },
+          {
+            "key": "Expires",
+            "value": "0"
+          },
+          {
+            "key": "ETag",
+            "value": "\"\""
           }
         ]
       },
       {
-        "source": "**/*.html",
+        "source": "**/*.@(png|jpg|jpeg|gif|svg|ico)",
         "headers": [
           {
-            "key": "Expires",
-            "value": "0"
+            "key": "Cache-Control",
+            "value": "public, max-age=31536000"
           }
         ]
       }

@@ -1,6 +1,7 @@
 import type React from 'react';
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { authService } from './frontend/services/authService';
+import { safeTrim } from './utils/stringUtils';
 import './App.css';
 
 // Lazy load components for better performance
@@ -76,27 +77,27 @@ const App: React.FC = () => {
           const safeProfile: Student = {
             id: profile.id || profile._id || '',
             _id: profile._id || profile.id || '',
-            name: profile.name || profile.fullname || '',
-            email: profile.email || '',
+            name: safeTrim(profile.name || profile.fullname),
+            email: safeTrim(profile.email),
             role: profile.role || 'student',
-            username: profile.username || profile.email || '',
-            englishName: (profile as Student).englishName || profile.name || profile.fullname || '',
-            gender: (profile as Student).gender || '',
-            dob: (profile as Student).dob || '',
-            phone: (profile as Student).phone || '',
-            parentName: (profile as Student).parentName || '',
-            parentPhone: (profile as Student).parentPhone || '',
-            notes: (profile as Student).notes || '',
-            status: (profile as Student).status || '',
-            studentCode: (profile as Student).studentCode || '',
-            avatarUrl: (profile as Student).avatarUrl || '',
-            diceBearStyle: (profile as Student).diceBearStyle || '',
-            diceBearSeed: (profile as Student).diceBearSeed || '',
+            username: safeTrim(profile.username || profile.email),
+            englishName: safeTrim((profile as Student).englishName || profile.name || profile.fullname),
+            gender: safeTrim((profile as Student).gender),
+            dob: safeTrim((profile as Student).dob),
+            phone: safeTrim((profile as Student).phone),
+            parentName: safeTrim((profile as Student).parentName),
+            parentPhone: safeTrim((profile as Student).parentPhone),
+            notes: safeTrim((profile as Student).notes),
+            status: safeTrim((profile as Student).status),
+            studentCode: safeTrim((profile as Student).studentCode),
+            avatarUrl: safeTrim((profile as Student).avatarUrl),
+            diceBearStyle: safeTrim((profile as Student).diceBearStyle),
+            diceBearSeed: safeTrim((profile as Student).diceBearSeed),
             classIds: Array.isArray((profile as Student).classIds)
               ? (profile as Student).classIds
               : [],
-            createdAt: (profile as Student).createdAt || '',
-            updatedAt: (profile as Student).updatedAt || '',
+            createdAt: safeTrim((profile as Student).createdAt),
+            updatedAt: safeTrim((profile as Student).updatedAt),
           };
           console.log('Original profile role:', profile.role);
           console.log('Safe profile role:', safeProfile.role);
@@ -139,27 +140,27 @@ const App: React.FC = () => {
       const safeUserData: Student = {
         id: userData.id || userData._id || '',
         _id: userData._id || userData.id || '',
-        name: userData.name || userData.fullname || '',
-        email: userData.email || '',
+        name: safeTrim(userData.name || userData.fullname),
+        email: safeTrim(userData.email),
         role: userData.role || 'student',
-        username: userData.username || userData.email || '',
-        englishName: (userData as Student).englishName || userData.name || userData.fullname || '',
-        gender: (userData as Student).gender || '',
-        dob: (userData as Student).dob || '',
-        phone: (userData as Student).phone || '',
-        parentName: (userData as Student).parentName || '',
-        parentPhone: (userData as Student).parentPhone || '',
-        notes: (userData as Student).notes || '',
-        status: (userData as Student).status || '',
-        studentCode: (userData as Student).studentCode || '',
-        avatarUrl: (userData as Student).avatarUrl || '',
-        diceBearStyle: (userData as Student).diceBearStyle || '',
-        diceBearSeed: (userData as Student).diceBearSeed || '',
+        username: safeTrim(userData.username || userData.email),
+        englishName: safeTrim((userData as Student).englishName || userData.name || userData.fullname),
+        gender: safeTrim((userData as Student).gender),
+        dob: safeTrim((userData as Student).dob),
+        phone: safeTrim((userData as Student).phone),
+        parentName: safeTrim((userData as Student).parentName),
+        parentPhone: safeTrim((userData as Student).parentPhone),
+        notes: safeTrim((userData as Student).notes),
+        status: safeTrim((userData as Student).status),
+        studentCode: safeTrim((userData as Student).studentCode),
+        avatarUrl: safeTrim((userData as Student).avatarUrl),
+        diceBearStyle: safeTrim((userData as Student).diceBearStyle),
+        diceBearSeed: safeTrim((userData as Student).diceBearSeed),
         classIds: Array.isArray((userData as Student).classIds)
           ? (userData as Student).classIds
           : [],
-        createdAt: (userData as Student).createdAt || '',
-        updatedAt: (userData as Student).updatedAt || '',
+        createdAt: safeTrim((userData as Student).createdAt),
+        updatedAt: safeTrim((userData as Student).updatedAt),
       };
       setUser(safeUserData);
       setAuthError(null);
@@ -220,25 +221,25 @@ const App: React.FC = () => {
           (student: Partial<Student> & { fullname?: string }) => ({
             id: student.id || student._id || '',
             _id: student._id || student.id || '',
-            name: student.name || student.fullname || student.displayName || '',
-            email: student.email || '',
+            name: safeTrim(student.name || student.fullname || student.displayName),
+            email: safeTrim(student.email),
             role: student.role || 'student',
-            username: student.username || student.email || '',
-            englishName: student.englishName || student.name || student.fullname || '',
-            gender: student.gender || '',
-            dob: student.dob || '',
-            phone: student.phone || '',
-            parentName: student.parentName || '',
-            parentPhone: student.parentPhone || '',
-            notes: student.notes || '',
-            status: student.status || '',
-            studentCode: student.studentCode || '',
-            avatarUrl: student.avatarUrl || '',
-            diceBearStyle: student.diceBearStyle || '',
-            diceBearSeed: student.diceBearSeed || '',
+            username: safeTrim(student.username || student.email),
+            englishName: safeTrim(student.englishName || student.name || student.fullname),
+            gender: safeTrim(student.gender),
+            dob: safeTrim(student.dob),
+            phone: safeTrim(student.phone),
+            parentName: safeTrim(student.parentName),
+            parentPhone: safeTrim(student.parentPhone),
+            notes: safeTrim(student.notes),
+            status: safeTrim(student.status),
+            studentCode: safeTrim(student.studentCode),
+            avatarUrl: safeTrim(student.avatarUrl),
+            diceBearStyle: safeTrim(student.diceBearStyle),
+            diceBearSeed: safeTrim(student.diceBearSeed),
             classIds: Array.isArray(student.classIds) ? student.classIds : [],
-            createdAt: student.createdAt || '',
-            updatedAt: student.updatedAt || '',
+            createdAt: safeTrim(student.createdAt),
+            updatedAt: safeTrim(student.updatedAt),
           })
         );
         setStudents(sanitizedStudents);
@@ -281,20 +282,20 @@ const App: React.FC = () => {
         const sanitizedAssignments = data.assignments.map(
           (assignment: Partial<Assignment> & { _id?: string }) => ({
             id: assignment.id || assignment._id || '',
-            title: assignment.title || '',
+            title: safeTrim(assignment.title),
             level: assignment.level || { name: '', code: '' },
             skill: assignment.skill || 'Reading',
-            description: assignment.description || '',
+            description: safeTrim(assignment.description),
             questions: Array.isArray(assignment.questions) ? assignment.questions : [],
             answerKey: assignment.answerKey || {},
-            audioUrl: assignment.audioUrl || '',
-            pdfUrl: assignment.pdfUrl || '',
-            publishDate: assignment.publishDate || '',
-            dueDate: assignment.dueDate || '',
+            audioUrl: safeTrim(assignment.audioUrl),
+            pdfUrl: safeTrim(assignment.pdfUrl),
+            publishDate: safeTrim(assignment.publishDate),
+            dueDate: safeTrim(assignment.dueDate),
             classIds: Array.isArray(assignment.classIds) ? assignment.classIds : [],
-            createdBy: assignment.createdBy || '',
-            createdAt: assignment.createdAt || '',
-            templateId: assignment.templateId || '',
+            createdBy: safeTrim(assignment.createdBy),
+            createdAt: safeTrim(assignment.createdAt),
+            templateId: safeTrim(assignment.templateId),
           })
         );
         setAssignments(sanitizedAssignments);
@@ -337,12 +338,12 @@ const App: React.FC = () => {
         const sanitizedSubmissions = data.submissions.map(
           (submission: Partial<Submission> & { _id?: string }) => ({
             id: submission.id || submission._id || '',
-            studentId: submission.studentId || '',
-            assignmentId: submission.assignmentId || '',
-            submittedAt: submission.submittedAt || '',
-            content: submission.content || '',
+            studentId: safeTrim(submission.studentId),
+            assignmentId: safeTrim(submission.assignmentId),
+            submittedAt: safeTrim(submission.submittedAt),
+            content: safeTrim(submission.content),
             score: submission.score || null,
-            feedback: submission.feedback || '',
+            feedback: safeTrim(submission.feedback),
           })
         );
         setSubmissions(sanitizedSubmissions);
@@ -386,15 +387,15 @@ const App: React.FC = () => {
           (cls: Partial<StudentClass> & { _id?: string }) => ({
             _id: cls._id || cls.id || '',
             id: cls.id || cls._id || '',
-            name: cls.name || '',
-            classCode: cls.classCode || '',
+            name: safeTrim(cls.name),
+            classCode: safeTrim(cls.classCode),
             levelId: cls.levelId || null,
             studentIds: Array.isArray(cls.studentIds) ? cls.studentIds : [],
-            teacherId: cls.teacherId || '',
-            description: cls.description || '',
+            teacherId: safeTrim(cls.teacherId),
+            description: safeTrim(cls.description),
             isActive: cls.isActive !== undefined ? cls.isActive : true,
-            createdAt: cls.createdAt || '',
-            updatedAt: cls.updatedAt || '',
+            createdAt: safeTrim(cls.createdAt),
+            updatedAt: safeTrim(cls.updatedAt),
           })
         );
         setClasses(sanitizedClasses);

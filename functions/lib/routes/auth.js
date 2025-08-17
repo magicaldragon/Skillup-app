@@ -57,16 +57,25 @@ router.get('/profile', auth_1.verifyToken, async (req, res) => {
         const { userId } = req.user;
         const userDoc = await admin.firestore().collection('users').doc(userId).get();
         if (!userDoc.exists) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
         }
         const userData = userDoc.data();
         // Remove sensitive information
         const { firebaseUid } = userData, safeUserData = __rest(userData, ["firebaseUid"]);
-        return res.json(Object.assign({ id: userDoc.id }, safeUserData));
+        return res.json({
+            success: true,
+            user: Object.assign({ id: userDoc.id }, safeUserData),
+        });
     }
     catch (error) {
         console.error('Error fetching user profile:', error);
-        return res.status(500).json({ message: 'Failed to fetch user profile' });
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to fetch user profile'
+        });
     }
 });
 // Update user profile

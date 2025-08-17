@@ -13,7 +13,10 @@ router.get('/profile', verifyToken, async (req: AuthenticatedRequest, res: Respo
     const userDoc = await admin.firestore().collection('users').doc(userId).get();
 
     if (!userDoc.exists) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ 
+        success: false,
+        message: 'User not found' 
+      });
     }
 
     const userData = userDoc.data()!;
@@ -22,12 +25,18 @@ router.get('/profile', verifyToken, async (req: AuthenticatedRequest, res: Respo
     const { firebaseUid, ...safeUserData } = userData;
 
     return res.json({
-      id: userDoc.id,
-      ...safeUserData,
+      success: true,
+      user: {
+        id: userDoc.id,
+        ...safeUserData,
+      },
     });
   } catch (error) {
     console.error('Error fetching user profile:', error);
-    return res.status(500).json({ message: 'Failed to fetch user profile' });
+    return res.status(500).json({ 
+      success: false,
+      message: 'Failed to fetch user profile' 
+    });
   }
 });
 
