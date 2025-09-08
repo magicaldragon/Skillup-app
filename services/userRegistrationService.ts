@@ -11,6 +11,9 @@ import { safeTrim } from '../utils/stringUtils';
 
 const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL || '/api';
 
+// Ensure consistent URL format (remove trailing slash if present)
+const normalizeUrl = (url: string) => url.replace(/\/$/, '');
+
 export interface NewUserData {
   name: string;
   role: 'admin' | 'teacher' | 'student';
@@ -107,7 +110,7 @@ class UserRegistrationService {
   private async checkUsernameExists(username: string): Promise<boolean> {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/users/check-username/${encodeURIComponent(username)}`,
+        `${normalizeUrl(API_BASE_URL)}/users/check-username/${encodeURIComponent(username)}`,
         {
           credentials: 'include',
         }
@@ -142,7 +145,7 @@ class UserRegistrationService {
 
       // Step 3: Create user in Firestore via API
       const token = await this.getAuthToken();
-      const response = await fetch(`${API_BASE_URL}/users`, {
+      const response = await fetch(`${normalizeUrl(API_BASE_URL)}/users`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -213,7 +216,7 @@ class UserRegistrationService {
     try {
       const token = await this.getAuthToken();
       const response = await fetch(
-        `${API_BASE_URL}/users/check-email/${encodeURIComponent(email)}`,
+        `${normalizeUrl(API_BASE_URL)}/users/check-email/${encodeURIComponent(email)}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -234,7 +237,7 @@ class UserRegistrationService {
     try {
       const token = await this.getAuthToken();
       const response = await fetch(
-        `${API_BASE_URL}/users/check-email/${encodeURIComponent(email)}`,
+        `${normalizeUrl(API_BASE_URL)}/users/check-email/${encodeURIComponent(email)}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -268,7 +271,7 @@ class UserRegistrationService {
   async getAllUsers(): Promise<Student[]> {
     try {
       const token = await this.getAuthToken();
-      const response = await fetch(`${API_BASE_URL}/users`, {
+      const response = await fetch(`${normalizeUrl(API_BASE_URL)}/users`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

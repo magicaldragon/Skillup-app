@@ -35,8 +35,11 @@ const App: React.FC = () => {
   const [_dataError, setDataError] = useState<string | null>(null);
   const [navKey, setNavKey] = useState('dashboard');
 
-  // Memoize API URL to avoid recalculation
-  const apiUrl = useMemo(() => import.meta.env.VITE_API_BASE_URL || '/api', []);
+  // Memoize API URL to avoid recalculation and ensure consistency
+  const apiUrl = useMemo(() => {
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+    return baseUrl.replace(/\/$/, ''); // Remove trailing slash
+  }, []);
 
   useEffect(() => {
     const initializeAuth = async () => {

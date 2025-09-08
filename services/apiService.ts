@@ -23,6 +23,9 @@ import { auth } from './firebase';
 
 const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL || '/api';
 
+// Ensure consistent URL format (remove trailing slash if present)
+const normalizeUrl = (url: string) => url.replace(/\/$/, '');
+
 // Enhanced error handling and retry configuration
 const API_CONFIG = {
   maxRetries: 3,
@@ -72,7 +75,7 @@ async function apiCall<T>(
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.timeout);
 
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetch(`${normalizeUrl(API_BASE_URL)}${endpoint}`, {
       ...options,
       signal: controller.signal,
       headers: {

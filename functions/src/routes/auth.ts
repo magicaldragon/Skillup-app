@@ -13,9 +13,10 @@ router.get('/profile', verifyToken, async (req: AuthenticatedRequest, res: Respo
     const userDoc = await admin.firestore().collection('users').doc(userId).get();
 
     if (!userDoc.exists) {
+      console.error('User profile not found for userId:', userId);
       return res.status(404).json({ 
         success: false,
-        message: 'User not found' 
+        message: 'User profile not found. Please contact administrator.' 
       });
     }
 
@@ -249,10 +250,15 @@ router.post('/firebase-login', async (req: AuthenticatedRequest, res: Response) 
 
     // Validate user data before creating token
     if (!userData || !userData.role || !userData.email) {
-      console.error('Invalid user data after creation/retrieval:', userData);
+      console.error('Invalid user data after creation/retrieval:', {
+        hasUserData: !!userData,
+        hasRole: !!userData?.role,
+        hasEmail: !!userData?.email,
+        userData: userData
+      });
       return res.status(500).json({
         success: false,
-        message: 'User data validation failed',
+        message: 'User account setup incomplete. Please contact administrator.',
       });
     }
 

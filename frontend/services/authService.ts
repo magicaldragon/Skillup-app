@@ -7,6 +7,9 @@ import { auth } from './firebase';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
 const FUNCTIONS_BASE = import.meta.env.VITE_FUNCTIONS_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
 
+// Ensure consistent URL format (remove trailing slash if present)
+const normalizeUrl = (url: string) => url.replace(/\/$/, '');
+
 export interface LoginCredentials {
   email: string;
   password: string;
@@ -15,11 +18,26 @@ export interface LoginCredentials {
 export interface UserProfile {
   _id: string;
   id?: string;
-  fullname: string;
+  fullname?: string;
   name?: string;
   email: string;
   role: string;
   username: string;
+  phone?: string;
+  englishName?: string;
+  dob?: string;
+  gender?: string;
+  parentName?: string;
+  parentPhone?: string;
+  notes?: string;
+  status?: string;
+  studentCode?: string;
+  avatarUrl?: string;
+  diceBearStyle?: string;
+  diceBearSeed?: string;
+  classIds?: string[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 class AuthService {
@@ -28,7 +46,8 @@ class AuthService {
 
   constructor() {
     console.log('AuthService instantiated at:', new Date().toISOString());
-    console.log('Using API URL:', API_BASE_URL);
+    console.log('Using API URL:', normalizeUrl(API_BASE_URL));
+    console.log('Using Functions URL:', normalizeUrl(FUNCTIONS_BASE));
   }
 
   // Public utility to clear cached connection status
@@ -52,14 +71,14 @@ class AuthService {
     }
 
     try {
-      console.log('Testing backend connectivity to:', `${API_BASE_URL}/health`);
+      console.log('Testing backend connectivity to:', `${normalizeUrl(API_BASE_URL)}/health`);
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 8000); // Increased timeout to 8 seconds
 
       // Prefer health endpoint if available
       let response: Response | null = null;
       try {
-        response = await fetch(`${API_BASE_URL}/health`, {
+        response = await fetch(`${normalizeUrl(API_BASE_URL)}/health`, {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
           signal: controller.signal,
@@ -76,7 +95,7 @@ class AuthService {
           `Primary health check returned ${response ? response.status : 'no response'}, trying /test`
         );
         try {
-          response = await fetch(`${API_BASE_URL}/test`, {
+          response = await fetch(`${normalizeUrl(API_BASE_URL)}/test`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
             signal: controller.signal,
@@ -91,7 +110,7 @@ class AuthService {
       if (!response || response.status === 404 || response.status === 502) {
         try {
           console.warn('Attempting Cloud Functions fallback health check...');
-          response = await fetch(`${FUNCTIONS_BASE}/health`, {
+          response = await fetch(`${normalizeUrl(FUNCTIONS_BASE)}/health`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
             signal: controller.signal,
@@ -186,7 +205,7 @@ class AuthService {
 
       // Step 3: Exchange Firebase token for JWT (with timeout)
       console.log('Step 3: Exchanging Firebase token for JWT...');
-      console.log('Making request to:', `${API_BASE_URL}/auth/firebase-login`);
+      console.log('Making request to:', `${normalizeUrl(API_BASE_URL)}/auth/firebase-login`);
 
       const requestBody = {
         firebaseToken: idToken,
@@ -194,7 +213,7 @@ class AuthService {
       };
       console.log('Request body:', { ...requestBody, firebaseToken: '***' });
 
-      const backendPromise = fetch(`${API_BASE_URL}/auth/firebase-login`, {
+      const backendPromise = fetch(`${normalizeUrl(API_BASE_URL)}/auth/firebase-login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -365,7 +384,7 @@ class AuthService {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
 
-      const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+      const response = await fetch(`${normalizeUrl(API_BASE_URL)}/auth/profile`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
