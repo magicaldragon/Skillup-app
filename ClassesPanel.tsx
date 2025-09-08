@@ -2,7 +2,9 @@
 // Professional panel to show and manage classes with code names (SU-001, SU-002, ...)
 import { useCallback, useEffect, useState } from 'react';
 import type { Level, Student, StudentClass } from './types';
+import { formatDateDDMMYYYY } from './utils/stringUtils';
 import './ClassesPanel.css';
+import './ManagementTableStyles.css';
 
 // Interface for class editing modal
 interface ClassEditModal {
@@ -229,11 +231,7 @@ const ClassesPanel = ({
     }
   }, []);
 
-  // Refresh levels manually
-  const handleRefreshLevels = useCallback(async () => {
-    console.log('Manually refreshing levels...');
-    await fetchLevels();
-  }, [fetchLevels]);
+
 
   // Create a new level
   const handleCreateLevel = useCallback(async () => {
@@ -813,13 +811,13 @@ const ClassesPanel = ({
   };
 
   return (
-    <div className="classes-panel">
-      <div className="classes-header">
-        <h2 className="classes-title">Classes Management</h2>
-        <p className="classes-subtitle">Manage all classes and student assignments</p>
+    <div className="management-panel">
+      <div className="management-header">
+        <h2 className="management-title">Classes Management</h2>
+        <p className="management-subtitle">Manage all classes and student assignments</p>
       </div>
 
-      <div className="classes-search">
+      <div className="management-search">
         <div className="search-controls">
           <div className="search-bar-container">
             <input
@@ -889,8 +887,8 @@ const ClassesPanel = ({
         )}
       </div>
 
-      <div className="classes-table-container">
-        <table className="classes-table">
+      <div className="management-table-container">
+        <table className="management-table">
           <thead>
             <tr>
               <th>Class Code</th>
@@ -1159,47 +1157,6 @@ const ClassesPanel = ({
               )}
             </select>
             
-            {/* Level management buttons */}
-            <div className="level-management-buttons" style={{ 
-              display: 'flex', 
-              gap: '0.5rem', 
-              marginTop: '0.5rem', 
-              justifyContent: 'center' 
-            }}>
-              <button 
-                type="button"
-                onClick={handleRefreshLevels}
-                style={{ 
-                  padding: '0.5rem 1rem', 
-                  backgroundColor: '#3b82f6', 
-                  color: 'white', 
-                  border: 'none', 
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontSize: '0.8rem'
-                }}
-                title="Refresh levels"
-              >
-                🔄 Refresh
-              </button>
-              <button 
-                type="button"
-                onClick={handleCreateLevel}
-                style={{ 
-                  padding: '0.5rem 1rem', 
-                  backgroundColor: '#10b981', 
-                  color: 'white', 
-                  border: 'none', 
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontSize: '0.8rem'
-                }}
-                title="Create new level"
-              >
-                ➕ Create Level
-              </button>
-            </div>
-            
             {/* Level status info */}
             <div className="level-status-info" style={{ 
               fontSize: '0.8rem', 
@@ -1215,7 +1172,7 @@ const ClassesPanel = ({
                 <p>🔄 Loading levels...</p>
               ) : levels && Array.isArray(levels) && levels.length > 0 ? (
                 <div>
-                  <p>✅ {levels.length} level{levels.length !== 1 ? 's' : ''} available</p>
+                  <p>✅ 8 levels available</p>
                   <p style={{ fontSize: '0.7rem', marginTop: '0.25rem', color: '#888' }}>
                     All levels loaded successfully
                   </p>
@@ -1224,7 +1181,23 @@ const ClassesPanel = ({
                 <div>
                   <p>⚠️ No levels found</p>
                   <p style={{ fontSize: '0.7rem', marginTop: '0.25rem' }}>
-                    Click "Create Level" to add new levels
+                    <button 
+                      type="button"
+                      onClick={handleCreateLevel}
+                      style={{ 
+                        padding: '0.25rem 0.5rem', 
+                        backgroundColor: '#10b981', 
+                        color: 'white', 
+                        border: 'none', 
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        fontSize: '0.7rem',
+                        marginTop: '0.25rem'
+                      }}
+                      title="Create new level"
+                    >
+                      ➕ Create Level
+                    </button>
                   </p>
                 </div>
               )}
@@ -1352,7 +1325,7 @@ const ClassesPanel = ({
                             </td>
                             <td>{student.englishName || 'N/A'}</td>
                             <td>
-                              {student.dob ? new Date(student.dob).toLocaleDateString() : 'N/A'}
+                              {student.dob ? formatDateDDMMYYYY(student.dob) : 'N/A'}
                             </td>
                             <td>{student.gender || 'N/A'}</td>
                             <td className="student-actions">

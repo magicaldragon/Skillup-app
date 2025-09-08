@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import './RecordsPanel.css';
+import './ManagementTableStyles.css';
 import { formatDateDDMMYYYY, formatDateTimeDDMMYYYY } from './utils/stringUtils';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
@@ -222,9 +223,9 @@ const RecordsPanel = () => {
 
   if (loading) {
     return (
-      <div className="records-panel">
-        <div className="records-loading">
-          <div className="records-spinner"></div>
+      <div className="management-panel">
+        <div className="management-loading">
+          <div className="management-spinner"></div>
           <p>Loading records...</p>
         </div>
       </div>
@@ -233,11 +234,11 @@ const RecordsPanel = () => {
 
   if (error) {
     return (
-      <div className="records-panel">
-        <div className="records-error">
+      <div className="management-panel">
+        <div className="management-error">
           <h3>Error Loading Records</h3>
           <p>{error}</p>
-          <button type="button" className="form-btn" onClick={fetchRecords}>
+          <button type="button" className="management-retry-btn" onClick={fetchRecords}>
             Try Again
           </button>
         </div>
@@ -246,10 +247,10 @@ const RecordsPanel = () => {
   }
 
   return (
-    <div className="records-panel">
-      <div className="records-header">
-        <h2 className="records-title">Student Records Management</h2>
-        <p className="records-subtitle">Track all student-related activities and changes</p>
+    <div className="management-panel">
+      <div className="management-header">
+        <h2 className="management-title">Student Records Management</h2>
+        <p className="management-subtitle">Track all student-related activities and changes</p>
       </div>
 
       <div className="records-controls">
@@ -335,7 +336,7 @@ const RecordsPanel = () => {
       {filter === 'students' ? (
         // Students Table
         <div className="table-wrapper">
-          <table className="records-table">
+          <table className="management-table">
             <thead>
               <tr>
                 <th>Name</th>
@@ -382,7 +383,7 @@ const RecordsPanel = () => {
       ) : (
         // Records Table
         <div className="table-wrapper">
-          <table className="records-table">
+          <table className="management-table">
             <thead>
               <tr>
                 <th>Action</th>

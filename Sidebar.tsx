@@ -72,34 +72,11 @@ const menuConfig = (role: string) => [
         key: 'classes',
         visible: role === 'staff' || role === 'teacher' || role === 'admin',
       },
-      {
-        label: 'Scores & Feedback',
-        icon: <FaChartBar />,
-        key: 'scores',
-        visible: role === 'staff' || role === 'teacher' || role === 'admin',
-      },
-      {
-        label: 'Reports',
-        icon: <FaClipboard />,
-        key: 'reports',
-        visible: role === 'staff' || role === 'teacher' || role === 'admin',
-      },
+
       {
         label: 'Levels',
         icon: <FaListAlt />,
         key: 'levels',
-        visible: role === 'staff' || role === 'teacher' || role === 'admin',
-      },
-      {
-        label: 'Change Log',
-        icon: <FaClipboardList />,
-        key: 'changelog',
-        visible: role === 'staff' || role === 'teacher' || role === 'admin',
-      },
-      {
-        label: 'Records',
-        icon: <FaArchive />,
-        key: 'records',
         visible: role === 'staff' || role === 'teacher' || role === 'admin',
       },
       // Add Accounts submenu for admin, staff, and teachers
@@ -108,6 +85,26 @@ const menuConfig = (role: string) => [
         icon: <FaUserCog />,
         key: 'accounts',
         visible: role === 'admin' || role === 'staff' || role === 'teacher',
+        children: [
+          {
+            label: 'User Management',
+            icon: <FaUsers />,
+            key: 'accounts',
+            visible: role === 'admin' || role === 'staff' || role === 'teacher',
+          },
+          {
+            label: 'Change Logs',
+            icon: <FaClipboardList />,
+            key: 'changelog',
+            visible: role === 'staff' || role === 'teacher' || role === 'admin',
+          },
+        ],
+      },
+      {
+        label: 'Records',
+        icon: <FaArchive />,
+        key: 'records',
+        visible: role === 'staff' || role === 'teacher' || role === 'admin',
       },
       // Student-specific management submenu
       { label: 'My classes', icon: <FaUsers />, key: 'my-classes', visible: role === 'student' },

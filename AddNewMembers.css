@@ -175,7 +175,7 @@
   transform: translateX(-50%);
   width: 80px;
   height: 4px;
-  background: linear-gradient(90deg, var(--dark-green-600), var(--accent-purple));
+  background: linear-gradient(90deg, #059669, var(--accent-purple));
   border-radius: var(--radius-full);
 }
 
@@ -185,9 +185,9 @@
   height: 3px;
   background: linear-gradient(
     90deg,
-    var(--dark-green-600) 0%,
-    var(--dark-green-700) 50%,
-    var(--dark-green-600) 100%
+    #059669 0%,
+    #047857 50%,
+    #059669 100%
   );
   margin: 0 auto var(--space-6) auto;
   border-radius: var(--radius-full);
@@ -203,10 +203,10 @@
   transform: translateX(-50%);
   width: 16px;
   height: 16px;
-  background: var(--dark-green-600);
+  background: #059669;
   border-radius: 50%;
   border: 3px solid #ffffff;
-  box-shadow: 0 0 0 2px var(--dark-green-600);
+  box-shadow: 0 0 0 2px #059669;
 }
 
 /* ===== REGISTRATION FORM GRID ===== */

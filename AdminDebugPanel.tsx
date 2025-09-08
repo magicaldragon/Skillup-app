@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import './Sidebar.css';
-import './AdminDebugPanel.css';
+import { formatDateDDMMYYYY } from './utils/stringUtils';
 import './admin-debug/DebugPanelStyles.css';
 import './admin-debug/RealtimeMonitoringDashboard.css';
 import AdminAccountCreator from './AdminAccountCreator';
@@ -117,7 +117,7 @@ const AdminDebugPanel = ({ activeKey }: { activeKey: string }) => {
                   <div className="stat-content">
                     <h4>Last Reset</h4>
                     <span className="stat-value">
-                      {new Date(serviceUsage.lastReset).toLocaleDateString()}
+                     {formatDateDDMMYYYY(serviceUsage.lastReset)}
                     </span>
                   </div>
                 </div>

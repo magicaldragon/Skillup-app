@@ -9,9 +9,7 @@ import ClassesPanel from './ClassesPanel';
 import LevelsPanel from './LevelsPanel';
 import PotentialStudentsPanel from './PotentialStudentsPanel';
 import RecordsPanel from './RecordsPanel';
-import ReportsPanel from './ReportsPanel';
 import SettingsPanel from './SettingsPanel';
-import TeacherScoresFeedbackPanel from './TeacherScoresFeedbackPanel';
 import type { Assignment, Student, StudentClass } from './types';
 import WaitingListPanel from './WaitingListPanel';
 import './AdminDashboard.css';
@@ -83,10 +81,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
         <WaitingListPanel classes={classes} onDataRefresh={onDataRefresh} />
       ) : activeKey === 'classes' ? (
         <ClassesPanel students={students} classes={classes} onDataRefresh={onDataRefresh} />
-      ) : activeKey === 'scores' ? (
-        <TeacherScoresFeedbackPanel />
-      ) : activeKey === 'reports' ? (
-        <ReportsPanel />
       ) : activeKey === 'levels' ? (
         <LevelsPanel onDataRefresh={onDataRefresh} />
       ) : activeKey === 'records' ? (

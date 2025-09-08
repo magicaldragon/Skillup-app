@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import './ReportsPanel.css';
+import './ManagementTableStyles.css';
 import { formatDateDDMMYYYY } from './utils/stringUtils';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
@@ -192,9 +193,9 @@ const ReportsPanel = () => {
 
   if (loading) {
     return (
-      <div className="reports-panel">
-        <div className="reports-loading">
-          <div className="reports-spinner"></div>
+      <div className="management-panel">
+        <div className="management-loading">
+          <div className="management-spinner"></div>
           <p>Loading reports...</p>
         </div>
       </div>
@@ -203,11 +204,11 @@ const ReportsPanel = () => {
 
   if (error) {
     return (
-      <div className="reports-panel">
-        <div className="reports-error">
+      <div className="management-panel">
+        <div className="management-error">
           <h3>Error Loading Reports</h3>
           <p>{error}</p>
-          <button type="button" className="reports-retry-btn" onClick={fetchReports}>
+          <button type="button" className="management-retry-btn" onClick={fetchReports}>
             Try Again
           </button>
         </div>
@@ -216,10 +217,10 @@ const ReportsPanel = () => {
   }
 
   return (
-    <div className="reports-panel">
-      <div className="reports-header">
-        <h2 className="reports-title">Student Reports</h2>
-        <p className="reports-subtitle">Track and manage student behavior reports</p>
+    <div className="management-panel">
+      <div className="management-header">
+        <h2 className="management-title">Student Reports</h2>
+        <p className="management-subtitle">Track and manage student behavior reports</p>
       </div>
 
       <div className="reports-controls">
@@ -262,8 +263,8 @@ const ReportsPanel = () => {
         </div>
       </div>
 
-      <div className="reports-table-container">
-        <table className="reports-table">
+      <div className="management-table-container">
+        <table className="management-table">
           <thead>
             <tr>
               <th>Case No.</th>

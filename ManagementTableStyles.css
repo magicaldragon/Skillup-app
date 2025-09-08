@@ -1,0 +1,496 @@
+/* ManagementTableStyles.css */
+/* Unified styling for all management panel tables */
+/* Ensures consistent look and feel across all management components */
+
+/* =================
+   TABLE CONTAINERS
+   ================= */
+
+.management-panel {
+  width: 100%;
+  max-width: none;
+  padding: 2rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  min-height: 100vh;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.management-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.management-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #1a365d;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.management-subtitle {
+  font-size: 1.1rem;
+  color: #4a5568;
+  margin-bottom: 0;
+  opacity: 0.8;
+}
+
+/* =================
+   SEARCH & CONTROLS
+   ================= */
+
+.management-search,
+.management-controls {
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.search-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.search-bar-container {
+  position: relative;
+  flex: 1;
+  min-width: 300px;
+}
+
+.search-bar-input {
+  width: 100%;
+  padding: 1rem 3rem 1rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.search-bar-input:focus {
+  outline: none;
+  border-color: #3182ce;
+  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1), 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.search-bar-button {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #718096;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.search-bar-button:hover {
+  color: #3182ce;
+  background: rgba(49, 130, 206, 0.1);
+}
+
+.search-bar-button svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.status-filter-select,
+.filter-select {
+  padding: 0.75rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 0.75rem;
+  background: white;
+  font-size: 1rem;
+  color: #2d3748;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 150px;
+}
+
+.status-filter-select:focus,
+.filter-select:focus {
+  outline: none;
+  border-color: #3182ce;
+  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+}
+
+/* =================
+   TABLE STYLES
+   ================= */
+
+.management-table-container {
+  background: white;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+}
+
+.management-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.management-table thead {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.management-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: white;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.management-table tbody tr {
+  background: white;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid #f7fafc;
+}
+
+.management-table tbody tr:hover {
+  background: #f8fafc;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.management-table tbody tr.clickable-row {
+  cursor: pointer;
+}
+
+.management-table tbody tr.selected-row {
+  background: linear-gradient(135deg, #e6f3ff 0%, #cce7ff 100%);
+  border-left: 4px solid #3182ce;
+}
+
+.management-table td {
+  padding: 1rem;
+  vertical-align: top;
+  border-bottom: 1px solid #f7fafc;
+}
+
+/* =================
+   CELL TYPES
+   ================= */
+
+.checkbox-header,
+.checkbox-cell {
+  width: 50px;
+  text-align: center;
+}
+
+.name-cell {
+  min-width: 200px;
+}
+
+.student-name {
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 0.25rem;
+}
+
+.english-name {
+  font-size: 0.85rem;
+  color: #718096;
+  font-style: italic;
+}
+
+.status-cell {
+  text-align: center;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.status-potential {
+  background: #fef5e7;
+  color: #c05621;
+  border: 1px solid #f6ad55;
+}
+
+.status-contacted {
+  background: #e6f3ff;
+  color: #2b6cb0;
+  border: 1px solid #63b3ed;
+}
+
+.status-studying {
+  background: #f0fff4;
+  color: #22543d;
+  border: 1px solid #48bb78;
+}
+
+.status-active {
+  background: #f0fff4;
+  color: #22543d;
+  border: 1px solid #48bb78;
+}
+
+.status-postponed {
+  background: #fffbf0;
+  color: #c05621;
+  border: 1px solid #f6ad55;
+}
+
+.status-off,
+.status-alumni {
+  background: #fed7d7;
+  color: #c53030;
+  border: 1px solid #fc8181;
+}
+
+/* =================
+   EMPTY STATES
+   ================= */
+
+.empty-table {
+  text-align: center;
+  padding: 3rem;
+  background: #f8fafc;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  opacity: 0.5;
+}
+
+.empty-state p {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #4a5568;
+  margin: 0;
+}
+
+.empty-subtitle {
+  font-size: 0.95rem;
+  color: #718096;
+  font-weight: 400;
+  max-width: 400px;
+  line-height: 1.5;
+}
+
+/* =================
+   LOADING STATES
+   ================= */
+
+.management-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  gap: 1rem;
+}
+
+.management-spinner {
+  width: 3rem;
+  height: 3rem;
+  border: 3px solid #e2e8f0;
+  border-top: 3px solid #3182ce;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.management-loading p {
+  font-size: 1.1rem;
+  color: #4a5568;
+  font-weight: 500;
+}
+
+/* =================
+   ERROR STATES
+   ================= */
+
+.management-error {
+  background: #fed7d7;
+  border: 1px solid #fc8181;
+  border-radius: 0.75rem;
+  padding: 2rem;
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.management-error h3 {
+  color: #c53030;
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.management-error p {
+  color: #742a2a;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.management-retry-btn {
+  background: #c53030;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.management-retry-btn:hover {
+  background: #9c2626;
+  transform: translateY(-1px);
+}
+
+/* =================
+   ACTION BUTTONS
+   ================= */
+
+.management-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+.management-btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.management-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.management-btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.management-btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.management-btn-secondary {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(240, 147, 251, 0.3);
+}
+
+.management-btn-secondary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(240, 147, 251, 0.4);
+}
+
+.management-btn-neutral {
+  background: #e2e8f0;
+  color: #4a5568;
+  border: 1px solid #cbd5e0;
+}
+
+.management-btn-neutral:hover:not(:disabled) {
+  background: #cbd5e0;
+  transform: translateY(-1px);
+}
+
+/* =================
+   RESPONSIVE DESIGN
+   ================= */
+
+@media (max-width: 768px) {
+  .management-panel {
+    padding: 1rem;
+  }
+
+  .management-title {
+    font-size: 2rem;
+  }
+
+  .search-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-bar-container {
+    min-width: auto;
+  }
+
+  .management-table-container {
+    overflow-x: auto;
+  }
+
+  .management-table {
+    min-width: 600px;
+  }
+
+  .management-actions {
+    justify-content: center;
+  }
+}
+
+/* =================
+   UTILITY CLASSES
+   ================= */
+
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.font-bold { font-weight: 700; }
+.font-semibold { font-weight: 600; }
+.font-medium { font-weight: 500; }
+
+.text-gray-600 { color: #718096; }
+.text-gray-700 { color: #4a5568; }
+.text-gray-800 { color: #2d3748; }
+
+.mb-1 { margin-bottom: 0.25rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-3 { margin-bottom: 0.75rem; }
+.mb-4 { margin-bottom: 1rem; }
+
+.p-2 { padding: 0.5rem; }
+.p-3 { padding: 0.75rem; }
+.p-4 { padding: 1rem; }
+
+.rounded { border-radius: 0.25rem; }
+.rounded-lg { border-radius: 0.5rem; }
+.rounded-xl { border-radius: 0.75rem; }

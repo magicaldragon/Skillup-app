@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { Student, StudentClass } from './types';
 import './PotentialStudentsPanel.css';
+import './ManagementTableStyles.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
@@ -203,9 +204,9 @@ const PotentialStudentsPanel = ({
 
   if (loading) {
     return (
-      <div className="potential-students-panel">
-        <div className="potential-students-loading">
-          <div className="potential-students-spinner"></div>
+      <div className="management-panel">
+        <div className="management-loading">
+          <div className="management-spinner"></div>
           <p>Loading potential students...</p>
         </div>
       </div>
@@ -214,13 +215,13 @@ const PotentialStudentsPanel = ({
 
   if (error) {
     return (
-      <div className="potential-students-panel">
-        <div className="potential-students-error">
+      <div className="management-panel">
+        <div className="management-error">
           <h3>Error Loading Potential Students</h3>
           <p>{error}</p>
           <button
             type="button"
-            className="potential-students-retry-btn"
+            className="management-retry-btn"
             onClick={fetchPotentialStudents}
           >
             Try Again
@@ -231,15 +232,15 @@ const PotentialStudentsPanel = ({
   }
 
   return (
-    <div className="potential-students-panel">
-      <div className="potential-students-header">
-        <h2 className="potential-students-title">Potential Students</h2>
-        <p className="potential-students-subtitle">
+    <div className="management-panel">
+      <div className="management-header">
+        <h2 className="management-title">Potential Students</h2>
+        <p className="management-subtitle">
           Students with "Potential" or "Contacted" status - they will move to Waiting List when status changes to "Studying"
         </p>
       </div>
 
-      <div className="potential-students-search">
+      <div className="management-search">
         <div className="search-controls">
           <div className="search-bar-container">
             <input
@@ -282,8 +283,8 @@ const PotentialStudentsPanel = ({
         </div>
       </div>
 
-      <div className="potential-students-table-container">
-        <table className="potential-students-table">
+      <div className="management-table-container">
+        <table className="management-table">
           <thead>
             <tr>
               <th className="checkbox-header">
@@ -425,10 +426,10 @@ const PotentialStudentsPanel = ({
         </div>
       )}
 
-      <div className="potential-students-actions">
+      <div className="management-actions">
         {selectedIds.length > 0 && (
           <button
-            className="potential-students-btn potential-students-btn-secondary"
+            className="management-btn management-btn-secondary"
             onClick={() => setShowBulkUpdate(true)}
             type="button"
           >
@@ -436,7 +437,7 @@ const PotentialStudentsPanel = ({
           </button>
         )}
         <button
-          className="potential-students-btn potential-students-btn-primary"
+          className="management-btn management-btn-primary"
           onClick={() => {
             if (selectedIds.length === 1) {
               handleMoveToWaitingList(selectedIds[0]);
@@ -452,7 +453,7 @@ const PotentialStudentsPanel = ({
           Move to Waiting List
         </button>
         <button
-          className="potential-students-btn potential-students-btn-neutral"
+          className="management-btn management-btn-neutral"
           onClick={selectAll}
           disabled={selectedIds.length === potentialStudents.length}
           type="button"
@@ -460,7 +461,7 @@ const PotentialStudentsPanel = ({
           Select All
         </button>
         <button
-          className="potential-students-btn potential-students-btn-neutral"
+          className="management-btn management-btn-neutral"
           onClick={clearAll}
           disabled={selectedIds.length === 0}
           type="button"
@@ -468,7 +469,7 @@ const PotentialStudentsPanel = ({
           Clear
         </button>
         <button
-          className="potential-students-btn potential-students-btn-neutral"
+          className="management-btn management-btn-neutral"
           onClick={handleSyncExistingStudents}
           type="button"
         >

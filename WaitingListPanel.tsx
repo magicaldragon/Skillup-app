@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import type { StudentClass } from './types';
 import './WaitingListPanel.css';
+import './ManagementTableStyles.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
@@ -221,9 +222,9 @@ const WaitingListPanel = ({
 
   if (loading) {
     return (
-      <div className="waiting-list-panel">
-        <div className="waiting-list-loading">
-          <div className="waiting-list-spinner"></div>
+      <div className="management-panel">
+        <div className="management-loading">
+          <div className="management-spinner"></div>
           <p>Loading waiting students...</p>
         </div>
       </div>
@@ -232,11 +233,11 @@ const WaitingListPanel = ({
 
   if (error) {
     return (
-      <div className="waiting-list-panel">
-        <div className="waiting-list-error">
+      <div className="management-panel">
+        <div className="management-error">
           <h3>Error Loading Waiting Students</h3>
           <p>{error}</p>
-          <button type="button" className="waiting-list-retry-btn" onClick={fetchWaitingStudents}>
+          <button type="button" className="management-retry-btn" onClick={fetchWaitingStudents}>
             Try Again
           </button>
         </div>
@@ -245,15 +246,15 @@ const WaitingListPanel = ({
   }
 
   return (
-    <div className="waiting-list-panel">
-      <div className="waiting-list-header">
-        <h2 className="waiting-list-title">Waiting List</h2>
-        <p className="waiting-list-subtitle">
+    <div className="management-panel">
+      <div className="management-header">
+        <h2 className="management-title">Waiting List</h2>
+        <p className="management-subtitle">
           Students with "Studying" status ready for class assignment. Change status to "Postponed" to keep them here, or "Off"/"Alumni" to move them to Records.
         </p>
       </div>
 
-      <div className="waiting-list-search">
+      <div className="management-search">
         <div className="search-controls">
           <div className="search-bar-container">
             <input
@@ -293,8 +294,8 @@ const WaitingListPanel = ({
         </div>
       </div>
 
-      <div className="waiting-list-table-container">
-        <table className="waiting-list-table">
+      <div className="management-table-container">
+        <table className="management-table">
           <thead>
             <tr>
               <th className="checkbox-header">
@@ -446,11 +447,11 @@ const WaitingListPanel = ({
         </div>
       )}
 
-      <div className="waiting-list-actions">
+      <div className="management-actions">
         {selectedIds.length > 0 && (
           <button
             type="button"
-            className="waiting-list-btn waiting-list-btn-secondary"
+            className="management-btn management-btn-secondary"
             onClick={() => setShowBulkAssign(true)}
           >
             Bulk Assign to Class
@@ -458,7 +459,7 @@ const WaitingListPanel = ({
         )}
         <button
           type="button"
-          className="waiting-list-btn waiting-list-btn-neutral"
+          className="management-btn management-btn-neutral"
           onClick={selectAll}
           disabled={selectedIds.length === waitingStudents.length}
         >
@@ -466,7 +467,7 @@ const WaitingListPanel = ({
         </button>
         <button
           type="button"
-          className="waiting-list-btn waiting-list-btn-neutral"
+          className="management-btn management-btn-neutral"
           onClick={clearAll}
           disabled={selectedIds.length === 0}
         >

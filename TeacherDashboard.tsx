@@ -10,9 +10,7 @@ import ClassesPanel from './ClassesPanel';
 import LevelsPanel from './LevelsPanel';
 import PotentialStudentsPanel from './PotentialStudentsPanel';
 import RecordsPanel from './RecordsPanel';
-import ReportsPanel from './ReportsPanel';
 import SettingsPanel from './SettingsPanel';
-import TeacherScoresFeedbackPanel from './TeacherScoresFeedbackPanel';
 import WaitingListPanel from './WaitingListPanel';
 import type {
   FirestoreAssignment,
@@ -74,10 +72,6 @@ const TeacherDashboard = ({
           classes={classes as any}
           onDataRefresh={onDataRefresh}
         />
-      ) : activeKey === 'scores' ? (
-        <TeacherScoresFeedbackPanel />
-      ) : activeKey === 'reports' ? (
-        <ReportsPanel />
       ) : activeKey === 'levels' ? (
         <LevelsPanel onDataRefresh={onDataRefresh} />
       ) : activeKey === 'records' ? (

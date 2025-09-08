@@ -3,6 +3,7 @@ import { APIError, usersAPI } from './services/apiService';
 import { authService } from './services/authService';
 import type { UserUpdateData } from './types';
 import './AccountsPanel.css';
+import './ManagementTableStyles.css';
 
 interface User {
   _id: string;
@@ -404,27 +405,37 @@ const AccountsPanel = () => {
   }, [syncStatus]);
 
   return (
-    <div className="accounts-panel-container">
+    <div className="management-panel">
       {loading ? (
-        <div className="accounts-loading">Loading accounts...</div>
+        <div className="management-loading">
+          <div className="management-spinner"></div>
+          <p>Loading accounts...</p>
+        </div>
       ) : error ? (
-        <div className="accounts-error">
-          <strong>Error:</strong> {error}
-          <br />
+        <div className="management-error">
+          <h3>Error Loading Accounts</h3>
+          <p>{error}</p>
           <button
             type="button"
             onClick={fetchAccounts}
-            style={{ marginTop: '10px', padding: '5px 10px' }}
+            className="management-retry-btn"
           >
             Retry
           </button>
         </div>
       ) : accounts.length === 0 ? (
-        <div className="accounts-empty">No users found.</div>
+        <div className="empty-table">
+          <div className="empty-state">
+            <div className="empty-icon">👥</div>
+            <p>No users found.</p>
+          </div>
+        </div>
       ) : (
         <div className="accounts-table-wrapper">
           <div className="table-container">
-            <h2 className="accounts-title">USER ACCOUNTS</h2>
+            <div className="management-header">
+              <h2 className="management-title">User Accounts</h2>
+            </div>
 
             {error && <div className="error-message">{error}</div>}
 
@@ -533,7 +544,7 @@ const AccountsPanel = () => {
                 </div>
               )}
 
-              <table className="accounts-table">
+              <table className="management-table">
                 <thead>
                   <tr>
                     <th>Name</th>

@@ -6,6 +6,7 @@ import { ICONS, LEVELS } from './constants';
 import type { Level, StudentClass } from './types';
 import { safeTrim } from './utils/stringUtils';
 import './LevelsPanel.css';
+import './ManagementTableStyles.css';
 
 const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
   const [levels, setLevels] = useState<Level[]>([]);
@@ -413,9 +414,9 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
 
   if (loading) {
     return (
-      <div className="levels-panel">
-        <div className="levels-loading">
-          <div className="levels-spinner"></div>
+      <div className="management-panel">
+        <div className="management-loading">
+          <div className="management-spinner"></div>
           <p>Loading levels...</p>
         </div>
       </div>
@@ -423,10 +424,10 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
   }
 
   return (
-    <div className="levels-panel">
-      <div className="levels-header">
-        <h2 className="levels-title">Levels Management</h2>
-        <p className="levels-subtitle">Organize classes by proficiency levels</p>
+    <div className="management-panel">
+      <div className="management-header">
+        <h2 className="management-title">Levels Management</h2>
+        <p className="management-subtitle">Organize classes by proficiency levels</p>
       </div>
 
       {/* Add New Level Button */}
