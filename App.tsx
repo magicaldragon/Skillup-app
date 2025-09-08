@@ -613,28 +613,41 @@ const App: React.FC = () => {
           : 'TeacherDashboard'
     );
 
-    return (
-      <div className="app-container">
-        <Sidebar
-          role={user.role}
-          activeKey={navKey}
-          onNavigate={setNavKey}
-          onLogout={handleLogout}
-          user={user}
-        />
-        <main className="main-content">
-          <DashboardComponent
-            user={user}
-            students={students}
-            assignments={assignments}
-            classes={classes}
+    try {
+      return (
+        <div className="app-container">
+          <Sidebar
+            role={user.role}
             activeKey={navKey}
-            onDataRefresh={refreshData}
-            isAdmin={user.role === 'admin'}
+            onNavigate={setNavKey}
+            onLogout={handleLogout}
+            user={user}
           />
-        </main>
-      </div>
-    );
+          <main className="main-content">
+            <DashboardComponent
+              user={user}
+              students={students}
+              assignments={assignments}
+              classes={classes}
+              activeKey={navKey}
+              onDataRefresh={refreshData}
+              isAdmin={user.role === 'admin'}
+            />
+          </main>
+        </div>
+      );
+    } catch (dashboardError) {
+      console.error('Dashboard loading error:', dashboardError);
+      return (
+        <div className="error-container">
+          <h2>Dashboard Loading Error</h2>
+          <p>Failed to load the dashboard. Please refresh the page.</p>
+          <button type="button" onClick={() => window.location.reload()}>
+            Refresh Page
+          </button>
+        </div>
+      );
+    }
   }, [
     loading,
     authError,

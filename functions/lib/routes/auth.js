@@ -57,9 +57,10 @@ router.get('/profile', auth_1.verifyToken, async (req, res) => {
         const { userId } = req.user;
         const userDoc = await admin.firestore().collection('users').doc(userId).get();
         if (!userDoc.exists) {
+            console.error('User profile not found for userId:', userId);
             return res.status(404).json({
                 success: false,
-                message: 'User not found'
+                message: 'User profile not found. Please contact administrator.'
             });
         }
         const userData = userDoc.data();
@@ -259,10 +260,15 @@ router.post('/firebase-login', async (req, res) => {
         }
         // Validate user data before creating token
         if (!userData || !userData.role || !userData.email) {
-            console.error('Invalid user data after creation/retrieval:', userData);
+            console.error('Invalid user data after creation/retrieval:', {
+                hasUserData: !!userData,
+                hasRole: !!(userData === null || userData === void 0 ? void 0 : userData.role),
+                hasEmail: !!(userData === null || userData === void 0 ? void 0 : userData.email),
+                userData: userData
+            });
             return res.status(500).json({
                 success: false,
-                message: 'User data validation failed',
+                message: 'User account setup incomplete. Please contact administrator.',
             });
         }
         // Create a simple session token (in production, use proper JWT library)

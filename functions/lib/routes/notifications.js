@@ -44,26 +44,56 @@ exports.notificationsRouter = router;
 router.get('/', auth_1.verifyToken, async (req, res) => {
     try {
         if (!req.user) {
-            return res.status(401).json({ message: 'User not authenticated' });
+            return res.status(401).json({
+                success: false,
+                message: 'User not authenticated'
+            });
         }
-        const snapshot = await admin
-            .firestore()
-            .collection('notifications')
-            .where('userId', '==', req.user.userId)
-            .orderBy('createdAt', 'desc')
-            .limit(50)
-            .get();
-        const notifications = snapshot.docs.map((doc) => (Object.assign({ _id: doc.id }, doc.data())));
-        return res.json({
-            success: true,
-            notifications,
-        });
+        // Try to get notifications with error handling for missing index
+        try {
+            const snapshot = await admin
+                .firestore()
+                .collection('notifications')
+                .where('userId', '==', req.user.userId)
+                .orderBy('createdAt', 'desc')
+                .limit(50)
+                .get();
+            const notifications = snapshot.docs.map((doc) => (Object.assign({ _id: doc.id }, doc.data())));
+            return res.json({
+                success: true,
+                notifications,
+            });
+        }
+        catch (indexError) {
+            console.warn('Composite index not available, falling back to simple query:', indexError);
+            // Fallback: Get notifications without ordering (requires less complex index)
+            const snapshot = await admin
+                .firestore()
+                .collection('notifications')
+                .where('userId', '==', req.user.userId)
+                .limit(50)
+                .get();
+            const notifications = snapshot.docs
+                .map((doc) => (Object.assign({ _id: doc.id }, doc.data())))
+                .sort((a, b) => {
+                var _a, _b, _c, _d;
+                // Manual sorting by createdAt if available
+                const aTime = ((_b = (_a = a.createdAt) === null || _a === void 0 ? void 0 : _a.toDate) === null || _b === void 0 ? void 0 : _b.call(_a)) || new Date(a.createdAt || 0);
+                const bTime = ((_d = (_c = b.createdAt) === null || _c === void 0 ? void 0 : _c.toDate) === null || _d === void 0 ? void 0 : _d.call(_c)) || new Date(b.createdAt || 0);
+                return bTime.getTime() - aTime.getTime();
+            });
+            return res.json({
+                success: true,
+                notifications,
+            });
+        }
     }
     catch (error) {
         console.error('Error fetching notifications:', error);
         return res.status(500).json({
             success: false,
             message: 'Failed to fetch notifications',
+            error: error instanceof Error ? error.message : 'Unknown error'
         });
     }
 });

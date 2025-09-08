@@ -85,7 +85,13 @@ const verifyToken = async (req, res, next) => {
             }
             catch (sessionError) {
                 // If session token fails, try Firebase ID token
-                decodedToken = await admin.auth().verifyIdToken(token);
+                try {
+                    decodedToken = await admin.auth().verifyIdToken(token);
+                }
+                catch (firebaseError) {
+                    console.error('Firebase ID token verification also failed:', firebaseError);
+                    throw new Error('Both session and Firebase token verification failed');
+                }
                 // Get user data from Firestore by firebaseUid
                 const userQuery = await admin
                     .firestore()
@@ -94,9 +100,10 @@ const verifyToken = async (req, res, next) => {
                     .limit(1)
                     .get();
                 if (userQuery.empty) {
+                    console.error('User not found in Firestore for Firebase UID:', decodedToken.uid);
                     res.status(401).json({
                         success: false,
-                        message: 'User not found in database',
+                        message: 'User account not found. Please contact administrator.',
                     });
                     return;
                 }
