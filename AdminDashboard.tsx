@@ -3,6 +3,7 @@
 
 import AccountsPanel from './AccountsPanel';
 import AddNewMembers from './AddNewMembers';
+import AdminDebugPanel from './AdminDebugPanel';
 import ChangeLogPanel from './ChangeLogPanel';
 import ClassesPanel from './ClassesPanel';
 import LevelsPanel from './LevelsPanel';
@@ -14,6 +15,7 @@ import TeacherScoresFeedbackPanel from './TeacherScoresFeedbackPanel';
 import type { Assignment, Student, StudentClass } from './types';
 import WaitingListPanel from './WaitingListPanel';
 import './AdminDashboard.css';
+import './AdminDebugPanel.css';
 
 // Define proper props interface
 interface AdminDashboardProps {
@@ -121,13 +123,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </div>
       ) : activeKey === 'settings' ? (
         <SettingsPanel currentUser={user} classes={classes} onDataRefresh={onDataRefresh} />
-      ) : activeKey === 'admin-debug' ? (
-        <div className="admin-dashboard-content">
-          <div className="admin-dashboard-welcome">
-            <h1 className="admin-dashboard-title">Admin Debug</h1>
-            <p className="admin-dashboard-subtitle">This section will be rebuilt later</p>
-          </div>
-        </div>
+      ) : activeKey.startsWith('admin-debug') ? (
+        <AdminDebugPanel activeKey={activeKey} />
       ) : activeKey === 'changelog' ? (
         <ChangeLogPanel />
       ) : (
