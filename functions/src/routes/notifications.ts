@@ -9,31 +9,65 @@ const router = Router();
 router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.user) {
-      return res.status(401).json({ message: 'User not authenticated' });
+      return res.status(401).json({ 
+        success: false,
+        message: 'User not authenticated' 
+      });
     }
 
-    const snapshot = await admin
-      .firestore()
-      .collection('notifications')
-      .where('userId', '==', req.user.userId)
-      .orderBy('createdAt', 'desc')
-      .limit(50)
-      .get();
+    // Try to get notifications with error handling for missing index
+    try {
+      const snapshot = await admin
+        .firestore()
+        .collection('notifications')
+        .where('userId', '==', req.user.userId)
+        .orderBy('createdAt', 'desc')
+        .limit(50)
+        .get();
 
-    const notifications = snapshot.docs.map((doc) => ({
-      _id: doc.id,
-      ...doc.data(),
-    }));
+      const notifications = snapshot.docs.map((doc) => ({
+        _id: doc.id,
+        ...doc.data(),
+      }));
 
-    return res.json({
-      success: true,
-      notifications,
-    });
+      return res.json({
+        success: true,
+        notifications,
+      });
+    } catch (indexError) {
+      console.warn('Composite index not available, falling back to simple query:', indexError);
+      
+      // Fallback: Get notifications without ordering (requires less complex index)
+      const snapshot = await admin
+        .firestore()
+        .collection('notifications')
+        .where('userId', '==', req.user.userId)
+        .limit(50)
+        .get();
+
+      const notifications = snapshot.docs
+        .map((doc) => ({
+          _id: doc.id,
+          ...doc.data(),
+        }))
+        .sort((a: any, b: any) => {
+          // Manual sorting by createdAt if available
+          const aTime = a.createdAt?.toDate?.() || new Date(a.createdAt || 0);
+          const bTime = b.createdAt?.toDate?.() || new Date(b.createdAt || 0);
+          return bTime.getTime() - aTime.getTime();
+        });
+
+      return res.json({
+        success: true,
+        notifications,
+      });
+    }
   } catch (error) {
     console.error('Error fetching notifications:', error);
     return res.status(500).json({
       success: false,
       message: 'Failed to fetch notifications',
+      error: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });

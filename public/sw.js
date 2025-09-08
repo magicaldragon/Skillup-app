@@ -47,6 +47,11 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
+  // Skip handling for unsupported schemes
+  if (!url.protocol.startsWith('http')) {
+    return; // Let the browser handle it naturally
+  }
+
   // Handle API requests
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(handleApiRequest(request));
@@ -98,6 +103,14 @@ async function handleApiRequest(request) {
 
 // Handle static requests with caching
 async function handleStaticRequest(request) {
+  const url = new URL(request.url);
+  
+  // Skip caching for unsupported schemes (chrome-extension, etc.)
+  if (!url.protocol.startsWith('http')) {
+    console.log('Skipping cache for unsupported scheme:', url.protocol);
+    return fetch(request);
+  }
+  
   const cache = await caches.open(STATIC_CACHE);
 
   // Check cache first
@@ -110,10 +123,10 @@ async function handleStaticRequest(request) {
     // Try network
     const response = await fetch(request);
 
-    // Cache successful responses
-    if (response.ok) {
+    // Cache successful responses (only for http/https)
+    if (response.ok && url.protocol.startsWith('http')) {
       const clonedResponse = response.clone();
-      cache.put(request, clonedResponse);
+      await cache.put(request, clonedResponse);
     }
 
     return response;

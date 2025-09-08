@@ -25,6 +25,11 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: (id) => {
+          // Keep main components in the main bundle to avoid MIME type issues
+          if (id.includes('AdminDashboard') || id.includes('TeacherDashboard') || id.includes('StudentDashboard')) {
+            return undefined; // Keep in main bundle
+          }
+          
           // Only create chunks for actual dependencies
           if (id.includes('node_modules')) {
             if (id.includes('react') || id.includes('react-dom')) {

@@ -1,17 +1,17 @@
 import type React from 'react';
-import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { authService } from './frontend/services/authService';
 import { safeTrim } from './utils/stringUtils';
 import './App.css';
 
-// Lazy load components for better performance
-const Login = lazy(() => import('./Login'));
-const TeacherDashboard = lazy(() => import('./TeacherDashboard'));
-const StudentDashboard = lazy(() => import('./StudentDashboard'));
-const Sidebar = lazy(() => import('./Sidebar'));
-const AdminDashboard = lazy(() => import('./AdminDashboard')); // Added AdminDashboard
+// Import components directly instead of lazy loading to avoid MIME type issues
+import AdminDashboard from './AdminDashboard';
+import Login from './Login';
+import Sidebar from './Sidebar';
+import StudentDashboard from './StudentDashboard';
+import TeacherDashboard from './TeacherDashboard';
 
-import type { Assignment, Student, StudentClass, Submission, UserProfile } from './types';
+import type { Assignment, Student, StudentClass, Submission, UserProfile, ExamLevel } from './types';
 
 // Loading component for better UX
 const LoadingSpinner = () => (
@@ -247,9 +247,38 @@ const App: React.FC = () => {
         );
         setStudents(sanitizedStudents);
         console.log('Students fetched and sanitized successfully:', sanitizedStudents.length);
+      } else if (data && Array.isArray(data)) {
+        // Handle case where data is directly an array
+        const sanitizedStudents = data.map(
+          (student: Partial<Student> & { fullname?: string }) => ({
+            id: student.id || student._id || '',
+            _id: student._id || student.id || '',
+            name: safeTrim(student.name || student.fullname || student.displayName),
+            email: safeTrim(student.email),
+            role: student.role || 'student',
+            username: safeTrim(student.username || student.email),
+            englishName: safeTrim(student.englishName || student.name || student.fullname),
+            gender: safeTrim(student.gender),
+            dob: safeTrim(student.dob),
+            phone: safeTrim(student.phone),
+            parentName: safeTrim(student.parentName),
+            parentPhone: safeTrim(student.parentPhone),
+            notes: safeTrim(student.notes),
+            status: safeTrim(student.status),
+            studentCode: safeTrim(student.studentCode),
+            avatarUrl: safeTrim(student.avatarUrl),
+            diceBearStyle: safeTrim(student.diceBearStyle),
+            diceBearSeed: safeTrim(student.diceBearSeed),
+            classIds: Array.isArray(student.classIds) ? student.classIds : [],
+            createdAt: safeTrim(student.createdAt),
+            updatedAt: safeTrim(student.updatedAt),
+          })
+        );
+        setStudents(sanitizedStudents);
+        console.log('Students fetched and sanitized successfully (direct array):', sanitizedStudents.length);
       } else {
-        console.error('Invalid students data:', data);
-        setDataError('Failed to fetch students data');
+        console.log('No students data or empty array returned:', data);
+        setStudents([]);
       }
     } catch (error) {
       console.error('Error fetching students:', error);
@@ -286,7 +315,7 @@ const App: React.FC = () => {
           (assignment: Partial<Assignment> & { _id?: string }) => ({
             id: assignment.id || assignment._id || '',
             title: safeTrim(assignment.title),
-            level: assignment.level || { name: '', code: '' },
+            level: (assignment.level && typeof assignment.level === 'string' ? assignment.level : (assignment.level as any)?.name || 'IELTS') as ExamLevel,
             skill: assignment.skill || 'Reading',
             description: safeTrim(assignment.description),
             questions: Array.isArray(assignment.questions) ? assignment.questions : [],
@@ -303,9 +332,32 @@ const App: React.FC = () => {
         );
         setAssignments(sanitizedAssignments);
         console.log('Assignments fetched and sanitized successfully:', sanitizedAssignments.length);
+      } else if (data && Array.isArray(data)) {
+        // Handle case where data is directly an array
+        const sanitizedAssignments = data.map(
+          (assignment: Partial<Assignment> & { _id?: string }) => ({
+            id: assignment.id || assignment._id || '',
+            title: safeTrim(assignment.title),
+            level: (assignment.level && typeof assignment.level === 'string' ? assignment.level : (assignment.level as any)?.name || 'IELTS') as ExamLevel,
+            skill: assignment.skill || 'Reading',
+            description: safeTrim(assignment.description),
+            questions: Array.isArray(assignment.questions) ? assignment.questions : [],
+            answerKey: assignment.answerKey || {},
+            audioUrl: safeTrim(assignment.audioUrl),
+            pdfUrl: safeTrim(assignment.pdfUrl),
+            publishDate: safeTrim(assignment.publishDate),
+            dueDate: safeTrim(assignment.dueDate),
+            classIds: Array.isArray(assignment.classIds) ? assignment.classIds : [],
+            createdBy: safeTrim(assignment.createdBy),
+            createdAt: safeTrim(assignment.createdAt),
+            templateId: safeTrim(assignment.templateId),
+          })
+        );
+        setAssignments(sanitizedAssignments);
+        console.log('Assignments fetched and sanitized successfully (direct array):', sanitizedAssignments.length);
       } else {
-        console.error('Invalid assignments data:', data);
-        setDataError('Failed to fetch assignments data');
+        console.log('No assignments data or empty array returned:', data);
+        setAssignments([]);
       }
     } catch (error) {
       console.error('Error fetching assignments:', error);
@@ -351,9 +403,24 @@ const App: React.FC = () => {
         );
         setSubmissions(sanitizedSubmissions);
         console.log('Submissions fetched and sanitized successfully:', sanitizedSubmissions.length);
+      } else if (data && Array.isArray(data)) {
+        // Handle case where data is directly an array
+        const sanitizedSubmissions = data.map(
+          (submission: Partial<Submission> & { _id?: string }) => ({
+            id: submission.id || submission._id || '',
+            studentId: safeTrim(submission.studentId),
+            assignmentId: safeTrim(submission.assignmentId),
+            submittedAt: safeTrim(submission.submittedAt),
+            content: safeTrim(submission.content),
+            score: submission.score || null,
+            feedback: safeTrim(submission.feedback),
+          })
+        );
+        setSubmissions(sanitizedSubmissions);
+        console.log('Submissions fetched and sanitized successfully (direct array):', sanitizedSubmissions.length);
       } else {
-        console.error('Invalid submissions data:', data);
-        setDataError('Failed to fetch submissions data');
+        console.log('No submissions data or empty array returned:', data);
+        setSubmissions([]);
       }
     } catch (error) {
       console.error('Error fetching submissions:', error);
@@ -403,9 +470,28 @@ const App: React.FC = () => {
         );
         setClasses(sanitizedClasses);
         console.log('Classes fetched and sanitized successfully:', sanitizedClasses.length);
+      } else if (data && Array.isArray(data)) {
+        // Handle case where data is directly an array
+        const sanitizedClasses = data.map(
+          (cls: Partial<StudentClass> & { _id?: string }) => ({
+            _id: cls._id || cls.id || '',
+            id: cls.id || cls._id || '',
+            name: safeTrim(cls.name),
+            classCode: safeTrim(cls.classCode),
+            levelId: cls.levelId || null,
+            studentIds: Array.isArray(cls.studentIds) ? cls.studentIds : [],
+            teacherId: safeTrim(cls.teacherId),
+            description: safeTrim(cls.description),
+            isActive: cls.isActive !== undefined ? cls.isActive : true,
+            createdAt: safeTrim(cls.createdAt),
+            updatedAt: safeTrim(cls.updatedAt),
+          })
+        );
+        setClasses(sanitizedClasses);
+        console.log('Classes fetched and sanitized successfully (direct array):', sanitizedClasses.length);
       } else {
-        console.error('Invalid classes data:', data);
-        setDataError('Failed to fetch classes data');
+        console.log('No classes data or empty array returned:', data);
+        setClasses([]);
       }
     } catch (error) {
       console.error('Error fetching classes:', error);
@@ -482,11 +568,7 @@ const App: React.FC = () => {
     }
 
     if (!user) {
-      return (
-        <Suspense fallback={<LoadingSpinner />}>
-          <Login onLoginSuccess={handleLoginSuccess} />
-        </Suspense>
-      );
+      return <Login onLoginSuccess={handleLoginSuccess} />;
     }
 
     // Determine which dashboard to show based on user role
@@ -533,27 +615,23 @@ const App: React.FC = () => {
 
     return (
       <div className="app-container">
-        <Suspense fallback={<LoadingSpinner />}>
-          <Sidebar
-            role={user.role}
-            activeKey={navKey}
-            onNavigate={setNavKey}
-            onLogout={handleLogout}
-            user={user}
-          />
-        </Suspense>
+        <Sidebar
+          role={user.role}
+          activeKey={navKey}
+          onNavigate={setNavKey}
+          onLogout={handleLogout}
+          user={user}
+        />
         <main className="main-content">
-          <Suspense fallback={<LoadingSpinner />}>
-            <DashboardComponent
-              user={user}
-              students={students}
-              assignments={assignments}
-              classes={classes}
-              activeKey={navKey}
-              onDataRefresh={refreshData}
-              isAdmin={user.role === 'admin'}
-            />
-          </Suspense>
+          <DashboardComponent
+            user={user}
+            students={students}
+            assignments={assignments}
+            classes={classes}
+            activeKey={navKey}
+            onDataRefresh={refreshData}
+            isAdmin={user.role === 'admin'}
+          />
         </main>
       </div>
     );
