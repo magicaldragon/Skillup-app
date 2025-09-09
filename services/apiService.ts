@@ -21,7 +21,7 @@ import type {
 } from '../types';
 import { auth } from './firebase';
 
-const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL || '/api';
+const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
 
 // Ensure consistent URL format (remove trailing slash if present)
 const normalizeUrl = (url: string) => url.replace(/\/$/, '');
@@ -90,14 +90,27 @@ export class APIError extends Error {
   }
 }
 
-// Helper function to get auth token with retry
+// Helper function to get auth token with improved fallback to localStorage token
 async function getAuthToken(retryCount = 0): Promise<string> {
   try {
+    // First try to get Firebase ID token if user is logged in
     const user = auth.currentUser;
-    if (!user) {
-      throw new Error('No authenticated user');
+    if (user) {
+      try {
+        return await user.getIdToken();
+      } catch (firebaseError) {
+        console.warn('Firebase ID token failed, falling back to session token:', firebaseError);
+      }
     }
-    return await user.getIdToken();
+    
+    // Fallback to session token from localStorage
+    const sessionToken = localStorage.getItem('skillup_token');
+    if (sessionToken) {
+      console.log('Using session token from localStorage');
+      return sessionToken;
+    }
+    
+    throw new Error('No authentication token available');
   } catch (error) {
     if (retryCount < API_CONFIG.maxRetries) {
       await new Promise(resolve => setTimeout(resolve, API_CONFIG.retryDelay));

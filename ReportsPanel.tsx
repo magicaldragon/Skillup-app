@@ -3,7 +3,7 @@ import './ReportsPanel.css';
 import './ManagementTableStyles.css';
 import { formatDateDDMMYYYY } from './utils/stringUtils';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
 
 interface StudentReport {
   _id: string;

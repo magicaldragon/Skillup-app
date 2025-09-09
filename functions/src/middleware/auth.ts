@@ -71,10 +71,13 @@ export const verifyToken = async (
 
         userData = userDoc.data();
         decodedToken = { uid: sessionData.uid, email: sessionData.email };
+        console.log('Session token verified successfully for user:', sessionData.email);
       } catch (sessionError) {
         // If session token fails, try Firebase ID token
+        console.log('Session token failed, trying Firebase ID token verification');
         try {
           decodedToken = await admin.auth().verifyIdToken(token);
+          console.log('Firebase ID token verified successfully for UID:', decodedToken.uid);
         } catch (firebaseError) {
           console.error('Firebase ID token verification also failed:', firebaseError);
           throw new Error('Both session and Firebase token verification failed');

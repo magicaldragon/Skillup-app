@@ -9,7 +9,7 @@ import { auth } from '../frontend/services/firebase';
 import type { Student } from '../types';
 import { safeTrim } from '../utils/stringUtils';
 
-const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL || '/api';
+const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
 
 // Ensure consistent URL format (remove trailing slash if present)
 const normalizeUrl = (url: string) => url.replace(/\/$/, '');

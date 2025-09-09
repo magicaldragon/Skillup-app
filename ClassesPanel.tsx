@@ -166,7 +166,7 @@ const ClassesPanel = ({
     setLevelsLoading(true);
     try {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
       
       console.log('Fetching levels from:', `${apiUrl}/levels`);
       console.log('Token available:', !!token);
@@ -323,7 +323,7 @@ const ClassesPanel = ({
 
     try {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
       
       const reportData = {
         studentId: studentReportModal.studentId,
@@ -409,7 +409,7 @@ const ClassesPanel = ({
 
     try {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
       const res = await fetch(`${apiUrl}/classes/${classInfoEditModal.classId}`, {
         method: 'PUT',
         headers: {
@@ -468,7 +468,7 @@ const ClassesPanel = ({
 
       try {
         const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-        const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+        const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
 
         const res = await fetch(`${apiUrl}/classes/${classId}`, {
           method: 'DELETE',
@@ -538,7 +538,7 @@ const ClassesPanel = ({
         startingDate: newClassStartingDate
       };
 
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
       const res = await fetch(`${apiUrl}/classes`, {
         method: 'POST',
         headers: {
@@ -586,7 +586,7 @@ const ClassesPanel = ({
 
       try {
         const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-        const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+        const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
 
         // First, remove students from current class
         for (const studentId of selectedStudentIds) {
@@ -653,7 +653,7 @@ const ClassesPanel = ({
 
     try {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
 
       for (const studentId of selectedStudentIds) {
         // Remove from current class

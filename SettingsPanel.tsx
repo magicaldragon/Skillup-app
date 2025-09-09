@@ -81,7 +81,7 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
         const dataUrl = event.target?.result as string;
         
         try {
-          const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
+          const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
           const res = await fetch(`${apiUrl}/users/${currentUser.id || currentUser._id}/avatar`, {
             method: 'POST',
             headers: {
@@ -124,7 +124,7 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
     setSuccess(null);
     setError(null);
     try {
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || '';
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
       const res = await fetch(`${apiUrl}/users/${currentUser.id || currentUser._id}`, {
         method: 'PUT',
         headers: {
