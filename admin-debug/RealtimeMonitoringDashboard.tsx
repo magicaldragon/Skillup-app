@@ -48,12 +48,11 @@ interface SystemAlerts {
   resolved: boolean;
 }
 
-interface DatabaseMetrics {
-  connectionCount: number;
-  queryTime: number;
-  slowQueries: number;
-  cacheHitRate: number;
-  diskUsage: number;
+interface FirebaseMetrics {
+  readsPerMinute: number;
+  writesPerMinute: number;
+  collectionCount: number;
+  storageUsed: number;
 }
 
 interface ApiEndpointHealth {
@@ -75,7 +74,7 @@ interface UserActivityData {
 const RealtimeMonitoringDashboard: React.FC = () => {
   const [realtimeData, setRealtimeData] = useState<RealtimeMetrics[]>([]);
   const [systemAlerts, setSystemAlerts] = useState<SystemAlerts[]>([]);
-  const [databaseMetrics, setDatabaseMetrics] = useState<DatabaseMetrics | null>(null);
+  const [firebaseMetrics, setFirebaseMetrics] = useState<FirebaseMetrics | null>(null);
   const [apiEndpoints, setApiEndpoints] = useState<ApiEndpointHealth[]>([]);
   const [userActivity, setUserActivity] = useState<UserActivityData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -192,11 +191,11 @@ const RealtimeMonitoringDashboard: React.FC = () => {
     }
   }, []);
 
-  // Fetch database metrics
-  const fetchDatabaseMetrics = useCallback(async () => {
+  // Fetch Firestore metrics
+  const fetchFirebaseMetrics = useCallback(async () => {
     try {
       const token = localStorage.getItem('skillup_token');
-      const response = await fetch(`${API_BASE_URL}/admin/database-metrics`, {
+      const response = await fetch(`${API_BASE_URL}/admin/firestore-metrics`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -205,19 +204,18 @@ const RealtimeMonitoringDashboard: React.FC = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setDatabaseMetrics(data.metrics);
+        setFirebaseMetrics(data.metrics);
       } else {
-        // Mock database metrics
-        setDatabaseMetrics({
-          connectionCount: 25,
-          queryTime: 45,
-          slowQueries: 3,
-          cacheHitRate: 87,
-          diskUsage: 65
+        // Mock Firestore metrics
+        setFirebaseMetrics({
+          readsPerMinute: 245,
+          writesPerMinute: 67,
+          collectionCount: 8,
+          storageUsed: 1.2
         });
       }
     } catch (error) {
-      console.error('Error fetching database metrics:', error);
+      console.error('Error fetching Firestore metrics:', error);
     }
   }, []);
 
@@ -544,24 +542,24 @@ const RealtimeMonitoringDashboard: React.FC = () => {
           </div>
         </div>
 
-        {databaseMetrics && (
+        {firebaseMetrics && (
           <div className="metric-card">
             <div className="metric-header">
-              <h4>🗄️ Database Health</h4>
+              <h4>🔥 Firestore Health</h4>
               <div className="metric-trend positive">Healthy</div>
             </div>
             <div className="metric-stats">
               <div className="stat">
-                <span className="stat-label">Connections</span>
-                <span className="stat-value">{databaseMetrics.connectionCount}</span>
+                <span className="stat-label">Reads/min</span>
+                <span className="stat-value">{firebaseMetrics.readsPerMinute}</span>
               </div>
               <div className="stat">
-                <span className="stat-label">Query Time</span>
-                <span className="stat-value">{databaseMetrics.queryTime}ms</span>
+                <span className="stat-label">Writes/min</span>
+                <span className="stat-value">{firebaseMetrics.writesPerMinute}</span>
               </div>
               <div className="stat">
-                <span className="stat-label">Cache Hit</span>
-                <span className="stat-value">{databaseMetrics.cacheHitRate}%</span>
+                <span className="stat-label">Collection Count</span>
+                <span className="stat-value">{firebaseMetrics.collectionCount}</span>
               </div>
             </div>
           </div>

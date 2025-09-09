@@ -5,29 +5,24 @@ console.log('=======================================\n');
 
 console.log('📋 Required Environment Variables:');
 console.log('==================================');
-console.log('1. MONGODB_URI - Your MongoDB connection string');
-console.log('2. VITE_VSTORAGE_ACCESS_KEY - VNG Cloud access key');
-console.log('3. VITE_VSTORAGE_SECRET_KEY - VNG Cloud secret key');
-console.log('4. VITE_VSTORAGE_BUCKET - VNG Cloud bucket name (default: skillup)');
-console.log('5. VITE_VSTORAGE_ENDPOINT - VNG Cloud endpoint (default: https://s3.vngcloud.vn)');
-console.log('6. VITE_VSTORAGE_REGION - VNG Cloud region (default: sgn)');
+console.log('1. VITE_VSTORAGE_ACCESS_KEY - VNG Cloud access key');
+console.log('2. VITE_VSTORAGE_SECRET_KEY - VNG Cloud secret key');
+console.log('3. VITE_VSTORAGE_BUCKET - VNG Cloud bucket name (default: skillup)');
+console.log('4. VITE_VSTORAGE_ENDPOINT - VNG Cloud endpoint (default: https://s3.vngcloud.vn)');
+console.log('5. VITE_VSTORAGE_REGION - VNG Cloud region (default: sgn)');
 console.log('\n');
 
 console.log('🚀 Setting up Firebase environment variables...\n');
 
 try {
-  // MongoDB deprecated: SkillUp now uses Firebase/Firestore only
-  console.log('ℹ️ Skipping MONGODB_URI setup - migration completed to Firebase/Firestore.');
-  console.log('   If you still need to set it for legacy scripts, run:');
-  console.log('   firebase functions:config:set mongodb.uri="<YOUR_MONGODB_URI>"');
-  console.log('\n✅ Environment step completed (MongoDB skipped).');
+  console.log('✅ Environment setup completed.');
 
   console.log('\n📝 Next steps:');
   console.log('==============');
-  console.log('1. Get your VStorage credentials from Render:');
-  console.log('   - Go to your Render dashboard');
-  console.log('   - Find your service');
-  console.log('   - Go to Environment tab');
+  console.log('1. Get your VStorage credentials from VNG Cloud Console:');
+  console.log('   - Go to https://vngcloud.vn/');
+  console.log('   - Access your VStorage service');
+  console.log('   - Go to Access Keys section');
   console.log('   - Copy VITE_VSTORAGE_ACCESS_KEY and VITE_VSTORAGE_SECRET_KEY');
   console.log('\n2. Set VStorage credentials in Firebase:');
   console.log('   firebase functions:config:set vstorage.access_key="YOUR_ACCESS_KEY"');

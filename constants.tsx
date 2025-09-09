@@ -1,7 +1,7 @@
 import type { Assignment, Level, Student, StudentClass, Submission } from './types';
 
 // NOTE: This file is now primarily used to "seed" the database with initial data
-// when the application is run for the first time against an empty MongoDB instance.
+// when the application is run for the first time against an empty Firestore instance.
 
 export const QUESTION_TYPES = [
   'Multiple Choice',

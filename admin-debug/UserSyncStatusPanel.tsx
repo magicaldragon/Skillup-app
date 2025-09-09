@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 interface SyncStatus {
-  mongoCount: number;
+  firestoreCount: number;
   firebaseCount: number;
   discrepancies: Array<{
     userId: string;
@@ -37,7 +37,7 @@ const UserSyncStatusPanel = () => {
       {status && (
         <div>
           <div>
-            MongoDB Users: <span className="font-bold">{status.mongoCount}</span>
+            Firestore Users: <span className="font-bold">{status.firestoreCount}</span>
           </div>
           <div>
             Firebase Users: <span className="font-bold">{status.firebaseCount}</span>

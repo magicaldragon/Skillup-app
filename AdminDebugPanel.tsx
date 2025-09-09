@@ -128,7 +128,7 @@ const AdminDebugPanel = ({ activeKey }: { activeKey: string }) => {
                 <ul className="limits-list">
                   <li>🔥 Firebase: 50,000 reads/day, 20,000 writes/day</li>
                   <li>📊 VNG vStorage: 5GB storage, 20,000 requests/month</li>
-                  <li>💾 MongoDB: 512MB storage</li>
+                  <li>🔥 Firestore: 1GB storage, 50K reads/day, 20K writes/day</li>
                 </ul>
               </div>
               

@@ -134,7 +134,7 @@ Development mode includes detailed performance logs:
 
 1. **Service Worker**: Implement caching for static assets
 2. **CDN**: Use CDN for faster global content delivery
-3. **Database Indexing**: Optimize MongoDB queries
+3. **Database Indexing**: Optimize Firestore queries
 4. **Image Optimization**: Compress and optimize images
 5. **Bundle Splitting**: Implement code splitting for faster initial load
 
@@ -160,4 +160,4 @@ git commit -m "Optimize login performance, implement connection caching, paralle
 git push origin main
 ```
 
-**Note**: After deploying these changes, a redeploy may be required on Render to ensure all optimizations are active. 
+**Note**: After deploying these changes, a redeploy may be required to ensure all optimizations are active. 

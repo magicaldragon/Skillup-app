@@ -8,9 +8,10 @@
 
 ## 📋 **Current Status**
 - **Frontend**: Firebase Hosting (https://skillup-3beaf.web.app)
-- **Backend**: Firebase Functions (https://api-npk5uxnyiq-uc.a.run.app)
-- **Database**: MongoDB (ready for Firestore migration)
+- **Backend**: Firebase Functions (https://us-central1-skillup-3beaf.cloudfunctions.net/api)
+- **Database**: Firestore (fully migrated from MongoDB)
 - **Storage**: VNG Cloud VStorage (configured)
+- **Authentication**: Firebase Auth
 - **Deployment**: Automatic via GitHub Actions
 
 ## 🛠️ **Development Workflow**

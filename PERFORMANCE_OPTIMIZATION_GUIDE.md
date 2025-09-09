@@ -59,14 +59,14 @@ This document outlines the comprehensive performance optimizations implemented t
   - Security headers with Helmet
   - Rate limiting (100 requests per 15 minutes)
   - Enhanced caching headers
-  - Optimized MongoDB connection settings
+  - Optimized Firestore connection settings
 
 ### 2. Database Optimization
-- **MongoDB Settings**:
-  - Connection pooling (maxPoolSize: 10)
-  - Reduced timeouts (serverSelectionTimeoutMS: 5000)
-  - Buffer optimization (bufferMaxEntries: 0)
-  - Socket timeout optimization (socketTimeoutMS: 45000)
+- **Firestore Settings**:
+  - Connection pooling and optimization
+  - Reduced query timeouts
+  - Efficient document retrieval
+  - Optimized security rules
 
 ### 3. Caching Strategy
 - **Static Assets**: 1 year cache
@@ -151,7 +151,7 @@ const Sidebar = lazy(() => import('./Sidebar'));
 - **Vite DevTools**: Build analysis and optimization suggestions
 - **Chrome DevTools**: Performance profiling and network analysis
 - **Service Worker**: Cache inspection and debugging
-- **MongoDB**: Query optimization and performance monitoring
+- **Firestore**: Query optimization and performance monitoring
 
 ## Deployment Considerations
 
@@ -163,7 +163,7 @@ const Sidebar = lazy(() => import('./Sidebar'));
 
 ### Backend Deployment
 1. **Environment Variables**: Ensure all performance settings are configured
-2. **Database**: Verify MongoDB connection optimization
+2. **Database**: Verify Firestore connection optimization
 3. **Monitoring**: Set up performance monitoring
 4. **Scaling**: Consider horizontal scaling for high traffic
 
@@ -176,7 +176,7 @@ const Sidebar = lazy(() => import('./Sidebar'));
 4. **PWA Features**: Push notifications and background sync
 
 ### Backend
-1. **Database Indexing**: Optimize MongoDB indexes
+1. **Database Indexing**: Optimize Firestore indexes
 2. **Caching Layer**: Implement Redis for session caching
 3. **Load Balancing**: Multiple server instances
 4. **CDN Integration**: Global content delivery
@@ -212,4 +212,4 @@ git commit -m "Implement comprehensive performance optimizations: frontend lazy 
 git push origin main
 ```
 
-**Note**: After deploying these optimizations, a redeploy may be required on Render to ensure all performance improvements are active. 
+**Note**: After deploying these optimizations, a redeploy may be required to ensure all performance improvements are active. 
