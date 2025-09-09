@@ -1,4 +1,4 @@
-// functions/src/routes/users.ts - Users API Routes
+// functions/src/routes/users.ts - Users API Routes - Updated with HTTP 500 fixes
 import { type Response, Router } from 'express';
 import * as admin from 'firebase-admin';
 import type { Query, QueryDocumentSnapshot, DocumentData } from 'firebase-admin/firestore';
