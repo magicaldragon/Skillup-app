@@ -597,7 +597,7 @@
   max-width: 500px;
   box-sizing: border-box;
   flex-shrink: 0;
-  z-index: 2;
+  z-index: 10;
   transform: none;
   transition: none;
   display: flex;
@@ -609,6 +609,8 @@
 
 .success-info-section.show {
   transform: translateX(0);
+  opacity: 1;
+  visibility: visible;
 }
 
 .success-info-box {

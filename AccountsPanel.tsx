@@ -43,21 +43,46 @@ const AccountsPanel = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
 
-  // Get current user for permission checks
+  // Get current user for permission checks - Enhanced with better error handling
   useEffect(() => {
     const user = authService.getCurrentUser();
+    console.log('🔍 Current user from authService:', user);
+    
+    // Also try to get from localStorage as backup
+    if (!user) {
+      const localUser = localStorage.getItem('skillup_user');
+      if (localUser) {
+        try {
+          const parsedUser = JSON.parse(localUser);
+          console.log('🔍 Fallback user from localStorage:', parsedUser);
+          setCurrentUser(parsedUser);
+          return;
+        } catch (e) {
+          console.error('Failed to parse user from localStorage:', e);
+        }
+      }
+    }
+    
     setCurrentUser(user);
   }, []);
 
-  // Permission checking functions
+  // Permission checking functions - Enhanced for admin accounts
   const canManageUser = (targetUser: User): boolean => {
-    if (!currentUser) return false;
+    if (!currentUser) {
+      console.log('🔍 No current user found for permission check');
+      return false;
+    }
 
     const currentUserRole = currentUser.role;
     const targetUserRole = targetUser.role;
+    
+    console.log('🔍 Permission check:', { currentUserRole, targetUserRole });
 
     // Admin can manage all users
-    if (currentUserRole === 'admin') return true;
+    if (currentUserRole === 'admin') {
+      console.log('🔍 Admin user detected - allowing all permissions');
+      return true;
+    }
 
     // Teacher can manage staff and students, but not admins or other teachers
     if (currentUserRole === 'teacher') {

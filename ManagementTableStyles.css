@@ -144,14 +144,15 @@
 }
 
 .management-table th {
-  padding: 0.6rem 0.8rem;
-  text-align: left;
+  padding: 0.4rem 0.6rem;
+  text-align: center;
   font-weight: 600;
   color: white;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  height: 2.5rem;
 }
 
 .management-table tbody tr {
@@ -176,9 +177,11 @@
 }
 
 .management-table td {
-  padding: 0.6rem 0.8rem;
-  vertical-align: top;
+  padding: 0.3rem 0.5rem;
+  vertical-align: middle;
   border-bottom: 1px solid #f7fafc;
+  text-align: center;
+  height: 2.5rem;
 }
 
 /* =================

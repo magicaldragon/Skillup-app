@@ -83,15 +83,8 @@ router.post('/', verifyToken, requireAdmin, async (req: AuthenticatedRequest, re
       });
     }
 
-    // Validate starting date (must be in the future)
+    // Validate starting date is provided
     const startDate = new Date(startingDate);
-    const now = new Date();
-    if (startDate <= now) {
-      return res.status(400).json({
-        success: false,
-        message: 'Starting date must be in the future',
-      });
-    }
 
     // Get level information to generate class code
     const levelDoc = await admin.firestore().collection('levels').doc(levelId).get();

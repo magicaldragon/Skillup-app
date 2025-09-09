@@ -577,10 +577,11 @@ const ClassesPanel = ({
     // Validate starting date (must be in the future)
     const startDate = new Date(newClassStartingDate);
     const now = new Date();
-    if (startDate <= now) {
-      alert('Starting date must be in the future');
-      return;
-    }
+    // Remove the future date restriction - allow any date
+    // if (startDate <= now) {
+    //   alert('Starting date must be in the future');
+    //   return;
+    // }
 
     setAdding(true);
     try {
