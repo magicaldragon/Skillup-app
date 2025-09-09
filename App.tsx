@@ -1,20 +1,16 @@
 import type React from 'react';
-import { useCallback, useEffect, useMemo, useState, lazy, Suspense } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { authService } from './frontend/services/authService';
 import { safeTrim } from './utils/stringUtils';
-import { markLoadingStage, trackApiCall, logPerformanceReport } from './utils/performanceMonitor';
 import './App.css';
 import './DateInput.css'; // Enhanced date input styling
 
-// Lazy load heavy dashboard components to reduce initial bundle size
+// Lazy load components for better performance
 const AdminDashboard = lazy(() => import('./AdminDashboard'));
 const StudentDashboard = lazy(() => import('./StudentDashboard'));
 const TeacherDashboard = lazy(() => import('./TeacherDashboard'));
-const DebugAPIPanel = lazy(() => import('./DebugAPIPanel'));
-
-// Import lightweight components directly for immediate availability
-import Login from './Login';
-import Sidebar from './Sidebar';
+const Login = lazy(() => import('./Login'));
+const Sidebar = lazy(() => import('./Sidebar'));
 
 import type { Assignment, Student, StudentClass, Submission, UserProfile, ExamLevel } from './types';
 
@@ -50,13 +46,13 @@ const App: React.FC = () => {
     const initializeAuth = async () => {
       setLoading(true);
 
-      // Reduced timeout for faster feedback
+      // Standard timeout for authentication
       const timeoutId = setTimeout(() => {
         console.warn('Authentication initialization timeout, showing login screen');
         setLoading(false);
         setUser(null);
         setAuthError(null);
-      }, 8000); // Reduced from 10 seconds
+      }, 10000); // Standard 10 seconds timeout
 
       try {
         console.log('Initializing authentication...');
@@ -108,19 +104,10 @@ const App: React.FC = () => {
             setLoading(false); // Set loading to false immediately for better UX
             clearTimeout(timeoutId);
             
-            // Mark authentication complete for performance tracking
-            markLoadingStage('authComplete');
+            // Mark authentication complete
+            console.log('Authentication complete');
             
-            // Verify token in background without blocking UI
-            authService.getProfile().then(profile => {
-              if (!profile) {
-                console.log('Token verification failed, logging out');
-                handleLogout();
-              }
-            }).catch(error => {
-              console.warn('Background token verification failed:', error);
-              // Don't logout immediately, user might be offline
-            });
+            // No background token verification in this version
             
             return;
           }
@@ -129,9 +116,7 @@ const App: React.FC = () => {
         }
 
         // If cached data is invalid, verify the token
-        const profileCall = trackApiCall('/auth/profile');
         const profile = await authService.getProfile();
-        profileCall.end(!!profile);
         
         console.log('Auth profile received:', profile);
 
@@ -165,7 +150,7 @@ const App: React.FC = () => {
           console.log('User authenticated successfully:', safeProfile);
           setUser(safeProfile);
           setAuthError(null);
-          markLoadingStage('authComplete');
+          console.log('Authentication complete');
         } else {
           console.log('Invalid profile, logging out');
           await authService.logout();
@@ -241,7 +226,6 @@ const App: React.FC = () => {
 
   const fetchStudents = useCallback(async () => {
     if (!user) return;
-    const apiCall = trackApiCall('/users');
     try {
       console.log('Fetching students...');
       const token = localStorage.getItem('skillup_token');
@@ -264,8 +248,6 @@ const App: React.FC = () => {
       });
 
       clearTimeout(timeoutId);
-      apiCall.end(response.ok);
-
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -335,14 +317,13 @@ const App: React.FC = () => {
       }
     } catch (error) {
       console.error('Error fetching students:', error);
-      apiCall.end(false);
+      // Error handling for student fetch
       setDataError('Failed to fetch students');
     }
   }, [user, apiUrl]);
 
   const fetchAssignments = useCallback(async () => {
     if (!user) return;
-    const apiCall = trackApiCall('/assignments');
     try {
       console.log('Fetching assignments...');
       const token = localStorage.getItem('skillup_token');
@@ -358,7 +339,7 @@ const App: React.FC = () => {
       });
 
       clearTimeout(timeoutId);
-      apiCall.end(response.ok);
+      // Successfully fetched assignments
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -417,7 +398,7 @@ const App: React.FC = () => {
       }
     } catch (error) {
       console.error('Error fetching assignments:', error);
-      apiCall.end(false);
+      // Error handling for assignments fetch
       setDataError('Failed to fetch assignments');
     }
   }, [user, apiUrl]);
@@ -556,7 +537,7 @@ const App: React.FC = () => {
     }
   }, [user, apiUrl]);
 
-  // Optimized data fetching with reduced timeouts and better error handling
+  // Basic data fetching
   useEffect(() => {
     if (!user) return;
 
@@ -564,49 +545,18 @@ const App: React.FC = () => {
       setDataLoading(true);
       setDataError(null);
       
-      // Mark dashboard as ready for performance tracking
-      markLoadingStage('dashboardReady');
-
       try {
-        console.log('Starting optimized parallel data fetch...');
+        console.log('Starting data fetch...');
 
-        // Execute all fetches in parallel with reduced timeout
-        const timeoutPromise = new Promise<void>((_, reject) =>
-          setTimeout(() => reject(new Error('Data fetch timeout')), 10000) // Reduced from 15s
-        );
-
-        await Promise.race([
-          Promise.allSettled([
-            fetchStudents(),
-            fetchAssignments(),
-            fetchSubmissions(),
-            fetchClasses()
-          ]).then(results => {
-            // Log any failures but don't block the UI
-            results.forEach((result, index) => {
-              const operations = ['students', 'assignments', 'submissions', 'classes'];
-              if (result.status === 'rejected') {
-                console.warn(`Failed to fetch ${operations[index]}:`, result.reason);
-              }
-            });
-          }),
-          timeoutPromise,
-        ]);
+        await fetchStudents();
+        await fetchAssignments();
+        await fetchSubmissions();
+        await fetchClasses();
 
         console.log('Data fetch completed');
-        // Mark data loading complete for performance tracking
-        markLoadingStage('dataLoaded');
-        
-        // Log performance report after initial load
-        setTimeout(() => {
-          logPerformanceReport();
-        }, 1000);
       } catch (error) {
         console.error('Error fetching data:', error);
-        // Don't show error immediately, as partial data might be available
-        setTimeout(() => {
-          setDataError('Some data may not be up to date. Please refresh if needed.');
-        }, 1000);
+        setDataError('Failed to fetch data. Please try again.');
       } finally {
         setDataLoading(false);
       }
@@ -622,21 +572,11 @@ const App: React.FC = () => {
     setDataError(null);
 
     try {
-      // Use Promise.allSettled to prevent one failure from blocking others
-      const results = await Promise.allSettled([
-        fetchStudents(),
-        fetchAssignments(),
-        fetchSubmissions(),
-        fetchClasses()
-      ]);
-      
-      const failures = results.filter(result => result.status === 'rejected');
-      if (failures.length > 0) {
-        console.warn('Some data refresh operations failed:', failures);
-        setDataError(`${failures.length} operations failed. Some data may not be current.`);
-      } else {
-        console.log('Data refreshed successfully');
-      }
+      await fetchStudents();
+      await fetchAssignments();
+      await fetchSubmissions();
+      await fetchClasses();
+      console.log('Data refreshed successfully');
     } catch (error) {
       console.error('Error refreshing data:', error);
       setDataError('Failed to refresh data');
@@ -664,7 +604,11 @@ const App: React.FC = () => {
     }
 
     if (!user) {
-      return <Login onLoginSuccess={handleLoginSuccess} />;
+      return (
+        <Suspense fallback={<LoadingSpinner />}>
+          <Login onLoginSuccess={handleLoginSuccess} />
+        </Suspense>
+      );
     }
 
     // Determine which dashboard to show based on user role
@@ -709,9 +653,9 @@ const App: React.FC = () => {
           : 'TeacherDashboard'
     );
 
-    try {
-      return (
-        <div className="app-container">
+    return (
+      <div className="app-container">
+        <Suspense fallback={<LoadingSpinner />}>
           <Sidebar
             role={user.role}
             activeKey={navKey}
@@ -720,37 +664,19 @@ const App: React.FC = () => {
             user={user}
           />
           <main className="main-content">
-            <Suspense fallback={<LoadingSpinner />}>
-              {/* Debug Panel - Development Only */}
-              {import.meta.env.DEV && navKey === 'debug' && (
-                <DebugAPIPanel />
-              )}
-              
-              <DashboardComponent
-                user={user}
-                students={students}
-                assignments={assignments}
-                classes={classes}
-                activeKey={navKey}
-                onDataRefresh={refreshData}
-                isAdmin={user.role === 'admin'}
-              />
-            </Suspense>
+            <DashboardComponent
+              user={user}
+              students={students}
+              assignments={assignments}
+              classes={classes}
+              activeKey={navKey}
+              onDataRefresh={refreshData}
+              isAdmin={user.role === 'admin'}
+            />
           </main>
-        </div>
-      );
-    } catch (dashboardError) {
-      console.error('Dashboard loading error:', dashboardError);
-      return (
-        <div className="error-container">
-          <h2>Dashboard Loading Error</h2>
-          <p>Failed to load the dashboard. Please refresh the page.</p>
-          <button type="button" onClick={() => window.location.reload()}>
-            Refresh Page
-          </button>
-        </div>
-      );
-    }
+        </Suspense>
+      </div>
+    );
   }, [
     loading,
     authError,

@@ -233,57 +233,17 @@ async function handleGeneralRequest(request) {
   }
 }
 
-// Enhanced background sync with performance optimization
+// Basic background sync
 self.addEventListener('sync', (event) => {
   if (event.tag === 'background-sync') {
-    event.waitUntil(doBackgroundSync());
+    console.log('Background sync triggered');
+    // Basic sync functionality from UI/UX standardization stage
   }
 });
 
-async function doBackgroundSync() {
-  console.log('Background sync triggered - optimizing caches');
-  
-  try {
-    // Clean up expired cache entries
-    const caches_to_clean = [API_CACHE, RUNTIME_CACHE];
-    
-    for (const cacheName of caches_to_clean) {
-      const cache = await caches.open(cacheName);
-      const requests = await cache.keys();
-      
-      for (const request of requests) {
-        const response = await cache.match(request);
-        if (response) {
-          const cacheDate = new Date(response.headers.get('sw-cache-date') || 0);
-          const maxAge = cacheName === API_CACHE ? CACHE_DURATION.api : CACHE_DURATION.runtime;
-          
-          if (Date.now() - cacheDate.getTime() > maxAge) {
-            await cache.delete(request);
-            console.log('Deleted expired cache entry:', request.url);
-          }
-        }
-      }
-    }
-  } catch (error) {
-    console.error('Background sync error:', error);
-  }
-}
-
-// Preload critical resources on idle
+// Basic message handling
 self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'PRELOAD_CRITICAL') {
-    event.waitUntil(preloadCriticalResources());
+  if (event.data && event.data.type === 'CACHE_UPDATED') {
+    console.log('Cache update message received');
   }
 });
-
-async function preloadCriticalResources() {
-  const cache = await caches.open(STATIC_CACHE);
-  const criticalResources = [
-    '/assets/js/vendor-react-*.js',
-    '/assets/js/vendor-firebase-*.js',
-    '/assets/css/index-*.css',
-  ];
-  
-  // This would be expanded to preload actual resources
-  console.log('Preloading critical resources for next visit');
-}

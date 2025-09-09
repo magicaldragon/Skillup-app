@@ -185,14 +185,21 @@ class AuthService {
 
       console.log('Attempting login with email:', email);
 
-      // OPTIMIZATION: Skip backend connectivity test during login for speed
-      // The login request itself will verify connectivity
+      // First check backend connectivity
+      console.log('Checking backend connectivity before login...');
+      const isConnected = await this.testBackendConnection();
+      if (!isConnected) {
+        return {
+          success: false,
+          message: 'Cannot connect to server. Please check your internet connection.',
+        };
+      }
       
       // Step 1: Login with Firebase (with timeout)
       console.log('Step 1: Authenticating with Firebase...');
       const firebasePromise = signInWithEmailAndPassword(auth, email, password);
       const firebaseTimeout = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('Firebase authentication timeout')), 8000) // Reduced from 10s to 8s
+        setTimeout(() => reject(new Error('Firebase authentication timeout')), 10000)
       );
 
       const userCredential = (await Promise.race([firebasePromise, firebaseTimeout])) as any;

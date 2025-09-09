@@ -167,71 +167,8 @@ const menuConfig = (role: string) => [
       },
     ],
   },
-  {
-    label: 'Debug Panel',
-    icon: <FaUserCog />,
-    key: 'admin-debug',
-    visible: role === 'admin',
-    children: [
-      {
-        label: 'System Health',
-        key: 'admin-debug-health',
-        icon: <FaCheckCircle />,
-        visible: true,
-      },
-      {
-        label: 'API Error Logs',
-        key: 'admin-debug-errors',
-        icon: <FaTimesCircle />,
-        visible: true,
-      },
-      {
-        label: 'User Sync Status',
-        key: 'admin-debug-sync',
-        icon: <FaUserCheck />,
-        visible: true,
-      },
-      {
-        label: 'Manual Tools',
-        key: 'admin-debug-tools',
-        icon: <FaTasks />,
-        visible: true,
-      },
-      {
-        label: 'Create Admin Account',
-        key: 'admin-debug-account-creator',
-        icon: <FaUserShield />,
-        visible: true,
-      },
-      {
-        label: 'Frontend/Backend',
-        key: 'admin-debug-fb',
-        icon: <FaClipboardList />,
-        visible: true,
-        children: [
-          {
-            label: 'Frontend Status',
-            key: 'admin-debug-frontend',
-            icon: <FaCheckCircle />,
-            visible: true,
-          },
-          {
-            label: 'Backend Status',
-            key: 'admin-debug-backend',
-            icon: <FaCheckCircle />,
-            visible: true,
-          },
-        ],
-      },
-    ],
-  },
-  // Development Debug Panel (only visible in development)
-  {
-    label: 'API Debug',
-    icon: <FaTasks />,
-    key: 'debug',
-    visible: import.meta.env.DEV, // Only show in development mode
-  },
+
+
   {
     label: 'Settings',
     icon: <FaUserCog />,

@@ -1,5 +1,5 @@
 import type React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './LoginPanel.css';
 import { authService } from './frontend/services/authService';
 import type { UserProfile } from './types';
@@ -14,13 +14,23 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState(0);
-  const [backendStatus, setBackendStatus] = useState<'checking' | 'connected' | 'disconnected'>(
-    'connected' // OPTIMIZATION: Assume connected initially for faster login
-  );
+  const [backendStatus, setBackendStatus] = useState<'checking' | 'connected' | 'disconnected'>('checking');
   const MAX_ATTEMPTS = 3;
 
-  // OPTIMIZATION: Removed initial backend connection test for faster login
-  // Connection will be tested implicitly during login attempt
+  // Check backend connection on component mount
+  useEffect(() => {
+    const checkConnection = async () => {
+      try {
+        const isConnected = await authService.testBackendConnection();
+        setBackendStatus(isConnected ? 'connected' : 'disconnected');
+      } catch (error) {
+        console.error('Connection check failed:', error);
+        setBackendStatus('disconnected');
+      }
+    };
+    
+    checkConnection();
+  }, []);
 
   const retryConnection = async () => {
     setBackendStatus('checking');
@@ -49,7 +59,17 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         return;
       }
 
-      // OPTIMIZATION: Skip preemptive connection test, let login attempt handle connectivity
+      // Check connection before attempting login
+      if (backendStatus !== 'connected') {
+        const isConnected = await authService.testBackendConnection();
+        if (!isConnected) {
+          setBackendStatus('disconnected');
+          setError('Cannot connect to server. Please check your internet connection.');
+          return;
+        }
+        setBackendStatus('connected');
+      }
+      
       const response = await authService.login({ email: email.trim(), password });
       if (response.success && response.user) {
         setFailedAttempts(0);

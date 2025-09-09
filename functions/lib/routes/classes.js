@@ -84,7 +84,7 @@ router.get('/', auth_1.verifyToken, async (req, res) => {
     }
 });
 // Create new class
-router.post('/', auth_1.verifyToken, auth_1.requireAdmin, async (req, res) => {
+router.post('/', auth_1.verifyToken, auth_1.requireTeacher, async (req, res) => {
     var _a;
     try {
         const { levelId, startingDate, description = '', teacherId, studentIds = [], isActive = true, } = req.body;
@@ -245,7 +245,7 @@ router.get('/:id', auth_1.verifyToken, async (req, res) => {
     }
 });
 // Check for gaps in class code sequence
-router.get('/check-gaps/:levelId', auth_1.verifyToken, auth_1.requireAdmin, async (req, res) => {
+router.get('/check-gaps/:levelId', auth_1.verifyToken, auth_1.requireTeacher, async (req, res) => {
     var _a;
     try {
         const { levelId } = req.params;
@@ -306,7 +306,7 @@ router.get('/check-gaps/:levelId', auth_1.verifyToken, auth_1.requireAdmin, asyn
     }
 });
 // Update class
-router.put('/:id', auth_1.verifyToken, auth_1.requireAdmin, async (req, res) => {
+router.put('/:id', auth_1.verifyToken, auth_1.requireTeacher, async (req, res) => {
     try {
         const { id } = req.params;
         const updateData = req.body;
@@ -377,7 +377,7 @@ router.delete('/:id', auth_1.verifyToken, auth_1.requireAdmin, async (req, res) 
     }
 });
 // Add student to class
-router.post('/:id/students/:studentId', auth_1.verifyToken, auth_1.requireAdmin, async (req, res) => {
+router.post('/:id/students/:studentId', auth_1.verifyToken, auth_1.requireTeacher, async (req, res) => {
     try {
         const { id: classId, studentId } = req.params;
         // Add student to class
@@ -406,7 +406,7 @@ router.post('/:id/students/:studentId', auth_1.verifyToken, auth_1.requireAdmin,
     }
 });
 // Remove student from class
-router.delete('/:id/students/:studentId', auth_1.verifyToken, auth_1.requireAdmin, async (req, res) => {
+router.delete('/:id/students/:studentId', auth_1.verifyToken, auth_1.requireTeacher, async (req, res) => {
     try {
         const { id: classId, studentId } = req.params;
         // Remove student from class
