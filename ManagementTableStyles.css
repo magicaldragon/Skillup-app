@@ -9,14 +9,14 @@
 .management-panel {
   width: 100%;
   max-width: none;
-  padding: 2rem;
+  padding: 1.5rem;
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
   min-height: 100vh;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .management-header {
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   text-align: center;
 }
 
@@ -41,10 +41,10 @@
 
 .management-search,
 .management-controls {
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
 .search-controls {
@@ -144,11 +144,11 @@
 }
 
 .management-table th {
-  padding: 1rem;
+  padding: 0.6rem 0.8rem;
   text-align: left;
   font-weight: 600;
   color: white;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   border-bottom: 2px solid rgba(255, 255, 255, 0.2);
@@ -176,7 +176,7 @@
 }
 
 .management-table td {
-  padding: 1rem;
+  padding: 0.6rem 0.8rem;
   vertical-align: top;
   border-bottom: 1px solid #f7fafc;
 }

@@ -29,7 +29,7 @@ const AccountsPanel = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterRole, setFilterRole] = useState('admin');
+  const [filterRole, setFilterRole] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<User>>({});
@@ -368,7 +368,7 @@ const AccountsPanel = () => {
       account.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       account.studentCode?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesRole = account.role === filterRole;
+    const matchesRole = filterRole === 'all' || account.role === filterRole;
 
     // Only apply status filtering when "Students" role is selected
     const matchesStatus =
@@ -468,10 +468,14 @@ const AccountsPanel = () => {
               <div className="filter-controls">
                 <select
                   value={filterRole}
-                  onChange={(e) => setFilterRole(e.target.value)}
+                  onChange={(e) => {
+                    setFilterRole(e.target.value);
+                    setCurrentPage(1);
+                  }}
                   className="filter-select"
                   title="Filter by role"
                 >
+                  <option value="all">All Roles</option>
                   {currentUser?.role === 'admin' && (
                     <>
                       <option value="admin">Admin</option>
@@ -500,8 +504,12 @@ const AccountsPanel = () => {
                 {filterRole === 'student' && (
                   <select
                     value={filterStatus}
-                    onChange={(e) => setFilterStatus(e.target.value)}
+                    onChange={(e) => {
+                      setFilterStatus(e.target.value);
+                      setCurrentPage(1);
+                    }}
                     className="filter-select"
+                    title="Filter by status"
                   >
                     <option value="all">All Statuses</option>
                     <option value="potential">Potential</option>
