@@ -184,36 +184,8 @@ const PotentialStudentsPanel = ({
   const selectAll = () => setSelectedIds(potentialStudents.map((s) => s._id));
   const clearAll = () => setSelectedIds([]);
 
-  // Move to Waiting List (changes status to 'studying')
-  const handleMoveToWaitingList = async (studentId: string) => {
-    const token = localStorage.getItem('skillup_token');
-    if (!token) {
-      alert('No authentication token found');
-      return;
-    }
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/users/${studentId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ status: 'studying' }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to move student to waiting list');
-      }
-
-      alert('Student moved to Waiting List successfully');
-      fetchPotentialStudents();
-      onDataRefresh?.();
-    } catch (error) {
-      console.error('Move to waiting list error:', error);
-      alert('Failed to move student to Waiting List. Please try again.');
-    }
-  };
+  // Move to Waiting List (changes status to 'studying') - REMOVED AS PER UI REQUIREMENTS
+  // This functionality was removed as part of the UI improvements
 
   // Sync existing students with PotentialStudent records
   const handleSyncExistingStudents = async () => {
@@ -341,7 +313,7 @@ const PotentialStudentsPanel = ({
         </div>
       </div>
 
-      <div className="management-table-container">
+      <div className="management-table-container table-container theme-orange">
         <table className="management-table">
           <thead>
             <tr>
@@ -357,6 +329,7 @@ const PotentialStudentsPanel = ({
               </th>
               <th>Student ID</th>
               <th>Name</th>
+              <th>English Name</th>
               <th>Gender</th>
               <th>Status</th>
               <th>Parent's Name</th>
@@ -366,7 +339,7 @@ const PotentialStudentsPanel = ({
           <tbody>
             {filteredStudents.length === 0 && (
               <tr>
-                <td colSpan={7} className="empty-table">
+                <td colSpan={8} className="empty-table">
                   <div className="empty-state">
                     <div className="empty-icon">📋</div>
                     <p>No potential students found.</p>
@@ -408,13 +381,19 @@ const PotentialStudentsPanel = ({
                   />
                 </td>
                 <td className="student-id-cell">
-                  <span className="student-id">{student.studentCode || 'N/A'}</span>
+                  {student.studentCode ? (
+                    <span className={`student-id-badge ${student.gender?.toLowerCase() || 'other'}`}>
+                      {student.studentCode}
+                    </span>
+                  ) : (
+                    'N/A'
+                  )}
                 </td>
                 <td className="name-cell">
                   <div className="student-name">{student.name}</div>
-                  {student.englishName && (
-                    <div className="english-name">({student.englishName})</div>
-                  )}
+                </td>
+                <td className="english-name-cell">
+                  {student.englishName || 'N/A'}
                 </td>
                 <td className="gender-cell">{student.gender || 'N/A'}</td>
                 <td className="status-cell">
@@ -487,37 +466,13 @@ const PotentialStudentsPanel = ({
       <div className="management-actions">
         {selectedIds.length > 0 && (
           <button
-            className="management-btn management-btn-secondary"
+            className="management-btn management-btn-green"
             onClick={() => setShowBulkUpdate(true)}
             type="button"
           >
             Update Status
           </button>
         )}
-        <button
-          className="management-btn management-btn-primary"
-          onClick={() => {
-            if (selectedIds.length === 1) {
-              handleMoveToWaitingList(selectedIds[0]);
-            } else if (selectedIds.length > 1) {
-              alert('Please select only one student to move to waiting list');
-            } else {
-              alert('Please select a student to move to waiting list');
-            }
-          }}
-          disabled={selectedIds.length !== 1}
-          type="button"
-        >
-          Move to Waiting List
-        </button>
-        <button
-          className="management-btn management-btn-neutral"
-          onClick={selectAll}
-          disabled={selectedIds.length === potentialStudents.length}
-          type="button"
-        >
-          Select All
-        </button>
         <button
           className="management-btn management-btn-neutral"
           onClick={clearAll}

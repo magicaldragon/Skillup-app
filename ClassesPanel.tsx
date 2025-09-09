@@ -532,6 +532,16 @@ const ClassesPanel = ({
     setAdding(true);
     try {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+      
+      // Debug: Check user info
+      const userInfo = localStorage.getItem('skillup_user');
+      console.log('🔍 Class Creation Debug Info:', {
+        hasToken: !!token,
+        tokenLength: token ? token.length : 0,
+        userInfo: userInfo ? JSON.parse(userInfo) : null,
+        levelId: newClassLevelId,
+        startingDate: newClassStartingDate
+      });
 
       const requestBody = { 
         levelId: newClassLevelId,
@@ -539,6 +549,8 @@ const ClassesPanel = ({
       };
 
       const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
+      console.log('🔍 Making class creation request to:', `${apiUrl}/classes`);
+      
       const res = await fetch(`${apiUrl}/classes`, {
         method: 'POST',
         headers: {
@@ -548,12 +560,20 @@ const ClassesPanel = ({
         body: JSON.stringify(requestBody),
       });
 
+      console.log('📡 Class creation response:', {
+        status: res.status,
+        statusText: res.statusText,
+        ok: res.ok
+      });
+
       if (!res.ok) {
         const errorData = await res.json();
+        console.error('❌ Class creation error:', errorData);
         throw new Error(errorData.message || `HTTP error! status: ${res.status}`);
       }
 
       const data = await res.json();
+      console.log('✅ Class creation success:', data);
 
       if (data.success) {
         setNewClassLevelId('');

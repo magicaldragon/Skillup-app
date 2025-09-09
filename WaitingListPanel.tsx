@@ -40,6 +40,10 @@ const WaitingListPanel = ({
   const [bulkClassId, setBulkClassId] = useState<string>('');
   const [showBulkAssign, setShowBulkAssign] = useState(false);
 
+  // Bulk status update state
+  const [bulkStatus, setBulkStatus] = useState<string>('');
+  const [showBulkStatusUpdate, setShowBulkStatusUpdate] = useState(false);
+
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const fetchWaitingStudents = useCallback(async () => {
@@ -181,6 +185,41 @@ const WaitingListPanel = ({
     } catch (error) {
       console.error('Bulk assign error:', error);
       alert('Failed to assign students to class. Please try again.');
+    }
+  };
+
+  // Bulk status update
+  const handleBulkUpdateStatus = async () => {
+    const token = localStorage.getItem('skillup_token');
+    if (!token) {
+      alert('No authentication token found');
+      return;
+    }
+
+    try {
+      for (const id of selectedIds) {
+        const response = await fetch(`${API_BASE_URL}/users/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status: bulkStatus }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to update user ${id} status`);
+        }
+      }
+      setSelectedIds([]);
+      setBulkStatus('');
+      setShowBulkStatusUpdate(false);
+      fetchWaitingStudents();
+      onDataRefresh?.();
+      alert('Student status updated successfully!');
+    } catch (error) {
+      console.error('Bulk status update error:', error);
+      alert('Failed to update student status. Please try again.');
     }
   };
 
@@ -352,7 +391,7 @@ const WaitingListPanel = ({
         </div>
       </div>
 
-      <div className="management-table-container">
+      <div className="management-table-container table-container theme-dark-green">
         <table className="management-table">
           <thead>
             <tr>
@@ -366,7 +405,9 @@ const WaitingListPanel = ({
                   className="select-all-checkbox"
                 />
               </th>
+              <th>Student ID</th>
               <th>Name</th>
+              <th>English Name</th>
               <th>Gender</th>
               <th>Status</th>
               <th>Assign</th>
@@ -375,7 +416,7 @@ const WaitingListPanel = ({
           <tbody>
             {filteredStudents.length === 0 && (
               <tr>
-                <td colSpan={5} className="empty-table">
+                <td colSpan={7} className="empty-table">
                   <div className="empty-state">
                     <div className="empty-icon">⏳</div>
                     <p>No students in waiting list.</p>
@@ -409,25 +450,38 @@ const WaitingListPanel = ({
                     className="row-checkbox"
                   />
                 </td>
+                <td className="student-id-cell">
+                  {student.studentCode ? (
+                    <span className={`student-id-badge ${student.gender?.toLowerCase() || 'other'}`}>
+                      {student.studentCode}
+                    </span>
+                  ) : (
+                    'N/A'
+                  )}
+                </td>
                 <td className="name-cell">
                   <div className="student-name">{student.name}</div>
-                  {student.englishName && (
-                    <div className="english-name">({student.englishName})</div>
-                  )}
+                </td>
+                <td className="english-name-cell">
+                  {student.englishName || 'N/A'}
                 </td>
                 <td className="gender-cell">{student.gender || 'N/A'}</td>
                 <td className="status-cell">
-                  <select
-                    value={student.status}
-                    onChange={(e) => handleStatusChange(student._id, e.target.value)}
-                    onClick={(e) => e.stopPropagation()}
-                    className="status-select"
-                  >
-                    <option value="studying">Studying</option>
-                    <option value="postponed">Postponed</option>
-                    <option value="off">Off</option>
-                    <option value="alumni">Alumni</option>
-                  </select>
+                  {student.status === 'studying' ? (
+                    <span className="status-badge status-studying">STUDYING</span>
+                  ) : (
+                    <select
+                      value={student.status}
+                      onChange={(e) => handleStatusChange(student._id, e.target.value)}
+                      onClick={(e) => e.stopPropagation()}
+                      className="status-select"
+                    >
+                      <option value="studying">Studying</option>
+                      <option value="postponed">Postponed</option>
+                      <option value="off">Off</option>
+                      <option value="alumni">Alumni</option>
+                    </select>
+                  )}
                 </td>
                 <td className="assign-cell">
                   <select
@@ -507,13 +561,22 @@ const WaitingListPanel = ({
 
       <div className="management-actions">
         {selectedIds.length > 0 && (
-          <button
-            type="button"
-            className="management-btn management-btn-secondary"
-            onClick={() => setShowBulkAssign(true)}
-          >
-            Bulk Assign to Class
-          </button>
+          <>
+            <button
+              type="button"
+              className="management-btn management-btn-green"
+              onClick={() => setShowBulkStatusUpdate(true)}
+            >
+              Update Status
+            </button>
+            <button
+              type="button"
+              className="management-btn management-btn-secondary"
+              onClick={() => setShowBulkAssign(true)}
+            >
+              Bulk Assign to Class
+            </button>
+          </>
         )}
         <button
           type="button"
@@ -562,6 +625,42 @@ const WaitingListPanel = ({
               onClick={() => {
                 setShowBulkAssign(false);
                 setBulkClassId('');
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showBulkStatusUpdate && (
+        <div className="waiting-list-bulk-section">
+          <select
+            className="waiting-list-select"
+            value={bulkStatus}
+            onChange={(e) => setBulkStatus(e.target.value)}
+          >
+            <option value="">Select status...</option>
+            <option value="studying">Studying</option>
+            <option value="postponed">Postponed</option>
+            <option value="off">Off</option>
+            <option value="alumni">Alumni</option>
+          </select>
+          <div className="waiting-list-confirm-buttons">
+            <button
+              type="button"
+              className="waiting-list-confirm-btn waiting-list-confirm-btn-success"
+              onClick={handleBulkUpdateStatus}
+              disabled={!bulkStatus}
+            >
+              Confirm Status Update
+            </button>
+            <button
+              type="button"
+              className="waiting-list-confirm-btn waiting-list-confirm-btn-cancel"
+              onClick={() => {
+                setShowBulkStatusUpdate(false);
+                setBulkStatus('');
               }}
             >
               Cancel

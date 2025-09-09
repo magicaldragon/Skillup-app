@@ -456,7 +456,7 @@ const AccountsPanel = () => {
         </div>
       ) : (
         <div className="accounts-table-wrapper">
-          <div className="table-container">
+          <div className="table-container theme-purple">
             <div className="management-header">
               <h2 className="management-title">User Accounts</h2>
             </div>
@@ -580,7 +580,6 @@ const AccountsPanel = () => {
                 <thead>
                   <tr>
                     <th>Name</th>
-                    <th>English Name</th>
                     <th>Email</th>
                     <th>Role</th>
                     <th>Gender</th>
@@ -604,30 +603,32 @@ const AccountsPanel = () => {
                     >
                       <td>
                         {editingId === account._id ? (
-                          <input
-                            type="text"
-                            value={editForm.name || ''}
-                            onChange={(e) =>
-                              setEditForm((prev) => ({ ...prev, name: e.target.value }))
-                            }
-                            className="edit-input"
-                          />
+                          <div>
+                            <input
+                              type="text"
+                              value={editForm.name || ''}
+                              onChange={(e) =>
+                                setEditForm((prev) => ({ ...prev, name: e.target.value }))
+                              }
+                              className="edit-input"
+                              placeholder="Full Name"
+                              style={{ marginBottom: '0.25rem' }}
+                            />
+                            <input
+                              type="text"
+                              value={editForm.englishName || ''}
+                              onChange={(e) =>
+                                setEditForm((prev) => ({ ...prev, englishName: e.target.value }))
+                              }
+                              className="edit-input"
+                              placeholder="English Name (optional)"
+                            />
+                          </div>
                         ) : (
-                          account.name
-                        )}
-                      </td>
-                      <td>
-                        {editingId === account._id ? (
-                          <input
-                            type="text"
-                            value={editForm.englishName || ''}
-                            onChange={(e) =>
-                              setEditForm((prev) => ({ ...prev, englishName: e.target.value }))
-                            }
-                            className="edit-input"
-                          />
-                        ) : (
-                          account.englishName || '—'
+                          <div>
+                            {account.name}
+                            {account.englishName && ` (${account.englishName})`}
+                          </div>
                         )}
                       </td>
                       <td>

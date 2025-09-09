@@ -1,7 +1,7 @@
 // functions/src/routes/classes.ts - Classes API Routes
 import { type Response, Router } from 'express';
 import * as admin from 'firebase-admin';
-import { type AuthenticatedRequest, requireAdmin, verifyToken } from '../middleware/auth';
+import { type AuthenticatedRequest, requireAdmin, requireTeacher, verifyToken } from '../middleware/auth';
 
 const router = Router();
 
@@ -58,7 +58,7 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
 });
 
 // Create new class
-router.post('/', verifyToken, requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
+router.post('/', verifyToken, requireTeacher, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const {
       levelId,
@@ -249,7 +249,7 @@ router.get('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response)
 });
 
 // Check for gaps in class code sequence
-router.get('/check-gaps/:levelId', verifyToken, requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
+router.get('/check-gaps/:levelId', verifyToken, requireTeacher, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { levelId } = req.params;
     
@@ -316,7 +316,7 @@ router.get('/check-gaps/:levelId', verifyToken, requireAdmin, async (req: Authen
 });
 
 // Update class
-router.put('/:id', verifyToken, requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
+router.put('/:id', verifyToken, requireTeacher, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
@@ -412,7 +412,7 @@ router.delete(
 router.post(
   '/:id/students/:studentId',
   verifyToken,
-  requireAdmin,
+  requireTeacher,
   async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { id: classId, studentId } = req.params;
@@ -449,7 +449,7 @@ router.post(
 router.delete(
   '/:id/students/:studentId',
   verifyToken,
-  requireAdmin,
+  requireTeacher,
   async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { id: classId, studentId } = req.params;
