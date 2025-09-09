@@ -45,24 +45,23 @@ const AccountsPanel = () => {
 
   // Get current user for permission checks - Enhanced with better error handling
   useEffect(() => {
-    const user = authService.getCurrentUser();
-    console.log('🔍 Current user from authService:', user);
-    
-    // Also try to get from localStorage as backup
-    if (!user) {
-      const localUser = localStorage.getItem('skillup_user');
-      if (localUser) {
-        try {
-          const parsedUser = JSON.parse(localUser);
-          console.log('🔍 Fallback user from localStorage:', parsedUser);
-          setCurrentUser(parsedUser);
-          return;
-        } catch (e) {
-          console.error('Failed to parse user from localStorage:', e);
-        }
+    // Try to get user from localStorage first (this contains the complete user data with role)
+    const localUser = localStorage.getItem('skillup_user');
+    if (localUser) {
+      try {
+        const parsedUser = JSON.parse(localUser);
+        console.log('🔍 Got user from localStorage:', parsedUser);
+        console.log('🔍 User role:', parsedUser.role);
+        setCurrentUser(parsedUser);
+        return;
+      } catch (e) {
+        console.error('Failed to parse user from localStorage:', e);
       }
     }
     
+    // Fallback to authService if localStorage fails
+    const user = authService.getCurrentUser();
+    console.log('🔍 Fallback user from authService:', user);
     setCurrentUser(user);
   }, []);
 

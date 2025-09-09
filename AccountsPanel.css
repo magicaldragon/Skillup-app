@@ -352,8 +352,15 @@
   border-bottom: 1px solid #e8f5e8;
   transition: all 0.2s ease;
   font-size: 0.85rem;
-  text-align: center;
+  text-align: left; /* Default left alignment for text content */
   height: 2.5rem;
+  vertical-align: middle;
+}
+
+/* Center alignment for specific cell types */
+.accounts-table td.action-cell,
+.accounts-table td:last-child {
+  text-align: center;
 }
 
 .accounts-table tbody tr {

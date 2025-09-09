@@ -188,6 +188,14 @@
   padding: 16px 12px;
   border-bottom: 1px solid #f5b802;
   vertical-align: middle;
+  text-align: left; /* Default left alignment for text content */
+}
+
+/* Center alignment for specific cell types */
+.potential-students-table td.checkbox-cell,
+.potential-students-table td.student-id-cell,
+.potential-students-table td.status-cell {
+  text-align: center;
 }
 
 .potential-students-table tbody tr {

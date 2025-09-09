@@ -180,8 +180,15 @@
   padding: 0.3rem 0.5rem;
   vertical-align: middle;
   border-bottom: 1px solid #f7fafc;
-  text-align: center;
+  text-align: left; /* Default left alignment for text */
   height: 2.5rem;
+}
+
+/* Center alignment for specific cell types that need centering */
+.management-table td.checkbox-cell,
+.management-table td.status-cell,
+.management-table td.actions-cell {
+  text-align: center;
 }
 
 /* =================
@@ -196,22 +203,25 @@
 
 .name-cell {
   min-width: 200px;
+  text-align: left; /* Ensure names are left-aligned */
 }
 
 .student-name {
   font-weight: 600;
   color: #2d3748;
   margin-bottom: 0.25rem;
+  text-align: left;
 }
 
 .english-name {
   font-size: 0.85rem;
   color: #718096;
   font-style: italic;
+  text-align: left;
 }
 
 .status-cell {
-  text-align: center;
+  text-align: center; /* Center status badges */
 }
 
 .status-badge {
@@ -222,6 +232,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  text-align: center; /* Center text within badges */
 }
 
 .status-potential {

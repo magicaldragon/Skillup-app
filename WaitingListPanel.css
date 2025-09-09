@@ -141,6 +141,14 @@
   padding: 16px;
   border-bottom: 1px solid #e2e8f0;
   vertical-align: middle;
+  text-align: left; /* Default left alignment for text content */
+}
+
+/* Center alignment for specific cell types */
+.waiting-list-table td.checkbox-cell,
+.waiting-list-table td.status-cell,
+.waiting-list-table td.assign-cell {
+  text-align: center;
 }
 
 .waiting-list-table tbody tr:hover {
@@ -193,7 +201,7 @@
 
 /* Gender cell styles */
 .gender-cell {
-  text-align: center;
+  text-align: left; /* Left align gender text */
   font-weight: 600;
   color: #374151;
   text-transform: capitalize;
