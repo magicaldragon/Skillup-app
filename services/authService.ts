@@ -1,5 +1,9 @@
-// Authentication service for Firebase Functions backend
+// Authentication service for Firebase Functions backend - Optimized for performance
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
+
+// Cache for backend connection status
+let backendConnectionCache: { status: boolean; timestamp: number } | null = null;
+const BACKEND_CONNECTION_CACHE_TTL = 30000; // 30 seconds
 
 export interface LoginResponse {
   success: boolean;
@@ -35,6 +39,8 @@ export interface User {
 class AuthService {
   private token: string | null = null;
   private user: User | null = null;
+  private profileCache: { user: User; timestamp: number } | null = null;
+  private readonly PROFILE_CACHE_TTL = 60000; // 1 minute cache for profile
 
   constructor() {
     // Load token from localStorage on initialization
@@ -42,17 +48,23 @@ class AuthService {
     this.user = this.getUserFromStorage();
   }
 
-  // Login user
+  // Login user with performance optimizations
   async login(email: string, password: string): Promise<LoginResponse> {
     try {
+      // Add timeout and retry logic
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, password }),
+        signal: controller.signal,
       });
 
+      clearTimeout(timeoutId);
       const data = await response.json();
 
       if (data.success && data.token) {
@@ -62,6 +74,12 @@ class AuthService {
         // Store in localStorage
         localStorage.setItem('skillup_token', data.token);
         localStorage.setItem('skillup_user', JSON.stringify(data.user));
+        
+        // Cache the profile
+        this.profileCache = {
+          user: data.user,
+          timestamp: Date.now(),
+        };
 
         return data;
       } else {
@@ -69,6 +87,14 @@ class AuthService {
       }
     } catch (error) {
       console.error('Login error:', error);
+      
+      if (error instanceof Error && error.name === 'AbortError') {
+        return {
+          success: false,
+          message: 'Login timeout. Please try again.',
+        };
+      }
+      
       return {
         success: false,
         message: 'Network error. Please check your connection.',
@@ -94,22 +120,40 @@ class AuthService {
     }
   }
 
-  // Get current user profile
+  // Get current user profile with caching
   async getProfile(): Promise<User | null> {
     if (!this.token) return null;
 
+    // Check cache first
+    if (this.profileCache && Date.now() - this.profileCache.timestamp < this.PROFILE_CACHE_TTL) {
+      console.log('Using cached profile');
+      return this.profileCache.user;
+    }
+
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+      
       const response = await fetch(`${API_BASE_URL}/auth/profile`, {
         headers: {
           Authorization: `Bearer ${this.token}`,
         },
+        signal: controller.signal,
       });
 
+      clearTimeout(timeoutId);
       const data = await response.json();
 
       if (data.success) {
         this.user = data.user;
         localStorage.setItem('skillup_user', JSON.stringify(data.user));
+        
+        // Update cache
+        this.profileCache = {
+          user: data.user,
+          timestamp: Date.now(),
+        };
+        
         return data.user;
       } else {
         // Token might be invalid, clear auth
@@ -118,6 +162,13 @@ class AuthService {
       }
     } catch (error) {
       console.error('Get profile error:', error);
+      
+      // If we have cached user data, return it as fallback
+      if (this.user) {
+        console.log('Using fallback cached user due to network error');
+        return this.user;
+      }
+      
       this.clearAuth();
       return null;
     }
@@ -138,26 +189,57 @@ class AuthService {
     return this.token;
   }
 
-  // Test backend connection
+  // Test backend connection with caching
   async testBackendConnection(): Promise<boolean> {
+    // Check cache first
+    if (backendConnectionCache) {
+      const age = Date.now() - backendConnectionCache.timestamp;
+      if (age < BACKEND_CONNECTION_CACHE_TTL) {
+        console.log('Using cached backend connection status:', backendConnectionCache.status);
+        return backendConnectionCache.status;
+      }
+    }
+
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // Reduced timeout
+      
       const response = await fetch(`${API_BASE_URL}/auth/test`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
+        signal: controller.signal,
       });
-      return response.ok;
+      
+      clearTimeout(timeoutId);
+      const isConnected = response.ok;
+      
+      // Cache the result
+      backendConnectionCache = {
+        status: isConnected,
+        timestamp: Date.now(),
+      };
+      
+      return isConnected;
     } catch (error) {
       console.error('Backend connection test failed:', error);
+      
+      // Cache negative result for shorter time
+      backendConnectionCache = {
+        status: false,
+        timestamp: Date.now(),
+      };
+      
       return false;
     }
   }
 
-  // Clear authentication data
+  // Clear authentication data and caches
   clearAuth(): void {
     this.token = null;
     this.user = null;
+    this.profileCache = null;
     localStorage.removeItem('skillup_token');
     localStorage.removeItem('skillup_user');
   }
@@ -176,13 +258,33 @@ class AuthService {
     return null;
   }
 
-  // Initialize auth state (call this on app startup)
+  // Initialize auth state (call this on app startup) with performance optimization
   async initializeAuth(): Promise<User | null> {
     if (this.token && this.user) {
-      // Verify token is still valid by getting profile
+      // If we have cached profile and it's fresh, use it
+      if (this.profileCache && Date.now() - this.profileCache.timestamp < this.PROFILE_CACHE_TTL) {
+        console.log('Using cached profile for initialization');
+        return this.profileCache.user;
+      }
+      
+      // Otherwise verify token is still valid by getting profile
       return await this.getProfile();
     }
     return null;
+  }
+
+  // Preload critical data for faster dashboard loading
+  async preloadCriticalData(): Promise<void> {
+    if (!this.token) return;
+    
+    try {
+      // Preload profile if not cached
+      if (!this.profileCache || Date.now() - this.profileCache.timestamp > this.PROFILE_CACHE_TTL) {
+        await this.getProfile();
+      }
+    } catch (error) {
+      console.warn('Failed to preload critical data:', error);
+    }
   }
 }
 

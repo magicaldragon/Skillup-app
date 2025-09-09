@@ -1,17 +1,20 @@
 import type React from 'react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, lazy, Suspense } from 'react';
 import { authService } from './frontend/services/authService';
 import { safeTrim } from './utils/stringUtils';
+import { markLoadingStage, trackApiCall, logPerformanceReport } from './utils/performanceMonitor';
 import './App.css';
 import './DateInput.css'; // Enhanced date input styling
 
-// Import components directly instead of lazy loading to avoid MIME type issues
-import AdminDashboard from './AdminDashboard';
+// Lazy load heavy dashboard components to reduce initial bundle size
+const AdminDashboard = lazy(() => import('./AdminDashboard'));
+const StudentDashboard = lazy(() => import('./StudentDashboard'));
+const TeacherDashboard = lazy(() => import('./TeacherDashboard'));
+const DebugAPIPanel = lazy(() => import('./DebugAPIPanel'));
+
+// Import lightweight components directly for immediate availability
 import Login from './Login';
 import Sidebar from './Sidebar';
-import StudentDashboard from './StudentDashboard';
-import TeacherDashboard from './TeacherDashboard';
-import DebugAPIPanel from './DebugAPIPanel';
 
 import type { Assignment, Student, StudentClass, Submission, UserProfile, ExamLevel } from './types';
 
@@ -47,13 +50,13 @@ const App: React.FC = () => {
     const initializeAuth = async () => {
       setLoading(true);
 
-      // Add timeout to prevent infinite loading
+      // Reduced timeout for faster feedback
       const timeoutId = setTimeout(() => {
         console.warn('Authentication initialization timeout, showing login screen');
         setLoading(false);
         setUser(null);
         setAuthError(null);
-      }, 10000); // 10 second timeout
+      }, 8000); // Reduced from 10 seconds
 
       try {
         console.log('Initializing authentication...');
@@ -73,8 +76,63 @@ const App: React.FC = () => {
           return;
         }
 
-        // Verify the token is still valid by getting profile
+        // Try to use cached user data first for immediate UI response
+        try {
+          const cachedUser = JSON.parse(storedUser);
+          if (cachedUser && cachedUser.email && cachedUser.role) {
+            console.log('Using cached user data for immediate display');
+            const safeProfile: Student = {
+              id: cachedUser.id || cachedUser._id || '',
+              _id: cachedUser._id || cachedUser.id || '',
+              name: safeTrim(cachedUser.name || cachedUser.fullname),
+              email: safeTrim(cachedUser.email),
+              role: cachedUser.role || 'student',
+              username: safeTrim(cachedUser.username || cachedUser.email),
+              englishName: safeTrim(cachedUser.englishName || cachedUser.name || cachedUser.fullname),
+              gender: safeTrim(cachedUser.gender),
+              dob: safeTrim(cachedUser.dob),
+              phone: safeTrim(cachedUser.phone),
+              parentName: safeTrim(cachedUser.parentName),
+              parentPhone: safeTrim(cachedUser.parentPhone),
+              notes: safeTrim(cachedUser.notes),
+              status: safeTrim(cachedUser.status),
+              studentCode: safeTrim(cachedUser.studentCode),
+              avatarUrl: safeTrim(cachedUser.avatarUrl),
+              diceBearStyle: safeTrim(cachedUser.diceBearStyle),
+              diceBearSeed: safeTrim(cachedUser.diceBearSeed),
+              classIds: Array.isArray(cachedUser.classIds) ? cachedUser.classIds : [],
+              createdAt: safeTrim(cachedUser.createdAt),
+              updatedAt: safeTrim(cachedUser.updatedAt),
+            };
+            setUser(safeProfile);
+            setLoading(false); // Set loading to false immediately for better UX
+            clearTimeout(timeoutId);
+            
+            // Mark authentication complete for performance tracking
+            markLoadingStage('authComplete');
+            
+            // Verify token in background without blocking UI
+            authService.getProfile().then(profile => {
+              if (!profile) {
+                console.log('Token verification failed, logging out');
+                handleLogout();
+              }
+            }).catch(error => {
+              console.warn('Background token verification failed:', error);
+              // Don't logout immediately, user might be offline
+            });
+            
+            return;
+          }
+        } catch (parseError) {
+          console.warn('Failed to parse cached user data:', parseError);
+        }
+
+        // If cached data is invalid, verify the token
+        const profileCall = trackApiCall('/auth/profile');
         const profile = await authService.getProfile();
+        profileCall.end(!!profile);
+        
         console.log('Auth profile received:', profile);
 
         if (profile && typeof profile === 'object' && profile.email && profile.role) {
@@ -104,21 +162,12 @@ const App: React.FC = () => {
             createdAt: safeTrim((profile as Student).createdAt),
             updatedAt: safeTrim((profile as Student).updatedAt),
           };
-          console.log('Original profile role:', profile.role);
-          console.log('Safe profile role:', safeProfile.role);
-          console.log('Profile received:', profile);
-          console.log('Safe profile:', safeProfile);
-          console.log('User role in profile:', safeProfile.role);
+          console.log('User authenticated successfully:', safeProfile);
           setUser(safeProfile);
           setAuthError(null);
-          console.log('User authenticated successfully:', safeProfile);
+          markLoadingStage('authComplete');
         } else {
           console.log('Invalid profile, logging out');
-          console.log('Profile validation failed:', {
-            profile,
-            hasEmail: !!profile?.email,
-            hasRole: !!profile?.role,
-          });
           await authService.logout();
           setUser(null);
           setAuthError('Authentication expired. Please log in again.');
@@ -192,6 +241,7 @@ const App: React.FC = () => {
 
   const fetchStudents = useCallback(async () => {
     if (!user) return;
+    const apiCall = trackApiCall('/users');
     try {
       console.log('Fetching students...');
       const token = localStorage.getItem('skillup_token');
@@ -214,6 +264,7 @@ const App: React.FC = () => {
       });
 
       clearTimeout(timeoutId);
+      apiCall.end(response.ok);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -284,12 +335,14 @@ const App: React.FC = () => {
       }
     } catch (error) {
       console.error('Error fetching students:', error);
+      apiCall.end(false);
       setDataError('Failed to fetch students');
     }
   }, [user, apiUrl]);
 
   const fetchAssignments = useCallback(async () => {
     if (!user) return;
+    const apiCall = trackApiCall('/assignments');
     try {
       console.log('Fetching assignments...');
       const token = localStorage.getItem('skillup_token');
@@ -305,6 +358,7 @@ const App: React.FC = () => {
       });
 
       clearTimeout(timeoutId);
+      apiCall.end(response.ok);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -363,6 +417,7 @@ const App: React.FC = () => {
       }
     } catch (error) {
       console.error('Error fetching assignments:', error);
+      apiCall.end(false);
       setDataError('Failed to fetch assignments');
     }
   }, [user, apiUrl]);
@@ -501,31 +556,57 @@ const App: React.FC = () => {
     }
   }, [user, apiUrl]);
 
-  // Optimized data fetching with parallel execution
+  // Optimized data fetching with reduced timeouts and better error handling
   useEffect(() => {
     if (!user) return;
 
     const fetchData = async () => {
       setDataLoading(true);
       setDataError(null);
+      
+      // Mark dashboard as ready for performance tracking
+      markLoadingStage('dashboardReady');
 
       try {
-        console.log('Starting parallel data fetch...');
+        console.log('Starting optimized parallel data fetch...');
 
-        // Execute all fetches in parallel with timeout
+        // Execute all fetches in parallel with reduced timeout
         const timeoutPromise = new Promise<void>((_, reject) =>
-          setTimeout(() => reject(new Error('Data fetch timeout')), 15000)
+          setTimeout(() => reject(new Error('Data fetch timeout')), 10000) // Reduced from 15s
         );
 
         await Promise.race([
-          Promise.all([fetchStudents(), fetchAssignments(), fetchSubmissions(), fetchClasses()]),
+          Promise.allSettled([
+            fetchStudents(),
+            fetchAssignments(),
+            fetchSubmissions(),
+            fetchClasses()
+          ]).then(results => {
+            // Log any failures but don't block the UI
+            results.forEach((result, index) => {
+              const operations = ['students', 'assignments', 'submissions', 'classes'];
+              if (result.status === 'rejected') {
+                console.warn(`Failed to fetch ${operations[index]}:`, result.reason);
+              }
+            });
+          }),
           timeoutPromise,
         ]);
 
-        console.log('All data fetched successfully');
+        console.log('Data fetch completed');
+        // Mark data loading complete for performance tracking
+        markLoadingStage('dataLoaded');
+        
+        // Log performance report after initial load
+        setTimeout(() => {
+          logPerformanceReport();
+        }, 1000);
       } catch (error) {
         console.error('Error fetching data:', error);
-        setDataError('Failed to fetch data. Please try again.');
+        // Don't show error immediately, as partial data might be available
+        setTimeout(() => {
+          setDataError('Some data may not be up to date. Please refresh if needed.');
+        }, 1000);
       } finally {
         setDataLoading(false);
       }
@@ -541,8 +622,21 @@ const App: React.FC = () => {
     setDataError(null);
 
     try {
-      await Promise.all([fetchStudents(), fetchAssignments(), fetchSubmissions(), fetchClasses()]);
-      console.log('Data refreshed successfully');
+      // Use Promise.allSettled to prevent one failure from blocking others
+      const results = await Promise.allSettled([
+        fetchStudents(),
+        fetchAssignments(),
+        fetchSubmissions(),
+        fetchClasses()
+      ]);
+      
+      const failures = results.filter(result => result.status === 'rejected');
+      if (failures.length > 0) {
+        console.warn('Some data refresh operations failed:', failures);
+        setDataError(`${failures.length} operations failed. Some data may not be current.`);
+      } else {
+        console.log('Data refreshed successfully');
+      }
     } catch (error) {
       console.error('Error refreshing data:', error);
       setDataError('Failed to refresh data');
@@ -626,20 +720,22 @@ const App: React.FC = () => {
             user={user}
           />
           <main className="main-content">
-            {/* Debug Panel - Development Only */}
-            {import.meta.env.DEV && navKey === 'debug' && (
-              <DebugAPIPanel />
-            )}
-            
-            <DashboardComponent
-              user={user}
-              students={students}
-              assignments={assignments}
-              classes={classes}
-              activeKey={navKey}
-              onDataRefresh={refreshData}
-              isAdmin={user.role === 'admin'}
-            />
+            <Suspense fallback={<LoadingSpinner />}>
+              {/* Debug Panel - Development Only */}
+              {import.meta.env.DEV && navKey === 'debug' && (
+                <DebugAPIPanel />
+              )}
+              
+              <DashboardComponent
+                user={user}
+                students={students}
+                assignments={assignments}
+                classes={classes}
+                activeKey={navKey}
+                onDataRefresh={refreshData}
+                isAdmin={user.role === 'admin'}
+              />
+            </Suspense>
           </main>
         </div>
       );

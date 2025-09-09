@@ -9,27 +9,49 @@
     <!-- Performance optimizations -->
     <meta name="description" content="SkillUp Center - Professional IELTS training and management system" />
     <meta name="theme-color" content="#295b37" />
-    <!-- Using Firebase Functions at /api; no external backend preconnect needed -->
+    
+    <!-- DNS prefetch for external domains -->
+    <link rel="dns-prefetch" href="//us-central1-skillup-3beaf.cloudfunctions.net" />
+    <link rel="dns-prefetch" href="//firebaseapp.com" />
+    <link rel="dns-prefetch" href="//googleapis.com" />
+    
+    <!-- Preconnect to critical origins -->
+    <link rel="preconnect" href="https://us-central1-skillup-3beaf.cloudfunctions.net" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
     
     <!-- Preload critical resources -->
+    <link rel="modulepreload" href="/index.tsx" />
     <link rel="preload" href="/index.css" as="style" />
     
-    <!-- Tailwind CDN removed for production. Use built CSS instead. -->
+    <!-- Resource hints for lazy-loaded components -->
+    <link rel="prefetch" href="/src/AdminDashboard.tsx" />
+    <link rel="prefetch" href="/src/TeacherDashboard.tsx" />
+    <link rel="prefetch" href="/src/StudentDashboard.tsx" />
+    
+    <!-- Critical CSS for ultra-fast initial render -->
     <style>
-      /* Critical CSS for initial render */
+      /* Critical path styles for instant rendering */
       * {
         box-sizing: border-box;
         margin: 0;
         padding: 0;
       }
       
-      html, body {
-        height: 100%;
-        width: 100%;
+      html {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+        font-size: 16px;
+        line-height: 1.5;
+      }
+      
+      body {
+        height: 100vh;
+        width: 100vw;
         margin: 0;
         padding: 0;
         overflow: hidden;
-        background: #f8fafc;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        color: #1e293b;
+        font-family: inherit;
       }
       
       #root {
@@ -40,71 +62,172 @@
         overflow: hidden;
       }
       
-      /* Custom scrollbar for a more refined look */
+      /* Optimized scrollbar */
       ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
+        width: 6px;
+        height: 6px;
       }
       ::-webkit-scrollbar-track {
         background: #f1f5f9;
       }
       ::-webkit-scrollbar-thumb {
-        background: #94a3b8;
-        border-radius: 10px;
+        background: linear-gradient(to bottom, #94a3b8, #64748b);
+        border-radius: 3px;
       }
       ::-webkit-scrollbar-thumb:hover {
-        background: #64748b;
+        background: linear-gradient(to bottom, #64748b, #475569);
       }
       
-      /* Loading spinner for initial load */
+      /* Enhanced loading animation for better perceived performance */
       .initial-loading {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         height: 100vh;
-        background: #f8fafc;
-        gap: 1rem;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        gap: 1.5rem;
+        animation: fadeIn 0.3s ease-out;
+      }
+      
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
       }
       
       .initial-loading .spinner {
-        width: 48px;
-        height: 48px;
-        border: 4px solid #e2e8f0;
-        border-top: 4px solid #295b37;
+        width: 56px;
+        height: 56px;
+        border: 5px solid #e2e8f0;
+        border-top: 5px solid #295b37;
         border-radius: 50%;
-        animation: spin 1s linear infinite;
+        animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+        box-shadow: 0 4px 12px rgba(41, 91, 55, 0.15);
       }
       
       @keyframes spin {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
       }
+      
+      .initial-loading p {
+        font-size: 1.1rem;
+        color: #64748b;
+        font-weight: 500;
+        letter-spacing: 0.025em;
+      }
+      
+      /* Preload styles for common components */
+      .loading-spinner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 200px;
+        gap: 1rem;
+      }
+      
+      .loading-spinner .spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid #e2e8f0;
+        border-top: 3px solid #295b37;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      
+      /* Critical layout styles */
+      .app-container {
+        display: flex;
+        height: 100vh;
+        width: 100vw;
+        overflow: hidden;
+      }
+      
+      .main-content {
+        flex: 1;
+        overflow: auto;
+        background: #ffffff;
+      }
+      
+      /* Performance optimization: prevent layout thrashing */
+      img {
+        max-width: 100%;
+        height: auto;
+      }
+      
+      button {
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      
+      /* Preload button hover states for better interaction */
+      button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
     </style>
 
-</head>
   <body>
     <div id="root">
-      <!-- Initial loading state -->
+      <!-- Optimized initial loading state -->
       <div class="initial-loading">
         <div class="spinner"></div>
         <p>Loading SkillUp Center...</p>
       </div>
     </div>
+    
+    <!-- Preload critical scripts -->
     <script type="module" src="/index.tsx"></script>
+    
+    <!-- Enhanced service worker registration with performance monitoring -->
     <script>
-      // Register service worker for better caching and offline support
+      // Register service worker for aggressive caching and offline support
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('/sw.js')
             .then(registration => {
-              console.log('SW registered: ', registration);
+              console.log('SW registered successfully:', registration);
+              
+              // Preload critical resources via service worker
+              if (registration.active) {
+                registration.active.postMessage({
+                  type: 'PRELOAD_CRITICAL'
+                });
+              }
             })
             .catch(registrationError => {
-              console.log('SW registration failed: ', registrationError);
+              console.log('SW registration failed:', registrationError);
             });
         });
       }
+      
+      // Performance monitoring
+      if ('performance' in window) {
+        window.addEventListener('load', () => {
+          setTimeout(() => {
+            const perfData = performance.getEntriesByType('navigation')[0];
+            if (perfData) {
+              console.log('Page load performance:', {
+                domContentLoaded: perfData.domContentLoadedEventEnd - perfData.domContentLoadedEventStart,
+                loadComplete: perfData.loadEventEnd - perfData.loadEventStart,
+                totalTime: perfData.loadEventEnd - perfData.fetchStart
+              });
+            }
+          }, 0);
+        });
+      }
+      
+      // Prefetch critical resources on interaction
+      document.addEventListener('mouseover', function prefetchOnHover() {
+        const link = document.createElement('link');
+        link.rel = 'prefetch';
+        link.href = '/api/auth/profile';
+        document.head.appendChild(link);
+        
+        // Remove event listener after first execution
+        document.removeEventListener('mouseover', prefetchOnHover);
+      }, { once: true });
     </script>
   </body>
 </html>

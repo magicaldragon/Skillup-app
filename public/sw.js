@@ -1,87 +1,141 @@
-// Service Worker for SkillUp Center
-// Caches static assets and API responses for better performance
+// Service Worker for SkillUp Center - Optimized for instant loading
+// Implements aggressive caching strategy for maximum performance
 
-const _CACHE_NAME = 'skillup-v1.0.0';
-const STATIC_CACHE = 'skillup-static-v1.0.0';
-const API_CACHE = 'skillup-api-v1.0.0';
+const CACHE_VERSION = 'v2.0.0';
+const STATIC_CACHE = `skillup-static-${CACHE_VERSION}`;
+const API_CACHE = `skillup-api-${CACHE_VERSION}`;
+const RUNTIME_CACHE = `skillup-runtime-${CACHE_VERSION}`;
 
-// Files to cache immediately
-const STATIC_FILES = ['/', '/index.html', '/logo-skillup.png', '/vite.svg'];
+// Critical files to cache immediately for instant loading
+const CRITICAL_FILES = [
+  '/',
+  '/index.html',
+  '/vite.svg',
+  '/logo-skillup.png',
+];
 
-// Install event - cache static files
+// Assets to cache for offline functionality
+const CACHE_PATTERNS = {
+  // Static assets
+  static: /\.(js|css|png|jpg|jpeg|svg|gif|woff2?|ttf|eot)$/,
+  // API endpoints that can be cached
+  api: /\/api\/(auth\/profile|users|classes|assignments)$/,
+  // Images and media
+  images: /\.(png|jpg|jpeg|svg|gif|webp|ico)$/,
+};
+
+// Cache duration settings (in milliseconds)
+const CACHE_DURATION = {
+  static: 7 * 24 * 60 * 60 * 1000, // 7 days
+  api: 5 * 60 * 1000, // 5 minutes
+  runtime: 24 * 60 * 60 * 1000, // 24 hours
+};
+
+// Install event - aggressively cache critical resources
 self.addEventListener('install', (event) => {
-  console.log('Service Worker installing...');
+  console.log('Service Worker installing with aggressive caching...');
   event.waitUntil(
-    caches
-      .open(STATIC_CACHE)
-      .then((cache) => {
-        console.log('Caching static files');
-        return cache.addAll(STATIC_FILES);
-      })
-      .then(() => self.skipWaiting())
+    Promise.all([
+      // Cache critical files
+      caches.open(STATIC_CACHE).then((cache) => {
+        console.log('Caching critical files for instant loading');
+        return cache.addAll(CRITICAL_FILES);
+      }),
+      // Pre-cache runtime cache
+      caches.open(RUNTIME_CACHE),
+      caches.open(API_CACHE),
+    ]).then(() => {
+      console.log('All caches initialized');
+      return self.skipWaiting();
+    })
   );
 });
 
-// Activate event - clean up old caches
+// Activate event - clean up old caches and claim clients immediately
 self.addEventListener('activate', (event) => {
-  console.log('Service Worker activating...');
+  console.log('Service Worker activating with cache cleanup...');
   event.waitUntil(
-    caches
-      .keys()
-      .then((cacheNames) => {
+    Promise.all([
+      // Clean up old caches
+      caches.keys().then((cacheNames) => {
         return Promise.all(
           cacheNames.map((cacheName) => {
-            if (cacheName !== STATIC_CACHE && cacheName !== API_CACHE) {
+            const currentCaches = [STATIC_CACHE, API_CACHE, RUNTIME_CACHE];
+            if (!currentCaches.includes(cacheName)) {
               console.log('Deleting old cache:', cacheName);
               return caches.delete(cacheName);
             }
           })
         );
-      })
-      .then(() => self.clients.claim())
+      }),
+      // Claim all clients immediately
+      self.clients.claim(),
+    ])
   );
 });
 
-// Fetch event - serve from cache when possible
+// Enhanced fetch event with intelligent caching strategies
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Skip handling for unsupported schemes
+  // Skip non-HTTP requests
   if (!url.protocol.startsWith('http')) {
-    return; // Let the browser handle it naturally
+    return;
   }
 
-  // Handle API requests
+  // Handle different request types with optimized strategies
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(handleApiRequest(request));
-    return;
-  }
-
-  // Handle static assets
-  if (request.method === 'GET') {
-    event.respondWith(handleStaticRequest(request));
-    return;
+  } else if (CACHE_PATTERNS.static.test(url.pathname)) {
+    event.respondWith(handleStaticAsset(request));
+  } else if (request.method === 'GET') {
+    event.respondWith(handleGeneralRequest(request));
   }
 });
 
-// Handle API requests with caching
+// Enhanced API request handling with intelligent caching
 async function handleApiRequest(request) {
+  const url = new URL(request.url);
   const cache = await caches.open(API_CACHE);
 
+  // For GET requests, try cache first for faster response
+  if (request.method === 'GET' && CACHE_PATTERNS.api.test(url.pathname)) {
+    const cachedResponse = await cache.match(request);
+    if (cachedResponse) {
+      const cacheDate = new Date(cachedResponse.headers.get('sw-cache-date') || 0);
+      const isExpired = Date.now() - cacheDate.getTime() > CACHE_DURATION.api;
+      
+      if (!isExpired) {
+        console.log('Serving from API cache:', url.pathname);
+        return cachedResponse;
+      }
+    }
+  }
+
   try {
-    // Try network first
-    const response = await fetch(request);
+    // Network request with timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    
+    const response = await fetch(request, {
+      signal: controller.signal,
+    });
+    
+    clearTimeout(timeoutId);
 
     // Cache successful GET requests
-    if (request.method === 'GET' && response.ok) {
-      const clonedResponse = response.clone();
-      cache.put(request, clonedResponse);
+    if (request.method === 'GET' && response.ok && response.status < 300) {
+      const responseClone = response.clone();
+      responseClone.headers.set('sw-cache-date', new Date().toISOString());
+      await cache.put(request, responseClone);
     }
 
     return response;
-  } catch (_error) {
-    // If network fails, try cache
+  } catch (error) {
+    console.log('API request failed, checking cache:', error);
+    
+    // Fallback to cached response even if expired
     const cachedResponse = await cache.match(request);
     if (cachedResponse) {
       return cachedResponse;
@@ -92,6 +146,7 @@ async function handleApiRequest(request) {
       JSON.stringify({
         success: false,
         message: 'Network error - please check your connection',
+        offline: true,
       }),
       {
         status: 503,
@@ -101,49 +156,84 @@ async function handleApiRequest(request) {
   }
 }
 
-// Handle static requests with caching
-async function handleStaticRequest(request) {
-  const url = new URL(request.url);
-  
-  // Skip caching for unsupported schemes (chrome-extension, etc.)
-  if (!url.protocol.startsWith('http')) {
-    console.log('Skipping cache for unsupported scheme:', url.protocol);
-    return fetch(request);
-  }
-  
+// Optimized static asset handling with aggressive caching
+async function handleStaticAsset(request) {
   const cache = await caches.open(STATIC_CACHE);
-
-  // Check cache first
+  
+  // Always try cache first for static assets
   const cachedResponse = await cache.match(request);
   if (cachedResponse) {
+    console.log('Serving static asset from cache:', request.url);
     return cachedResponse;
   }
 
   try {
-    // Try network
     const response = await fetch(request);
-
-    // Cache successful responses (only for http/https)
-    if (response.ok && url.protocol.startsWith('http')) {
-      const clonedResponse = response.clone();
-      await cache.put(request, clonedResponse);
+    
+    // Cache successful responses
+    if (response.ok) {
+      const responseClone = response.clone();
+      await cache.put(request, responseClone);
     }
-
+    
     return response;
-  } catch (_error) {
-    // Return offline page or error
-    if (request.destination === 'document') {
-      return cache.match('/index.html');
-    }
-
-    return new Response('Not available offline', {
+  } catch (error) {
+    console.log('Static asset fetch failed:', error);
+    
+    // Return a placeholder or cached version if available
+    return new Response('Asset not available offline', {
       status: 503,
       statusText: 'Service Unavailable',
     });
   }
 }
 
-// Background sync for offline actions
+// Handle general requests with runtime caching
+async function handleGeneralRequest(request) {
+  const url = new URL(request.url);
+  const cache = await caches.open(RUNTIME_CACHE);
+  
+  // For HTML documents, try network first
+  if (request.destination === 'document') {
+    try {
+      const response = await fetch(request);
+      if (response.ok) {
+        const responseClone = response.clone();
+        await cache.put(request, responseClone);
+      }
+      return response;
+    } catch (error) {
+      // Fallback to cached index.html
+      const cachedResponse = await cache.match('/index.html') || await cache.match('/');
+      if (cachedResponse) {
+        return cachedResponse;
+      }
+      throw error;
+    }
+  }
+  
+  // For other resources, cache first
+  const cachedResponse = await cache.match(request);
+  if (cachedResponse) {
+    return cachedResponse;
+  }
+  
+  try {
+    const response = await fetch(request);
+    if (response.ok) {
+      const responseClone = response.clone();
+      await cache.put(request, responseClone);
+    }
+    return response;
+  } catch (error) {
+    return new Response('Resource not available offline', {
+      status: 503,
+      statusText: 'Service Unavailable',
+    });
+  }
+}
+
+// Enhanced background sync with performance optimization
 self.addEventListener('sync', (event) => {
   if (event.tag === 'background-sync') {
     event.waitUntil(doBackgroundSync());
@@ -151,6 +241,49 @@ self.addEventListener('sync', (event) => {
 });
 
 async function doBackgroundSync() {
-  // Handle background sync tasks
-  console.log('Background sync triggered');
+  console.log('Background sync triggered - optimizing caches');
+  
+  try {
+    // Clean up expired cache entries
+    const caches_to_clean = [API_CACHE, RUNTIME_CACHE];
+    
+    for (const cacheName of caches_to_clean) {
+      const cache = await caches.open(cacheName);
+      const requests = await cache.keys();
+      
+      for (const request of requests) {
+        const response = await cache.match(request);
+        if (response) {
+          const cacheDate = new Date(response.headers.get('sw-cache-date') || 0);
+          const maxAge = cacheName === API_CACHE ? CACHE_DURATION.api : CACHE_DURATION.runtime;
+          
+          if (Date.now() - cacheDate.getTime() > maxAge) {
+            await cache.delete(request);
+            console.log('Deleted expired cache entry:', request.url);
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Background sync error:', error);
+  }
+}
+
+// Preload critical resources on idle
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'PRELOAD_CRITICAL') {
+    event.waitUntil(preloadCriticalResources());
+  }
+});
+
+async function preloadCriticalResources() {
+  const cache = await caches.open(STATIC_CACHE);
+  const criticalResources = [
+    '/assets/js/vendor-react-*.js',
+    '/assets/js/vendor-firebase-*.js',
+    '/assets/css/index-*.css',
+  ];
+  
+  // This would be expanded to preload actual resources
+  console.log('Preloading critical resources for next visit');
 }
