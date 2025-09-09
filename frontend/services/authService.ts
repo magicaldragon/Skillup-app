@@ -2,6 +2,8 @@ import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { performanceMonitor } from '../../utils/performanceMonitor';
 import { safeTrim } from '../../utils/stringUtils';
 import { auth } from './firebase';
+// Import clearAPICache for cache management
+import { clearAPICache } from '../../services/apiService';
 
 // Authentication service for Firebase Functions backend
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
@@ -183,11 +185,14 @@ class AuthService {
 
       console.log('Attempting login with email:', email);
 
+      // OPTIMIZATION: Skip backend connectivity test during login for speed
+      // The login request itself will verify connectivity
+      
       // Step 1: Login with Firebase (with timeout)
       console.log('Step 1: Authenticating with Firebase...');
       const firebasePromise = signInWithEmailAndPassword(auth, email, password);
       const firebaseTimeout = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('Firebase authentication timeout')), 10000)
+        setTimeout(() => reject(new Error('Firebase authentication timeout')), 8000) // Reduced from 10s to 8s
       );
 
       const userCredential = (await Promise.race([firebasePromise, firebaseTimeout])) as any;
@@ -197,7 +202,7 @@ class AuthService {
       console.log('Step 2: Getting Firebase ID token...');
       const tokenPromise = userCredential.user.getIdToken();
       const tokenTimeout = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('Token retrieval timeout')), 5000)
+        setTimeout(() => reject(new Error('Token retrieval timeout')), 3000) // Reduced from 5s to 3s
       );
 
       const idToken = (await Promise.race([tokenPromise, tokenTimeout])) as string;
@@ -222,7 +227,7 @@ class AuthService {
       });
 
       const backendTimeout = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('Backend request timeout')), 8000)
+        setTimeout(() => reject(new Error('Backend request timeout')), 6000) // Reduced from 8s to 6s
       );
 
       const response = (await Promise.race([backendPromise, backendTimeout])) as Response;
@@ -349,6 +354,9 @@ class AuthService {
       // Clear connection cache
       this.connectionCache = null;
 
+      // Clear API cache for performance optimization
+      clearAPICache();
+
       // Clear localStorage
       localStorage.removeItem('skillup_token');
       localStorage.removeItem('skillup_user');
@@ -364,6 +372,7 @@ class AuthService {
       localStorage.removeItem('skillup_token');
       localStorage.removeItem('skillup_user');
       this.connectionCache = null;
+      clearAPICache();
 
       // Re-throw error for caller to handle
       throw error;

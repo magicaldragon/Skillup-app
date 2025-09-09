@@ -25,27 +25,39 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          // Keep main components in the main bundle to avoid MIME type issues
-          if (id.includes('AdminDashboard') || id.includes('TeacherDashboard') || id.includes('StudentDashboard')) {
-            return undefined; // Keep in main bundle
+          // Core React libraries
+          if (id.includes('react') || id.includes('react-dom')) {
+            return 'vendor-react';
           }
-          
-          // Only create chunks for actual dependencies
+          // Firebase libraries
+          if (id.includes('firebase')) {
+            return 'vendor-firebase';
+          }
+          // Router libraries
+          if (id.includes('react-router')) {
+            return 'vendor-router';
+          }
+          // Icons and UI libraries
+          if (id.includes('react-icons') || id.includes('chart.js')) {
+            return 'vendor-ui';
+          }
+          // Other node_modules
           if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom')) {
-              return 'vendor-react';
-            }
-            if (id.includes('firebase')) {
-              return 'vendor-firebase';
-            }
-            if (id.includes('react-router')) {
-              return 'vendor-router';
-            }
-            if (id.includes('react-icons')) {
-              return 'vendor-icons';
-            }
-            // Group other node_modules into vendor
-            return 'vendor';
+            return 'vendor-utils';
+          }
+          // Dashboard components - split into separate chunks
+          if (id.includes('AdminDashboard')) {
+            return 'admin-dashboard';
+          }
+          if (id.includes('TeacherDashboard')) {
+            return 'teacher-dashboard';
+          }
+          if (id.includes('StudentDashboard')) {
+            return 'student-dashboard';
+          }
+          // Panel components
+          if (id.includes('Panel.tsx') || id.includes('Panel.ts')) {
+            return 'panels';
           }
         },
         // Optimize chunk naming
@@ -56,6 +68,14 @@ export default defineConfig({
     },
     // Enable minification
     minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
+    // Set chunk size warning limit
+    chunkSizeWarningLimit: 1000,
     // Optimize CSS
     cssCodeSplit: true,
     // Enable compression
@@ -67,7 +87,19 @@ export default defineConfig({
   },
   // Optimize dependencies
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom', 'firebase/app', 'firebase/auth'],
+    include: [
+      'react', 
+      'react-dom', 
+      'react-router-dom', 
+      'firebase/app', 
+      'firebase/auth',
+      'firebase/firestore',
+      'react-icons/fa',
+      'react-icons/md',
+      'react-icons/io',
+      'date-fns'
+    ],
+    exclude: ['firebase-admin']
   },
   // Enable compression
   preview: {

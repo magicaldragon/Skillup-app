@@ -1,5 +1,5 @@
 import type React from 'react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import './LoginPanel.css';
 import { authService } from './frontend/services/authService';
 import type { UserProfile } from './types';
@@ -15,27 +15,12 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [backendStatus, setBackendStatus] = useState<'checking' | 'connected' | 'disconnected'>(
-    'checking'
+    'connected' // OPTIMIZATION: Assume connected initially for faster login
   );
   const MAX_ATTEMPTS = 3;
 
-  // Test backend connectivity on component mount (with caching)
-  useEffect(() => {
-    const testConnection = async () => {
-      try {
-        setBackendStatus('checking');
-        const isConnected = await authService.testBackendConnection();
-        setBackendStatus(isConnected ? 'connected' : 'disconnected');
-      } catch (error) {
-        console.error('Backend connection test failed:', error);
-        setBackendStatus('disconnected');
-      }
-    };
-
-    // Use a shorter timeout for initial connection check
-    const timeoutId = setTimeout(testConnection, 100);
-    return () => clearTimeout(timeoutId);
-  }, []);
+  // OPTIMIZATION: Removed initial backend connection test for faster login
+  // Connection will be tested implicitly during login attempt
 
   const retryConnection = async () => {
     setBackendStatus('checking');
@@ -64,26 +49,19 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         return;
       }
 
-      // Only test backend if we don't have a cached connection status
-      if (backendStatus === 'disconnected') {
-        const isConnected = await authService.testBackendConnection();
-        if (!isConnected) {
-          setError(
-            'Cannot connect to server. Please check your internet connection and try again.'
-          );
-          setIsLoading(false);
-          return;
-        }
-        setBackendStatus('connected');
-      }
-
+      // OPTIMIZATION: Skip preemptive connection test, let login attempt handle connectivity
       const response = await authService.login({ email: email.trim(), password });
       if (response.success && response.user) {
         setFailedAttempts(0);
+        setBackendStatus('connected');
         localStorage.setItem('skillup_user', JSON.stringify(response.user));
         onLoginSuccess(response.user);
       } else {
         setFailedAttempts((prev) => prev + 1);
+        // Check if error is due to connectivity
+        if (response.message.includes('Network error') || response.message.includes('timeout')) {
+          setBackendStatus('disconnected');
+        }
         setError(response.message || 'Login failed. Please try again.');
       }
     } catch (err: unknown) {
@@ -93,8 +71,10 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
       if (err instanceof Error) {
         if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
           errorMessage = 'Network error. Please check your internet connection and try again.';
+          setBackendStatus('disconnected');
         } else if (err.message.includes('timeout')) {
           errorMessage = 'Request timed out. Please try again.';
+          setBackendStatus('disconnected');
         } else {
           errorMessage = err.message;
         }

@@ -144,6 +144,40 @@ function mountApiRoutes(basePath) {
 // Mount routes for both direct function invocation ('') and Hosting rewrite ('/api')
 mountApiRoutes('');
 mountApiRoutes('/api');
+// Add specific handlers for the /api prefix as well
+app.use('/api', express_1.default.Router().get('/health', async (_req, res) => {
+    try {
+        const db = admin.firestore();
+        await db.collection('users').limit(1).get();
+        admin.auth();
+        res.json({
+            status: 'healthy',
+            timestamp: new Date().toISOString(),
+            environment: process.env.NODE_ENV || 'development',
+            firebase: {
+                projectId: admin.app().options.projectId,
+                database: 'firestore',
+                firestore: 'connected',
+                auth: 'connected',
+            },
+        });
+    }
+    catch (error) {
+        console.error('Health check failed:', error);
+        res.status(503).json({
+            status: 'unhealthy',
+            timestamp: new Date().toISOString(),
+            error: error instanceof Error ? error.message : 'Unknown error',
+        });
+    }
+}));
+app.use('/api', express_1.default.Router().get('/test', (_req, res) => {
+    res.json({
+        status: 'connected',
+        timestamp: new Date().toISOString(),
+        message: 'Backend is reachable via /api',
+    });
+}));
 // Error handling middleware
 app.use((err, _req, res, _next) => {
     const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';

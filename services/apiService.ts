@@ -30,9 +30,52 @@ const normalizeUrl = (url: string) => url.replace(/\/$/, '');
 const API_CONFIG = {
   maxRetries: 3,
   retryDelay: 1000,
-  timeout: 30000,
+  timeout: 15000, // Reduced from 30s to 15s for faster failures
   retryableStatuses: [408, 429, 500, 502, 503, 504],
 };
+
+// Request cache for reducing redundant API calls
+interface CacheEntry {
+  data: any;
+  timestamp: number;
+  ttl: number;
+}
+
+const REQUEST_CACHE = new Map<string, CacheEntry>();
+const DEFAULT_CACHE_TTL = 30000; // 30 seconds
+
+// Cache management functions
+function getCacheKey(endpoint: string, options: RequestInit): string {
+  const method = options.method || 'GET';
+  const body = options.body ? JSON.stringify(options.body) : '';
+  return `${method}:${endpoint}:${body}`;
+}
+
+function getCachedResponse<T>(cacheKey: string): T | null {
+  const entry = REQUEST_CACHE.get(cacheKey);
+  if (entry && Date.now() - entry.timestamp < entry.ttl) {
+    console.log('Returning cached response for:', cacheKey);
+    return entry.data;
+  }
+  if (entry) {
+    REQUEST_CACHE.delete(cacheKey); // Remove expired entry
+  }
+  return null;
+}
+
+function setCachedResponse<T>(cacheKey: string, data: T, ttl = DEFAULT_CACHE_TTL): void {
+  REQUEST_CACHE.set(cacheKey, {
+    data,
+    timestamp: Date.now(),
+    ttl,
+  });
+}
+
+// Clear cache function for login/logout scenarios
+export function clearAPICache(): void {
+  REQUEST_CACHE.clear();
+  console.log('API cache cleared');
+}
 
 // Enhanced error class for better error handling
 export class APIError extends Error {
@@ -64,12 +107,24 @@ async function getAuthToken(retryCount = 0): Promise<string> {
   }
 }
 
-// Enhanced API call function with retry, timeout, and better error handling
+// Enhanced API call function with retry, timeout, caching, and better error handling
 async function apiCall<T>(
   endpoint: string, 
   options: RequestInit = {}, 
-  retryCount = 0
+  retryCount = 0,
+  cacheTtl?: number
 ): Promise<T> {
+  const cacheKey = getCacheKey(endpoint, options);
+  const method = options.method || 'GET';
+  
+  // Check cache for GET requests
+  if (method === 'GET') {
+    const cachedData = getCachedResponse<T>(cacheKey);
+    if (cachedData !== null) {
+      return cachedData;
+    }
+  }
+
   try {
     const token = await getAuthToken();
     const controller = new AbortController();
@@ -81,6 +136,7 @@ async function apiCall<T>(
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
+        'Cache-Control': 'no-cache', // Prevent browser caching conflicts
         ...options.headers,
       },
     });
@@ -103,7 +159,7 @@ async function apiCall<T>(
       ) {
         console.warn(`API call failed with status ${response.status}, retrying... (${retryCount + 1}/${API_CONFIG.maxRetries})`);
         await new Promise(resolve => setTimeout(resolve, API_CONFIG.retryDelay * (retryCount + 1)));
-        return apiCall<T>(endpoint, options, retryCount + 1);
+        return apiCall<T>(endpoint, options, retryCount + 1, cacheTtl);
       }
 
       throw new APIError(
@@ -121,6 +177,11 @@ async function apiCall<T>(
       throw new APIError('Empty response received', response.status, 'EMPTY_RESPONSE');
     }
 
+    // Cache successful GET responses
+    if (method === 'GET') {
+      setCachedResponse(cacheKey, data, cacheTtl);
+    }
+
     return data;
   } catch (error) {
     if (error instanceof APIError) {
@@ -136,7 +197,7 @@ async function apiCall<T>(
       const errorMessage = error instanceof Error ? error.message : String(error);
       console.warn(`API call failed with error: ${errorMessage}, retrying... (${retryCount + 1}/${API_CONFIG.maxRetries})`);
       await new Promise(resolve => setTimeout(resolve, API_CONFIG.retryDelay * (retryCount + 1)));
-      return apiCall<T>(endpoint, options, retryCount + 1);
+      return apiCall<T>(endpoint, options, retryCount + 1, cacheTtl);
     }
 
     const errorMessage = error instanceof Error ? error.message : 'Network error';
