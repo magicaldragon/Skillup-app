@@ -1208,15 +1208,17 @@ const ClassesPanel = ({
             <label htmlFor="starting-date" className="date-label">
               Class Start Date (dd/mm/yyyy)
             </label>
-            <input
-              id="starting-date"
-              type="date"
-              value={newClassStartingDate}
-              onChange={(e) => setNewClassStartingDate(e.target.value)}
-              className="starting-date-input"
-              title="Select the first day when the class will begin - displayed as dd/mm/yyyy format"
-              placeholder="dd/mm/yyyy"
-            />
+            <div className="date-input-enhanced">
+              <input
+                id="starting-date"
+                type="date"
+                value={newClassStartingDate}
+                onChange={(e) => setNewClassStartingDate(e.target.value)}
+                className="starting-date-input"
+                title="Select the first day when the class will begin - displayed as dd/mm/yyyy format"
+                placeholder="dd/mm/yyyy"
+              />
+            </div>
             {newClassStartingDate && (
               <div className="date-format-preview">
                 <small>Start Date Preview: {new Date(newClassStartingDate).toLocaleDateString('en-GB')}</small>

@@ -297,16 +297,18 @@ const AddNewMembers = () => {
                 <label htmlFor="dob" className="form-label">
                   Date of Birth (dd/mm/yyyy)
                 </label>
-                <input
-                  id="dob"
-                  type="date"
-                  name="dob"
-                  value={form.dob}
-                  onChange={handleChange}
-                  className="form-input"
-                  placeholder="dd/mm/yyyy"
-                  title="Select date of birth - will be displayed as dd/mm/yyyy format"
-                />
+                <div className="date-input-enhanced">
+                  <input
+                    id="dob"
+                    type="date"
+                    name="dob"
+                    value={form.dob}
+                    onChange={handleChange}
+                    className="form-input"
+                    placeholder="dd/mm/yyyy"
+                    title="Select date of birth - will be displayed as dd/mm/yyyy format"
+                  />
+                </div>
                 {form.dob && (
                   <div className="date-format-preview">
                     <small>Preview: {new Date(form.dob).toLocaleDateString('en-GB')}</small>

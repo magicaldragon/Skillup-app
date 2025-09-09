@@ -16,6 +16,13 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
     const { role } = req.user;
     const { status } = req.query;
 
+    console.log('📊 Users API request:', {
+      role,
+      status,
+      statusType: typeof status,
+      query: req.query
+    });
+
     let query: Query<DocumentData> = admin.firestore().collection('users');
 
     // Role-based filtering
@@ -28,22 +35,40 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
 
     // Add status filtering if provided
     if (status) {
-      const statusArray = Array.isArray(status) ? status : [status];
-      query = query.where('status', 'in', statusArray);
+      let statusArray: string[];
+      
+      if (Array.isArray(status)) {
+        // If status is already an array
+        statusArray = status as string[];
+      } else if (typeof status === 'string') {
+        // If status is a comma-separated string, split it
+        statusArray = status.includes(',') ? status.split(',').map(s => s.trim()) : [status];
+      } else {
+        statusArray = [String(status)];
+      }
+      
+      console.log('🎯 Status filter applied:', statusArray);
+      
+      if (statusArray.length === 1) {
+        query = query.where('status', '==', statusArray[0]);
+      } else {
+        query = query.where('status', 'in', statusArray);
+      }
     }
 
     const snapshot = await query.orderBy('createdAt', 'desc').get();
     const users = snapshot.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => ({
       id: doc.id,
+      _id: doc.id, // Add both id and _id for compatibility
       ...doc.data(),
     }));
 
     console.log(
-      `Fetched ${users.length} users for role: ${role}${status ? ` with status: ${status}` : ''}`
+      `✅ Fetched ${users.length} users for role: ${role}${status ? ` with status: ${status}` : ''}`
     );
     return res.json(users);
   } catch (error) {
-    console.error('Error fetching users:', error);
+    console.error('❌ Error fetching users:', error);
     return res.status(500).json({ message: 'Failed to fetch users' });
   }
 });

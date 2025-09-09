@@ -53,23 +53,55 @@ const WaitingListPanel = ({
       return;
     }
 
+    const apiUrl = `${API_BASE_URL}/users?status=studying`;
+    console.log('🔍 [WaitingStudents] API Call Details:', {
+      url: apiUrl,
+      baseUrl: API_BASE_URL,
+      hasToken: !!token,
+      tokenPrefix: token ? token.substring(0, 10) + '...' : 'none'
+    });
+
     try {
       // Fetch users with status 'studying'
-      const response = await fetch(`${API_BASE_URL}/users?status=studying`, {
+      const response = await fetch(apiUrl, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
+      console.log('📡 [WaitingStudents] Response Status:', {
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries()),
+        url: response.url
+      });
+
       if (!response.ok) {
-        throw new Error('Failed to fetch waiting students');
+        const errorText = await response.text();
+        console.error('❌ [WaitingStudents] Error Response:', {
+          status: response.status,
+          statusText: response.statusText,
+          body: errorText
+        });
+        throw new Error(`HTTP ${response.status}: ${response.statusText} - ${errorText}`);
       }
 
       const data = await response.json();
+      console.log('✅ [WaitingStudents] Success Response:', {
+        dataType: typeof data,
+        isArray: Array.isArray(data),
+        length: Array.isArray(data) ? data.length : 'N/A',
+        firstItem: Array.isArray(data) && data.length > 0 ? data[0] : 'none'
+      });
       setWaitingStudents(data || []);
     } catch (error) {
-      console.error('Fetch waiting students error:', error);
-      setError('Failed to load waiting students. Please try again.');
+      console.error('💥 [WaitingStudents] Fetch Error:', {
+        name: error instanceof Error ? error.name : 'Unknown',
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : 'No stack',
+        apiUrl
+      });
+      setError(`Failed to load waiting students: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setLoading(false);
     }

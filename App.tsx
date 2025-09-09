@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { authService } from './frontend/services/authService';
 import { safeTrim } from './utils/stringUtils';
 import './App.css';
+import './DateInput.css'; // Enhanced date input styling
 
 // Import components directly instead of lazy loading to avoid MIME type issues
 import AdminDashboard from './AdminDashboard';
@@ -10,6 +11,7 @@ import Login from './Login';
 import Sidebar from './Sidebar';
 import StudentDashboard from './StudentDashboard';
 import TeacherDashboard from './TeacherDashboard';
+import DebugAPIPanel from './DebugAPIPanel';
 
 import type { Assignment, Student, StudentClass, Submission, UserProfile, ExamLevel } from './types';
 
@@ -624,6 +626,11 @@ const App: React.FC = () => {
             user={user}
           />
           <main className="main-content">
+            {/* Debug Panel - Development Only */}
+            {import.meta.env.DEV && navKey === 'debug' && (
+              <DebugAPIPanel />
+            )}
+            
             <DashboardComponent
               user={user}
               students={students}

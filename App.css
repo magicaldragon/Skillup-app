@@ -350,6 +350,113 @@ body {
   will-change: transform;
 }
 
+/* Global Date Input Formatting */
+input[type="date"] {
+  position: relative;
+  font-family: inherit;
+}
+
+/* Force dd/mm/yyyy format appearance */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  background: transparent;
+  bottom: 0;
+  color: transparent;
+  cursor: pointer;
+  height: auto;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: auto;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="%23666" d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 16px;
+}
+
+/* Remove default date input styling */
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Custom placeholder-like styling */
+input[type="date"]:invalid {
+  color: #999;
+}
+
+input[type="date"]:invalid::-webkit-datetime-edit {
+  color: #999;
+}
+
+input[type="date"]:focus:invalid {
+  color: inherit;
+}
+
+/* Add content before the date input to show format hint */
+input[type="date"]::before {
+  content: attr(placeholder);
+  color: #999;
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  font-style: italic;
+}
+
+input[type="date"]:focus::before,
+input[type="date"]:valid::before {
+  display: none;
+}
+
+/* Enhanced date input styling */
+.form-input[type="date"],
+.starting-date-input,
+input[type="date"] {
+  position: relative;
+  padding: 12px 16px;
+  border: 2px solid #e0f7fa;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: white;
+  transition: all 0.3s ease;
+  min-width: 200px;
+}
+
+.form-input[type="date"]:focus,
+.starting-date-input:focus,
+input[type="date"]:focus {
+  outline: none;
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+}
+
+/* Custom date format display */
+.date-input-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.date-input-wrapper::after {
+  content: 'dd/mm/yyyy';
+  position: absolute;
+  right: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #999;
+  font-size: 0.9em;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.date-input-wrapper input[type="date"]:invalid + .date-format-hint::after,
+.date-input-wrapper input[type="date"]:placeholder-shown + .date-format-hint::after {
+  opacity: 1;
+}
+
 /* Global Search Bar Styling */
 .search-bar-container {
   position: relative !important;

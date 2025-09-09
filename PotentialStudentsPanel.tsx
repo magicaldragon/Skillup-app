@@ -57,23 +57,55 @@ const PotentialStudentsPanel = ({
       return;
     }
 
+    const apiUrl = `${API_BASE_URL}/users?status=potential,contacted`;
+    console.log('🔍 [PotentialStudents] API Call Details:', {
+      url: apiUrl,
+      baseUrl: API_BASE_URL,
+      hasToken: !!token,
+      tokenPrefix: token ? token.substring(0, 10) + '...' : 'none'
+    });
+
     try {
       // Fetch users with status 'potential' or 'contacted'
-      const response = await fetch(`${API_BASE_URL}/users?status=potential,contacted`, {
+      const response = await fetch(apiUrl, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
+      console.log('📡 [PotentialStudents] Response Status:', {
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries()),
+        url: response.url
+      });
+
       if (!response.ok) {
-        throw new Error('Failed to fetch potential students');
+        const errorText = await response.text();
+        console.error('❌ [PotentialStudents] Error Response:', {
+          status: response.status,
+          statusText: response.statusText,
+          body: errorText
+        });
+        throw new Error(`HTTP ${response.status}: ${response.statusText} - ${errorText}`);
       }
 
       const data = await response.json();
+      console.log('✅ [PotentialStudents] Success Response:', {
+        dataType: typeof data,
+        isArray: Array.isArray(data),
+        length: Array.isArray(data) ? data.length : 'N/A',
+        firstItem: Array.isArray(data) && data.length > 0 ? data[0] : 'none'
+      });
       setPotentialStudents(data || []);
     } catch (error) {
-      console.error('Fetch potential students error:', error);
-      setError('Failed to load potential students. Please try again.');
+      console.error('💥 [PotentialStudents] Fetch Error:', {
+        name: error instanceof Error ? error.name : 'Unknown',
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : 'No stack',
+        apiUrl
+      });
+      setError(`Failed to load potential students: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setLoading(false);
     }

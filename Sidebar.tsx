@@ -225,6 +225,13 @@ const menuConfig = (role: string) => [
       },
     ],
   },
+  // Development Debug Panel (only visible in development)
+  {
+    label: 'API Debug',
+    icon: <FaTasks />,
+    key: 'debug',
+    visible: import.meta.env.DEV, // Only show in development mode
+  },
   {
     label: 'Settings',
     icon: <FaUserCog />,

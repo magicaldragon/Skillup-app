@@ -210,3 +210,68 @@ export const formatDateTimeDDMMYYYY = (dateString: string | Date): string => {
     return '-';
   }
 };
+
+/**
+ * Convert dd/mm/yyyy format to yyyy-mm-dd format for date input
+ * @param dateString - Date string in dd/mm/yyyy format
+ * @returns Date string in yyyy-mm-dd format
+ */
+export const convertDDMMYYYYToInputFormat = (dateString: string): string => {
+  if (!dateString || !dateString.includes('/')) {
+    return dateString;
+  }
+  
+  const parts = dateString.split('/');
+  if (parts.length !== 3) {
+    return dateString;
+  }
+  
+  const [day, month, year] = parts;
+  return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+};
+
+/**
+ * Convert yyyy-mm-dd format to dd/mm/yyyy format for display
+ * @param dateString - Date string in yyyy-mm-dd format
+ * @returns Date string in dd/mm/yyyy format
+ */
+export const convertInputFormatToDDMMYYYY = (dateString: string): string => {
+  if (!dateString || !dateString.includes('-')) {
+    return dateString;
+  }
+  
+  const parts = dateString.split('-');
+  if (parts.length !== 3) {
+    return dateString;
+  }
+  
+  const [year, month, day] = parts;
+  return `${day}/${month}/${year}`;
+};
+
+/**
+ * Get current date in dd/mm/yyyy format
+ * @returns Current date string in dd/mm/yyyy format
+ */
+export const getCurrentDateDDMMYYYY = (): string => {
+  return formatDateDDMMYYYY(new Date());
+};
+
+/**
+ * Validate date in dd/mm/yyyy format
+ * @param dateString - Date string to validate
+ * @returns True if valid, false otherwise
+ */
+export const isValidDDMMYYYYDate = (dateString: string): boolean => {
+  if (!dateString) return false;
+  
+  const regex = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/;
+  if (!regex.test(dateString)) return false;
+  
+  const [day, month, year] = dateString.split('/').map(Number);
+  const date = new Date(year, month - 1, day);
+  
+  return date.getDate() === day && 
+         date.getMonth() === month - 1 && 
+         date.getFullYear() === year;
+};
