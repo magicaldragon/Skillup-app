@@ -466,7 +466,7 @@ const PotentialStudentsPanel = ({
       <div className="management-actions">
         {selectedIds.length > 0 && (
           <button
-            className="management-btn management-btn-green"
+            className="btn-primary-action"
             onClick={() => setShowBulkUpdate(true)}
             type="button"
           >
@@ -474,7 +474,7 @@ const PotentialStudentsPanel = ({
           </button>
         )}
         <button
-          className="management-btn management-btn-neutral"
+          className="btn-secondary-action"
           onClick={clearAll}
           disabled={selectedIds.length === 0}
           type="button"
@@ -482,7 +482,7 @@ const PotentialStudentsPanel = ({
           Clear
         </button>
         <button
-          className="management-btn management-btn-neutral"
+          className="btn-secondary-action"
           onClick={handleSyncExistingStudents}
           type="button"
         >

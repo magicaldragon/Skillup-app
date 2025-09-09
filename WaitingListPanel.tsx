@@ -391,7 +391,7 @@ const WaitingListPanel = ({
         </div>
       </div>
 
-      <div className="management-table-container table-container theme-dark-green">
+      <div className="management-table-container table-container theme-green">
         <table className="management-table">
           <thead>
             <tr>
@@ -564,14 +564,14 @@ const WaitingListPanel = ({
           <>
             <button
               type="button"
-              className="management-btn management-btn-green"
+              className="btn-primary-action"
               onClick={() => setShowBulkStatusUpdate(true)}
             >
               Update Status
             </button>
             <button
               type="button"
-              className="management-btn management-btn-secondary"
+              className="btn-secondary-action"
               onClick={() => setShowBulkAssign(true)}
             >
               Bulk Assign to Class
@@ -580,7 +580,7 @@ const WaitingListPanel = ({
         )}
         <button
           type="button"
-          className="management-btn management-btn-neutral"
+          className="btn-secondary-action"
           onClick={selectAll}
           disabled={selectedIds.length === waitingStudents.length}
         >
@@ -588,7 +588,7 @@ const WaitingListPanel = ({
         </button>
         <button
           type="button"
-          className="management-btn management-btn-neutral"
+          className="btn-secondary-action"
           onClick={clearAll}
           disabled={selectedIds.length === 0}
         >

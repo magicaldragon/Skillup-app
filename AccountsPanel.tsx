@@ -809,13 +809,13 @@ const AccountsPanel = () => {
                       <td>
                         {editingId === account._id ? (
                           <div className="action-buttons">
-                            <button type="button" onClick={handleEditSave} className="save-btn">
+                            <button type="button" onClick={handleEditSave} className="btn-primary-action save-btn">
                               Save
                             </button>
                             <button
                               type="button"
                               onClick={() => setEditingId(null)}
-                              className="cancel-btn"
+                              className="btn-secondary-action cancel-btn"
                             >
                               Cancel
                             </button>
@@ -826,7 +826,7 @@ const AccountsPanel = () => {
                               <button
                                 type="button"
                                 onClick={() => handleEdit(account)}
-                                className="edit-btn"
+                                className="btn-primary-action edit-btn"
                               >
                                 Edit
                               </button>
@@ -835,7 +835,7 @@ const AccountsPanel = () => {
                               <button
                                 type="button"
                                 onClick={() => setPasswordChangeId(account._id)}
-                                className="password-btn"
+                                className="btn-secondary-action password-btn"
                               >
                                 Password
                               </button>
@@ -844,7 +844,7 @@ const AccountsPanel = () => {
                               <button
                                 type="button"
                                 onClick={() => handleRemove(account._id)}
-                                className="delete-btn"
+                                className="btn-destructive delete-btn"
                               >
                                 Delete
                               </button>
@@ -917,7 +917,7 @@ const AccountsPanel = () => {
                 type="button"
                 onClick={handlePasswordChange}
                 disabled={passwordChanging || !newPassword.trim()}
-                className="save-btn"
+                className="btn-primary-action save-btn"
               >
                 {passwordChanging ? 'Changing...' : 'Change Password'}
               </button>
@@ -927,7 +927,7 @@ const AccountsPanel = () => {
                   setPasswordChangeId(null);
                   setNewPassword('');
                 }}
-                className="cancel-btn"
+                className="btn-secondary-action cancel-btn"
               >
                 Cancel
               </button>

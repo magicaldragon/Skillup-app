@@ -1,274 +1,330 @@
 /* ManagementTableStyles.css */
-/* Unified styling for all management panel tables */
-/* Ensures consistent look and feel across all management components */
+/* Professional Table Styling Blueprint - Non-Negotiable Rules */
+/* Ensures consistent, sophisticated appearance across all management components */
 
-/* =================
-   TABLE CONTAINERS
-   ================= */
+/* ==============================================
+   GLOBAL PAGE BACKGROUND
+   ============================================== */
 
 .management-panel {
   width: 100%;
   max-width: none;
   padding: 1.5rem;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  /* Light neutral gray page background to make white cards stand out */
+  background: #F8F9FA;
   min-height: 100vh;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-.management-header {
-  margin-bottom: 1.5rem;
-  text-align: center;
-}
+/* ==============================================
+   BLUEPRINT: CONTAINER & LAYOUT
+   ============================================== */
 
-.management-title {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: #1a365d;
-  margin-bottom: 0.5rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.management-subtitle {
-  font-size: 1.1rem;
-  color: #4a5568;
-  margin-bottom: 0;
-  opacity: 0.8;
-}
-
-/* =================
-   SEARCH & CONTROLS
-   ================= */
-
-.management-search,
-.management-controls {
-  margin-bottom: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.search-controls {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.search-bar-container {
-  position: relative;
-  flex: 1;
-  min-width: 300px;
-}
-
-.search-bar-input {
-  width: 100%;
-  padding: 1rem 3rem 1rem 1rem;
-  border: 2px solid #e2e8f0;
-  border-radius: 0.75rem;
-  font-size: 1rem;
-  background: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-}
-
-.search-bar-input:focus {
-  outline: none;
-  border-color: #3182ce;
-  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1), 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.search-bar-button {
-  position: absolute;
-  right: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  color: #718096;
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 0.5rem;
-  transition: all 0.2s ease;
-}
-
-.search-bar-button:hover {
-  color: #3182ce;
-  background: rgba(49, 130, 206, 0.1);
-}
-
-.search-bar-button svg {
-  width: 1.25rem;
-  height: 1.25rem;
-}
-
-.status-filter-select,
-.filter-select {
-  padding: 0.75rem 1rem;
-  border: 2px solid #e2e8f0;
-  border-radius: 0.75rem;
-  background: white;
-  font-size: 1rem;
-  color: #2d3748;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  min-width: 150px;
-}
-
-.status-filter-select:focus,
-.filter-select:focus {
-  outline: none;
-  border-color: #3182ce;
-  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
-}
-
-/* =================
-   TABLE STYLES
-   ================= */
-
-.management-table-container {
-  background: white;
-  border-radius: 1rem;
+/* WHITE CARD CONTAINER with SOFT MULTI-LAYERED SHADOW */
+.table-container {
+  background: #FFFFFF; /* Pure white background */
+  border-radius: 12px;
+  /* Modern, subtle depth with multi-layered box-shadow */
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -2px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e2e8f0;
+  margin-bottom: 24px;
+  width: 100%;
+  border: none; /* Remove any existing borders */
 }
+
+/* Legacy support for existing management-table-container */
+.management-table-container {
+  background: #FFFFFF;
+  border-radius: 12px;
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 24px;
+  width: 100%;
+  border: none;
+}
+
+/* ==============================================
+   BLUEPRINT: THE HEADER STYLING
+   ============================================== */
 
 .management-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.95rem;
+  background: #FFFFFF;
 }
 
 .management-table thead {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #F1F3F5; /* Light gray header background - NO THEME COLOR */
 }
 
 .management-table th {
-  padding: 0.4rem 0.6rem;
-  text-align: center;
-  vertical-align: middle;
-  font-weight: 600;
-  color: white;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
-  height: 2.5rem;
+  background: #F1F3F5; /* Solid light gray background */
+  color: #495057; /* Dark gray text */
+  font-weight: 600; /* Semi-bold */
+  font-size: 0.875rem;
+  text-transform: none; /* Title Case, not uppercase */
+  letter-spacing: 0;
+  padding: 16px 20px; /* Generous horizontal padding for separation */
+  text-align: left;
+  border-bottom: 2px solid #E9ECEF; /* Default border, will be overridden by theme */
+  position: relative;
 }
+
+/* ==============================================
+   BLUEPRINT: TABLE ROWS WITH ZEBRA STRIPING
+   ============================================== */
 
 .management-table tbody tr {
-  background: white;
-  transition: all 0.2s ease;
-  border-bottom: 1px solid #f7fafc;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #E9ECEF; /* Thin light gray divider */
 }
 
+/* ZEBRA STRIPING: Alternating white and very light gray */
+.management-table tbody tr:nth-child(odd) {
+  background: #FFFFFF; /* White rows */
+}
+
+.management-table tbody tr:nth-child(even) {
+  background: #F8F9FA; /* Very light gray rows */
+}
+
+/* HOVER EFFECT: Light blue-gray on hover */
 .management-table tbody tr:hover {
-  background: #f8fafc;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.management-table tbody tr.clickable-row {
+  background: #F1F3F5 !important; /* Light blue-gray hover */
   cursor: pointer;
 }
 
-.management-table tbody tr.selected-row {
-  background: linear-gradient(135deg, #e6f3ff 0%, #cce7ff 100%);
-  border-left: 4px solid #3182ce;
-}
-
 .management-table td {
-  padding: 0.3rem 0.5rem;
+  padding: 16px 20px; /* Generous vertical padding (16px top/bottom) */
   vertical-align: middle;
-  border-bottom: 1px solid #f7fafc;
-  text-align: center; /* Center alignment for all cells */
-  height: 2.5rem;
+  color: #495057;
+  font-size: 0.875rem;
+  border-bottom: 1px solid #E9ECEF;
+  text-align: left; /* Default left alignment */
 }
 
-/* All cells are now center-aligned by default */
-.management-table td.checkbox-cell,
-.management-table td.status-cell,
-.management-table td.actions-cell {
-  text-align: center;
+/* ==============================================
+   BLUEPRINT: INTERACTIVE ELEMENTS
+   ============================================== */
+
+/* PRESERVE ORIGINAL LOGIN AND SEARCH BUTTON STYLES */
+.login-btn,
+.search-bar-button,
+.search-btn {
+  /* Preserve original styling - DO NOT APPLY BLUEPRINT */
 }
 
-/* =================
-   CELL TYPES
-   ================= */
-
-.checkbox-header,
-.checkbox-cell {
-  width: 50px;
-  text-align: center;
-}
-
-.name-cell {
-  min-width: 200px;
-  text-align: center; /* Center-align names */
-}
-
-.student-name {
+/* PRIMARY ACTION BUTTONS */
+.btn-primary-action,
+.edit-btn,
+.assign-btn,
+.btn-solid {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
   font-weight: 600;
-  color: #2d3748;
-  margin-bottom: 0.25rem;
-  text-align: center;
+  color: #FFFFFF;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.english-name {
-  font-size: 0.85rem;
-  color: #718096;
-  font-style: italic;
-  text-align: center;
+/* SECONDARY ACTION BUTTONS (GHOST STYLE) */
+.btn-secondary-action,
+.password-btn,
+.btn-ghost {
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-/* English name column */
-.english-name-cell {
-  min-width: 150px;
-  text-align: center;
-  color: #718096;
-  font-style: italic;
+/* DESTRUCTIVE ACTION (TEXT LINK) */
+.btn-destructive,
+.delete-btn {
+  background: none;
+  border: none;
+  color: #E53935; /* Consistent red across all themes */
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 4px 0;
+  transition: opacity 0.2s ease;
 }
 
-.status-cell {
-  text-align: center; /* Center status badges */
+.btn-destructive:hover,
+.delete-btn:hover {
+  opacity: 0.8;
 }
 
-.status-badge {
+/* TAGS/PILLS (STATUS, ID BADGES) */
+.tag,
+.pill,
+.status-badge,
+.student-id-badge {
   display: inline-block;
-  padding: 0.375rem 0.75rem;
-  border-radius: 0.5rem;
-  font-size: 0.75rem;
+  padding: 4px 12px;
+  border-radius: 9999px; /* Fully rounded */
+  font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  text-align: center; /* Center text within badges */
+  letter-spacing: 0.5px;
+  border: none;
 }
 
-.status-potential {
-  background: #fef5e7;
-  color: #c05621;
-  border: 1px solid #f6ad55;
+/* ==============================================
+   THEME SYSTEM: COLOR PALETTES
+   ============================================== */
+
+/* PURPLE THEME - ACCOUNTS PANEL */
+.theme-purple {
+  /* Theme colors defined as CSS custom properties */
+  --theme-light: #F3E8FF; /* Light Lavender */
+  --theme-dark: #862E9C;  /* Deep Purple */
 }
 
-.status-contacted {
-  background: #e6f3ff;
-  color: #2b6cb0;
-  border: 1px solid #63b3ed;
+.theme-purple .management-table th {
+  border-bottom: 2px solid #862E9C; /* Deep Purple accent border */
 }
 
-.status-studying {
-  background: #f0fff4;
-  color: #22543d;
-  border: 1px solid #48bb78;
+.theme-purple .btn-primary-action,
+.theme-purple .edit-btn,
+.theme-purple .assign-btn,
+.theme-purple .btn-solid {
+  background-color: #862E9C; /* Deep Purple background */
 }
 
-.status-active {
-  background: #f0fff4;
-  color: #22543d;
-  border: 1px solid #48bb78;
+.theme-purple .btn-primary-action:hover,
+.theme-purple .edit-btn:hover,
+.theme-purple .assign-btn:hover,
+.theme-purple .btn-solid:hover {
+  background-color: #6B1F80; /* Darker purple on hover */
 }
 
-.status-postponed {
+.theme-purple .btn-secondary-action,
+.theme-purple .password-btn,
+.theme-purple .btn-ghost {
+  border-color: #862E9C;
+  color: #862E9C;
+}
+
+.theme-purple .btn-secondary-action:hover,
+.theme-purple .password-btn:hover,
+.theme-purple .btn-ghost:hover {
+  background-color: #F3E8FF;
+}
+
+.theme-purple .tag,
+.theme-purple .pill,
+.theme-purple .status-badge,
+.theme-purple .student-id-badge {
+  background-color: #F3E8FF; /* Light Lavender background */
+  color: #862E9C; /* Deep Purple text */
+}
+
+/* ORANGE THEME - POTENTIAL STUDENTS PANEL */
+.theme-orange {
+  --theme-light: #FFF4E6; /* Light Peach */
+  --theme-dark: #FB923C;  /* Vibrant Orange */
+}
+
+.theme-orange .management-table th {
+  border-bottom: 2px solid #FB923C; /* Vibrant Orange accent border */
+}
+
+.theme-orange .btn-primary-action,
+.theme-orange .edit-btn,
+.theme-orange .assign-btn,
+.theme-orange .btn-solid {
+  background-color: #FB923C; /* Vibrant Orange background */
+}
+
+.theme-orange .btn-primary-action:hover,
+.theme-orange .edit-btn:hover,
+.theme-orange .assign-btn:hover,
+.theme-orange .btn-solid:hover {
+  background-color: #EA7C1F; /* Darker orange on hover */
+}
+
+.theme-orange .btn-secondary-action,
+.theme-orange .password-btn,
+.theme-orange .btn-ghost {
+  border-color: #FB923C;
+  color: #FB923C;
+}
+
+.theme-orange .btn-secondary-action:hover,
+.theme-orange .password-btn:hover,
+.theme-orange .btn-ghost:hover {
+  background-color: #FFF4E6;
+}
+
+.theme-orange .tag,
+.theme-orange .pill,
+.theme-orange .status-badge,
+.theme-orange .student-id-badge {
+  background-color: #FFF4E6; /* Light Peach background */
+  color: #FB923C; /* Vibrant Orange text */
+}
+
+/* GREEN THEME - WAITING LIST PANEL */
+.theme-green {
+  --theme-light: #E6F8F0; /* Light Mint */
+  --theme-dark: #1D9A6C;  /* Forest Green */
+}
+
+.theme-green .management-table th {
+  border-bottom: 2px solid #1D9A6C; /* Forest Green accent border */
+}
+
+.theme-green .btn-primary-action,
+.theme-green .edit-btn,
+.theme-green .assign-btn,
+.theme-green .btn-solid {
+  background-color: #1D9A6C; /* Forest Green background */
+}
+
+.theme-green .btn-primary-action:hover,
+.theme-green .edit-btn:hover,
+.theme-green .assign-btn:hover,
+.theme-green .btn-solid:hover {
+  background-color: #157A54; /* Darker green on hover */
+}
+
+.theme-green .btn-secondary-action,
+.theme-green .password-btn,
+.theme-green .btn-ghost {
+  border-color: #1D9A6C;
+  color: #1D9A6C;
+}
+
+.theme-green .btn-secondary-action:hover,
+.theme-green .password-btn:hover,
+.theme-green .btn-ghost:hover {
+  background-color: #E6F8F0;
+}
+
+.theme-green .tag,
+.theme-green .pill,
+.theme-green .status-badge,
+.theme-green .student-id-badge {
+  background-color: #E6F8F0; /* Light Mint background */
+  color: #1D9A6C; /* Forest Green text */
+}-postponed {
   background: #fffbf0;
   color: #c05621;
   border: 1px solid #f6ad55;
