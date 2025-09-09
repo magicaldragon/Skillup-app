@@ -1137,77 +1137,29 @@ const ClassesPanel = ({
       <div className="add-class-section">
         <h3 className="add-class-title">ADD A NEW CLASS</h3>
         <div className="add-class-form">
-          <div className="level-selection-container">
-            <select
-              value={newClassLevelId}
-              onChange={(e) => handleLevelChange(e.target.value)}
-              className="level-select"
-              disabled={levelsLoading}
-            >
-              <option value="">Select Level</option>
-              {levelsLoading ? (
-                <option value="" disabled>Loading levels...</option>
-              ) : levels && Array.isArray(levels) && levels.length > 0 ? (
-                levels.map((level) => (
-                  <option key={level._id} value={level._id}>
-                    {level.name}
-                  </option>
-                ))
-              ) : (
-                <option value="" disabled>No levels available</option>
-              )}
-            </select>
-            
-            {/* Level status info */}
-            <div className="level-status-info" style={{ 
-              fontSize: '0.8rem', 
-              color: '#666', 
-              marginTop: '0.5rem', 
-              textAlign: 'center', 
-              padding: '0.5rem',
-              backgroundColor: '#f8f9fa',
-              borderRadius: '4px',
-              border: '1px solid #e9ecef'
-            }}>
-              {levelsLoading ? (
-                <p>🔄 Loading levels...</p>
-              ) : levels && Array.isArray(levels) && levels.length > 0 ? (
-                <div>
-                  <p>✅ 8 levels available</p>
-                  <p style={{ fontSize: '0.7rem', marginTop: '0.25rem', color: '#888' }}>
-                    All levels loaded successfully
-                  </p>
-                </div>
-              ) : (
-                <div>
-                  <p>⚠️ No levels found</p>
-                  <p style={{ fontSize: '0.7rem', marginTop: '0.25rem' }}>
-                    <button 
-                      type="button"
-                      onClick={handleCreateLevel}
-                      style={{ 
-                        padding: '0.25rem 0.5rem', 
-                        backgroundColor: '#10b981', 
-                        color: 'white', 
-                        border: 'none', 
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '0.7rem',
-                        marginTop: '0.25rem'
-                      }}
-                      title="Create new level"
-                    >
-                      ➕ Create Level
-                    </button>
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
+          <select
+            value={newClassLevelId}
+            onChange={(e) => handleLevelChange(e.target.value)}
+            className="level-select"
+            disabled={levelsLoading}
+          >
+            <option value="">Select Level</option>
+            {levelsLoading ? (
+              <option value="" disabled>Loading levels...</option>
+            ) : levels && Array.isArray(levels) && levels.length > 0 ? (
+              levels.map((level) => (
+                <option key={level._id} value={level._id}>
+                  {level.name}
+                </option>
+              ))
+            ) : (
+              <option value="" disabled>No levels available</option>
+            )}
+          </select>
           
           <div className="date-input-container">
             <label htmlFor="starting-date" className="date-label">
-              Class Start Date (dd/mm/yyyy)
+              Starting Date
             </label>
             <div className="date-input-enhanced">
               <input
@@ -1216,7 +1168,7 @@ const ClassesPanel = ({
                 value={newClassStartingDate}
                 onChange={(e) => setNewClassStartingDate(e.target.value)}
                 className="starting-date-input"
-                title="Select the first day when the class will begin - displayed as dd/mm/yyyy format"
+                title="Select the class starting date"
                 placeholder="dd/mm/yyyy"
               />
             </div>
@@ -1225,27 +1177,8 @@ const ClassesPanel = ({
                 <small>{formatDateDDMMYYYY(newClassStartingDate)}</small>
               </div>
             )}
-            <div className="date-clarification">
-              <small>📅 This is the <strong>start date</strong> when the class begins, not the end date</small>
-            </div>
           </div>
           
-          {checkingCodes && (
-            <div className="checking-codes-message">
-              <p>Checking available class codes for {levels.find((l) => l._id === newClassLevelId)?.name || 'this level'}...</p>
-              <div className="loading-spinner"></div>
-            </div>
-          )}
-          {availableClassCodes.length > 0 && (
-            <div className="available-codes-message">
-              <p>Available class codes for this level:</p>
-              <ul>
-                {availableClassCodes.map((code) => (
-                  <li key={code}>{code}</li>
-                ))}
-              </ul>
-            </div>
-          )}
           <button
             type="button"
             onClick={handleAddClass}

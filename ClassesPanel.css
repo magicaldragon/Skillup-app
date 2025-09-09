@@ -540,9 +540,9 @@
 .add-class-form {
   display: flex;
   gap: 1rem;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .level-select {
@@ -1604,6 +1604,26 @@
   }
 
   .add-class-form {
+    flex-direction: row;
+    gap: var(--space-3);
+    align-items: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .level-select,
+  .starting-date-input {
+    min-width: 150px;
+    flex: 1;
+  }
+
+  .date-input-container {
+    min-width: 180px;
+    flex: 1;
+  }
+}
+
+@media (max-width: 600px) {
+  .add-class-form {
     flex-direction: column;
     gap: var(--space-3);
   }
@@ -1612,9 +1632,10 @@
   .starting-date-input {
     min-width: 100%;
   }
-}
 
-@media (max-width: 600px) {
+  .date-input-container {
+    min-width: 100%;
+  }
   .search-bar-container {
     max-width: 100%;
     min-width: 200px;
