@@ -281,20 +281,20 @@ const RealtimeMonitoringDashboard: React.FC = () => {
   // Initial data fetch
   useEffect(() => {
     fetchSystemAlerts();
-    fetchDatabaseMetrics();
+    fetchFirebaseMetrics();
     fetchApiEndpoints();
     fetchUserActivity();
 
     // Set up periodic refresh
     const interval = setInterval(() => {
       fetchSystemAlerts();
-      fetchDatabaseMetrics();
+      fetchFirebaseMetrics();
       fetchApiEndpoints();
       fetchUserActivity();
     }, 30000); // Refresh every 30 seconds
 
     return () => clearInterval(interval);
-  }, [fetchSystemAlerts, fetchDatabaseMetrics, fetchApiEndpoints, fetchUserActivity]);
+  }, [fetchSystemAlerts, fetchFirebaseMetrics, fetchApiEndpoints, fetchUserActivity]);
 
   // Chart configurations
   const systemMetricsChartData = {

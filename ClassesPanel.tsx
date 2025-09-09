@@ -101,8 +101,6 @@ const ClassesPanel = ({
   // Add new class with level selection
   const [newClassLevelId, setNewClassLevelId] = useState<string>('');
   const [newClassStartingDate, setNewClassStartingDate] = useState<string>('');
-  const [availableClassCodes, setAvailableClassCodes] = useState<string[]>([]);
-  const [checkingCodes, setCheckingCodes] = useState(false);
 
   // Add state for showing action buttons
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
@@ -233,52 +231,7 @@ const ClassesPanel = ({
 
 
 
-  // Create a new level
-  const handleCreateLevel = useCallback(async () => {
-    const levelName = prompt('Enter level name:');
-    if (!levelName || levelName.trim() === '') {
-      return;
-    }
 
-    const levelDescription = prompt('Enter level description (optional):') || '';
-    const levelCode = prompt('Enter level code (e.g., PRE, A1, B1):') || '';
-
-    try {
-      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
-      
-      const response = await fetch(`${apiUrl}/levels`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          name: levelName.trim(),
-          description: levelDescription.trim(),
-          code: levelCode.trim(),
-          isActive: true,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create level');
-      }
-
-      const result = await response.json();
-      console.log('Level created successfully:', result);
-      
-      // Refresh levels to show the new level
-      await fetchLevels();
-      
-      alert(`Level "${levelName}" created successfully!`);
-    } catch (error) {
-      console.error('Error creating level:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to create level';
-      alert(`Error creating level: ${errorMessage}`);
-    }
-  }, [fetchLevels]);
 
   useEffect(() => {
     fetchLevels();
@@ -766,43 +719,7 @@ const ClassesPanel = ({
     handleCloseReportModal,
   ]);
 
-  // Check available class codes when level is selected
-  const checkAvailableClassCodes = useCallback(async (levelId: string) => {
-    if (!levelId) return;
-    
-    setCheckingCodes(true);
-    try {
-      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
-      const response = await fetch(`${apiUrl}/classes/check-gaps/${levelId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          setAvailableClassCodes(data.gaps || []);
-        }
-      }
-    } catch (error) {
-      console.error('Error checking class codes:', error);
-      setAvailableClassCodes([]);
-    } finally {
-      setCheckingCodes(false);
-    }
-  }, []);
-
-  // Handle level selection change
-  const handleLevelChange = (levelId: string) => {
-    setNewClassLevelId(levelId);
-    if (levelId) {
-      checkAvailableClassCodes(levelId);
-    } else {
-      setAvailableClassCodes([]);
-    }
-  };
 
   return (
     <div className="management-panel">
@@ -1132,7 +1049,7 @@ const ClassesPanel = ({
         <div className="add-class-form">
           <select
             value={newClassLevelId}
-            onChange={(e) => handleLevelChange(e.target.value)}
+            onChange={(e) => setNewClassLevelId(e.target.value)}
             className="level-select"
             disabled={levelsLoading}
           >
