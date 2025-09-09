@@ -1221,7 +1221,7 @@ const ClassesPanel = ({
             </div>
             {newClassStartingDate && (
               <div className="date-format-preview">
-                <small>Start Date Preview: {new Date(newClassStartingDate).toLocaleDateString('en-GB')}</small>
+                <small>{formatDateDDMMYYYY(newClassStartingDate)}</small>
               </div>
             )}
             <div className="date-clarification">

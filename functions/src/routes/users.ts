@@ -9,7 +9,17 @@ const router = Router();
 // Get all users (with role-based filtering)
 router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
+    console.log('📊 [Users API] Request started:', {
+      method: req.method,
+      url: req.url,
+      query: req.query,
+      hasUser: !!req.user,
+      userRole: req.user?.role,
+      timestamp: new Date().toISOString()
+    });
+    
     if (!req.user) {
+      console.error('❌ [Users API] No user in request after auth middleware');
       return res.status(401).json({ message: 'User not authenticated' });
     }
     
@@ -34,42 +44,108 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
     }
 
     // Add status filtering if provided
+    let statusArray: string[] = [];
     if (status) {
-      let statusArray: string[];
+      console.log('🔍 [Users API] Status filtering input:', {
+        status,
+        type: typeof status,
+        isArray: Array.isArray(status)
+      });
       
-      if (Array.isArray(status)) {
-        // If status is already an array
-        statusArray = status as string[];
-      } else if (typeof status === 'string') {
-        // If status is a comma-separated string, split it
-        statusArray = status.includes(',') ? status.split(',').map(s => s.trim()) : [status];
-      } else {
-        statusArray = [String(status)];
-      }
-      
-      console.log('🎯 Status filter applied:', statusArray);
-      
-      if (statusArray.length === 1) {
-        query = query.where('status', '==', statusArray[0]);
-      } else {
-        query = query.where('status', 'in', statusArray);
+      try {
+        if (Array.isArray(status)) {
+          // If status is already an array, filter out null/undefined values
+          statusArray = status
+            .filter(s => s != null && s !== '')
+            .map(s => String(s).trim())
+            .filter(s => s.length > 0);
+        } else if (typeof status === 'string' && status.trim()) {
+          // If status is a string, handle comma-separated values
+          if (status.includes(',')) {
+            statusArray = status
+              .split(',')
+              .map(s => s?.trim())
+              .filter(s => s != null && s !== '' && s.length > 0);
+          } else {
+            statusArray = [status.trim()];
+          }
+        } else if (status != null) {
+          // Handle other types by converting to string
+          const statusStr = String(status).trim();
+          if (statusStr.length > 0) {
+            statusArray = [statusStr];
+          }
+        }
+        
+        if (statusArray.length === 0) {
+          console.log('⚠️ [Users API] No valid status values found, skipping status filter');
+        } else {
+          console.log('🎯 [Users API] Status filter applied:', statusArray);
+          
+          if (statusArray.length === 1) {
+            query = query.where('status', '==', statusArray[0]);
+          } else {
+            query = query.where('status', 'in', statusArray);
+          }
+        }
+      } catch (statusError) {
+        console.error('❌ [Users API] Error processing status filter:', statusError);
+        // Continue without status filter if there's an error
+        statusArray = [];
       }
     }
 
-    const snapshot = await query.orderBy('createdAt', 'desc').get();
+    // Execute query - avoid orderBy with status filtering until composite index is created
+    let snapshot;
+    try {
+      if (status && statusArray && statusArray.length > 0) {
+        // When filtering by status, don't use orderBy to avoid composite index requirement
+        console.log('🔍 [Users API] Executing query without orderBy due to status filtering');
+        snapshot = await query.get();
+      } else {
+        // Only use orderBy when not filtering by status
+        console.log('🔍 [Users API] Executing query with orderBy (no status filter)');
+        snapshot = await query.orderBy('createdAt', 'desc').get();
+      }
+    } catch (queryError) {
+      console.warn('⚠️ [Users API] Query failed, trying simple query without orderBy:', queryError);
+      // Fallback to simple query without any orderBy
+      snapshot = await query.get();
+    }
+
     const users = snapshot.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => ({
       id: doc.id,
       _id: doc.id, // Add both id and _id for compatibility
       ...doc.data(),
     }));
 
+    // Sort users by createdAt in memory if we couldn't use orderBy
+    if (status && statusArray && statusArray.length > 0) {
+      users.sort((a, b) => {
+        const aData = a as any;
+        const bData = b as any;
+        const aTime = aData.createdAt?.toDate?.() || new Date(0);
+        const bTime = bData.createdAt?.toDate?.() || new Date(0);
+        return bTime.getTime() - aTime.getTime(); // Descending order
+      });
+    }
+
     console.log(
-      `✅ Fetched ${users.length} users for role: ${role}${status ? ` with status: ${status}` : ''}`
+      `✅ [Users API] Fetched ${users.length} users for role: ${role}${status ? ` with status: ${status}` : ''}`
     );
     return res.json(users);
   } catch (error) {
-    console.error('❌ Error fetching users:', error);
-    return res.status(500).json({ message: 'Failed to fetch users' });
+    console.error('❌ [Users API] Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : 'No stack trace',
+      statusParam: req.query.status,
+      userRole: req.user?.role,
+      userUid: req.user?.uid
+    });
+    return res.status(500).json({ 
+      message: 'Failed to fetch users',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 });
 

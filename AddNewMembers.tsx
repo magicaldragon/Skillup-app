@@ -33,6 +33,7 @@ const AddNewMembers = () => {
   const [previewUsername, setPreviewUsername] = useState<string>('');
   const [previewEmail, setPreviewEmail] = useState<string>('');
 
+
   // Debounced username generation for performance
   const debouncedUsernameGeneration = useCallback(
     debounce((fullName: string, role: string) => {
@@ -65,11 +66,10 @@ const AddNewMembers = () => {
     });
   }, [form.name, form.role, form.status, previewUsername, previewEmail]);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
-  ) => {
+  // Handle general form input changes
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    setForm(prev => ({ ...prev, [name]: value }));
     setError(null);
     setCreatedUser(null);
   };
@@ -92,6 +92,7 @@ const AddNewMembers = () => {
     setCreatedUser(null);
     setPreviewUsername('');
     setPreviewEmail('');
+
   };
 
   const validateForm = (): string | null => {
@@ -295,25 +296,17 @@ const AddNewMembers = () => {
               {/* Date of Birth */}
               <div className="form-group">
                 <label htmlFor="dob" className="form-label">
-                  Date of Birth (dd/mm/yyyy)
+                  Date of Birth
                 </label>
-                <div className="date-input-enhanced">
-                  <input
-                    id="dob"
-                    type="date"
-                    name="dob"
-                    value={form.dob}
-                    onChange={handleChange}
-                    className="form-input"
-                    placeholder="dd/mm/yyyy"
-                    title="Select date of birth - will be displayed as dd/mm/yyyy format"
-                  />
-                </div>
-                {form.dob && (
-                  <div className="date-format-preview">
-                    <small>Preview: {new Date(form.dob).toLocaleDateString('en-GB')}</small>
-                  </div>
-                )}
+                <input
+                  id="dob"
+                  type="date"
+                  name="dob"
+                  value={form.dob}
+                  onChange={handleChange}
+                  className="form-input"
+                  title="Select date of birth"
+                />
               </div>
 
               {/* Phone Number */}

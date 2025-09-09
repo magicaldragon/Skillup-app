@@ -3,7 +3,7 @@ import type { Student, StudentClass } from './types';
 import './PotentialStudentsPanel.css';
 import './ManagementTableStyles.css';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
 
 interface User {
   _id: string;
@@ -52,7 +52,14 @@ const PotentialStudentsPanel = ({
 
     const token = localStorage.getItem('skillup_token');
     if (!token) {
-      setError('No authentication token found');
+      setError('No authentication token found. Please log in again.');
+      setLoading(false);
+      return;
+    }
+
+    // Validate token format (basic check)
+    if (!token.includes('.') || token.length < 100) {
+      setError('Invalid authentication token. Please log in again.');
       setLoading(false);
       return;
     }
@@ -62,14 +69,17 @@ const PotentialStudentsPanel = ({
       url: apiUrl,
       baseUrl: API_BASE_URL,
       hasToken: !!token,
-      tokenPrefix: token ? token.substring(0, 10) + '...' : 'none'
+      tokenPrefix: token ? token.substring(0, 10) + '...' : 'none',
+      fullToken: token ? `${token.substring(0, 10)}...${token.substring(token.length - 10)}` : 'none'
     });
 
     try {
       // Fetch users with status 'potential' or 'contacted'
       const response = await fetch(apiUrl, {
+        method: 'GET',
         headers: {
-          Authorization: `Bearer ${token}`,
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
       });
 
@@ -87,7 +97,17 @@ const PotentialStudentsPanel = ({
           statusText: response.statusText,
           body: errorText
         });
-        throw new Error(`HTTP ${response.status}: ${response.statusText} - ${errorText}`);
+        
+        if (response.status === 401) {
+          setError('Authentication failed. Please log in again.');
+          // Optionally clear the invalid token
+          localStorage.removeItem('skillup_token');
+        } else if (response.status === 403) {
+          setError('Access denied. You do not have permission to view potential students.');
+        } else {
+          throw new Error(`HTTP ${response.status}: ${response.statusText} - ${errorText}`);
+        }
+        return;
       }
 
       const data = await response.json();
@@ -97,7 +117,13 @@ const PotentialStudentsPanel = ({
         length: Array.isArray(data) ? data.length : 'N/A',
         firstItem: Array.isArray(data) && data.length > 0 ? data[0] : 'none'
       });
-      setPotentialStudents(data || []);
+      
+      if (!Array.isArray(data)) {
+        console.warn('Received non-array data:', data);
+        setPotentialStudents([]);
+      } else {
+        setPotentialStudents(data);
+      }
     } catch (error) {
       console.error('💥 [PotentialStudents] Fetch Error:', {
         name: error instanceof Error ? error.name : 'Unknown',
