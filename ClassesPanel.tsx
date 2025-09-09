@@ -1078,8 +1078,8 @@ const ClassesPanel = ({
                 value={newClassStartingDate}
                 onChange={(e) => setNewClassStartingDate(e.target.value)}
                 className="starting-date-input"
-                title="Select the class starting date"
-                placeholder="dd/mm/yyyy"
+                title="" // Removed title to eliminate hover tooltip
+                placeholder=""
               />
             </div>
             {newClassStartingDate && (

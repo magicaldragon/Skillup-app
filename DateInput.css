@@ -44,28 +44,15 @@
   background-size: 16px;
 }
 
-/* Format hint overlay */
+/* Format hint overlay - DISABLED to remove dd/mm/yyyy hover effect */
 .date-input-enhanced::after {
-  content: 'dd/mm/yyyy';
-  position: absolute;
-  right: 45px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #999;
-  font-size: 0.9em;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  font-style: italic;
+  display: none; /* Completely hide the format hint */
 }
 
-.date-input-enhanced:hover::after {
-  opacity: 0.7;
-}
-
+/* Remove format hint display */
 .date-input-enhanced input[type="date"]:invalid ~ .format-hint::after,
 .date-input-enhanced input[type="date"]:placeholder-shown ~ .format-hint::after {
-  opacity: 1;
+  display: none; /* Disable format hints */
 }
 
 /* Remove default styling */

@@ -242,6 +242,7 @@
   align-content: start;
   overflow-y: auto;
   padding-right: var(--space-2);
+  margin-top: var(--space-6); /* Added 2 rows spacing from title */
 }
 
 /* ===== FORM GROUPS ===== */

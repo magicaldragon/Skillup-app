@@ -69,17 +69,17 @@
 /* Enhanced table styles for better data consistency */
 .accounts-table td {
   vertical-align: middle;
-  padding: 0.4rem 0.6rem;
+  padding: 0.25rem 0.5rem; /* Consistent with updated padding */
 }
 
 .management-table td {
-  padding: 0.4rem 0.6rem;
+  padding: 0.25rem 0.5rem; /* Reduced padding for consistency */
   border-bottom: 1px solid #e8f5e8;
   transition: all 0.2s ease;
 }
 
 .management-table th {
-  padding: 0.6rem 0.8rem;
+  padding: 0.45rem 0.6rem; /* Slightly reduced padding */
   text-align: left;
   font-weight: 800;
   font-size: 0.85rem;
@@ -326,7 +326,7 @@
 .accounts-table th {
   background: linear-gradient(135deg, #1e4d2b 0%, #307637 50%, #4caf50 100%);
   color: #ffffff;
-  padding: 0.4rem 0.5rem;
+  padding: 0.35rem 0.5rem; /* Slightly reduced padding */
   text-align: center;
   font-weight: 800;
   font-size: 0.75rem;
@@ -334,7 +334,7 @@
   letter-spacing: 1px;
   border-bottom: 3px solid #2e7d32;
   position: relative;
-  height: 2.5rem;
+  height: 2.25rem; /* Reduced header height */
 }
 
 .accounts-table th::after {
@@ -348,12 +348,12 @@
 }
 
 .accounts-table td {
-  padding: 0.3rem 0.5rem;
+  padding: 0.25rem 0.5rem; /* Reduced padding for more compact rows */
   border-bottom: 1px solid #e8f5e8;
   transition: all 0.2s ease;
   font-size: 0.85rem;
   text-align: left; /* Default left alignment for text content */
-  height: 2.5rem;
+  height: 2rem; /* Reduced height from 2.5rem to 2rem */
   vertical-align: middle;
 }
 
@@ -366,13 +366,44 @@
 .accounts-table tbody tr {
   transition: all 0.3s ease;
   border-left: 3px solid transparent;
+  position: relative;
 }
 
 .accounts-table tbody tr:hover {
   background: linear-gradient(135deg, #f8fff8 0%, #e8f5e8 100%);
   border-left-color: #4caf50;
-  transform: translateX(2px);
-  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.1);
+  transform: translateX(4px) translateY(-1px); /* Enhanced movement */
+  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.15), 0 2px 8px rgba(76, 175, 80, 0.1); /* More vivid shadow */
+}
+
+/* Enhanced selected row styling */
+.accounts-table tbody tr.selected-row,
+.accounts-table tbody tr[data-selected="true"] {
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%) !important;
+  border-left: 4px solid #2196f3 !important;
+  box-shadow: 0 8px 25px rgba(33, 150, 243, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+  transform: translateX(6px) !important;
+  position: relative;
+}
+
+.accounts-table tbody tr.selected-row::before,
+.accounts-table tbody tr[data-selected="true"]::before {
+  content: "";
+  position: absolute;
+  left: -3px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(to bottom, #2196f3, #1976d2, #1565c0);
+  box-shadow: 0 0 10px rgba(33, 150, 243, 0.5);
+}
+
+/* Enhanced hover effect for selected rows */
+.accounts-table tbody tr.selected-row:hover,
+.accounts-table tbody tr[data-selected="true"]:hover {
+  background: linear-gradient(135deg, #d1e7ff 0%, #a6d1ff 50%, #7bb3f0 100%) !important;
+  transform: translateX(8px) translateY(-2px) !important;
+  box-shadow: 0 12px 30px rgba(33, 150, 243, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
 }
 
 .accounts-table tbody tr.no-permission-row {

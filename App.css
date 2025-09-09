@@ -433,28 +433,19 @@ input[type="date"]:focus {
   box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
 }
 
-/* Custom date format display */
+/* Custom date format display - DISABLED */
 .date-input-wrapper {
   position: relative;
   display: inline-block;
 }
 
 .date-input-wrapper::after {
-  content: 'dd/mm/yyyy';
-  position: absolute;
-  right: 40px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #999;
-  font-size: 0.9em;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  display: none; /* Completely disable format hint */
 }
 
 .date-input-wrapper input[type="date"]:invalid + .date-format-hint::after,
 .date-input-wrapper input[type="date"]:placeholder-shown + .date-format-hint::after {
-  opacity: 1;
+  display: none; /* Disable format hints */
 }
 
 /* Global Search Bar Styling */
