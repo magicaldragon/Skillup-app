@@ -86,7 +86,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: var(--space-6);
+  padding: var(--space-4);
   margin: 0;
   background: #ffffff;
   overflow: auto;
@@ -103,7 +103,7 @@
   align-items: flex-start;
   justify-content: center;
   gap: var(--space-8);
-  padding: var(--space-4);
+  padding: var(--space-3);
   box-sizing: border-box;
   min-width: 0;
   min-height: 100%;
@@ -130,7 +130,7 @@
   box-shadow:
     var(--shadow-2xl),
     0 0 0 3px var(--dark-green-700);
-  padding: var(--space-8);
+  padding: var(--space-6);
   width: 100%;
   box-sizing: border-box;
   border: 3px solid var(--dark-green-700);
@@ -160,7 +160,7 @@
   font-size: 2.5rem;
   font-weight: 800;
   text-align: center;
-  margin-bottom: var(--space-4);
+  margin-bottom: var(--space-3);
   letter-spacing: -0.025em;
   font-family: var(--font-sans);
   position: relative;
@@ -191,7 +191,7 @@
     #059669 85%,
     transparent 100%
   );
-  margin: 0 auto var(--space-6) auto;
+  margin: 0 auto var(--space-4) auto;
   border-radius: var(--radius-full);
   box-shadow: 
     0 2px 12px rgba(5, 150, 105, 0.3),
@@ -235,7 +235,7 @@
 .registration-form {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--space-6);
+  gap: var(--space-3) var(--space-4);
   width: 100%;
   flex: 1;
   align-content: start;
@@ -245,8 +245,8 @@
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
-  margin-bottom: var(--space-4);
+  gap: var(--space-1);
+  margin-bottom: var(--space-2);
 }
 
 .form-group.full-width {
@@ -276,7 +276,7 @@
   background: #ffffff;
   border: 2px solid var(--dark-green-300);
   border-radius: var(--radius-lg);
-  padding: var(--space-3) var(--space-4);
+  padding: var(--space-2) var(--space-3);
   font-size: 1rem;
   font-family: var(--font-sans);
   color: var(--neutral-900);
@@ -305,6 +305,13 @@
 .form-input::placeholder {
   color: var(--neutral-400);
   font-style: italic;
+}
+
+/* ===== DEBUG INFO SECTION ===== */
+.debug-info {
+  margin-bottom: var(--space-2) !important;
+  padding: var(--space-2) !important;
+  font-size: 0.75rem !important;
 }
 
 /* ===== EMAIL HINT ===== */
@@ -491,20 +498,20 @@
   grid-column: 1 / -1;
   display: flex;
   gap: var(--space-4);
-  margin-top: var(--space-6);
+  margin-top: var(--space-3);
   justify-content: center;
   flex-shrink: 0;
-  padding-top: var(--space-4);
+  padding-top: var(--space-3);
   border-top: 2px solid var(--dark-green-200);
 }
 
 .submit-btn,
 .reset-btn,
 .test-btn {
-  padding: 8px 16px;
+  padding: var(--space-3) var(--space-5);
   border: 2px solid;
-  border-radius: 6px;
-  font-size: 12px;
+  border-radius: var(--radius-lg);
+  font-size: 0.9rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -512,7 +519,7 @@
   letter-spacing: 0.5px;
   position: relative;
   overflow: hidden;
-  min-width: 160px;
+  min-width: 140px;
 }
 
 .submit-btn::before,
@@ -908,7 +915,7 @@
 
   .registration-form {
     grid-template-columns: 1fr;
-    gap: var(--space-4);
+    gap: var(--space-2) var(--space-3);
   }
 
   .success-info-box {
@@ -953,17 +960,17 @@
   }
 
   .registration-form {
-    gap: var(--space-3);
+    gap: var(--space-2);
   }
 
   .form-group {
-    margin-bottom: var(--space-3);
+    margin-bottom: var(--space-2);
   }
 
   .form-actions {
     flex-direction: column;
-    gap: var(--space-3);
-    margin-top: var(--space-4);
+    gap: var(--space-2);
+    margin-top: var(--space-3);
   }
 
   .submit-btn,
