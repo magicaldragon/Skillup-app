@@ -562,6 +562,53 @@
   box-shadow: 0 0 0 3px rgba(48, 118, 55, 0.1);
 }
 
+/* Date input container styling */
+.date-input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 200px;
+}
+
+.date-label {
+  color: #307637;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+}
+
+.date-format-preview {
+  margin-top: 0.25rem;
+  padding: 0.5rem;
+  background: rgba(5, 150, 105, 0.1);
+  border-radius: 0.375rem;
+  border-left: 3px solid #059669;
+  font-style: italic;
+}
+
+.date-format-preview small {
+  color: #059669;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.date-clarification {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: rgba(33, 150, 243, 0.1);
+  border-radius: 0.375rem;
+  border-left: 3px solid #2196f3;
+}
+
+.date-clarification small {
+  color: #1565c0;
+  font-weight: 600;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
 .starting-date-input {
   padding: var(--space-2) var(--space-3);
   border: 2px solid var(--accent-blue);

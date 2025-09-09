@@ -1204,12 +1204,28 @@ const ClassesPanel = ({
             </div>
           </div>
           
-          <input
-            type="date"
-            value={newClassStartingDate}
-            onChange={(e) => setNewClassStartingDate(e.target.value)}
-            className="starting-date-input"
-          />
+          <div className="date-input-container">
+            <label htmlFor="starting-date" className="date-label">
+              Class Start Date (dd/mm/yyyy)
+            </label>
+            <input
+              id="starting-date"
+              type="date"
+              value={newClassStartingDate}
+              onChange={(e) => setNewClassStartingDate(e.target.value)}
+              className="starting-date-input"
+              title="Select the first day when the class will begin - displayed as dd/mm/yyyy format"
+              placeholder="dd/mm/yyyy"
+            />
+            {newClassStartingDate && (
+              <div className="date-format-preview">
+                <small>Start Date Preview: {new Date(newClassStartingDate).toLocaleDateString('en-GB')}</small>
+              </div>
+            )}
+            <div className="date-clarification">
+              <small>📅 This is the <strong>start date</strong> when the class begins, not the end date</small>
+            </div>
+          </div>
           
           {checkingCodes && (
             <div className="checking-codes-message">
