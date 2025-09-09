@@ -168,24 +168,45 @@
   background: linear-gradient(135deg, #307637 0%, #4caf50 100%);
   color: white;
   border: 2px solid transparent;
-  padding: 0.8rem 1.5rem;
+  padding: 1.6rem 1.5rem; /* Doubled the vertical padding from 0.8rem to 1.6rem */
   border-radius: 12px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-size: 1rem;
+  font-size: 1.2rem; /* Slightly increased font size for better proportion */
   margin-top: 0.8rem;
   box-shadow: 0 4px 16px rgba(48, 118, 55, 0.2);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
 }
-.login-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
+
+.login-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
 }
+
+.login-btn:hover::before {
+  left: 100%;
+}
+
 .login-btn:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 8px 32px rgba(48, 118, 55, 0.3);
   border-color: #e0f7fa;
+}
+
+.login-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .login-error {
@@ -284,8 +305,8 @@
   }
 
   .login-btn {
-    padding: 0.8rem 1.5rem;
-    font-size: 1rem;
+    padding: 1.2rem 1.5rem; /* Adjusted for smaller screens */
+    font-size: 1.1rem;
   }
 
   .login-footer {

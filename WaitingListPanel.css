@@ -14,16 +14,16 @@
 .waiting-list-title {
   font-size: 2.5rem;
   font-weight: 900;
-  color: #1e293b;
+  color: #1D9A6C; /* Dark green color */
   margin: 0 0 8px 0;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  text-shadow: 0 0 10px rgba(29, 154, 108, 0.5); /* Glow effect */
   text-transform: uppercase;
   letter-spacing: 2px;
 }
 
 .waiting-list-subtitle {
   font-size: 1.1rem;
-  color: #64748b;
+  color: #1D9A6C; /* Dark green color */
   margin: 0;
   font-weight: 500;
 }
@@ -127,10 +127,10 @@
 }
 
 .waiting-list-table th {
-  background: linear-gradient(135deg, #ff8c42 0%, #f5b802 100%);
+  background: linear-gradient(135deg, #1D9A6C 0%, #157A54 100%); /* Dark green gradient */
   color: white;
   padding: 16px;
-  text-align: left;
+  text-align: center; /* Center alignment */
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -141,7 +141,7 @@
   padding: 16px;
   border-bottom: 1px solid #e2e8f0;
   vertical-align: middle;
-  text-align: left; /* Default left alignment for text content */
+  text-align: center; /* Center alignment for all cells */
 }
 
 /* Center alignment for specific cell types */
@@ -188,69 +188,75 @@
 
 .student-name {
   font-weight: 700;
-  color: #1e293b;
+  color: #1D9A6C; /* Dark green color */
   font-size: 1rem;
+  text-align: center;
 }
 
 .english-name {
   font-size: 0.85rem;
-  color: #64748b;
+  color: #1D9A6C; /* Dark green color */
   font-style: italic;
   margin-top: 2px;
+  text-align: center;
 }
 
 /* Gender cell styles */
 .gender-cell {
-  text-align: left; /* Left align gender text */
+  text-align: center; /* Center align gender text */
   font-weight: 600;
-  color: #374151;
+  color: #1D9A6C; /* Dark green color */
   text-transform: capitalize;
 }
 
 /* Status cell styles */
 .status-cell {
   min-width: 120px;
+  text-align: center;
 }
 
 .status-select {
   padding: 8px 12px;
-  border: 2px solid #f5b802;
+  border: 2px solid #1D9A6C; /* Dark green border */
   border-radius: 8px;
   background: white;
   font-size: 0.9rem;
-  color: #374151;
+  color: #1D9A6C; /* Dark green color */
   cursor: pointer;
   transition: all 0.2s ease;
   width: 100%;
+  text-align: center;
 }
 
 .status-select:focus {
   outline: none;
-  border-color: #ff8c42;
-  box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.1);
+  border-color: #1D9A6C; /* Dark green border */
+  box-shadow: 0 0 0 3px rgba(29, 154, 108, 0.1);
 }
 
 /* Assign cell styles */
 .assign-cell {
   min-width: 150px;
+  text-align: center;
 }
 
 .assign-select {
   padding: 8px 12px;
-  border: 2px solid #307637;
+  border: 2px solid #1D9A6C; /* Dark green border */
   border-radius: 8px;
   background: white;
   font-size: 0.9rem;
-  color: #374151;
+  color: #1D9A6C; /* Dark green color */
   cursor: pointer;
   transition: all 0.2s ease;
   width: 100%;
+  text-align: center;
 }
 
 .assign-select:focus {
   outline: none;
-  border-color: #245929;
-  box-shadow: 0 0 0 3px rgba(48, 118, 55, 0.1);
+  border-color: #1D9A6C; /* Dark green border */
+  box-shadow: 0 0 0 3px rgba(29, 154, 108, 0.1);
 }
 
 /* Empty state */
@@ -555,30 +561,62 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  text-align: center;
+  background: #dbeafe;
+  color: #1D9A6C; /* Dark green color */
+  border: 1px solid #1D9A6C; /* Dark green border */
+  margin: 0 auto; /* Center the badge */
+  display: inline-block;
 }
 
 .status-studying {
   background: #dbeafe;
-  color: #1d4ed8;
-  border: 1px solid #93c5fd;
+  color: #1D9A6C; /* Dark green color */
+  border: 1px solid #1D9A6C; /* Dark green border */
 }
 
 .status-postponed {
   background: #fef3c7;
-  color: #d97706;
-  border: 1px solid #fbbf24;
+  color: #1D9A6C; /* Dark green color */
+  border: 1px solid #1D9A6C; /* Dark green border */
 }
 
-.status-off {
-  background: #fee2e2;
-  color: #dc2626;
-  border: 1px solid #fca5a5;
-}
-
+.status-off,
 .status-alumni {
-  background: #d1fae5;
-  color: #059669;
-  border: 1px solid #6ee7b7;
+  background: #fed7d7;
+  color: #1D9A6C; /* Dark green color */
+  border: 1px solid #1D9A6C; /* Dark green border */
+}
+
+/* Student ID badges with gender-based colors */
+.student-id-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: center;
+  margin: 0 auto; /* Center the badge */
+}
+
+.student-id-badge.male {
+  background: #dbeafe;
+  color: #1D9A6C; /* Dark green color */
+  border: 1px solid #1D9A6C; /* Dark green border */
+}
+
+.student-id-badge.female {
+  background: #fce7f3;
+  color: #1D9A6C; /* Dark green color */
+  border: 1px solid #1D9A6C; /* Dark green border */
+}
+
+.student-id-badge.other {
+  background: #e9d5ff;
+  color: #1D9A6C; /* Dark green color */
+  border: 1px solid #1D9A6C; /* Dark green border */
 }
 
 /* Responsive design */

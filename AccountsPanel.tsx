@@ -465,7 +465,7 @@ const AccountsPanel = () => {
 
             <div className="filters-section">
               <div className="search-box">
-                <div className="search-bar-container" style={{ position: 'relative' }}>
+                <div className="search-bar-container">
                   <input
                     type="text"
                     className="search-bar-input"

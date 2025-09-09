@@ -68,24 +68,30 @@
 
 /* Enhanced table styles for better data consistency */
 .accounts-table td {
+  padding: 16px;
+  border-bottom: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
+  text-align: center; /* Center-align all table data cells */
   vertical-align: middle;
-  padding: 0.25rem 0.5rem; /* Consistent with updated padding */
 }
 
 .management-table td {
-  padding: 0.25rem 0.5rem; /* Reduced padding for consistency */
-  border-bottom: 1px solid #e8f5e8;
+  padding: 16px; /* Match Waiting List panel padding */
+  border-bottom: 1px solid #e2e8f0; /* Match Waiting List panel border */
   transition: all 0.2s ease;
+  vertical-align: middle;
+  text-align: left;
 }
 
 .management-table th {
-  padding: 0.45rem 0.6rem; /* Slightly reduced padding */
+  padding: 16px; /* Match Waiting List panel padding */
   text-align: left;
-  font-weight: 800;
-  font-size: 0.85rem;
+  font-weight: 700;
+  font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 1px;
-  border-bottom: 3px solid #2e7d32;
+  border-bottom: 2px solid #862E9C; /* Purple theme color */
   position: relative;
 }
 
@@ -111,6 +117,7 @@
   gap: 8px;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
 }
 
 .action-buttons button {
@@ -277,34 +284,57 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem;
+  gap: 1rem;
+  padding: 1rem;
   border: 1px solid #dee2e6;
-  border-radius: 10px;
-  margin-bottom: 0.75rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  background: #ffffff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 }
+
 .search-box {
-  flex: 0 1 420px;
+  flex: 1;
+  max-width: 500px;
 }
+
 .filter-controls {
   display: flex;
-  gap: 0.5rem;
+  gap: 1rem;
   align-items: center;
 }
+
 .filter-select {
-  padding: 0.5rem 0.75rem;
-  border: 2px solid #e9ecef;
-  border-radius: 10px;
+  padding: 0.8rem 1rem;
+  border: 2px solid #e0f7fa;
+  border-radius: 12px;
   background: #ffffff;
-  color: #295b37;
+  color: #862E9C; /* Purple theme color */
   font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 150px;
+  box-shadow: 0 2px 8px rgba(134, 46, 156, 0.05); /* Purple theme shadow */
+}
+
+.filter-select:hover {
+  border-color: #862E9C; /* Purple theme color */
+  box-shadow: 0 4px 16px rgba(134, 46, 156, 0.1); /* Purple theme shadow */
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #862E9C; /* Purple theme color */
+  box-shadow: 0 8px 24px rgba(134, 46, 156, 0.2); /* Purple theme shadow */
+  transform: translateY(-2px);
 }
 
 /* Enhanced table container with vivid styling - full width like WaitingListPanel */
 .table-container {
-  background: linear-gradient(135deg, #ffffff 0%, #f8fff8 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #f8f0ff 100%); /* Purple theme gradient */
   border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(48, 118, 55, 0.15);
+  box-shadow: 0 8px 32px rgba(134, 46, 156, 0.15); /* Purple theme shadow */
   overflow: hidden;
   border: 2px solid #e0f7fa;
   padding: 1.5rem;
@@ -319,22 +349,22 @@
   background: #ffffff;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(48, 118, 55, 0.15);
-  font-size: 0.85rem;
+  box-shadow: 0 8px 32px rgba(134, 46, 156, 0.15); /* Purple theme shadow */
+  font-size: 0.95rem;
 }
 
 .accounts-table th {
-  background: linear-gradient(135deg, #1e4d2b 0%, #307637 50%, #4caf50 100%);
-  color: #ffffff;
-  padding: 0.35rem 0.5rem; /* Slightly reduced padding */
+  background: linear-gradient(135deg, #4a148c 0%, #7b1fa2 50%, #9c27b0 100%) !important; /* Purple theme gradient */
+  color: #ffffff !important;
+  padding: 16px;
   text-align: center;
-  font-weight: 800;
-  font-size: 0.75rem;
+  font-weight: 700;
+  font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 1px;
-  border-bottom: 3px solid #2e7d32;
+  border-bottom: 3px solid #6a1b9a !important; /* Purple theme border */
   position: relative;
-  height: 2.25rem; /* Reduced header height */
+  height: auto;
 }
 
 .accounts-table th::after {
@@ -344,23 +374,16 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, #ffc107, #ff9800, #ffc107);
+  background: linear-gradient(90deg, #9c27b0, #ba68c8, #9c27b0); /* Purple theme gradient */
 }
 
 .accounts-table td {
-  padding: 0.25rem 0.5rem; /* Reduced padding for more compact rows */
-  border-bottom: 1px solid #e8f5e8;
+  padding: 16px;
+  border-bottom: 1px solid #e2e8f0;
   transition: all 0.2s ease;
-  font-size: 0.85rem;
-  text-align: left; /* Default left alignment for text content */
-  height: 2rem; /* Reduced height from 2.5rem to 2rem */
+  font-size: 0.95rem;
+  text-align: center; /* Center-align all table data cells */
   vertical-align: middle;
-}
-
-/* Center alignment for specific cell types */
-.accounts-table td.action-cell,
-.accounts-table td:last-child {
-  text-align: center;
 }
 
 .accounts-table tbody tr {
@@ -369,41 +392,19 @@
   position: relative;
 }
 
+.accounts-table tbody tr:nth-child(odd) {
+  background: #ffffff;
+}
+
+.accounts-table tbody tr:nth-child(even) {
+  background: #f8f0ff; /* Light purple background for even rows */
+}
+
 .accounts-table tbody tr:hover {
-  background: linear-gradient(135deg, #f8fff8 0%, #e8f5e8 100%);
-  border-left-color: #4caf50;
-  transform: translateX(4px) translateY(-1px); /* Enhanced movement */
-  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.15), 0 2px 8px rgba(76, 175, 80, 0.1); /* More vivid shadow */
-}
-
-/* Enhanced selected row styling */
-.accounts-table tbody tr.selected-row,
-.accounts-table tbody tr[data-selected="true"] {
-  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%) !important;
-  border-left: 4px solid #2196f3 !important;
-  box-shadow: 0 8px 25px rgba(33, 150, 243, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
-  transform: translateX(6px) !important;
-  position: relative;
-}
-
-.accounts-table tbody tr.selected-row::before,
-.accounts-table tbody tr[data-selected="true"]::before {
-  content: "";
-  position: absolute;
-  left: -3px;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background: linear-gradient(to bottom, #2196f3, #1976d2, #1565c0);
-  box-shadow: 0 0 10px rgba(33, 150, 243, 0.5);
-}
-
-/* Enhanced hover effect for selected rows */
-.accounts-table tbody tr.selected-row:hover,
-.accounts-table tbody tr[data-selected="true"]:hover {
-  background: linear-gradient(135deg, #d1e7ff 0%, #a6d1ff 50%, #7bb3f0 100%) !important;
-  transform: translateX(8px) translateY(-2px) !important;
-  box-shadow: 0 12px 30px rgba(33, 150, 243, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+  background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%) !important; /* Purple theme hover */
+  border-left: 3px solid #9c27b0 !important; /* Purple theme border */
+  transform: translateX(4px) translateY(-1px) !important;
+  box-shadow: 0 6px 20px rgba(156, 39, 176, 0.15), 0 2px 8px rgba(156, 39, 176, 0.1) !important;
 }
 
 .accounts-table tbody tr.no-permission-row {
@@ -479,9 +480,24 @@
 
 /* Responsive design */
 @media (max-width: 768px) {
-  .search-controls {
+  .filters-section {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .search-box {
+    max-width: 100%;
+    min-width: auto;
+  }
+
+  .filter-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .filter-select {
+    min-width: auto;
   }
 
   .search-bar-container {
@@ -511,6 +527,11 @@
 
   .action-buttons button {
     width: 100%;
+  }
+  
+  .accounts-table th,
+  .accounts-table td {
+    padding: 12px 8px;
   }
 }
 
@@ -662,4 +683,122 @@
   border-radius: 6px;
   border: 2px solid #e0f7fa;
   box-shadow: 0 2px 8px rgba(48, 118, 55, 0.1);
+}
+
+/* Search bar container - properly styled to match Waiting List panel */
+.search-bar-container {
+  position: relative;
+  flex: 1;
+  min-width: 300px;
+  max-width: 800px;
+}
+
+.search-bar-input {
+  width: 100%;
+  padding: 0.8rem 3.8rem 0.8rem 1rem; /* Increased right padding to accommodate larger button */
+  border: 2px solid #e0f7fa;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  background: #ffffff;
+  color: #862E9C; /* Purple theme color */
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(134, 46, 156, 0.05); /* Purple theme shadow */
+  min-width: 300px;
+}
+
+.search-bar-input:hover {
+  border-color: #862E9C; /* Purple theme color */
+  box-shadow: 0 4px 16px rgba(134, 46, 156, 0.1); /* Purple theme shadow */
+}
+
+.search-bar-input:focus {
+  outline: none;
+  box-shadow: 0 8px 24px rgba(134, 46, 156, 0.2); /* Purple theme shadow */
+  transform: translateY(-2px);
+  border-color: #862E9C; /* Purple theme color */
+}
+
+.search-bar-input::placeholder {
+  color: #862E9C; /* Purple theme color */
+  opacity: 0.7;
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-bar-button {
+  position: absolute;
+  right: 0.5rem; /* Moved to very end */
+  top: 50%;
+  transform: translateY(-50%);
+  background: linear-gradient(135deg, #2e7d32 0%, #388e3c 100%); /* Dark green gradient */
+  color: white;
+  border: none;
+  border-radius: 4px; /* Square shape with slight rounding */
+  padding: 0; /* Remove padding to make it a perfect square */
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 36px; /* Made it a square */
+  height: 36px; /* Made it a square */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); /* Added subtle shadow */
+}
+
+.search-bar-button:hover {
+  transform: translateY(-50%) scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* Enhanced shadow on hover */
+  background: linear-gradient(135deg, #388e3c 0%, #43a047 100%); /* Lighter green on hover */
+}
+
+.search-bar-button svg {
+  width: 20px; /* Slightly larger icon */
+  height: 20px;
+  fill: white; /* Ensure icon is white */
+}
+
+/* Center-align specific elements within table cells */
+.accounts-table td div,
+.accounts-table td span,
+.accounts-table td input,
+.accounts-table td select {
+  text-align: center;
+}
+
+/* Center-align action buttons container */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Ensure badges and tags are centered */
+.tag,
+.pill,
+.status-badge,
+.student-id-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 9999px; /* Fully rounded */
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: none;
+  text-align: center;
+  margin: 0 auto;
+}
+
+/* Purple theme tags and badges */
+.theme-purple .tag,
+.theme-purple .pill,
+.theme-purple .status-badge,
+.theme-purple .student-id-badge {
+  background-color: #F3E8FF; /* Light Lavender background */
+  color: #862E9C; /* Deep Purple text */
+  text-align: center;
 }
