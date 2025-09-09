@@ -70,7 +70,12 @@ export const verifyToken = async (
         }
 
         userData = userDoc.data();
-        decodedToken = { uid: sessionData.uid, email: sessionData.email };
+        if (userData) {
+          // For session tokens, preserve the userId from the token and add document ID
+          userData._id = userDoc.id;
+          userData.docId = userDoc.id;
+        }
+        decodedToken = { uid: sessionData.uid, email: sessionData.email, userId: sessionData.userId };
         console.log('Session token verified successfully for user:', sessionData.email);
       } catch (sessionError) {
         // If session token fails, try Firebase ID token
@@ -145,7 +150,7 @@ export const verifyToken = async (
       uid: decodedToken.uid,
       email: decodedToken.email || userData.email || '',
       role: userData.role || 'student',
-      userId: userData._id || userData.id || userData.firebaseUid || '',
+      userId: decodedToken.userId || userData._id || userData.id || userData.firebaseUid || '',
     };
 
     next();

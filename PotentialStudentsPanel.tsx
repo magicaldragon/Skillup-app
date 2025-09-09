@@ -57,8 +57,8 @@ const PotentialStudentsPanel = ({
       return;
     }
 
-    // Validate token format (basic check)
-    if (!token.includes('.') || token.length < 100) {
+    // Validate token format - support both JWT tokens (with dots) and base64 session tokens
+    if (token.length < 50) {
       setError('Invalid authentication token. Please log in again.');
       setLoading(false);
       return;
