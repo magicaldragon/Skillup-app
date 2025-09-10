@@ -103,7 +103,7 @@
 
 .search-bar-button {
   position: absolute;
-  right: 0.5rem;
+  right: 0.3rem;
   top: 50%;
   transform: translateY(-50%);
   background: #006400; /* Dark green background */
@@ -166,8 +166,8 @@
 .potential-students-table-container {
   width: 100%;
   background: white;
-  border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border-radius: 0;
+  box-shadow: none;
   overflow: hidden;
   margin-bottom: 24px;
 }
@@ -180,10 +180,10 @@
 }
 
 .potential-students-table th {
-  background: #ff8c42;
+  background: linear-gradient(135deg, #FB923C 0%, #E8722A 100%); /* Vibrant Orange gradient */
   color: white;
   padding: 16px;
-  text-align: center;
+  text-align: center; /* Center alignment */
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -192,9 +192,9 @@
 
 .potential-students-table td {
   padding: 16px;
-  border-bottom: 1px solid #FFF4E6;
+  border-bottom: 1px solid #FFF0E6;
   vertical-align: middle;
-  text-align: center;
+  text-align: center; /* Center alignment for all cells */
 }
 
 /* Center alignment for specific cell types */
@@ -210,8 +210,13 @@
 }
 
 .potential-students-table tbody tr:hover {
-  background: #FFF4E6;
+  background: #FFF0E6;
   transform: scale(1.01);
+  transition: all 0.2s ease;
+}
+
+.clickable-row {
+  cursor: pointer;
   transition: all 0.2s ease;
 }
 
@@ -297,6 +302,50 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   display: inline-block;
+}
+
+/* Update Status Button - Match Edit Button Style */
+.update-status-btn,
+.status-select {
+  padding: 8px 16px;
+  border: 2px solid #28a745;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+  background-color: #28a745;
+  color: #ffffff;
+}
+
+.update-status-btn::before,
+.status-select::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.update-status-btn:hover::before,
+.status-select:hover::before {
+  left: 100%;
+}
+
+.update-status-btn:hover,
+.status-select:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  background-color: #1e7e34;
+  border-color: #155724;
+  color: #ffffff;
 }
 
 .status-potential {

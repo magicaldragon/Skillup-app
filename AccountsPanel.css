@@ -332,11 +332,10 @@
 
 /* Enhanced table container with vivid styling - full width like WaitingListPanel */
 .table-container {
-  background: linear-gradient(135deg, #ffffff 0%, #f8f0ff 100%); /* Purple theme gradient */
+  background: #ffffff;
   border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(134, 46, 156, 0.15); /* Purple theme shadow */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  border: 2px solid #e0f7fa;
   padding: 1.5rem;
   margin-bottom: 24px;
   width: 100%;
@@ -349,15 +348,15 @@
   background: #ffffff;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(134, 46, 156, 0.15); /* Purple theme shadow */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   font-size: 0.95rem;
 }
 
 .accounts-table th {
-  background: #862E9C !important; /* Solid purple background */
+  background: linear-gradient(135deg, #862E9C 0%, #6A1B9A 100%) !important; /* Deep Purple gradient */
   color: #ffffff !important;
   padding: 16px;
-  text-align: center;
+  text-align: center; /* Center alignment */
   font-weight: 700;
   font-size: 0.9rem;
   text-transform: uppercase;
@@ -401,8 +400,15 @@
 }
 
 .accounts-table tbody tr:hover {
-  background: #F3E8FF !important; /* Light lavender hover */
-  border-left: 3px solid #9c27b0 !important; /* Purple theme border */
+  background: #F3E8FF;
+  transform: scale(1.01);
+  transition: all 0.2s ease;
+}
+
+.clickable-row {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
   transform: translateX(4px) translateY(-1px) !important;
   box-shadow: 0 6px 20px rgba(156, 39, 176, 0.15), 0 2px 8px rgba(156, 39, 176, 0.1) !important;
 }

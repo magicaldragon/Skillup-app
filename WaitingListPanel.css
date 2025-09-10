@@ -86,7 +86,7 @@
 
 .search-bar-button {
   position: absolute;
-  right: 0.8rem;
+  right: 0.6rem;
   top: 50%;
   transform: translateY(-50%);
   background: linear-gradient(135deg, #307637 0%, #4caf50 100%);
