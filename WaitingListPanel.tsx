@@ -687,7 +687,7 @@ const WaitingListPanel = ({
                         });
                         
                         if (response.ok) {
-                          const updatedStudent = await response.json();
+                          await response.json();
                           setWaitingStudents(prev => 
                             prev.map(student => 
                               student._id === selectedStudent._id ? { ...student, ...editForm } : student

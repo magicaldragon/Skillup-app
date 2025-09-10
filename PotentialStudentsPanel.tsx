@@ -13,6 +13,7 @@ interface User {
   email: string;
   phone?: string;
   gender?: string;
+  dob?: string;
   status: string;
   parentName?: string;
   parentPhone?: string;
