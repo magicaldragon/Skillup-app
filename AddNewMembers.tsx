@@ -108,7 +108,7 @@ const AddNewMembers = () => {
     if (form.role === 'student' && form.status === 'potential' && !form.parentName?.trim()) {
       return 'Parent name is recommended for potential students';
     }
-    if (form.phone && typeof form.phone === 'string' && form.phone.trim().length < 10) {
+    if (form.phone && typeof form.phone === 'string' && (form.phone || '').trim().length < 10) {
       return 'Phone number must be at least 10 digits';
     }
     if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {

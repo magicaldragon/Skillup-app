@@ -84,12 +84,12 @@ class AuthService {
       console.log('🔐 ID token obtained, verifying with backend...');
       
       // Step 3: Verify token with backend and get user profile
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+      const response = await fetch(`${API_BASE_URL}/auth/firebase-login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ token: idToken }),
+        body: JSON.stringify({ firebaseToken: idToken, email }),
       });
       
       console.log('🔐 Backend verification response status:', response.status);
