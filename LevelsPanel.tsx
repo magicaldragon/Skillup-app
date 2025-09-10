@@ -4,7 +4,7 @@
 import React, { useState } from 'react';
 import { ICONS, LEVELS } from './constants';
 import type { Level, StudentClass } from './types';
-import { safeTrim } from './utils/stringUtils';
+
 import './LevelsPanel.css';
 import './ManagementTableStyles.css';
 
@@ -141,9 +141,9 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
 
   // Add new level
   const handleAddLevel = async () => {
-    const name = safeTrim(newLevel.name);
-    const code = safeTrim(newLevel.code);
-    const description = safeTrim(newLevel.description);
+    const name = (newLevel.name || '').toString().trim();
+        const code = (newLevel.code || '').toString().trim();
+        const description = (newLevel.description || '').toString().trim();
 
     if (!name || !code) {
       alert('Level name and code are required');
@@ -225,9 +225,9 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
   const handleUpdateLevel = async () => {
     if (!editingLevel) return;
 
-    const name = safeTrim(editLevel.name);
-    const code = safeTrim(editLevel.code);
-    const description = safeTrim(editLevel.description);
+    const name = (editLevel.name || '').toString().trim();
+        const code = (editLevel.code || '').toString().trim();
+        const description = (editLevel.description || '').toString().trim();
 
     if (!name || !code) {
       alert('Level name and code are required');

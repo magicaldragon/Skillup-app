@@ -7,7 +7,7 @@
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../frontend/services/firebase';
 import type { Student } from '../types';
-import { safeTrim } from '../utils/stringUtils';
+
 
 const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
 
@@ -47,7 +47,7 @@ class UserRegistrationService {
   // Generate username from full name
   private async generateUsername(fullname: string): Promise<string> {
     // Remove special characters and convert to lowercase
-    const cleanName = safeTrim(fullname)
+    const cleanName = (fullname || '').toString().trim()
       .toLowerCase()
       .replace(/[^a-z0-9\s]/g, '')
       .replace(/\s+/g, '');
