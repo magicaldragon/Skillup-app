@@ -1,7 +1,6 @@
 import type React from 'react';
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { authService } from './frontend/services/authService';
-import PreviewMode from './PreviewMode';
 import './App.css';
 
 // Lazy load components for better performance
@@ -34,7 +33,6 @@ const App: React.FC = () => {
   const [_dataLoading, setDataLoading] = useState(false);
   const [_dataError, setDataError] = useState<string | null>(null);
   const [navKey, setNavKey] = useState('dashboard');
-  const [previewMode, setPreviewMode] = useState(false);
 
   // Memoize API URL to avoid recalculation and ensure consistency
   const apiUrl = useMemo(() => {
@@ -501,19 +499,7 @@ const App: React.FC = () => {
     );
 
     return (
-      <PreviewMode isActive={previewMode}>
         <div className="app-container">
-          {/* Editor Mode Toggle Button */}
-          {(user.role === 'admin' || user.role === 'teacher') && (
-            <button 
-              className={`preview-toggle ${previewMode ? 'active' : ''}`}
-              onClick={() => setPreviewMode(!previewMode)}
-              title={previewMode ? 'Exit Editor Mode' : 'Enter Editor Mode'}
-            >
-              {previewMode ? '❌ Exit Editor' : '🎨 Editor Mode'}
-            </button>
-          )}
-          
           <Suspense fallback={<LoadingSpinner />}>
             <Sidebar
               role={user.role}
@@ -535,7 +521,6 @@ const App: React.FC = () => {
             </main>
           </Suspense>
         </div>
-      </PreviewMode>
     );
   }, [
     loading,

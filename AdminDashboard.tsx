@@ -118,13 +118,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
         <SettingsPanel currentUser={user} classes={classes} onDataRefresh={onDataRefresh} />
       ) : activeKey === 'changelog' ? (
         <ChangeLogPanel />
-      ) : activeKey === 'editor-mode' ? (
-        <div className="admin-dashboard-content">
-          <div className="admin-dashboard-welcome">
-            <h1 className="admin-dashboard-title">Editor Mode</h1>
-            <p className="admin-dashboard-subtitle">Use the Editor Mode toggle button in the top-right corner to enter visual editing mode</p>
-          </div>
-        </div>
       ) : (
         // Default admin dashboard view
         <div className="admin-dashboard-content">

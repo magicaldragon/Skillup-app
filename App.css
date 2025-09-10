@@ -59,41 +59,6 @@ body {
   position: relative;
 }
 
-/* Editor Mode Toggle Button */
-.preview-toggle {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 10000;
-  padding: 10px 16px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  border-radius: 25px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.preview-toggle:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-}
-
-.preview-toggle.active {
-  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
-  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
-}
-
-.preview-toggle.active:hover {
-  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
-}
-
 .sidebar {
   width: 240px;
   background: linear-gradient(180deg, #307637 0%, #2e7d32 100%);
