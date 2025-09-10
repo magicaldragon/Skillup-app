@@ -130,25 +130,7 @@ const PreviewMode: React.FC<PreviewModeProps> = ({ isActive, children }) => {
           className={`preview-canvas ${editMode === 'select' ? 'selection-mode' : 'drag-mode'}`}
           onClick={handleCanvasClick}
         >
-          {editMode === 'drag' && components.map(component => (
-            <div
-              key={component.id}
-              className={`draggable-component ${selectedComponent === component.id ? 'selected' : ''}`}
-              style={{
-                position: 'absolute',
-                left: component.position.x,
-                top: component.position.y,
-                width: component.size.width,
-                height: component.size.height,
-                cursor: 'grab'
-              }}
-              onClick={() => handleSelect(component.id)}
-            >
-              <div dangerouslySetInnerHTML={{ __html: (component.content as HTMLElement).outerHTML }} />
-            </div>
-          ))}
-          
-          {editMode === 'select' && children}
+          {children}
         </div>
         
         {(selectedComponent || selectedElement) && !activeEditor && (

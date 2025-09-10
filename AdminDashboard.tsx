@@ -119,7 +119,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
       ) : activeKey === 'changelog' ? (
         <ChangeLogPanel />
       ) : activeKey === 'editor-mode' ? (
-        <PreviewMode />
+        <PreviewMode isActive={true} children={<div>Editor Mode Content</div>} />
       ) : (
         // Default admin dashboard view
         <div className="admin-dashboard-content">
