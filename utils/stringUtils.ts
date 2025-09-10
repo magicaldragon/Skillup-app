@@ -187,6 +187,29 @@ export const formatDateDDMMYYYY = (dateString: string | Date): string => {
 };
 
 /**
+ * Format date to mm/dd/yyyy format (US format)
+ * @param dateString - Date string or Date object
+ * @returns Formatted date string in mm/dd/yyyy format
+ */
+export const formatDateMMDDYYYY = (dateString: string | Date): string => {
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      return '-';
+    }
+    
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    
+    return `${month}/${day}/${year}`;
+  } catch (error) {
+    console.error('Error formatting date:', error);
+    return '-';
+  }
+}
+
+/**
  * Format date to dd/mm/yyyy hh:mm format
  * @param dateString - Date string or Date object
  * @returns Formatted date string in dd/mm/yyyy hh:mm format

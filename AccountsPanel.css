@@ -353,7 +353,7 @@
 }
 
 .accounts-table th {
-  background: linear-gradient(135deg, #862E9C 0%, #6A1B9A 100%) !important; /* Deep Purple gradient */
+  background: #862E9C !important; /* Solid Deep Purple */
   color: #ffffff !important;
   padding: 16px;
   text-align: center; /* Center alignment */
@@ -409,6 +409,8 @@
   cursor: pointer;
   transition: all 0.2s ease;
 }
+
+.clickable-row:hover {
   transform: translateX(4px) translateY(-1px) !important;
   box-shadow: 0 6px 20px rgba(156, 39, 176, 0.15), 0 2px 8px rgba(156, 39, 176, 0.1) !important;
 }

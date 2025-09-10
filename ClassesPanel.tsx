@@ -1102,11 +1102,7 @@ const ClassesPanel = ({
                 placeholder=""
               />
             </div>
-            {newClassStartingDate && (
-              <div className="date-format-preview">
-                <small>{formatDateDDMMYYYY(newClassStartingDate)}</small>
-              </div>
-            )}
+
           </div>
           
           <button

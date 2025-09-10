@@ -2,7 +2,7 @@
 
 .classes-panel {
   padding: 0.75rem;
-  background: #ffffff;
+  background: #F8F9FA; /* Light neutral gray page background */
   border-radius: 10px;
   box-shadow:
     0 4px 16px 0 rgba(48, 118, 55, 0.08),
@@ -161,12 +161,11 @@
 }
 
 .classes-table-container {
-  background: #ffffff;
-  border-radius: 12px;
-  border: 2px solid #ffd700;
-  overflow: visible;
-  box-shadow: 0 2px 8px rgba(48, 118, 55, 0.1);
-  margin-bottom: 1rem;
+  background: #FFFFFF; /* White card background */
+  border-radius: 20px;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1); /* Specified box-shadow */
+  overflow: hidden;
+  margin-bottom: 24px;
 }
 
 .classes-table {
@@ -177,25 +176,21 @@
 }
 
 .classes-table th {
-  background: linear-gradient(135deg, #307637 0%, #4caf50 100%);
+  background: linear-gradient(135deg, #1D9A6C 0%, #157A54 100%); /* Dark green gradient */
   color: white;
-  padding: 0.7rem 0.6rem;
-  text-align: left;
+  padding: 16px;
+  text-align: center; /* Center alignment */
   font-weight: 700;
-  font-size: 0.8rem;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border-bottom: 2px solid #2e7d32;
+  letter-spacing: 1px;
+  font-size: 0.9rem;
 }
 
 .classes-table td {
-  padding: 0.6rem 0.6rem;
-  border-bottom: 1px solid #e0f7fa;
+  padding: 16px;
+  border-bottom: 1px solid #E6F8F0;
   vertical-align: middle;
-  font-size: 0.85rem;
-  color: #333;
-  min-height: 40px;
-  height: 40px;
+  text-align: center; /* Center alignment for all cells */
 }
 
 .classes-table tbody tr {
@@ -204,9 +199,9 @@
 }
 
 .classes-table tbody tr:hover {
-  background: linear-gradient(135deg, #f0f8f0 0%, #e8f5e8 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(48, 118, 55, 0.1);
+  background: #E6F8F0;
+  transform: scale(1.01);
+  transition: all 0.2s ease;
 }
 
 /* Professional Action Buttons */
@@ -1990,20 +1985,7 @@
 }
 
 .starting-date-input::-webkit-calendar-picker-indicator {
-  background: transparent;
-  bottom: 0;
-  color: transparent;
-  cursor: pointer;
-  height: auto;
-  left: 0;
-  position: absolute;
-  right: 0;
-  top: 0;
-  width: auto;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="%23059669" d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>');
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 16px;
+  display: none;
 }
 
 .starting-date-input::-webkit-inner-spin-button,

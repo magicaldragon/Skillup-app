@@ -180,7 +180,7 @@
 }
 
 .potential-students-table th {
-  background: linear-gradient(135deg, #FB923C 0%, #E8722A 100%); /* Vibrant Orange gradient */
+  background: #FB923C !important; /* Solid Vibrant Orange */
   color: white;
   padding: 16px;
   text-align: center; /* Center alignment */
