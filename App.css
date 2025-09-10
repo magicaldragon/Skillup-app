@@ -59,7 +59,7 @@ body {
   position: relative;
 }
 
-/* Preview Mode Toggle Button */
+/* Editor Mode Toggle Button */
 .preview-toggle {
   position: fixed;
   top: 20px;

@@ -503,14 +503,14 @@ const App: React.FC = () => {
     return (
       <PreviewMode isActive={previewMode}>
         <div className="app-container">
-          {/* Preview Mode Toggle Button */}
+          {/* Editor Mode Toggle Button */}
           {(user.role === 'admin' || user.role === 'teacher') && (
             <button 
               className={`preview-toggle ${previewMode ? 'active' : ''}`}
               onClick={() => setPreviewMode(!previewMode)}
-              title={previewMode ? 'Exit Preview Mode' : 'Enter Preview Mode'}
+              title={previewMode ? 'Exit Editor Mode' : 'Enter Editor Mode'}
             >
-              {previewMode ? '❌ Exit Preview' : '🎨 Preview Mode'}
+              {previewMode ? '❌ Exit Editor' : '🎨 Editor Mode'}
             </button>
           )}
           

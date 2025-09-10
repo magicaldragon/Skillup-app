@@ -153,7 +153,7 @@ const PreviewMode: React.FC<PreviewModeProps> = ({ isActive, children }) => {
     <DndProvider backend={HTML5Backend}>
       <div className="preview-mode-container">
         <div className="preview-toolbar">
-          <h3>Preview Mode - Visual Editor</h3>
+          <h3>Editor Mode - Visual Editor</h3>
           <div className="toolbar-center">
             <div className="mode-switcher">
               <button 
