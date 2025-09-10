@@ -29,6 +29,7 @@ const AddNewMembers = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [createdUser, setCreatedUser] = useState<CreatedUser | null>(null);
   const [previewUsername, setPreviewUsername] = useState<string>('');
   const [previewEmail, setPreviewEmail] = useState<string>('');
@@ -69,9 +70,74 @@ const AddNewMembers = () => {
   // Handle general form input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+    
+    // Apply phone number formatting
+    if (name === 'phone' || name === 'parentPhone') {
+      const formattedValue = formatPhoneNumber(value);
+      setForm(prev => ({ ...prev, [name]: formattedValue }));
+    } else {
+      setForm(prev => ({ ...prev, [name]: value }));
+    }
+    
+    // Clear field-specific error when user starts typing
+    if (fieldErrors[name]) {
+      setFieldErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    }
+    
     setError(null);
     setCreatedUser(null);
+  };
+
+  // Real-time field validation
+  const validateField = (name: string, value: string): string | null => {
+    switch (name) {
+      case 'name':
+        if (!value.trim()) return 'Full name is required';
+        if (value.trim().length < 2) return 'Full name must be at least 2 characters';
+        return null;
+      case 'email':
+        if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+          return 'Please enter a valid email address';
+        }
+        return null;
+      case 'phone':
+      case 'parentPhone':
+        if (value && value.replace(/\D/g, '').length < 10) {
+          return 'Phone number must be at least 10 digits';
+        }
+        return null;
+      default:
+        return null;
+    }
+  };
+
+  // Handle field blur for validation
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    const fieldError = validateField(name, value);
+    
+    if (fieldError) {
+      setFieldErrors(prev => ({ ...prev, [name]: fieldError }));
+    }
+  };
+
+  // Phone number formatting function
+  const formatPhoneNumber = (value: string) => {
+    // Remove all non-digits
+    const digits = value.replace(/\D/g, '');
+    
+    // Format as (XXX) XXX-XXXX
+    if (digits.length <= 3) {
+      return digits;
+    } else if (digits.length <= 6) {
+      return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+    } else {
+      return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+    }
   };
 
   const handleReset = () => {
@@ -197,7 +263,7 @@ const AddNewMembers = () => {
       <div className="add-student-content">
         <div className="registration-form-section">
           <div className="form-container">
-            <h2 className="form-title">REGISTRATION FORM</h2>
+            <h2 className="form-title">Registration Form</h2>
             <div className="title-decoration-line"></div>
 
             {error && <div className="error-message">{error}</div>}
@@ -224,7 +290,7 @@ const AddNewMembers = () => {
               {/* Full Name */}
               <div className="form-group">
                 <label htmlFor="name" className="form-label">
-                  Full Name <span className="required">*</span>
+                  Full name <span className="required">*</span>
                 </label>
                 <input
                   id="name"
@@ -232,10 +298,12 @@ const AddNewMembers = () => {
                   name="name"
                   value={form.name}
                   onChange={handleChange}
-                  className="form-input"
+                  onBlur={handleBlur}
+                  className={`form-input ${fieldErrors.name ? 'error' : ''}`}
                   required
                   placeholder="Enter Vietnamese full name (e.g., Nguyễn Văn A)"
                 />
+                {fieldErrors.name && <span className="field-error">{fieldErrors.name}</span>}
               </div>
 
               {/* Role */}
@@ -248,6 +316,7 @@ const AddNewMembers = () => {
                   name="role"
                   value={form.role}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   className="form-select"
                   required
                 >
@@ -268,6 +337,7 @@ const AddNewMembers = () => {
                   name="gender"
                   value={form.gender}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   className="form-select"
                   required
                 >
@@ -280,7 +350,7 @@ const AddNewMembers = () => {
               {/* English Name */}
               <div className="form-group">
                 <label htmlFor="englishName" className="form-label">
-                  English Name
+                  English name <span className="optional">(optional)</span>
                 </label>
                 <input
                   id="englishName"
@@ -288,15 +358,16 @@ const AddNewMembers = () => {
                   name="englishName"
                   value={form.englishName}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   className="form-input"
-                  placeholder="Enter English name (optional)"
+                  placeholder="Enter English name"
                 />
               </div>
 
               {/* Date of Birth */}
               <div className="form-group">
                 <label htmlFor="dob" className="form-label">
-                  Date of Birth
+                  Date of birth <span className="optional">(optional)</span>
                 </label>
                 <input
                   id="dob"
@@ -304,6 +375,7 @@ const AddNewMembers = () => {
                   name="dob"
                   value={form.dob}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   className="form-input"
                   title="Select date of birth"
                 />
@@ -312,7 +384,7 @@ const AddNewMembers = () => {
               {/* Phone Number */}
               <div className="form-group">
                 <label htmlFor="phone" className="form-label">
-                  Phone Number
+                  Phone number <span className="optional">(optional)</span>
                 </label>
                 <input
                   id="phone"
@@ -320,15 +392,17 @@ const AddNewMembers = () => {
                   name="phone"
                   value={form.phone}
                   onChange={handleChange}
-                  className="form-input"
-                  placeholder="Enter phone number"
+                  onBlur={handleBlur}
+                  className={`form-input ${fieldErrors.phone ? 'error' : ''}`}
+                  placeholder="(123) 456-7890"
                 />
+                {fieldErrors.phone && <span className="field-error">{fieldErrors.phone}</span>}
               </div>
 
               {/* Email - Now separate from generated Firebase email */}
               <div className="form-group">
                 <label htmlFor="email" className="form-label">
-                  Email
+                  Email <span className="optional">(optional)</span>
                 </label>
                 <input
                   id="email"
@@ -336,9 +410,11 @@ const AddNewMembers = () => {
                   name="email"
                   value={form.email}
                   onChange={handleChange}
-                  className="form-input"
-                  placeholder="Enter email address (optional)"
+                  onBlur={handleBlur}
+                  className={`form-input ${fieldErrors.email ? 'error' : ''}`}
+                  placeholder="Enter email address"
                 />
+                {fieldErrors.email && <span className="field-error">{fieldErrors.email}</span>}
               </div>
 
               {/* Status - Only for students */}
@@ -435,28 +511,28 @@ const AddNewMembers = () => {
         {createdUser && (
           <div className="success-info-section show">
             <div className="success-info-box">
-              <h3 className="success-title">THE ACCOUNT HAS BEEN CREATED SUCCESSFULLY!</h3>
+              <h3 className="success-title">Account created successfully!</h3>
               <div className="account-details">
                 <div className="account-detail">
-                  <span className="detail-label">FULL NAME:</span>
+                  <span className="detail-label">Full name:</span>
                   <span className="detail-value">{createdUser.name || 'N/A'}</span>
                 </div>
                 <div className="account-detail">
-                  <span className="detail-label">ROLE:</span>
-                  <span className="detail-value">{createdUser.role?.toUpperCase() || 'N/A'}</span>
+                  <span className="detail-label">Role:</span>
+                  <span className="detail-value">{createdUser.role?.charAt(0).toUpperCase() + createdUser.role?.slice(1) || 'N/A'}</span>
                 </div>
                 <div className="account-detail">
-                  <span className="detail-label">STUDENT ID:</span>
+                  <span className="detail-label">Student ID:</span>
                   <span className="detail-value">{getStudentId(createdUser)}</span>
                 </div>
                 <div className="account-detail">
-                  <span className="detail-label">USERNAME:</span>
+                  <span className="detail-label">Username:</span>
                   <span className="detail-value">
                     {createdUser.username || previewUsername || 'N/A'}
                   </span>
                 </div>
                 <div className="account-detail">
-                  <span className="detail-label">PASSWORD:</span>
+                  <span className="detail-label">Password:</span>
                   <span className="detail-value password-display">
                     {createdUser.generatedPassword || getPassword(createdUser)}
                   </span>
