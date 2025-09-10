@@ -227,39 +227,7 @@ const WaitingListPanel = ({
     }
   };
 
-  // Individual assign to class
-  const handleAssignToClass = async (studentId: string, classId: string) => {
-    const token = localStorage.getItem('skillup_token');
-    if (!token) {
-      alert('No authentication token found');
-      return;
-    }
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/users/${studentId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          classIds: [classId],
-          status: 'active', // Change status to active when assigned to class
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to assign student to class');
-      }
-
-      alert('Student assigned to class successfully!');
-      fetchWaitingStudents();
-      onDataRefresh?.();
-    } catch (error) {
-      console.error('Assign to class error:', error);
-      alert('Failed to assign student to class. Please try again.');
-    }
-  };
 
   // Handle status change
   const handleStatusChange = async (studentId: string, newStatus: string) => {
