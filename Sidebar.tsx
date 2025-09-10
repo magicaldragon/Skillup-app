@@ -103,15 +103,15 @@ const menuConfig = (role: string) => [
         visible: role === 'staff' || role === 'teacher' || role === 'admin',
       },
       // Student-specific management submenu
-      { label: 'My classes', icon: <FaUsers />, key: 'my-classes', visible: role === 'student' },
+      { label: 'My Classes', icon: <FaUsers />, key: 'my-classes', visible: role === 'student' },
       {
-        label: 'My progress',
+        label: 'My Progress',
         icon: <FaChartBar />,
         key: 'my-progress',
         visible: role === 'student',
       },
       {
-        label: 'Scores and feedback',
+        label: 'Scores And Feedback',
         icon: <FaClipboardList />,
         key: 'my-scores',
         visible: role === 'student',

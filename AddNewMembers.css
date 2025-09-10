@@ -86,7 +86,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: var(--space-3);
+  padding: var(--space-2);
   margin: 0;
   background: #ffffff;
   overflow: hidden;
@@ -102,11 +102,11 @@
   flex-direction: row;
   align-items: flex-start;
   justify-content: center;
-  gap: var(--space-6);
-  padding: var(--space-2);
+  gap: var(--space-4);
+  padding: var(--space-1);
   box-sizing: border-box;
   min-width: 0;
-  height: calc(100vh - var(--space-6));
+  height: calc(100vh - var(--space-4));
   position: relative;
   overflow: hidden;
 }
@@ -127,14 +127,14 @@
 /* ===== FORM CONTAINER ===== */
 .add-student-content .form-container {
   background: linear-gradient(135deg, #ffffff 0%, var(--primary-50) 50%, var(--primary-100) 100%);
-  border-radius: var(--radius-3xl);
+  border-radius: var(--radius-2xl);
   box-shadow:
-    var(--shadow-2xl),
-    0 0 0 3px var(--dark-green-700);
-  padding: var(--space-4);
+    var(--shadow-xl),
+    0 0 0 2px var(--dark-green-700);
+  padding: var(--space-3);
   width: 100%;
   box-sizing: border-box;
-  border: 3px solid var(--dark-green-700);
+  border: 2px solid var(--dark-green-700);
   position: relative;
   transition: all var(--transition-normal);
   backdrop-filter: blur(20px);
@@ -158,10 +158,10 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 800;
   text-align: center;
-  margin-bottom: var(--space-2);
+  margin-bottom: var(--space-1);
   letter-spacing: -0.025em;
   font-family: var(--font-sans);
   position: relative;
@@ -236,21 +236,21 @@
 .registration-form {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--space-2) var(--space-3);
+  gap: var(--space-1) var(--space-2);
   width: 100%;
   flex: 1;
   align-content: start;
   overflow-y: auto;
-  padding-right: var(--space-2);
-  margin-top: var(--space-6); /* Added 2 rows spacing from title */
+  padding-right: var(--space-1);
+  margin-top: var(--space-2);
 }
 
 /* ===== FORM GROUPS ===== */
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
-  margin-bottom: var(--space-1);
+  gap: 0.125rem;
+  margin-bottom: 0.25rem;
 }
 
 .form-group.full-width {
@@ -278,16 +278,17 @@
 .form-select,
 .form-textarea {
   background: #ffffff;
-  border: 2px solid var(--dark-green-300);
-  border-radius: var(--radius-lg);
-  padding: var(--space-2) var(--space-3);
-  font-size: 1rem;
+  border: 1px solid var(--dark-green-300);
+  border-radius: var(--radius-md);
+  padding: 0.375rem 0.5rem;
+  font-size: 0.9rem;
   font-family: var(--font-sans);
-  color: var(--neutral-900);
+  color: var(--dark-green-800);
   transition: all var(--transition-fast);
   box-shadow: var(--shadow-sm);
   width: 100%;
   box-sizing: border-box;
+  height: 2.25rem;
 }
 
 .form-input:focus,
@@ -309,6 +310,22 @@
 .form-input::placeholder {
   color: var(--neutral-400);
   font-style: italic;
+}
+
+/* ===== DROPDOWN OPTIONS STYLING ===== */
+.form-select option {
+  color: var(--dark-green-800);
+  background: #ffffff;
+  padding: 0.5rem;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+}
+
+.form-select option:hover,
+.form-select option:focus,
+.form-select option:checked {
+  background: var(--dark-green-50);
+  color: var(--dark-green-900);
 }
 
 /* ===== DEBUG INFO SECTION ===== */
@@ -501,12 +518,13 @@
 .form-actions {
   grid-column: 1 / -1;
   display: flex;
-  gap: var(--space-4);
-  margin-top: var(--space-2);
   justify-content: center;
-  flex-shrink: 0;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
   padding-top: var(--space-2);
-  border-top: 2px solid var(--dark-green-200);
+  border-top: 1px solid var(--dark-green-300);
+  flex-shrink: 0;
 }
 
 .submit-btn,
@@ -592,40 +610,44 @@
 
 /* ===== SUCCESS INFO SECTION ===== */
 .success-info-section {
-  position: static;
-  width: 450px;
-  min-width: 450px;
-  max-width: 500px;
-  box-sizing: border-box;
-  flex-shrink: 0;
+  flex: 0 0 400px;
+  max-width: 400px;
+  min-width: 350px;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  right: -420px;
+  transition: all var(--transition-slow);
   z-index: 10;
-  transform: none;
-  transition: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
-  margin-left: auto;
+  box-sizing: border-box;
 }
 
 .success-info-section.show {
+  right: var(--space-1);
   transform: translateX(0);
   opacity: 1;
   visibility: visible;
 }
 
 .success-info-box {
-  background: linear-gradient(135deg, #ffffff 0%, var(--primary-50) 50%, var(--primary-100) 100%);
-  border-radius: var(--radius-3xl);
-  padding: var(--space-8);
-  box-shadow: var(--shadow-2xl);
-  border: 4px solid var(--dark-green-800);
-  position: relative;
-  overflow: hidden;
-  backdrop-filter: blur(20px);
-  animation: slideInRight 0.8s ease-out;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
+  border-radius: var(--radius-2xl);
+  box-shadow:
+    var(--shadow-xl),
+    0 0 0 2px var(--dark-green-700);
+  padding: var(--space-4);
   width: 100%;
   box-sizing: border-box;
+  border: 2px solid var(--dark-green-700);
+  position: relative;
+  transition: all var(--transition-normal);
+  backdrop-filter: blur(20px);
+  max-height: 85vh;
+  overflow-y: auto;
+  animation: slideInRight 0.8s ease-out;
 }
 
 /* Water flowing effect for the border */
@@ -869,15 +891,24 @@
   .add-student-content {
     flex-direction: column;
     align-items: center;
-    gap: var(--space-8);
+    gap: var(--space-2);
     max-width: 900px;
     position: static;
+    height: auto;
+    min-height: calc(100vh - var(--space-4));
   }
 
   .registration-form-section {
     max-width: 100%;
     min-width: 0;
     position: static;
+  }
+
+  .add-student-content .form-container {
+    width: 100%;
+    max-width: none;
+    height: auto;
+    min-height: 500px;
   }
 
   .success-info-section {
@@ -893,20 +924,29 @@
   .success-info-section.show {
     transform: none;
   }
+
+  .success-info-box {
+    max-height: none;
+    padding: var(--space-3);
+  }
+
+  .registration-form {
+    padding-right: 0;
+  }
 }
 
 @media (max-width: 56.25rem) { /* 900px */
   .add-student-container {
-    padding: var(--space-4);
+    padding: var(--space-1);
   }
 
   .add-student-content .form-container {
-    padding: var(--space-6);
+    padding: var(--space-2);
     border-radius: var(--radius-2xl);
   }
 
   .form-title {
-    font-size: 2rem;
+    font-size: 1.25rem;
     margin-bottom: var(--space-4);
   }
 
@@ -921,15 +961,22 @@
 
   .registration-form {
     grid-template-columns: 1fr;
-    gap: var(--space-2) var(--space-3);
+    gap: var(--space-1);
   }
 
   .success-info-box {
-    padding: var(--space-6);
+    padding: var(--space-3);
   }
 
   .success-title {
     font-size: 1.3rem;
+  }
+
+  .form-input,
+  .form-select,
+  .form-textarea {
+    font-size: 0.85rem;
+    height: 2rem;
   }
 
   .form-input[type="search"],
@@ -941,17 +988,21 @@
 
 @media (max-width: 37.5rem) { /* 600px */
   .add-student-container {
-    padding: var(--space-3);
+    padding: 0.5rem;
+  }
+
+  .add-student-content {
+    padding: 0.25rem;
   }
 
   .add-student-content .form-container {
-    padding: var(--space-4);
+    padding: var(--space-1);
     border-radius: var(--radius-xl);
   }
 
   .form-title {
-    font-size: 1.5rem;
-    margin-bottom: var(--space-4);
+    font-size: 1.125rem;
+    margin-bottom: 0.5rem;
   }
 
   .title-decoration-line {
@@ -967,10 +1018,19 @@
 
   .registration-form {
     gap: var(--space-2);
+    margin-top: var(--space-1);
   }
 
   .form-group {
     margin-bottom: var(--space-2);
+  }
+
+  .form-input,
+  .form-select,
+  .form-textarea {
+    font-size: 0.8rem;
+    height: 1.875rem;
+    padding: 0.25rem 0.375rem;
   }
 
   .form-actions {
@@ -988,7 +1048,7 @@
   }
 
   .success-info-box {
-    padding: var(--space-4);
+    padding: var(--space-2);
   }
 
   .success-title {
