@@ -289,7 +289,19 @@ const PotentialStudentsPanel = ({
               aria-label="Search potential students"
               title="Search by name, phone, or student ID"
             />
-            <button type="button" className="search-bar-button">
+            <button 
+              type="button" 
+              className="search-bar-button"
+              onClick={() => {
+                // Search is already live, just focus the input for better UX
+                const searchInput = document.querySelector('.search-bar-input') as HTMLInputElement;
+                if (searchInput) {
+                  searchInput.focus();
+                }
+              }}
+              title="Search"
+              aria-label="Search"
+            >
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-label="Search">
                 <title>Search</title>
                 <path

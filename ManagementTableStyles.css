@@ -249,11 +249,7 @@
    ============================================== */
 
 /* PRESERVE ORIGINAL LOGIN AND SEARCH BUTTON STYLES */
-.login-btn,
-.search-bar-button,
-.search-btn {
-  /* Preserve original styling - DO NOT APPLY BLUEPRINT */
-}
+/* Note: .login-btn, .search-bar-button, .search-btn preserve original styling */
 
 /* PRIMARY ACTION BUTTONS */
 .btn-primary-action,
