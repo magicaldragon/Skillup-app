@@ -1975,16 +1975,15 @@
 }
 
 .starting-date-input::-webkit-calendar-picker-indicator {
-  background: transparent;
-  bottom: 0;
-  color: transparent;
-  cursor: pointer;
-  height: auto;
-  left: 0;
-  position: absolute;
-  right: 0;
-  top: 0;
-  width: auto;
+  display: none !important;
+  -webkit-appearance: none !important;
+  background: transparent !important;
+  color: transparent !important;
+  cursor: default !important;
+  height: 0 !important;
+  width: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 .starting-date-input::-webkit-inner-spin-button,
