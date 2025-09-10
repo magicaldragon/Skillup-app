@@ -7,7 +7,7 @@ import ChangeLogPanel from './ChangeLogPanel';
 import ClassesPanel from './ClassesPanel';
 import LevelsPanel from './LevelsPanel';
 import PotentialStudentsPanel from './PotentialStudentsPanel';
-import PreviewMode from './PreviewMode';
+
 import RecordsPanel from './RecordsPanel';
 import SettingsPanel from './SettingsPanel';
 import type { Assignment, Student, StudentClass } from './types';
@@ -119,7 +119,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
       ) : activeKey === 'changelog' ? (
         <ChangeLogPanel />
       ) : activeKey === 'editor-mode' ? (
-        <PreviewMode isActive={true} children={<div>Editor Mode Content</div>} />
+        <div className="admin-dashboard-content">
+          <div className="admin-dashboard-welcome">
+            <h1 className="admin-dashboard-title">Editor Mode</h1>
+            <p className="admin-dashboard-subtitle">Use the Editor Mode toggle button in the top-right corner to enter visual editing mode</p>
+          </div>
+        </div>
       ) : (
         // Default admin dashboard view
         <div className="admin-dashboard-content">
