@@ -177,9 +177,27 @@ const PreviewMode: React.FC<PreviewModeProps> = ({ isActive, children }) => {
             </button>
           </div>
           <div className="toolbar-controls">
-            <button className="btn-primary">💾 Save Layout</button>
-            <button className="btn-secondary">🔄 Reset</button>
-            <button className="btn-secondary">❌ Exit Preview</button>
+            <button 
+              className="btn-primary"
+              onClick={() => setShowLayoutManager(true)}
+              title="Save current layout"
+            >
+              💾 Save Layout
+            </button>
+            <button 
+              className="btn-secondary"
+              onClick={resetElementStyles}
+              title="Reset all element styles"
+            >
+              🔄 Reset
+            </button>
+            <button 
+              className="btn-secondary"
+              onClick={() => window.location.reload()}
+              title="Exit Editor Mode"
+            >
+              ❌ Exit Preview
+            </button>
           </div>
         </div>
         
