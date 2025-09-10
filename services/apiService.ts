@@ -72,9 +72,11 @@ export const authAPI = {
   },
 
   async verifyToken(token: string) {
-    return apiCall('/auth/verify', {
-      method: 'POST',
-      body: JSON.stringify({ token }),
+    return apiCall('/auth/profile', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
     });
   },
 

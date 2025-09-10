@@ -84,7 +84,7 @@ class AuthService {
       console.log('🔐 ID token obtained, verifying with backend...');
       
       // Step 3: Verify token with backend and get user profile
-      const response = await fetch(`${API_BASE_URL}/auth/verify`, {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
