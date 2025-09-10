@@ -37,7 +37,7 @@ const AddNewMembers = () => {
   // Debounced username generation for performance
   const debouncedUsernameGeneration = useCallback(
     debounce((fullName: string, role: string) => {
-      if (fullName.trim()) {
+      if (fullName && fullName.trim()) {
         const username = generateVietnameseUsername(fullName);
         const email = `${username}@${role}.skillup`;
         setPreviewUsername(username);
@@ -96,7 +96,7 @@ const AddNewMembers = () => {
   };
 
   const validateForm = (): string | null => {
-    if (!form.name.trim()) {
+    if (!form.name || !form.name.trim()) {
       return 'Full name is required';
     }
     if (form.name.trim().length < 2) {
@@ -108,7 +108,7 @@ const AddNewMembers = () => {
     if (form.role === 'student' && form.status === 'potential' && !form.parentName?.trim()) {
       return 'Parent name is recommended for potential students';
     }
-    if (form.phone && form.phone.trim().length < 10) {
+    if (form.phone && typeof form.phone === 'string' && form.phone.trim().length < 10) {
       return 'Phone number must be at least 10 digits';
     }
     if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {

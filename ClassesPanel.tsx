@@ -316,7 +316,7 @@ const ClassesPanel = ({
 
   // Submit student report
   const handleSubmitReport = useCallback(async () => {
-    if (!studentReportModal.studentId || !studentReportModal.problems.trim()) {
+    if (!studentReportModal.studentId || !studentReportModal.problems || !studentReportModal.problems.trim()) {
       alert('Please fill in all required fields');
       return;
     }

@@ -287,7 +287,7 @@ const AccountsPanel = () => {
   };
 
   const handlePasswordChange = async () => {
-    if (!passwordChangeId || !newPassword.trim()) return;
+    if (!passwordChangeId || !newPassword || !newPassword.trim()) return;
 
     const userToChangePassword = accounts.find((acc) => acc._id === passwordChangeId);
     if (!userToChangePassword) return;
@@ -849,7 +849,7 @@ const AccountsPanel = () => {
               <button
                 type="button"
                 onClick={handlePasswordChange}
-                disabled={passwordChanging || !newPassword.trim()}
+                disabled={passwordChanging || !newPassword || !newPassword.trim()}
                 className="btn-primary-action save-btn"
               >
                 {passwordChanging ? 'Changing...' : 'Change Password'}

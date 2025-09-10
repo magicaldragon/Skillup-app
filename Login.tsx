@@ -22,7 +22,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
     try {
       // Validate input
-      if (!email.trim() || !password.trim()) {
+      if (!email || !email.trim() || !password || !password.trim()) {
         setError('Please enter both email and password.');
         setIsLoading(false);
         return;
@@ -30,7 +30,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
 
       
-      const response = await authService.login({ email: email.trim(), password });
+      const response = await authService.login({ email: (email || '').trim(), password });
       if (response.success && response.user) {
         localStorage.setItem('skillup_user', JSON.stringify(response.user));
         onLoginSuccess(response.user);
