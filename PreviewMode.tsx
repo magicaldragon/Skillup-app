@@ -31,9 +31,7 @@ const PreviewMode: React.FC<PreviewModeProps> = ({ isActive, children }) => {
 
 
 
-  const handleSelect = useCallback((id: string) => {
-    setSelectedComponent(id);
-  }, []);
+
 
   const handleCanvasClick = useCallback((e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
