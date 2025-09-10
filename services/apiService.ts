@@ -1,4 +1,4 @@
-// apiService.ts - Enhanced Firebase Functions API Service with robust error handling
+// apiService.ts - Simple Firebase Functions API Service
 import type {
   AssignmentCreateData,
   AssignmentUpdateData,
@@ -23,384 +23,151 @@ import { auth } from './firebase';
 
 const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
 
-// Ensure consistent URL format (remove trailing slash if present)
-const normalizeUrl = (url: string) => url.replace(/\/$/, '');
-
-// Enhanced error handling and retry configuration
-const API_CONFIG = {
-  maxRetries: 3,
-  retryDelay: 1000,
-  timeout: 15000, // Reduced from 30s to 15s for faster failures
-  retryableStatuses: [408, 429, 500, 502, 503, 504],
-};
-
-// Request cache for reducing redundant API calls
-interface CacheEntry {
-  data: any;
-  timestamp: number;
-  ttl: number;
-}
-
-const REQUEST_CACHE = new Map<string, CacheEntry>();
-const DEFAULT_CACHE_TTL = 30000; // 30 seconds
-
-// Cache management functions
-function getCacheKey(endpoint: string, options: RequestInit): string {
-  const method = options.method || 'GET';
-  const body = options.body ? JSON.stringify(options.body) : '';
-  return `${method}:${endpoint}:${body}`;
-}
-
-function getCachedResponse<T>(cacheKey: string): T | null {
-  const entry = REQUEST_CACHE.get(cacheKey);
-  if (entry && Date.now() - entry.timestamp < entry.ttl) {
-    console.log('Returning cached response for:', cacheKey);
-    return entry.data;
+// Helper function to get auth token
+async function getAuthToken(): Promise<string> {
+  const user = auth.currentUser;
+  if (user) {
+    return await user.getIdToken();
   }
-  if (entry) {
-    REQUEST_CACHE.delete(cacheKey); // Remove expired entry
+  
+  const sessionToken = localStorage.getItem('skillup_token');
+  if (sessionToken) {
+    return sessionToken;
   }
-  return null;
+  
+  throw new Error('No authentication token available');
 }
 
-function setCachedResponse<T>(cacheKey: string, data: T, ttl = DEFAULT_CACHE_TTL): void {
-  REQUEST_CACHE.set(cacheKey, {
-    data,
-    timestamp: Date.now(),
-    ttl,
+// Simple API call function
+async function apiCall<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  const token = await getAuthToken();
+  
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+      ...options.headers,
+    },
   });
-}
 
-// Clear cache function for login/logout scenarios
-export function clearAPICache(): void {
-  REQUEST_CACHE.clear();
-  console.log('API cache cleared');
-}
-
-// Enhanced error class for better error handling
-export class APIError extends Error {
-  constructor(
-    message: string,
-    public status: number,
-    public code?: string,
-    public details?: any
-  ) {
-    super(message);
-    this.name = 'APIError';
-  }
-}
-
-// Helper function to get auth token with improved fallback to localStorage token
-async function getAuthToken(retryCount = 0): Promise<string> {
-  try {
-    // First try to get Firebase ID token if user is logged in
-    const user = auth.currentUser;
-    if (user) {
-      try {
-        return await user.getIdToken();
-      } catch (firebaseError) {
-        console.warn('Firebase ID token failed, falling back to session token:', firebaseError);
-      }
-    }
-    
-    // Fallback to session token from localStorage
-    const sessionToken = localStorage.getItem('skillup_token');
-    if (sessionToken) {
-      console.log('Using session token from localStorage');
-      return sessionToken;
-    }
-    
-    throw new Error('No authentication token available');
-  } catch (error) {
-    if (retryCount < API_CONFIG.maxRetries) {
-      await new Promise(resolve => setTimeout(resolve, API_CONFIG.retryDelay));
-      return getAuthToken(retryCount + 1);
-    }
-    throw new APIError('Failed to get authentication token', 401, 'AUTH_TOKEN_ERROR');
-  }
-}
-
-// Enhanced API call function with retry, timeout, caching, and better error handling
-async function apiCall<T>(
-  endpoint: string, 
-  options: RequestInit = {}, 
-  retryCount = 0,
-  cacheTtl?: number
-): Promise<T> {
-  const cacheKey = getCacheKey(endpoint, options);
-  const method = options.method || 'GET';
-  
-  // Check cache for GET requests
-  if (method === 'GET') {
-    const cachedData = getCachedResponse<T>(cacheKey);
-    if (cachedData !== null) {
-      return cachedData;
-    }
+  if (!response.ok) {
+    throw new Error(`API call failed: ${response.statusText}`);
   }
 
-  try {
-    const token = await getAuthToken();
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.timeout);
-
-    const response = await fetch(`${normalizeUrl(API_BASE_URL)}${endpoint}`, {
-      ...options,
-      signal: controller.signal,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-        'Cache-Control': 'no-cache', // Prevent browser caching conflicts
-        ...options.headers,
-      },
-    });
-
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      let errorData: any = {};
-      try {
-        errorData = await response.json();
-      } catch {
-        // If response is not JSON, use status text
-        errorData = { message: response.statusText };
-      }
-
-      // Check if error is retryable
-      if (
-        API_CONFIG.retryableStatuses.includes(response.status) && 
-        retryCount < API_CONFIG.maxRetries
-      ) {
-        console.warn(`API call failed with status ${response.status}, retrying... (${retryCount + 1}/${API_CONFIG.maxRetries})`);
-        await new Promise(resolve => setTimeout(resolve, API_CONFIG.retryDelay * (retryCount + 1)));
-        return apiCall<T>(endpoint, options, retryCount + 1, cacheTtl);
-      }
-
-      throw new APIError(
-        errorData.message || `HTTP ${response.status}: ${response.statusText}`,
-        response.status,
-        errorData.code,
-        errorData
-      );
-    }
-
-    const data = await response.json();
-    
-    // Validate response structure
-    if (data === null || data === undefined) {
-      throw new APIError('Empty response received', response.status, 'EMPTY_RESPONSE');
-    }
-
-    // Cache successful GET responses
-    if (method === 'GET') {
-      setCachedResponse(cacheKey, data, cacheTtl);
-    }
-
-    return data;
-  } catch (error) {
-    if (error instanceof APIError) {
-      throw error;
-    }
-    
-    if (error instanceof Error && error.name === 'AbortError') {
-      throw new APIError('Request timeout', 408, 'TIMEOUT');
-    }
-
-    // Network or other errors
-    if (retryCount < API_CONFIG.maxRetries) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      console.warn(`API call failed with error: ${errorMessage}, retrying... (${retryCount + 1}/${API_CONFIG.maxRetries})`);
-      await new Promise(resolve => setTimeout(resolve, API_CONFIG.retryDelay * (retryCount + 1)));
-      return apiCall<T>(endpoint, options, retryCount + 1, cacheTtl);
-    }
-
-    const errorMessage = error instanceof Error ? error.message : 'Network error';
-    throw new APIError(
-      errorMessage,
-      0,
-      'NETWORK_ERROR',
-      error instanceof Error ? error : undefined
-    );
-  }
+  return response.json();
 }
 
-// Enhanced data normalization function
-function normalizeResponse<T>(data: any, expectedStructure: 'array' | 'object' | 'any' = 'any'): T {
-  if (expectedStructure === 'array') {
-    if (Array.isArray(data)) {
-      return data as T;
-    }
-    if (data && typeof data === 'object' && Array.isArray(data.items)) {
-      return data.items as T;
-    }
-    if (data && typeof data === 'object' && Array.isArray(data.users)) {
-      return data.users as T;
-    }
-    if (data && typeof data === 'object' && Array.isArray(data.classes)) {
-      return data.classes as T;
-    }
-    if (data && typeof data === 'object' && Array.isArray(data.assignments)) {
-      return data.assignments as T;
-    }
-    return [] as unknown as T;
-  }
-  
-  if (expectedStructure === 'object') {
-    if (data && typeof data === 'object' && !Array.isArray(data)) {
-      return data as T;
-    }
-    return {} as unknown as T;
-  }
-  
-  return data as T;
-}
-
-// Auth API with enhanced error handling
+// Auth API
 export const authAPI = {
-  // Get current user profile
   async getProfile() {
-    const data = await apiCall('/auth/profile');
-    return normalizeResponse(data, 'object');
+    return apiCall('/auth/profile');
   },
 
-  // Update user profile
   async updateProfile(profileData: ProfileUpdateData) {
-    const data = await apiCall('/auth/profile', {
+    return apiCall('/auth/profile', {
       method: 'PUT',
       body: JSON.stringify(profileData),
     });
-    return normalizeResponse(data, 'object');
   },
 
-  // Verify Firebase token
   async verifyToken(token: string) {
-    const data = await apiCall('/auth/verify', {
+    return apiCall('/auth/verify', {
       method: 'POST',
       body: JSON.stringify({ token }),
     });
-    return normalizeResponse(data, 'object');
   },
 
-  // Refresh session
   async refreshSession() {
-    const data = await apiCall('/auth/refresh', {
+    return apiCall('/auth/refresh', {
       method: 'POST',
     });
-    return normalizeResponse(data, 'object');
   },
 
-  // Logout
   async logout() {
-    const data = await apiCall('/auth/logout', {
+    return apiCall('/auth/logout', {
       method: 'POST',
     });
-    return normalizeResponse(data, 'object');
   },
 
-  // Get user permissions
   async getPermissions() {
-    const data = await apiCall('/auth/permissions');
-    return normalizeResponse(data, 'object');
+    return apiCall('/auth/permissions');
   },
 
-  // Change password
   async changePassword(currentPassword: string, newPassword: string) {
-    const data = await apiCall('/auth/change-password', {
-      method: 'POST',
+    return apiCall('/auth/change-password', {
+      method: 'PUT',
       body: JSON.stringify({ currentPassword, newPassword }),
     });
-    return normalizeResponse(data, 'object');
   },
 };
 
-// Users API with enhanced error handling and data normalization
+// Users API
 export const usersAPI = {
-  // Get all users
   async getUsers(params?: { status?: string }) {
     const searchParams = new URLSearchParams();
     if (params?.status) {
       searchParams.append('status', params.status);
     }
     const queryString = searchParams.toString();
-    const data = await apiCall(`/users${queryString ? `?${queryString}` : ''}`);
-    return normalizeResponse(data, 'array');
+    return apiCall(`/users${queryString ? `?${queryString}` : ''}`);
   },
 
-  // Get user by ID
   async getUserById(id: string) {
-    const data = await apiCall(`/users/${id}`);
-    return normalizeResponse(data, 'object');
+    return apiCall(`/users/${id}`);
   },
 
-  // Create new user
   async createUser(userData: UserCreateData) {
-    const data = await apiCall('/users', {
+    return apiCall('/users', {
       method: 'POST',
       body: JSON.stringify(userData),
     });
-    return normalizeResponse(data, 'object');
   },
 
-  // Update user
   async updateUser(id: string, userData: UserUpdateData) {
-    const data = await apiCall(`/users/${id}`, {
+    return apiCall(`/users/${id}`, {
       method: 'PUT',
       body: JSON.stringify(userData),
     });
-    return normalizeResponse(data, 'object');
   },
 
-  // Delete user
   async deleteUser(id: string) {
-    const data = await apiCall(`/users/${id}`, {
+    return apiCall(`/users/${id}`, {
       method: 'DELETE',
     });
-    return normalizeResponse(data, 'object');
   },
 
-
-
-  // Check if email exists
   async checkEmail(email: string) {
-    const data = await apiCall(`/users/check-email/${email}`);
-    return normalizeResponse(data, 'object');
+    return apiCall(`/users/check-email/${email}`);
   },
 
-  // Check if username exists
   async checkUsername(username: string) {
-    const data = await apiCall(`/users/check-username/${username}`);
-    return normalizeResponse(data, 'object');
+    return apiCall(`/users/check-username/${username}`);
   },
 
-  // Update user avatar
   async updateAvatar(id: string, avatarData: AvatarUpdateData) {
-    const data = await apiCall(`/users/${id}/avatar`, {
-      method: 'POST',
+    return apiCall(`/users/${id}/avatar`, {
+      method: 'PUT',
       body: JSON.stringify(avatarData),
     });
-    return normalizeResponse(data, 'object');
   },
 
-  // Remove user avatar
   async removeAvatar(id: string) {
-    const data = await apiCall(`/users/${id}/avatar`, {
+    return apiCall(`/users/${id}/avatar`, {
       method: 'DELETE',
     });
-    return normalizeResponse(data, 'object');
   },
 
-  // Change user password
   async changePassword(id: string, newPassword: string) {
-    const data = await apiCall(`/users/${id}/password`, {
+    return apiCall(`/users/${id}/password`, {
       method: 'PUT',
       body: JSON.stringify({ newPassword }),
     });
-    return normalizeResponse(data, 'object');
   },
 };
 
-// Classes API with enhanced error handling
+// Classes API
 export const classesAPI = {
-  // Get all classes
   async getClasses(params?: { isActive?: boolean; teacherId?: string }) {
     const searchParams = new URLSearchParams();
     if (params?.isActive !== undefined) {
@@ -410,123 +177,95 @@ export const classesAPI = {
       searchParams.append('teacherId', params.teacherId);
     }
     const queryString = searchParams.toString();
-    const data = await apiCall(`/classes${queryString ? `?${queryString}` : ''}`);
-    return normalizeResponse(data, 'array');
+    return apiCall(`/classes${queryString ? `?${queryString}` : ''}`);
   },
 
-  // Get class by ID
   async getClassById(id: string) {
-    const data = await apiCall(`/classes/${id}`);
-    return normalizeResponse(data, 'object');
+    return apiCall(`/classes/${id}`);
   },
 
-  // Create new class
   async createClass(classData: ClassCreateData) {
-    const data = await apiCall('/classes', {
+    return apiCall('/classes', {
       method: 'POST',
       body: JSON.stringify(classData),
     });
-    return normalizeResponse(data, 'object');
   },
 
-  // Update class
   async updateClass(id: string, classData: ClassUpdateData) {
-    const data = await apiCall(`/classes/${id}`, {
+    return apiCall(`/classes/${id}`, {
       method: 'PUT',
       body: JSON.stringify(classData),
     });
-    return normalizeResponse(data, 'object');
   },
 
-  // Delete class
   async deleteClass(id: string) {
-    const data = await apiCall(`/classes/${id}`, {
+    return apiCall(`/classes/${id}`, {
       method: 'DELETE',
     });
-    return normalizeResponse(data, 'object');
   },
 
-  // Add student to class
   async addStudentToClass(classId: string, studentId: string) {
-    const data = await apiCall(`/classes/${classId}/students/${studentId}`, {
+    return apiCall(`/classes/${classId}/students/${studentId}`, {
       method: 'POST',
     });
-    return normalizeResponse(data, 'object');
   },
 
-  // Remove student from class
   async removeStudentFromClass(classId: string, studentId: string) {
-    const data = await apiCall(`/classes/${classId}/students/${studentId}`, {
+    return apiCall(`/classes/${classId}/students/${studentId}`, {
       method: 'DELETE',
     });
-    return normalizeResponse(data, 'object');
   },
 
-  // Check for gaps in class code sequence
   async checkClassCodeGaps(levelId: string) {
-    const data = await apiCall(`/classes/check-gaps/${levelId}`);
-    return normalizeResponse(data, 'object');
+    return apiCall(`/classes/check-gaps/${levelId}`);
   },
 };
 
 // Levels API
 export const levelsAPI = {
-  // Get all levels
   async getLevels(params?: { isActive?: boolean }) {
     const searchParams = new URLSearchParams();
     if (params?.isActive !== undefined) {
       searchParams.append('isActive', params.isActive.toString());
     }
     const queryString = searchParams.toString();
-    const data = await apiCall(`/levels${queryString ? `?${queryString}` : ''}`);
-    return normalizeResponse(data, 'array');
+    return apiCall(`/levels${queryString ? `?${queryString}` : ''}`);
   },
 
-  // Get level by ID
   async getLevelById(id: string) {
-    const data = await apiCall(`/levels/${id}`);
-    return normalizeResponse(data, 'object');
+    return apiCall(`/levels/${id}`);
   },
 
-  // Create new level
   async createLevel(levelData: LevelCreateData) {
-    const data = await apiCall('/levels', {
+    return apiCall('/levels', {
       method: 'POST',
       body: JSON.stringify(levelData),
     });
-    return normalizeResponse(data, 'object');
   },
 
-  // Update level
   async updateLevel(id: string, levelData: LevelUpdateData) {
-    const data = await apiCall(`/levels/${id}`, {
+    return apiCall(`/levels/${id}`, {
       method: 'PUT',
       body: JSON.stringify(levelData),
     });
-    return normalizeResponse(data, 'object');
   },
 
-  // Delete level
   async deleteLevel(id: string) {
-    const data = await apiCall(`/levels/${id}`, {
+    return apiCall(`/levels/${id}`, {
       method: 'DELETE',
     });
-    return normalizeResponse(data, 'object');
   },
 
-  // Reorder levels
   async reorderLevels(levelOrders: { id: string; order: number }[]) {
-    const data = await apiCall('/levels/reorder', {
-      method: 'POST',
+    return apiCall('/levels/reorder', {
+      method: 'PUT',
       body: JSON.stringify({ levelOrders }),
     });
-    return normalizeResponse(data, 'object');
   },
 };
 
 // Assignments API
 export const assignmentsAPI = {
-  // Get all assignments
   async getAssignments(params?: { classId?: string; isActive?: boolean }) {
     const searchParams = new URLSearchParams();
     if (params?.classId) {
@@ -536,57 +275,45 @@ export const assignmentsAPI = {
       searchParams.append('isActive', params.isActive.toString());
     }
     const queryString = searchParams.toString();
-    const data = await apiCall(`/assignments${queryString ? `?${queryString}` : ''}`);
-    return normalizeResponse(data, 'array');
+    return apiCall(`/assignments${queryString ? `?${queryString}` : ''}`);
   },
 
-  // Get assignment by ID
   async getAssignmentById(id: string) {
-    const data = await apiCall(`/assignments/${id}`);
-    return normalizeResponse(data, 'object');
+    return apiCall(`/assignments/${id}`);
   },
 
-  // Create new assignment
   async createAssignment(assignmentData: AssignmentCreateData) {
-    const data = await apiCall('/assignments', {
+    return apiCall('/assignments', {
       method: 'POST',
       body: JSON.stringify(assignmentData),
     });
-    return normalizeResponse(data, 'object');
   },
 
-  // Update assignment
   async updateAssignment(id: string, assignmentData: AssignmentUpdateData) {
-    const data = await apiCall(`/assignments/${id}`, {
+    return apiCall(`/assignments/${id}`, {
       method: 'PUT',
       body: JSON.stringify(assignmentData),
     });
-    return normalizeResponse(data, 'object');
   },
 
-  // Delete assignment
   async deleteAssignment(id: string) {
-    const data = await apiCall(`/assignments/${id}`, {
+    return apiCall(`/assignments/${id}`, {
       method: 'DELETE',
     });
-    return normalizeResponse(data, 'object');
   },
 
-  // Get assignments for a specific class
   async getClassAssignments(classId: string, params?: { isActive?: boolean }) {
     const searchParams = new URLSearchParams();
     if (params?.isActive !== undefined) {
       searchParams.append('isActive', params.isActive.toString());
     }
     const queryString = searchParams.toString();
-    const data = await apiCall(`/assignments/class/${classId}${queryString ? `?${queryString}` : ''}`);
-    return normalizeResponse(data, 'array');
+    return apiCall(`/assignments/class/${classId}${queryString ? `?${queryString}` : ''}`);
   },
 };
 
 // Submissions API
 export const submissionsAPI = {
-  // Get all submissions
   async getSubmissions(params?: {
     assignmentId?: string;
     classId?: string;
@@ -607,52 +334,40 @@ export const submissionsAPI = {
       searchParams.append('status', params.status);
     }
     const queryString = searchParams.toString();
-    const data = await apiCall(`/submissions${queryString ? `?${queryString}` : ''}`);
-    return normalizeResponse(data, 'array');
+    return apiCall(`/submissions${queryString ? `?${queryString}` : ''}`);
   },
 
-  // Get submission by ID
   async getSubmissionById(id: string) {
-    const data = await apiCall(`/submissions/${id}`);
-    return normalizeResponse(data, 'object');
+    return apiCall(`/submissions/${id}`);
   },
 
-  // Create new submission
   async createSubmission(submissionData: SubmissionCreateData) {
-    const data = await apiCall('/submissions', {
+    return apiCall('/submissions', {
       method: 'POST',
       body: JSON.stringify(submissionData),
     });
-    return normalizeResponse(data, 'object');
   },
 
-  // Update submission
   async updateSubmission(id: string, submissionData: SubmissionUpdateData) {
-    const data = await apiCall(`/submissions/${id}`, {
+    return apiCall(`/submissions/${id}`, {
       method: 'PUT',
       body: JSON.stringify(submissionData),
     });
-    return normalizeResponse(data, 'object');
   },
 
-  // Delete submission
   async deleteSubmission(id: string) {
-    const data = await apiCall(`/submissions/${id}`, {
+    return apiCall(`/submissions/${id}`, {
       method: 'DELETE',
     });
-    return normalizeResponse(data, 'object');
   },
 
-  // Get submissions for a specific assignment
   async getAssignmentSubmissions(assignmentId: string) {
-    const data = await apiCall(`/submissions/assignment/${assignmentId}`);
-    return normalizeResponse(data, 'array');
+    return apiCall(`/submissions/assignment/${assignmentId}`);
   },
 };
 
 // Potential Students API
 export const potentialStudentsAPI = {
-  // Get all potential students
   async getPotentialStudents(params?: { status?: string; assignedTo?: string }) {
     const searchParams = new URLSearchParams();
     if (params?.status) {
@@ -662,64 +377,50 @@ export const potentialStudentsAPI = {
       searchParams.append('assignedTo', params.assignedTo);
     }
     const queryString = searchParams.toString();
-    const data = await apiCall(`/potential-students${queryString ? `?${queryString}` : ''}`);
-    return normalizeResponse(data, 'array');
+    return apiCall(`/potential-students${queryString ? `?${queryString}` : ''}`);
   },
 
-  // Get potential student by ID
   async getPotentialStudentById(id: string) {
-    const data = await apiCall(`/potential-students/${id}`);
-    return normalizeResponse(data, 'object');
+    return apiCall(`/potential-students/${id}`);
   },
 
-  // Create new potential student
   async createPotentialStudent(potentialStudentData: PotentialStudentCreateData) {
-    const data = await apiCall('/potential-students', {
+    return apiCall('/potential-students', {
       method: 'POST',
       body: JSON.stringify(potentialStudentData),
     });
-    return normalizeResponse(data, 'object');
   },
 
-  // Update potential student
   async updatePotentialStudent(id: string, potentialStudentData: PotentialStudentUpdateData) {
-    const data = await apiCall(`/potential-students/${id}`, {
+    return apiCall(`/potential-students/${id}`, {
       method: 'PUT',
       body: JSON.stringify(potentialStudentData),
     });
-    return normalizeResponse(data, 'object');
   },
 
-  // Delete potential student
   async deletePotentialStudent(id: string) {
-    const data = await apiCall(`/potential-students/${id}`, {
+    return apiCall(`/potential-students/${id}`, {
       method: 'DELETE',
     });
-    return normalizeResponse(data, 'object');
   },
 
-  // Assign potential student to teacher
   async assignToTeacher(id: string, teacherId: string) {
-    const data = await apiCall(`/potential-students/${id}/assign`, {
-      method: 'POST',
+    return apiCall(`/potential-students/${id}/assign`, {
+      method: 'PUT',
       body: JSON.stringify({ teacherId }),
     });
-    return normalizeResponse(data, 'object');
   },
 
-  // Convert potential student to regular student
   async convertToStudent(id: string, conversionData: ConversionData) {
-    const data = await apiCall(`/potential-students/${id}/convert`, {
+    return apiCall(`/potential-students/${id}/convert`, {
       method: 'POST',
       body: JSON.stringify(conversionData),
     });
-    return normalizeResponse(data, 'object');
   },
 };
 
 // Student Records API
 export const studentRecordsAPI = {
-  // Get all student records
   async getStudentRecords(params?: { studentId?: string; classId?: string; levelId?: string }) {
     const searchParams = new URLSearchParams();
     if (params?.studentId) {
@@ -732,58 +433,44 @@ export const studentRecordsAPI = {
       searchParams.append('levelId', params.levelId);
     }
     const queryString = searchParams.toString();
-    const data = await apiCall(`/student-records${queryString ? `?${queryString}` : ''}`);
-    return normalizeResponse(data, 'array');
+    return apiCall(`/student-records${queryString ? `?${queryString}` : ''}`);
   },
 
-  // Get student record by ID
   async getStudentRecordById(id: string) {
-    const data = await apiCall(`/student-records/${id}`);
-    return normalizeResponse(data, 'object');
+    return apiCall(`/student-records/${id}`);
   },
 
-  // Create new student record
   async createStudentRecord(studentRecordData: StudentRecordCreateData) {
-    const data = await apiCall('/student-records', {
+    return apiCall('/student-records', {
       method: 'POST',
       body: JSON.stringify(studentRecordData),
     });
-    return normalizeResponse(data, 'object');
   },
 
-  // Update student record
   async updateStudentRecord(id: string, studentRecordData: StudentRecordUpdateData) {
-    const data = await apiCall(`/student-records/${id}`, {
+    return apiCall(`/student-records/${id}`, {
       method: 'PUT',
       body: JSON.stringify(studentRecordData),
     });
-    return normalizeResponse(data, 'object');
   },
 
-  // Delete student record
   async deleteStudentRecord(id: string) {
-    const data = await apiCall(`/student-records/${id}`, {
+    return apiCall(`/student-records/${id}`, {
       method: 'DELETE',
     });
-    return normalizeResponse(data, 'object');
   },
 
-  // Get student records for a specific student
   async getStudentRecordsByStudent(studentId: string) {
-    const data = await apiCall(`/student-records/student/${studentId}`);
-    return normalizeResponse(data, 'array');
+    return apiCall(`/student-records/student/${studentId}`);
   },
 
-  // Get student records for a specific class
   async getStudentRecordsByClass(classId: string) {
-    const data = await apiCall(`/student-records/class/${classId}`);
-    return normalizeResponse(data, 'array');
+    return apiCall(`/student-records/class/${classId}`);
   },
 };
 
 // Change Logs API
 export const changeLogsAPI = {
-  // Get all change logs
   async getChangeLogs(params?: {
     entityType?: string;
     entityId?: string;
@@ -812,56 +499,44 @@ export const changeLogsAPI = {
       searchParams.append('endDate', params.endDate);
     }
     const queryString = searchParams.toString();
-    const data = await apiCall(`/change-logs${queryString ? `?${queryString}` : ''}`);
-    return normalizeResponse(data, 'array');
+    return apiCall(`/change-logs${queryString ? `?${queryString}` : ''}`);
   },
 
-  // Get change log by ID
   async getChangeLogById(id: string) {
-    const data = await apiCall(`/change-logs/${id}`);
-    return normalizeResponse(data, 'object');
+    return apiCall(`/change-logs/${id}`);
   },
 
-  // Create new change log
   async createChangeLog(changeLogData: ChangeLogCreateData) {
-    const data = await apiCall('/change-logs', {
+    return apiCall('/change-logs', {
       method: 'POST',
       body: JSON.stringify(changeLogData),
     });
-    return normalizeResponse(data, 'object');
   },
 
-  // Delete change log
   async deleteChangeLog(id: string) {
-    const data = await apiCall(`/change-logs/${id}`, {
+    return apiCall(`/change-logs/${id}`, {
       method: 'DELETE',
     });
-    return normalizeResponse(data, 'object');
   },
 
-  // Get change logs for a specific entity
   async getEntityChangeLogs(entityType: string, entityId: string) {
-    const data = await apiCall(`/change-logs/entity/${entityType}/${entityId}`);
-    return normalizeResponse(data, 'array');
+    return apiCall(`/change-logs/entity/${entityType}/${entityId}`);
   },
 
-  // Get change logs summary for dashboard
   async getDashboardSummary(params?: { days?: number }) {
     const searchParams = new URLSearchParams();
     if (params?.days) {
       searchParams.append('days', params.days.toString());
     }
     const queryString = searchParams.toString();
-    const data = await apiCall(`/change-logs/summary/dashboard${queryString ? `?${queryString}` : ''}`);
-    return normalizeResponse(data, 'object');
+    return apiCall(`/change-logs/summary/dashboard${queryString ? `?${queryString}` : ''}`);
   },
 };
 
 // Health check
 export const healthAPI = {
   async checkHealth() {
-    const data = await apiCall('/health');
-    return normalizeResponse(data, 'object');
+    return apiCall('/health');
   },
 };
 

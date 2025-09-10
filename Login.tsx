@@ -17,7 +17,6 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   const [backendStatus, setBackendStatus] = useState<'checking' | 'connected' | 'disconnected'>('checking');
   const MAX_ATTEMPTS = 3;
 
-  // Check backend connection on component mount
   useEffect(() => {
     const checkConnection = async () => {
       try {
@@ -36,8 +35,6 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
     setBackendStatus('checking');
     setError(null);
     try {
-      // Clear the connection cache to force a fresh test
-      authService.clearConnectionCache();
       const isConnected = await authService.testBackendConnection();
       setBackendStatus(isConnected ? 'connected' : 'disconnected');
     } catch (error) {
