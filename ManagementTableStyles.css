@@ -216,12 +216,12 @@
   font-weight: 600 !important;
 }
 
-/* Waiting List Update Status Button - Match Edit Button Style */
+/* Waiting List Update Status Button - Blue Color Scheme */
 .status-select,
 .assign-select,
 .waiting-list-select {
   padding: 8px 16px !important;
-  border: 2px solid #28a745 !important;
+  border: 2px solid #007bff !important;
   border-radius: 6px !important;
   font-size: 12px !important;
   font-weight: 700 !important;
@@ -231,7 +231,7 @@
   letter-spacing: 0.5px !important;
   position: relative !important;
   overflow: hidden !important;
-  background-color: #28a745 !important;
+  background-color: #007bff !important;
   color: #ffffff !important;
 }
 

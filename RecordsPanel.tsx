@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import './RecordsPanel.css';
 import './ManagementTableStyles.css';
-import { formatDateDDMMYYYY, formatDateTimeDDMMYYYY } from './utils/stringUtils';
+import { formatDateMMDDYYYY, formatDateTimeDDMMYYYY } from './utils/stringUtils';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
 
@@ -373,7 +373,7 @@ const RecordsPanel = () => {
                     <td>{student.studentCode || '—'}</td>
                     <td>{student.phone || '—'}</td>
                     <td>{student.parentName || '—'}</td>
-                    <td>{formatDateDDMMYYYY(student.createdAt)}</td>
+                    <td>{formatDateMMDDYYYY(student.createdAt)}</td>
                   </tr>
                 ))
               )}

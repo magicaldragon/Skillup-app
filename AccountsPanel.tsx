@@ -480,7 +480,7 @@ const AccountsPanel = () => {
               </div>
             </div>
 
-            <div className="table-wrapper">
+            <div className="table-wrapper management-table-container table-container theme-purple">
               {/* Permissions Summary */}
               {currentUser && (
                 <div className="permissions-summary">

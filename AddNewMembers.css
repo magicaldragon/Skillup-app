@@ -103,12 +103,12 @@
   align-items: flex-start;
   justify-content: center;
   gap: 1rem;
-  padding: 0.25rem;
+  padding: 0.25rem 0.25rem 1rem 0.25rem; /* Added bottom padding */
   box-sizing: border-box;
   min-width: 0;
-  height: calc(100vh - 1rem);
+  min-height: calc(100vh - 1rem); /* Changed height to min-height */
   position: relative;
-  overflow: hidden;
+  overflow: visible; /* Changed from hidden to visible */
 }
 
 /* ===== REGISTRATION FORM SECTION ===== */
@@ -131,18 +131,19 @@
   box-shadow:
     var(--shadow-xl),
     0 0 0 2px var(--dark-green-700);
-  padding: 1.5rem 2rem;
+  padding: 1.5rem 2rem 2rem 2rem; /* Added extra bottom padding */
   width: 100%;
   box-sizing: border-box;
   border: 2px solid var(--dark-green-700);
   position: relative;
   transition: all var(--transition-normal);
   backdrop-filter: blur(20px);
-  height: 100%;
+  height: auto; /* Changed from 100% to auto */
+  min-height: calc(100vh - 2rem); /* Ensure minimum height */
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
-  max-height: calc(100vh - 1rem);
+  overflow-y: visible; /* Changed from auto to visible */
+  max-height: none; /* Removed max-height constraint */
 }
 
 .add-student-content .form-container:hover {

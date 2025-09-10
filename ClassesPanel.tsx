@@ -2,7 +2,7 @@
 // Professional panel to show and manage classes with code names (SU-001, SU-002, ...)
 import { useCallback, useEffect, useState } from 'react';
 import type { Level, Student, StudentClass } from './types';
-import { formatDateDDMMYYYY } from './utils/stringUtils';
+import { formatDateMMDDYYYY } from './utils/stringUtils';
 import './ClassesPanel.css';
 import './ManagementTableStyles.css';
 
@@ -818,7 +818,7 @@ const ClassesPanel = ({
         )}
       </div>
 
-      <div className="management-table-container">
+      <div className="management-table-container table-container theme-dark-green">
         <table className="management-table">
           <thead>
             <tr>
@@ -1203,7 +1203,7 @@ const ClassesPanel = ({
                             </td>
                             <td>{student.englishName || 'N/A'}</td>
                             <td>
-                              {student.dob ? formatDateDDMMYYYY(student.dob) : 'N/A'}
+                              {student.dob ? formatDateMMDDYYYY(student.dob) : 'N/A'}
                             </td>
                             <td>{student.gender || 'N/A'}</td>
                             <td className="student-actions">

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { Student, StudentClass } from './types';
-import { formatDateDDMMYYYY } from './utils/stringUtils';
+import { formatDateMMDDYYYY } from './utils/stringUtils';
 import './PotentialStudentsPanel.css';
 import './ManagementTableStyles.css';
 
@@ -414,7 +414,7 @@ const PotentialStudentsPanel = ({
                 </td>
                 <td className="gender-cell">{student.gender || 'N/A'}</td>
                 <td className="dob-cell">
-                  {student.dob ? formatDateDDMMYYYY(student.dob) : 'N/A'}
+                  {student.dob ? formatDateMMDDYYYY(student.dob) : 'N/A'}
                 </td>
                 <td className="status-cell">
                   <span className={`status-badge status-${student.status}`}>{student.status}</span>

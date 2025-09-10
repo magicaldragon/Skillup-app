@@ -1985,7 +1985,8 @@
 }
 
 .starting-date-input::-webkit-calendar-picker-indicator {
-  display: none;
+  display: block;
+  cursor: pointer;
 }
 
 .starting-date-input::-webkit-inner-spin-button,

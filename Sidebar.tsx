@@ -102,6 +102,12 @@ const menuConfig = (role: string) => [
         key: 'records',
         visible: role === 'staff' || role === 'teacher' || role === 'admin',
       },
+      {
+        label: 'Editor Mode',
+        icon: <FaPen />,
+        key: 'editor-mode',
+        visible: role === 'staff' || role === 'teacher' || role === 'admin',
+      },
       // Student-specific management submenu
       { label: 'My Classes', icon: <FaUsers />, key: 'my-classes', visible: role === 'student' },
       {

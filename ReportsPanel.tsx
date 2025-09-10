@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import './ReportsPanel.css';
 import './ManagementTableStyles.css';
-import { formatDateDDMMYYYY } from './utils/stringUtils';
+import { formatDateMMDDYYYY } from './utils/stringUtils';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
 
@@ -263,7 +263,7 @@ const ReportsPanel = () => {
         </div>
       </div>
 
-      <div className="management-table-container">
+      <div className="management-table-container table-container theme-purple">
         <table className="management-table">
           <thead>
             <tr>
@@ -296,7 +296,7 @@ const ReportsPanel = () => {
                   <td className="case-no-cell">
                     <strong>{report.caseNo}</strong>
                   </td>
-                  <td>{formatDateDDMMYYYY(report.date)}</td>
+                  <td>{formatDateMMDDYYYY(report.date)}</td>
                   <td className="reporter-cell">
                     <div className="reporter-name">{report.reporterName}</div>
                     {report.reporterEnglishName && (

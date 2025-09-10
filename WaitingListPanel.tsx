@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import type { StudentClass } from './types';
-import { formatDateDDMMYYYY } from './utils/stringUtils';
+import { formatDateMMDDYYYY } from './utils/stringUtils';
 import './WaitingListPanel.css';
 import './ManagementTableStyles.css';
 
@@ -472,7 +472,7 @@ const WaitingListPanel = ({
                 </td>
                 <td className="gender-cell">{student.gender || 'N/A'}</td>
                 <td className="dob-cell">
-                  {student.dob ? formatDateDDMMYYYY(student.dob) : 'N/A'}
+                  {student.dob ? formatDateMMDDYYYY(student.dob) : 'N/A'}
                 </td>
                 <td className="status-cell">
                   {student.status === 'studying' ? (
@@ -603,7 +603,7 @@ const WaitingListPanel = ({
                     className="edit-input"
                   />
                 ) : (
-                  <span>{selectedStudent.dob ? formatDateDDMMYYYY(selectedStudent.dob) : 'N/A'}</span>
+                  <span>{selectedStudent.dob ? formatDateMMDDYYYY(selectedStudent.dob) : 'N/A'}</span>
                 )}
               </div>
               <div className="detail-item">

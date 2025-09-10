@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { Assignment, Student, Submission } from './types';
-import { formatDateDDMMYYYY } from './utils/stringUtils';
+import { formatDateMMDDYYYY } from './utils/stringUtils';
 
 const StudentScoresFeedbackPanel = ({ user }: { user: Student }) => {
   const [assignments, setAssignments] = useState<Assignment[]>([]);
@@ -107,7 +107,7 @@ const StudentScoresFeedbackPanel = ({ user }: { user: Student }) => {
                 <td className="p-2">{row.assignmentType}</td>
                 <td className="p-2">{typeof row.score === 'number' ? row.score : '-'}</td>
                 <td className="p-2">{row.feedback || '-'}</td>
-                <td className="p-2">{row.date ? formatDateDDMMYYYY(row.date) : '-'}</td>
+                <td className="p-2">{row.date ? formatDateMMDDYYYY(row.date) : '-'}</td>
               </tr>
             ))}
           </tbody>
