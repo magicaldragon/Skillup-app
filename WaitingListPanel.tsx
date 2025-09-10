@@ -415,13 +415,12 @@ const WaitingListPanel = ({
               <th>Gender</th>
               <th>Date of Birth</th>
               <th>Status</th>
-              <th>Assign</th>
             </tr>
           </thead>
           <tbody>
             {filteredStudents.length === 0 && (
               <tr>
-                <td colSpan={8} className="empty-table">
+                <td colSpan={7} className="empty-table">
                   <div className="empty-state">
                     <div className="empty-icon">⏳</div>
                     <p>No students in waiting list.</p>
@@ -491,20 +490,7 @@ const WaitingListPanel = ({
                     </select>
                   )}
                 </td>
-                <td className="assign-cell">
-                  <select
-                    onChange={(e) => handleAssignToClass(student._id, e.target.value)}
-                    onClick={(e) => e.stopPropagation()}
-                    className="assign-select"
-                  >
-                    <option value="">Select Class</option>
-                    {propClasses.map((cls) => (
-                      <option key={cls.id} value={cls.id}>
-                        {cls.name}
-                      </option>
-                    ))}
-                  </select>
-                </td>
+
               </tr>
             ))}
           </tbody>
@@ -738,42 +724,41 @@ const WaitingListPanel = ({
         </div>
       )}
 
-      <div className="management-actions">
-        {selectedIds.length > 0 && (
-          <>
+      {/* Contextual Action Bar - Only shows when students are selected */}
+      {selectedIds.length > 0 && (
+        <div className="contextual-action-bar">
+          <div className="selection-info">
+            <span className="selection-count">{selectedIds.length} student{selectedIds.length > 1 ? 's' : ''} selected</span>
+          </div>
+          <div className="action-buttons-group">
             <button
               type="button"
               className="btn-primary-action"
+              onClick={() => setShowBulkAssign(true)}
+              title="Assign selected students to a class"
+            >
+              Bulk Assign to Class
+            </button>
+            <button
+              type="button"
+              className="btn-secondary-action"
               onClick={() => setShowBulkStatusUpdate(true)}
+              title={selectedIds.length < 2 ? "Select at least 2 students with the same status to update" : "Update status of selected students"}
+              disabled={selectedIds.length < 2}
             >
               Update Status
             </button>
             <button
               type="button"
-              className="btn-secondary-action"
-              onClick={() => setShowBulkAssign(true)}
+              className="btn-neutral-action"
+              onClick={clearAll}
+              title="Clear current selection"
             >
-              Bulk Assign to Class
+              Clear Selection
             </button>
-          </>
-        )}
-        <button
-          type="button"
-          className="btn-secondary-action"
-          onClick={selectAll}
-          disabled={selectedIds.length === waitingStudents.length}
-        >
-          Select All
-        </button>
-        <button
-          type="button"
-          className="btn-secondary-action"
-          onClick={clearAll}
-          disabled={selectedIds.length === 0}
-        >
-          Clear
-        </button>
-      </div>
+          </div>
+        </div>
+      )}
 
       {showBulkAssign && (
         <div className="waiting-list-bulk-section">

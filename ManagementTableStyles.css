@@ -177,22 +177,12 @@
   margin: 0 auto !important;
 }
 
-.student-id-badge.male {
-  background: #e6f7e6 !important;
-  color: #008000 !important; /* Green for male students */
-  border: 1px solid #008000 !important;
-}
-
-.student-id-badge.female {
-  background: #fce7f3 !important;
-  color: #E75480 !important; /* Dark pink for female students */
-  border: 1px solid #E75480 !important;
-}
-
+.student-id-badge.male,
+.student-id-badge.female,
 .student-id-badge.other {
-  background: #f3e8ff !important;
-  color: #800080 !important; /* Purple for other genders */
-  border: 1px solid #800080 !important;
+  background: #e6f7e6 !important; /* Light green background for all */
+  color: #008000 !important; /* Dark green text for all */
+  border: 1px solid #008000 !important; /* Dark green border for all */
 }
 
 .management-table td {
@@ -508,22 +498,12 @@
   text-align: center;
 }
 
-.student-id-badge.male {
-  background: #dbeafe;
-  color: #1d4ed8;
-  border: 1px solid #60a5fa;
-}
-
-.student-id-badge.female {
-  background: #fce7f3;
-  color: #be185d;
-  border: 1px solid #f472b6;
-}
-
+.student-id-badge.male,
+.student-id-badge.female,
 .student-id-badge.other {
-  background: #e9d5ff;
-  color: #7c3aed;
-  border: 1px solid #a78bfa;
+  background: #e6f7e6; /* Light green background for all */
+  color: #008000; /* Dark green text for all */
+  border: 1px solid #008000; /* Dark green border for all */
 }
 
 /* =================
