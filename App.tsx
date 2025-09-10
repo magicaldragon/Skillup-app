@@ -1,9 +1,7 @@
 import type React from 'react';
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { authService } from './frontend/services/authService';
-import { safeTrim } from './utils/stringUtils';
 import './App.css';
-import './DateInput.css'; // Enhanced date input styling
 
 // Lazy load components for better performance
 const AdminDashboard = lazy(() => import('./AdminDashboard'));
@@ -27,7 +25,7 @@ const App: React.FC = () => {
 
   const [user, setUser] = useState<Student | null>(null);
   const [loading, setLoading] = useState(true);
-  const [authError, setAuthError] = useState<string | null>(null);
+
   const [students, setStudents] = useState<Student[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [_submissions, setSubmissions] = useState<Submission[]>([]);
@@ -45,127 +43,17 @@ const App: React.FC = () => {
   useEffect(() => {
     const initializeAuth = async () => {
       setLoading(true);
-
-      // Standard timeout for authentication
-      const timeoutId = setTimeout(() => {
-        console.warn('Authentication initialization timeout, showing login screen');
-        setLoading(false);
-        setUser(null);
-        setAuthError(null);
-      }, 10000); // Standard 10 seconds timeout
-
       try {
-        console.log('Initializing authentication...');
-
-        // Check if we have both token and user data in localStorage
-        const token = localStorage.getItem('skillup_token');
-        const storedUser = localStorage.getItem('skillup_user');
-
-        console.log('Stored token exists:', !!token);
-        console.log('Stored user exists:', !!storedUser);
-
-        if (!token || !storedUser) {
-          console.log('No stored authentication data, user not authenticated');
-          setUser(null);
-          setAuthError(null);
-          clearTimeout(timeoutId);
-          return;
-        }
-
-        // Try to use cached user data first for immediate UI response
-        try {
-          const cachedUser = JSON.parse(storedUser);
-          if (cachedUser && cachedUser.email && cachedUser.role) {
-            console.log('Using cached user data for immediate display');
-            const safeProfile: Student = {
-              id: cachedUser.id || cachedUser._id || '',
-              _id: cachedUser._id || cachedUser.id || '',
-              name: safeTrim(cachedUser.name || cachedUser.fullname),
-              email: safeTrim(cachedUser.email),
-              role: cachedUser.role || 'student',
-              username: safeTrim(cachedUser.username || cachedUser.email),
-              englishName: safeTrim(cachedUser.englishName || cachedUser.name || cachedUser.fullname),
-              gender: safeTrim(cachedUser.gender),
-              dob: safeTrim(cachedUser.dob),
-              phone: safeTrim(cachedUser.phone),
-              parentName: safeTrim(cachedUser.parentName),
-              parentPhone: safeTrim(cachedUser.parentPhone),
-              notes: safeTrim(cachedUser.notes),
-              status: safeTrim(cachedUser.status),
-              studentCode: safeTrim(cachedUser.studentCode),
-              avatarUrl: safeTrim(cachedUser.avatarUrl),
-              diceBearStyle: safeTrim(cachedUser.diceBearStyle),
-              diceBearSeed: safeTrim(cachedUser.diceBearSeed),
-              classIds: Array.isArray(cachedUser.classIds) ? cachedUser.classIds : [],
-              createdAt: safeTrim(cachedUser.createdAt),
-              updatedAt: safeTrim(cachedUser.updatedAt),
-            };
-            setUser(safeProfile);
-            setLoading(false); // Set loading to false immediately for better UX
-            clearTimeout(timeoutId);
-            
-            // Mark authentication complete
-            console.log('Authentication complete');
-            
-            // No background token verification in this version
-            
-            return;
-          }
-        } catch (parseError) {
-          console.warn('Failed to parse cached user data:', parseError);
-        }
-
-        // If cached data is invalid, verify the token
         const profile = await authService.getProfile();
-        
-        console.log('Auth profile received:', profile);
-
-        if (profile && typeof profile === 'object' && profile.email && profile.role) {
-          // Convert UserProfile to Student type - only map essential fields
-          const safeProfile: Student = {
-            id: profile.id || profile._id || '',
-            _id: profile._id || profile.id || '',
-            name: safeTrim(profile.name || profile.fullname),
-            email: safeTrim(profile.email),
-            role: profile.role || 'student',
-            username: safeTrim(profile.username || profile.email),
-            englishName: safeTrim((profile as Student).englishName || profile.name || profile.fullname),
-            gender: safeTrim((profile as Student).gender),
-            dob: safeTrim((profile as Student).dob),
-            phone: safeTrim((profile as Student).phone),
-            parentName: safeTrim((profile as Student).parentName),
-            parentPhone: safeTrim((profile as Student).parentPhone),
-            notes: safeTrim((profile as Student).notes),
-            status: safeTrim((profile as Student).status),
-            studentCode: safeTrim((profile as Student).studentCode),
-            avatarUrl: safeTrim((profile as Student).avatarUrl),
-            diceBearStyle: safeTrim((profile as Student).diceBearStyle),
-            diceBearSeed: safeTrim((profile as Student).diceBearSeed),
-            classIds: Array.isArray((profile as Student).classIds)
-              ? (profile as Student).classIds
-              : [],
-            createdAt: safeTrim((profile as Student).createdAt),
-            updatedAt: safeTrim((profile as Student).updatedAt),
-          };
-          console.log('User authenticated successfully:', safeProfile);
-          setUser(safeProfile);
-          setAuthError(null);
-          console.log('Authentication complete');
+        if (profile) {
+          setUser(profile as Student);
         } else {
-          console.log('Invalid profile, logging out');
-          await authService.logout();
           setUser(null);
-          setAuthError('Authentication expired. Please log in again.');
         }
       } catch (error) {
         console.error('Auth initialization error:', error);
-        setAuthError('Error initializing authentication. Please try again.');
         setUser(null);
-        // Clear invalid authentication data
-        localStorage.removeItem('skillup_token');
-        localStorage.removeItem('skillup_user');
       } finally {
-        clearTimeout(timeoutId);
         setLoading(false);
       }
     };
@@ -173,40 +61,7 @@ const App: React.FC = () => {
   }, []);
 
   const handleLoginSuccess = useCallback((userData: UserProfile) => {
-    console.log('Login successful, userData:', userData);
-    // Ensure userData is safe before setting
-    if (userData && typeof userData === 'object') {
-      const safeUserData: Student = {
-        id: userData.id || userData._id || '',
-        _id: userData._id || userData.id || '',
-        name: safeTrim(userData.name || userData.fullname),
-        email: safeTrim(userData.email),
-        role: userData.role || 'student',
-        username: safeTrim(userData.username || userData.email),
-        englishName: safeTrim((userData as Student).englishName || userData.name || userData.fullname),
-        gender: safeTrim((userData as Student).gender),
-        dob: safeTrim((userData as Student).dob),
-        phone: safeTrim((userData as Student).phone),
-        parentName: safeTrim((userData as Student).parentName),
-        parentPhone: safeTrim((userData as Student).parentPhone),
-        notes: safeTrim((userData as Student).notes),
-        status: safeTrim((userData as Student).status),
-        studentCode: safeTrim((userData as Student).studentCode),
-        avatarUrl: safeTrim((userData as Student).avatarUrl),
-        diceBearStyle: safeTrim((userData as Student).diceBearStyle),
-        diceBearSeed: safeTrim((userData as Student).diceBearSeed),
-        classIds: Array.isArray((userData as Student).classIds)
-          ? (userData as Student).classIds
-          : [],
-        createdAt: safeTrim((userData as Student).createdAt),
-        updatedAt: safeTrim((userData as Student).updatedAt),
-      };
-      setUser(safeUserData);
-      setAuthError(null);
-    } else {
-      console.error('Invalid user data received:', userData);
-      setAuthError('Invalid user data received');
-    }
+    setUser(userData as Student);
   }, []);
 
   const handleLogout = useCallback(async () => {
@@ -259,25 +114,25 @@ const App: React.FC = () => {
           (student: Partial<Student> & { fullname?: string }) => ({
             id: student.id || student._id || '',
             _id: student._id || student.id || '',
-            name: safeTrim(student.name || student.fullname || student.displayName),
-            email: safeTrim(student.email),
+            name: (student.name || student.fullname || student.displayName || '').toString(),
+            email: (student.email || '').toString(),
             role: student.role || 'student',
-            username: safeTrim(student.username || student.email),
-            englishName: safeTrim(student.englishName || student.name || student.fullname),
-            gender: safeTrim(student.gender),
-            dob: safeTrim(student.dob),
-            phone: safeTrim(student.phone),
-            parentName: safeTrim(student.parentName),
-            parentPhone: safeTrim(student.parentPhone),
-            notes: safeTrim(student.notes),
-            status: safeTrim(student.status),
-            studentCode: safeTrim(student.studentCode),
-            avatarUrl: safeTrim(student.avatarUrl),
-            diceBearStyle: safeTrim(student.diceBearStyle),
-            diceBearSeed: safeTrim(student.diceBearSeed),
+            username: (student.username || student.email || '').toString(),
+            englishName: (student.englishName || student.name || student.fullname || '').toString(),
+            gender: (student.gender || '').toString(),
+            dob: (student.dob || '').toString(),
+            phone: (student.phone || '').toString(),
+            parentName: (student.parentName || '').toString(),
+            parentPhone: (student.parentPhone || '').toString(),
+            notes: (student.notes || '').toString(),
+            status: (student.status || '').toString(),
+            studentCode: (student.studentCode || '').toString(),
+            avatarUrl: (student.avatarUrl || '').toString(),
+            diceBearStyle: (student.diceBearStyle || '').toString(),
+            diceBearSeed: (student.diceBearSeed || '').toString(),
             classIds: Array.isArray(student.classIds) ? student.classIds : [],
-            createdAt: safeTrim(student.createdAt),
-            updatedAt: safeTrim(student.updatedAt),
+            createdAt: (student.createdAt || '').toString(),
+            updatedAt: (student.updatedAt || '').toString(),
           })
         );
         setStudents(sanitizedStudents);
@@ -288,25 +143,25 @@ const App: React.FC = () => {
           (student: Partial<Student> & { fullname?: string }) => ({
             id: student.id || student._id || '',
             _id: student._id || student.id || '',
-            name: safeTrim(student.name || student.fullname || student.displayName),
-            email: safeTrim(student.email),
+            name: (student.name || student.fullname || student.displayName || '').toString(),
+            email: (student.email || '').toString(),
             role: student.role || 'student',
-            username: safeTrim(student.username || student.email),
-            englishName: safeTrim(student.englishName || student.name || student.fullname),
-            gender: safeTrim(student.gender),
-            dob: safeTrim(student.dob),
-            phone: safeTrim(student.phone),
-            parentName: safeTrim(student.parentName),
-            parentPhone: safeTrim(student.parentPhone),
-            notes: safeTrim(student.notes),
-            status: safeTrim(student.status),
-            studentCode: safeTrim(student.studentCode),
-            avatarUrl: safeTrim(student.avatarUrl),
-            diceBearStyle: safeTrim(student.diceBearStyle),
-            diceBearSeed: safeTrim(student.diceBearSeed),
+            username: (student.username || student.email || '').toString(),
+            englishName: (student.englishName || student.name || student.fullname || '').toString(),
+            gender: (student.gender || '').toString(),
+            dob: (student.dob || '').toString(),
+            phone: (student.phone || '').toString(),
+            parentName: (student.parentName || '').toString(),
+            parentPhone: (student.parentPhone || '').toString(),
+            notes: (student.notes || '').toString(),
+            status: (student.status || '').toString(),
+            studentCode: (student.studentCode || '').toString(),
+            avatarUrl: (student.avatarUrl || '').toString(),
+            diceBearStyle: (student.diceBearStyle || '').toString(),
+            diceBearSeed: (student.diceBearSeed || '').toString(),
             classIds: Array.isArray(student.classIds) ? student.classIds : [],
-            createdAt: safeTrim(student.createdAt),
-            updatedAt: safeTrim(student.updatedAt),
+            createdAt: (student.createdAt || '').toString(),
+            updatedAt: (student.updatedAt || '').toString(),
           })
         );
         setStudents(sanitizedStudents);
@@ -351,20 +206,20 @@ const App: React.FC = () => {
         const sanitizedAssignments = data.assignments.map(
           (assignment: Partial<Assignment> & { _id?: string }) => ({
             id: assignment.id || assignment._id || '',
-            title: safeTrim(assignment.title),
+            title: (assignment.title || '').toString(),
             level: (assignment.level && typeof assignment.level === 'string' ? assignment.level : (assignment.level as any)?.name || 'IELTS') as ExamLevel,
             skill: assignment.skill || 'Reading',
-            description: safeTrim(assignment.description),
+            description: (assignment.description || '').toString(),
             questions: Array.isArray(assignment.questions) ? assignment.questions : [],
             answerKey: assignment.answerKey || {},
-            audioUrl: safeTrim(assignment.audioUrl),
-            pdfUrl: safeTrim(assignment.pdfUrl),
-            publishDate: safeTrim(assignment.publishDate),
-            dueDate: safeTrim(assignment.dueDate),
+            audioUrl: (assignment.audioUrl || '').toString(),
+            pdfUrl: (assignment.pdfUrl || '').toString(),
+            publishDate: (assignment.publishDate || '').toString(),
+            dueDate: (assignment.dueDate || '').toString(),
             classIds: Array.isArray(assignment.classIds) ? assignment.classIds : [],
-            createdBy: safeTrim(assignment.createdBy),
-            createdAt: safeTrim(assignment.createdAt),
-            templateId: safeTrim(assignment.templateId),
+            createdBy: (assignment.createdBy || '').toString(),
+            createdAt: (assignment.createdAt || '').toString(),
+            templateId: (assignment.templateId || '').toString(),
           })
         );
         setAssignments(sanitizedAssignments);
@@ -374,20 +229,20 @@ const App: React.FC = () => {
         const sanitizedAssignments = data.map(
           (assignment: Partial<Assignment> & { _id?: string }) => ({
             id: assignment.id || assignment._id || '',
-            title: safeTrim(assignment.title),
+            title: (assignment.title || '').toString(),
             level: (assignment.level && typeof assignment.level === 'string' ? assignment.level : (assignment.level as any)?.name || 'IELTS') as ExamLevel,
             skill: assignment.skill || 'Reading',
-            description: safeTrim(assignment.description),
+            description: (assignment.description || '').toString(),
             questions: Array.isArray(assignment.questions) ? assignment.questions : [],
             answerKey: assignment.answerKey || {},
-            audioUrl: safeTrim(assignment.audioUrl),
-            pdfUrl: safeTrim(assignment.pdfUrl),
-            publishDate: safeTrim(assignment.publishDate),
-            dueDate: safeTrim(assignment.dueDate),
+            audioUrl: (assignment.audioUrl || '').toString(),
+            pdfUrl: (assignment.pdfUrl || '').toString(),
+            publishDate: (assignment.publishDate || '').toString(),
+            dueDate: (assignment.dueDate || '').toString(),
             classIds: Array.isArray(assignment.classIds) ? assignment.classIds : [],
-            createdBy: safeTrim(assignment.createdBy),
-            createdAt: safeTrim(assignment.createdAt),
-            templateId: safeTrim(assignment.templateId),
+            createdBy: (assignment.createdBy || '').toString(),
+            createdAt: (assignment.createdAt || '').toString(),
+            templateId: (assignment.templateId || '').toString(),
           })
         );
         setAssignments(sanitizedAssignments);
@@ -431,12 +286,12 @@ const App: React.FC = () => {
         const sanitizedSubmissions = data.submissions.map(
           (submission: Partial<Submission> & { _id?: string }) => ({
             id: submission.id || submission._id || '',
-            studentId: safeTrim(submission.studentId),
-            assignmentId: safeTrim(submission.assignmentId),
-            submittedAt: safeTrim(submission.submittedAt),
-            content: safeTrim(submission.content),
-            score: submission.score || null,
-            feedback: safeTrim(submission.feedback),
+            studentId: (submission.studentId || '').toString(),
+        assignmentId: (submission.assignmentId || '').toString(),
+        submittedAt: (submission.submittedAt || '').toString(),
+        content: (submission.content || '').toString(),
+        score: submission.score || 0,
+        feedback: (submission.feedback || '').toString(),
           })
         );
         setSubmissions(sanitizedSubmissions);
@@ -446,12 +301,12 @@ const App: React.FC = () => {
         const sanitizedSubmissions = data.map(
           (submission: Partial<Submission> & { _id?: string }) => ({
             id: submission.id || submission._id || '',
-            studentId: safeTrim(submission.studentId),
-            assignmentId: safeTrim(submission.assignmentId),
-            submittedAt: safeTrim(submission.submittedAt),
-            content: safeTrim(submission.content),
-            score: submission.score || null,
-            feedback: safeTrim(submission.feedback),
+            studentId: (submission.studentId || '').toString(),
+        assignmentId: (submission.assignmentId || '').toString(),
+        submittedAt: (submission.submittedAt || '').toString(),
+        content: (submission.content || '').toString(),
+        score: submission.score || 0,
+        feedback: (submission.feedback || '').toString(),
           })
         );
         setSubmissions(sanitizedSubmissions);
@@ -495,15 +350,15 @@ const App: React.FC = () => {
           (cls: Partial<StudentClass> & { _id?: string }) => ({
             _id: cls._id || cls.id || '',
             id: cls.id || cls._id || '',
-            name: safeTrim(cls.name),
-            classCode: safeTrim(cls.classCode),
+            name: cls.name || '',
+            classCode: cls.classCode || '',
             levelId: cls.levelId || null,
             studentIds: Array.isArray(cls.studentIds) ? cls.studentIds : [],
-            teacherId: safeTrim(cls.teacherId),
-            description: safeTrim(cls.description),
+            teacherId: cls.teacherId || '',
+            description: cls.description || '',
             isActive: cls.isActive !== undefined ? cls.isActive : true,
-            createdAt: safeTrim(cls.createdAt),
-            updatedAt: safeTrim(cls.updatedAt),
+            createdAt: cls.createdAt || '',
+            updatedAt: cls.updatedAt || '',
           })
         );
         setClasses(sanitizedClasses);
@@ -514,15 +369,15 @@ const App: React.FC = () => {
           (cls: Partial<StudentClass> & { _id?: string }) => ({
             _id: cls._id || cls.id || '',
             id: cls.id || cls._id || '',
-            name: safeTrim(cls.name),
-            classCode: safeTrim(cls.classCode),
+            name: cls.name || '',
+            classCode: cls.classCode || '',
             levelId: cls.levelId || null,
             studentIds: Array.isArray(cls.studentIds) ? cls.studentIds : [],
-            teacherId: safeTrim(cls.teacherId),
-            description: safeTrim(cls.description),
+            teacherId: cls.teacherId || '',
+            description: cls.description || '',
             isActive: cls.isActive !== undefined ? cls.isActive : true,
-            createdAt: safeTrim(cls.createdAt),
-            updatedAt: safeTrim(cls.updatedAt),
+            createdAt: cls.createdAt || '',
+            updatedAt: cls.updatedAt || '',
           })
         );
         setClasses(sanitizedClasses);
@@ -591,17 +446,7 @@ const App: React.FC = () => {
       return <LoadingSpinner />;
     }
 
-    if (authError) {
-      return (
-        <div className="error-container">
-          <h2>Authentication Error</h2>
-          <p>{authError}</p>
-          <button type="button" onClick={() => window.location.reload()}>
-            Retry
-          </button>
-        </div>
-      );
-    }
+
 
     if (!user) {
       return (
@@ -679,7 +524,6 @@ const App: React.FC = () => {
     );
   }, [
     loading,
-    authError,
     user,
     students,
     assignments,
