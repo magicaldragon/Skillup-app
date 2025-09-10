@@ -484,7 +484,7 @@ input[type="date"]:focus {
 
 .search-bar-button {
   position: absolute !important;
-  right: 4px !important; /* Positioned closer to edge */
+  right: 8px !important; /* Moved slightly left to avoid touching search bar */
   top: 50% !important;
   transform: translateY(-50%) !important;
   background: #006400 !important; /* Dark green background */

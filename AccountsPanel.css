@@ -69,7 +69,7 @@
 /* Enhanced table styles for better data consistency */
 .accounts-table td {
   padding: 16px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #F3E8FF;
   transition: all 0.2s ease;
   font-size: 0.95rem;
   text-align: center; /* Center-align all table data cells */
@@ -354,7 +354,7 @@
 }
 
 .accounts-table th {
-  background: linear-gradient(135deg, #4a148c 0%, #7b1fa2 50%, #9c27b0 100%) !important; /* Purple theme gradient */
+  background: #862E9C !important; /* Solid purple background */
   color: #ffffff !important;
   padding: 16px;
   text-align: center;
@@ -401,7 +401,7 @@
 }
 
 .accounts-table tbody tr:hover {
-  background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%) !important; /* Purple theme hover */
+  background: #F3E8FF !important; /* Light lavender hover */
   border-left: 3px solid #9c27b0 !important; /* Purple theme border */
   transform: translateX(4px) translateY(-1px) !important;
   box-shadow: 0 6px 20px rgba(156, 39, 176, 0.15), 0 2px 8px rgba(156, 39, 176, 0.1) !important;

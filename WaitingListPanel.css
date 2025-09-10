@@ -139,7 +139,7 @@
 
 .waiting-list-table td {
   padding: 16px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #E6F8F0;
   vertical-align: middle;
   text-align: center; /* Center alignment for all cells */
 }
@@ -152,7 +152,7 @@
 }
 
 .waiting-list-table tbody tr:hover {
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  background: #E6F8F0;
   transform: scale(1.01);
   transition: all 0.2s ease;
 }

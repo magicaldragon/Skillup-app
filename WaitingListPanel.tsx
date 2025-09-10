@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import type { StudentClass } from './types';
+import { formatDateDDMMYYYY } from './utils/stringUtils';
 import './WaitingListPanel.css';
 import './ManagementTableStyles.css';
 
@@ -12,6 +13,7 @@ interface User {
   email: string;
   phone?: string;
   gender?: string;
+  dob?: string;
   status: string;
   parentName?: string;
   parentPhone?: string;
@@ -34,6 +36,8 @@ const WaitingListPanel = ({
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [selectedStudent, setSelectedStudent] = useState<User | null>(null);
+  const [editForm, setEditForm] = useState<Partial<User>>({});
+  const [isEditing, setIsEditing] = useState(false);
 
   // Bulk selection state
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -409,6 +413,7 @@ const WaitingListPanel = ({
               <th>Name</th>
               <th>English Name</th>
               <th>Gender</th>
+              <th>Date of Birth</th>
               <th>Status</th>
               <th>Assign</th>
             </tr>
@@ -416,7 +421,7 @@ const WaitingListPanel = ({
           <tbody>
             {filteredStudents.length === 0 && (
               <tr>
-                <td colSpan={7} className="empty-table">
+                <td colSpan={8} className="empty-table">
                   <div className="empty-state">
                     <div className="empty-icon">⏳</div>
                     <p>No students in waiting list.</p>
@@ -466,6 +471,9 @@ const WaitingListPanel = ({
                   {student.englishName || 'N/A'}
                 </td>
                 <td className="gender-cell">{student.gender || 'N/A'}</td>
+                <td className="dob-cell">
+                  {student.dob ? formatDateDDMMYYYY(student.dob) : 'N/A'}
+                </td>
                 <td className="status-cell">
                   {student.status === 'studying' ? (
                     <span className="status-badge status-studying">STUDYING</span>
@@ -507,53 +515,224 @@ const WaitingListPanel = ({
       {selectedStudent && (
         <div className="student-details-modal">
           <div className="modal-content">
-            <button type="button" className="close-btn" onClick={() => setSelectedStudent(null)}>
+            <button type="button" className="close-btn" onClick={() => {
+              setSelectedStudent(null);
+              setIsEditing(false);
+              setEditForm({});
+            }}>
               ×
             </button>
             <h3>Student Details</h3>
             <div className="student-details-grid">
               <div className="detail-item">
                 <strong>Name:</strong>
-                <span>{selectedStudent.name}</span>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editForm.name || selectedStudent.name}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
+                    className="edit-input"
+                  />
+                ) : (
+                  <span>{selectedStudent.name}</span>
+                )}
               </div>
               <div className="detail-item">
                 <strong>English Name:</strong>
-                <span>{selectedStudent.englishName || 'N/A'}</span>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editForm.englishName || selectedStudent.englishName || ''}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, englishName: e.target.value }))}
+                    className="edit-input"
+                  />
+                ) : (
+                  <span>{selectedStudent.englishName || 'N/A'}</span>
+                )}
               </div>
               <div className="detail-item">
                 <strong>Email:</strong>
-                <span>{selectedStudent.email}</span>
+                {isEditing ? (
+                  <input
+                    type="email"
+                    value={editForm.email || selectedStudent.email}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, email: e.target.value }))}
+                    className="edit-input"
+                  />
+                ) : (
+                  <span>{selectedStudent.email}</span>
+                )}
               </div>
               <div className="detail-item">
                 <strong>Phone:</strong>
-                <span>{selectedStudent.phone || 'N/A'}</span>
+                {isEditing ? (
+                  <input
+                    type="tel"
+                    value={editForm.phone || selectedStudent.phone || ''}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, phone: e.target.value }))}
+                    className="edit-input"
+                  />
+                ) : (
+                  <span>{selectedStudent.phone || 'N/A'}</span>
+                )}
               </div>
               <div className="detail-item">
                 <strong>Gender:</strong>
-                <span>{selectedStudent.gender || 'N/A'}</span>
+                {isEditing ? (
+                  <select
+                    value={editForm.gender || selectedStudent.gender || ''}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, gender: e.target.value }))}
+                    className="edit-select"
+                  >
+                    <option value="">Select Gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                  </select>
+                ) : (
+                  <span>{selectedStudent.gender || 'N/A'}</span>
+                )}
+              </div>
+              <div className="detail-item">
+                <strong>Date of Birth:</strong>
+                {isEditing ? (
+                  <input
+                    type="date"
+                    value={editForm.dob || selectedStudent.dob || ''}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, dob: e.target.value }))}
+                    className="edit-input"
+                  />
+                ) : (
+                  <span>{selectedStudent.dob ? formatDateDDMMYYYY(selectedStudent.dob) : 'N/A'}</span>
+                )}
               </div>
               <div className="detail-item">
                 <strong>Status:</strong>
-                <span className={`status-badge status-${selectedStudent.status}`}>
-                  {selectedStudent.status}
-                </span>
+                {isEditing ? (
+                  <select
+                    value={editForm.status || selectedStudent.status}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, status: e.target.value }))}
+                    className="edit-select"
+                  >
+                    <option value="studying">Studying</option>
+                    <option value="postponed">Postponed</option>
+                    <option value="off">Off</option>
+                    <option value="alumni">Alumni</option>
+                  </select>
+                ) : (
+                  <span className={`status-badge status-${selectedStudent.status}`}>
+                    {selectedStudent.status}
+                  </span>
+                )}
               </div>
               <div className="detail-item">
                 <strong>Parent Name:</strong>
-                <span>{selectedStudent.parentName || 'N/A'}</span>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editForm.parentName || selectedStudent.parentName || ''}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, parentName: e.target.value }))}
+                    className="edit-input"
+                  />
+                ) : (
+                  <span>{selectedStudent.parentName || 'N/A'}</span>
+                )}
               </div>
               <div className="detail-item">
                 <strong>Parent Phone:</strong>
-                <span>{selectedStudent.parentPhone || 'N/A'}</span>
+                {isEditing ? (
+                  <input
+                    type="tel"
+                    value={editForm.parentPhone || selectedStudent.parentPhone || ''}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, parentPhone: e.target.value }))}
+                    className="edit-input"
+                  />
+                ) : (
+                  <span>{selectedStudent.parentPhone || 'N/A'}</span>
+                )}
               </div>
               <div className="detail-item">
-                <strong>Student Code:</strong>
-                <span>{selectedStudent.studentCode || 'N/A'}</span>
+                <strong>Student ID:</strong>
+                <span className="locked-field">{selectedStudent.studentCode || 'N/A'} (Locked)</span>
               </div>
               <div className="detail-item full-width">
                 <strong>Notes:</strong>
-                <span>{selectedStudent.notes || 'No notes'}</span>
+                {isEditing ? (
+                  <textarea
+                    value={editForm.notes || selectedStudent.notes || ''}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, notes: e.target.value }))}
+                    className="edit-textarea"
+                    rows={3}
+                  />
+                ) : (
+                  <span>{selectedStudent.notes || 'No notes'}</span>
+                )}
               </div>
+            </div>
+            <div className="modal-actions">
+              {isEditing ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        const token = localStorage.getItem('skillup_token');
+                        const response = await fetch(`${API_BASE_URL}/users/${selectedStudent._id}`, {
+                          method: 'PUT',
+                          headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${token}`,
+                          },
+                          body: JSON.stringify(editForm),
+                        });
+                        
+                        if (response.ok) {
+                          const updatedStudent = await response.json();
+                          setWaitingStudents(prev => 
+                            prev.map(student => 
+                              student._id === selectedStudent._id ? { ...student, ...editForm } : student
+                            )
+                          );
+                          setSelectedStudent({ ...selectedStudent, ...editForm });
+                          alert('Student details updated successfully!');
+                          setIsEditing(false);
+                          setEditForm({});
+                          onDataRefresh?.();
+                        } else {
+                          alert('Failed to update student details.');
+                        }
+                      } catch (error) {
+                        console.error('Error updating student:', error);
+                        alert('Error updating student details.');
+                      }
+                    }}
+                    className="btn-save"
+                  >
+                    Save Changes
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsEditing(false);
+                      setEditForm({});
+                    }}
+                    className="btn-cancel"
+                  >
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsEditing(true);
+                    setEditForm(selectedStudent);
+                  }}
+                  className="btn-edit"
+                >
+                  Edit Details
+                </button>
+              )}
             </div>
           </div>
         </div>
