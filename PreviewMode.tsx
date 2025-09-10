@@ -31,6 +31,8 @@ const PreviewMode: React.FC<PreviewModeProps> = ({ isActive, children }) => {
   const [transformValues, setTransformValues] = useState({ rotate: 0, scale: 1 });
   const [activeEditor, setActiveEditor] = useState<'table' | 'menu' | null>(null);
   const [showLayoutManager, setShowLayoutManager] = useState(false);
+  const [activePanel, setActivePanel] = useState<string>('dashboard');
+  const [showManagementPanel, setShowManagementPanel] = useState(true);
 
 
 
@@ -46,16 +48,20 @@ const PreviewMode: React.FC<PreviewModeProps> = ({ isActive, children }) => {
   const handleElementSelect = useCallback((element: SelectableElement | null) => {
     setSelectedElement(element);
     setSelectedComponent(null);
-    
-    // Auto-detect editor type based on element
-    if (element) {
-      if (element.type === 'table') {
-        // Don't auto-open, just prepare for manual opening
-      } else if (element.type === 'menu') {
-        // Don't auto-open, just prepare for manual opening
-      }
+  }, []);
+
+  const handleNavItemClick = useCallback((panelName: string) => {
+    setActivePanel(panelName);
+    if (panelName !== 'dashboard') {
+      setShowManagementPanel(true);
+    } else {
+      setShowManagementPanel(false);
     }
   }, []);
+
+  const handleManagementToggle = useCallback(() => {
+    setShowManagementPanel(!showManagementPanel);
+  }, [showManagementPanel]);
 
   const handleModeSwitch = useCallback((mode: 'select' | 'drag') => {
     setEditMode(mode);
@@ -97,6 +103,72 @@ const PreviewMode: React.FC<PreviewModeProps> = ({ isActive, children }) => {
       selectedElement.element.style.transform = transformString;
     }
   }, [selectedElement, transformValues]);
+
+  const handleResizeStart = useCallback((e: React.MouseEvent, handle: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!selectedElement) return;
+    
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const startRect = selectedElement.rect;
+    
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!selectedElement || !selectedElement.element) return;
+      
+      const deltaX = e.clientX - startX;
+      const deltaY = e.clientY - startY;
+      
+      let newWidth = startRect.width;
+      let newHeight = startRect.height;
+      
+      switch (handle) {
+        case 'top-left':
+          newWidth = Math.max(50, startRect.width - deltaX);
+          newHeight = Math.max(30, startRect.height - deltaY);
+          break;
+        case 'top-right':
+          newWidth = Math.max(50, startRect.width + deltaX);
+          newHeight = Math.max(30, startRect.height - deltaY);
+          break;
+        case 'bottom-left':
+          newWidth = Math.max(50, startRect.width - deltaX);
+          newHeight = Math.max(30, startRect.height + deltaY);
+          break;
+        case 'bottom-right':
+          newWidth = Math.max(50, startRect.width + deltaX);
+          newHeight = Math.max(30, startRect.height + deltaY);
+          break;
+        case 'top':
+          newHeight = Math.max(30, startRect.height - deltaY);
+          break;
+        case 'bottom':
+          newHeight = Math.max(30, startRect.height + deltaY);
+          break;
+        case 'left':
+          newWidth = Math.max(50, startRect.width - deltaX);
+          break;
+        case 'right':
+          newWidth = Math.max(50, startRect.width + deltaX);
+          break;
+      }
+      
+      selectedElement.element.style.width = newWidth + 'px';
+      selectedElement.element.style.height = newHeight + 'px';
+      
+      // Update the rect for visual feedback
+      selectedElement.rect = selectedElement.element.getBoundingClientRect();
+    };
+    
+    const handleMouseUp = () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+    
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  }, [selectedElement]);
 
   const updateBoxShadow = useCallback((property: 'x' | 'y' | 'blur' | 'color', value: string) => {
     if (selectedElement && selectedElement.element) {
@@ -159,30 +231,26 @@ const PreviewMode: React.FC<PreviewModeProps> = ({ isActive, children }) => {
               <button 
                 className={`mode-btn ${editMode === 'select' ? 'active' : ''}`}
                 onClick={() => handleModeSwitch('select')}
+                title="Select and edit elements"
               >
                 🎯 Select
               </button>
               <button 
                 className={`mode-btn ${editMode === 'drag' ? 'active' : ''}`}
                 onClick={() => handleModeSwitch('drag')}
+                title="Drag and drop components"
               >
                 🔄 Drag
               </button>
             </div>
-            <button 
-              className="mode-btn"
-              onClick={() => setShowLayoutManager(true)}
-            >
-              💾 Layouts
-            </button>
           </div>
           <div className="toolbar-controls">
             <button 
               className="btn-primary"
               onClick={() => setShowLayoutManager(true)}
-              title="Save current layout"
+              title="Manage layouts"
             >
-              💾 Save Layout
+              💾 Layouts
             </button>
             <button 
               className="btn-secondary"
@@ -196,7 +264,7 @@ const PreviewMode: React.FC<PreviewModeProps> = ({ isActive, children }) => {
               onClick={() => window.location.reload()}
               title="Exit Editor Mode"
             >
-              ❌ Exit Preview
+              ❌ Exit
             </button>
           </div>
         </div>
@@ -227,42 +295,79 @@ const PreviewMode: React.FC<PreviewModeProps> = ({ isActive, children }) => {
               
               <nav className="sidebar-nav">
                 <div className="nav-section">
-                  <div className="nav-item active">
+                  <div 
+                    className={`nav-item ${activePanel === 'dashboard' ? 'active' : ''}`}
+                    onClick={() => handleNavItemClick('dashboard')}
+                    style={{ cursor: 'pointer' }}
+                  >
                     <span className="nav-icon">🏠</span>
                     <span>Dashboard</span>
                   </div>
                   
                   <div className="nav-group">
-                    <div className="nav-group-header">
+                    <div 
+                      className="nav-group-header"
+                      onClick={handleManagementToggle}
+                      style={{ cursor: 'pointer' }}
+                    >
                       <span className="nav-icon">📁</span>
                       <span>Management</span>
+                      <span className={`expand-icon ${showManagementPanel ? 'expanded' : ''}`}>▼</span>
                     </div>
-                    <div className="nav-subitems">
-                      <div className="nav-item">
+                    <div className={`nav-subitems ${showManagementPanel ? 'expanded' : ''}`}>
+                      <div 
+                        className={`nav-item ${activePanel === 'add-members' ? 'active' : ''}`}
+                        onClick={() => handleNavItemClick('add-members')}
+                        style={{ cursor: 'pointer' }}
+                      >
                         <span className="nav-icon">👥</span>
                         <span>Add New Members</span>
                       </div>
-                      <div className="nav-item">
+                      <div 
+                        className={`nav-item ${activePanel === 'potential-students' ? 'active' : ''}`}
+                        onClick={() => handleNavItemClick('potential-students')}
+                        style={{ cursor: 'pointer' }}
+                      >
                         <span className="nav-icon">💎</span>
                         <span>Potential Students</span>
                       </div>
-                      <div className="nav-item">
+                      <div 
+                        className={`nav-item ${activePanel === 'waiting-list' ? 'active' : ''}`}
+                        onClick={() => handleNavItemClick('waiting-list')}
+                        style={{ cursor: 'pointer' }}
+                      >
                         <span className="nav-icon">⏳</span>
                         <span>Waiting List</span>
                       </div>
-                      <div className="nav-item">
+                      <div 
+                        className={`nav-item ${activePanel === 'classes' ? 'active' : ''}`}
+                        onClick={() => handleNavItemClick('classes')}
+                        style={{ cursor: 'pointer' }}
+                      >
                         <span className="nav-icon">👨‍👩‍👧‍👦</span>
                         <span>Classes</span>
                       </div>
-                      <div className="nav-item">
+                      <div 
+                        className={`nav-item ${activePanel === 'levels' ? 'active' : ''}`}
+                        onClick={() => handleNavItemClick('levels')}
+                        style={{ cursor: 'pointer' }}
+                      >
                         <span className="nav-icon">📊</span>
                         <span>Levels</span>
                       </div>
-                      <div className="nav-item">
+                      <div 
+                        className={`nav-item ${activePanel === 'accounts' ? 'active' : ''}`}
+                        onClick={() => handleNavItemClick('accounts')}
+                        style={{ cursor: 'pointer' }}
+                      >
                         <span className="nav-icon">⚙️</span>
                         <span>Accounts</span>
                       </div>
-                      <div className="nav-item">
+                      <div 
+                        className={`nav-item ${activePanel === 'records' ? 'active' : ''}`}
+                        onClick={() => handleNavItemClick('records')}
+                        style={{ cursor: 'pointer' }}
+                      >
                         <span className="nav-icon">📋</span>
                         <span>Records</span>
                       </div>
@@ -338,18 +443,85 @@ const PreviewMode: React.FC<PreviewModeProps> = ({ isActive, children }) => {
                 </div>
                 
                 <div className="summary-card">
+                  <div className="card-icon">👨‍💼</div>
+                  <div className="card-content">
+                    <h3>Total Staff</h3>
+                    <div className="card-value">8</div>
+                  </div>
+                </div>
+                
+                <div className="summary-card">
                   <div className="card-icon">📚</div>
                   <div className="card-content">
                     <h3>Total Classes</h3>
-                    <div className="card-value">8</div>
+                    <div className="card-value">15</div>
                   </div>
                 </div>
                 
                 <div className="summary-card">
                   <div className="card-icon">📝</div>
                   <div className="card-content">
-                    <h3>Assignments</h3>
+                    <h3>Active Assignments</h3>
                     <div className="card-value">24</div>
+                  </div>
+                </div>
+                
+                <div className="summary-card">
+                  <div className="card-icon">⚙️</div>
+                  <div className="card-content">
+                    <h3>System Status</h3>
+                    <div className="card-value">Operational</div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Analytics Dashboard */}
+              <div className="analytics-section">
+                <div className="analytics-card">
+                  <h3>Analytics Dashboard</h3>
+                  <div className="analytics-grid">
+                    <div className="analytics-item">
+                      <h4>IELTS Preparation A1</h4>
+                      <div className="metric">Avg Score: <strong>85.2</strong></div>
+                      <div className="metric">Completion: <strong>92%</strong></div>
+                    </div>
+                    <div className="analytics-item">
+                      <h4>Business English B2</h4>
+                      <div className="metric">Avg Score: <strong>78.5</strong></div>
+                      <div className="metric">Completion: <strong>88%</strong></div>
+                    </div>
+                    <div className="analytics-item">
+                      <h4>General English A2</h4>
+                      <div className="metric">Avg Score: <strong>91.3</strong></div>
+                      <div className="metric">Completion: <strong>95%</strong></div>
+                    </div>
+                  </div>
+                  
+                  <div className="performance-section">
+                    <div className="performance-column">
+                      <h4>Top Performers</h4>
+                      <ul className="performance-list">
+                        <li>Sarah Johnson (94.2)</li>
+                        <li>Michael Chen (91.8)</li>
+                        <li>Emma Wilson (89.5)</li>
+                      </ul>
+                    </div>
+                    <div className="performance-column">
+                      <h4>Needs Attention</h4>
+                      <ul className="performance-list">
+                        <li>Alex Rodriguez (65.3)</li>
+                        <li>David Kim (68.7)</li>
+                        <li>Lisa Brown (71.2)</li>
+                      </ul>
+                    </div>
+                  </div>
+                  
+                  <div className="overdue-section">
+                    <h4>Overdue Assignments</h4>
+                    <div className="overdue-list">
+                      <div className="overdue-item">Essay Writing Task 3 (Due: 2024-01-15)</div>
+                      <div className="overdue-item">Speaking Practice Module (Due: 2024-01-18)</div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -362,42 +534,62 @@ const PreviewMode: React.FC<PreviewModeProps> = ({ isActive, children }) => {
                     <table>
                       <thead>
                         <tr>
+                          <th>Student ID</th>
                           <th>Name</th>
-                          <th>Email</th>
+                          <th>English Name</th>
                           <th>Level</th>
+                          <th>Class</th>
                           <th>Status</th>
                           <th>Actions</th>
                         </tr>
                       </thead>
                       <tbody>
                         <tr>
+                          <td><span className="student-id-badge">STU001</span></td>
+                          <td>张伟</td>
                           <td>John Smith</td>
-                          <td>john@example.com</td>
-                          <td>Intermediate</td>
+                          <td><span className="level-badge intermediate">Intermediate</span></td>
+                          <td>IELTS Prep A1</td>
                           <td><span className="status active">Active</span></td>
                           <td>
-                            <button className="btn-sm">Edit</button>
-                            <button className="btn-sm">View</button>
+                            <button className="btn-sm" title="Edit student">Edit</button>
+                            <button className="btn-sm" title="View details">View</button>
                           </td>
                         </tr>
                         <tr>
+                          <td><span className="student-id-badge">STU002</span></td>
+                          <td>李娜</td>
                           <td>Sarah Johnson</td>
-                          <td>sarah@example.com</td>
-                          <td>Advanced</td>
+                          <td><span className="level-badge advanced">Advanced</span></td>
+                          <td>Business English B2</td>
                           <td><span className="status active">Active</span></td>
                           <td>
-                            <button className="btn-sm">Edit</button>
-                            <button className="btn-sm">View</button>
+                            <button className="btn-sm" title="Edit student">Edit</button>
+                            <button className="btn-sm" title="View details">View</button>
                           </td>
                         </tr>
                         <tr>
+                          <td><span className="student-id-badge">STU003</span></td>
+                          <td>王明</td>
                           <td>Mike Davis</td>
-                          <td>mike@example.com</td>
-                          <td>Beginner</td>
+                          <td><span className="level-badge beginner">Beginner</span></td>
+                          <td>General English A2</td>
                           <td><span className="status pending">Pending</span></td>
                           <td>
-                            <button className="btn-sm">Edit</button>
-                            <button className="btn-sm">View</button>
+                            <button className="btn-sm" title="Edit student">Edit</button>
+                            <button className="btn-sm" title="View details">View</button>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><span className="student-id-badge">STU004</span></td>
+                          <td>陈静</td>
+                          <td>Emma Wilson</td>
+                          <td><span className="level-badge advanced">Advanced</span></td>
+                          <td>IELTS Prep A1</td>
+                          <td><span className="status active">Active</span></td>
+                          <td>
+                            <button className="btn-sm" title="Edit student">Edit</button>
+                            <button className="btn-sm" title="View details">View</button>
                           </td>
                         </tr>
                       </tbody>
@@ -406,35 +598,106 @@ const PreviewMode: React.FC<PreviewModeProps> = ({ isActive, children }) => {
                 </div>
                 
                 <div className="table-section">
-                  <h3>Recent Classes</h3>
+                  <h3>Active Classes</h3>
                   <div className="data-table">
                     <table>
                       <thead>
                         <tr>
+                          <th>Class Code</th>
                           <th>Class Name</th>
                           <th>Teacher</th>
                           <th>Students</th>
+                          <th>Level</th>
                           <th>Schedule</th>
                           <th>Actions</th>
                         </tr>
                       </thead>
                       <tbody>
                         <tr>
+                          <td><span className="class-code">CLS001</span></td>
                           <td>IELTS Preparation A1</td>
                           <td>Ms. Anderson</td>
-                          <td>15</td>
+                          <td><span className="student-count">15/20</span></td>
+                          <td><span className="level-badge intermediate">Intermediate</span></td>
                           <td>Mon, Wed, Fri 9:00 AM</td>
                           <td>
-                            <button className="btn-sm">Manage</button>
+                            <button className="btn-sm" title="Manage class">Manage</button>
                           </td>
                         </tr>
                         <tr>
+                          <td><span className="class-code">CLS002</span></td>
                           <td>Business English B2</td>
                           <td>Mr. Thompson</td>
-                          <td>12</td>
+                          <td><span className="student-count">12/15</span></td>
+                          <td><span className="level-badge advanced">Advanced</span></td>
                           <td>Tue, Thu 2:00 PM</td>
                           <td>
-                            <button className="btn-sm">Manage</button>
+                            <button className="btn-sm" title="Manage class">Manage</button>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td><span className="class-code">CLS003</span></td>
+                          <td>General English A2</td>
+                          <td>Ms. Rodriguez</td>
+                          <td><span className="student-count">18/20</span></td>
+                          <td><span className="level-badge beginner">Beginner</span></td>
+                          <td>Mon, Wed, Fri 11:00 AM</td>
+                          <td>
+                            <button className="btn-sm" title="Manage class">Manage</button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                
+                <div className="table-section">
+                  <h3>Recent Assignments</h3>
+                  <div className="data-table">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Assignment</th>
+                          <th>Class</th>
+                          <th>Due Date</th>
+                          <th>Submissions</th>
+                          <th>Avg Score</th>
+                          <th>Status</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>Essay Writing Task 3</td>
+                          <td>IELTS Prep A1</td>
+                          <td>2024-01-25</td>
+                          <td><span className="submission-count">12/15</span></td>
+                          <td><span className="score-avg">85.2</span></td>
+                          <td><span className="status active">Active</span></td>
+                          <td>
+                            <button className="btn-sm" title="View assignment">View</button>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>Speaking Practice Module</td>
+                          <td>Business English B2</td>
+                          <td>2024-01-22</td>
+                          <td><span className="submission-count">10/12</span></td>
+                          <td><span className="score-avg">78.5</span></td>
+                          <td><span className="status overdue">Overdue</span></td>
+                          <td>
+                            <button className="btn-sm" title="View assignment">View</button>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>Grammar Exercise Set 5</td>
+                          <td>General English A2</td>
+                          <td>2024-01-28</td>
+                          <td><span className="submission-count">18/18</span></td>
+                          <td><span className="score-avg">91.3</span></td>
+                          <td><span className="status completed">Completed</span></td>
+                          <td>
+                            <button className="btn-sm" title="View assignment">View</button>
                           </td>
                         </tr>
                       </tbody>
@@ -446,6 +709,31 @@ const PreviewMode: React.FC<PreviewModeProps> = ({ isActive, children }) => {
           </div>
         </div>
         
+        {/* Resize handles for selected element */}
+        {selectedElement && editMode === 'select' && (
+          <div 
+            className="resize-handles-container"
+            style={{
+              position: 'absolute',
+              left: selectedElement.rect.left,
+              top: selectedElement.rect.top,
+              width: selectedElement.rect.width,
+              height: selectedElement.rect.height,
+              pointerEvents: 'none',
+              zIndex: 1001
+            }}
+          >
+            <div className="resize-handle top-left" style={{ pointerEvents: 'auto' }} onMouseDown={(e) => handleResizeStart(e, 'top-left')}></div>
+             <div className="resize-handle top-right" style={{ pointerEvents: 'auto' }} onMouseDown={(e) => handleResizeStart(e, 'top-right')}></div>
+             <div className="resize-handle bottom-left" style={{ pointerEvents: 'auto' }} onMouseDown={(e) => handleResizeStart(e, 'bottom-left')}></div>
+             <div className="resize-handle bottom-right" style={{ pointerEvents: 'auto' }} onMouseDown={(e) => handleResizeStart(e, 'bottom-right')}></div>
+             <div className="resize-handle top" style={{ pointerEvents: 'auto' }} onMouseDown={(e) => handleResizeStart(e, 'top')}></div>
+             <div className="resize-handle bottom" style={{ pointerEvents: 'auto' }} onMouseDown={(e) => handleResizeStart(e, 'bottom')}></div>
+             <div className="resize-handle left" style={{ pointerEvents: 'auto' }} onMouseDown={(e) => handleResizeStart(e, 'left')}></div>
+             <div className="resize-handle right" style={{ pointerEvents: 'auto' }} onMouseDown={(e) => handleResizeStart(e, 'right')}></div>
+          </div>
+        )}
+
         {(selectedComponent || selectedElement) && !activeEditor && (
           <div className="component-properties">
             <h4>Element Properties</h4>

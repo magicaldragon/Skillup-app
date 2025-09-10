@@ -331,7 +331,7 @@ const LayoutManager: React.FC<LayoutManagerProps> = ({
       <div className="layout-manager">
         <div className="layout-manager-header">
           <h3>💾 Layout Manager</h3>
-          <button className="close-btn" onClick={onClose}>
+          <button className="close-btn" onClick={onClose} title="Close Layout Manager">
             ❌
           </button>
         </div>
@@ -341,12 +341,13 @@ const LayoutManager: React.FC<LayoutManagerProps> = ({
             <button 
               className="save-btn"
               onClick={() => setSaveDialogOpen(true)}
+              title="Save current layout configuration"
             >
-              💾 Save Current Layout
+              💾 Save Layout
             </button>
             
-            <label className="import-btn">
-              📁 Import Layout
+            <label className="import-btn" title="Import layout from file">
+              📁 Import
               <input 
                 type="file"
                 accept=".json"
@@ -391,6 +392,7 @@ const LayoutManager: React.FC<LayoutManagerProps> = ({
                       <button 
                         className="load-btn"
                         onClick={() => loadLayout(layout)}
+                        title="Load this layout"
                       >
                         📂 Load
                       </button>
@@ -398,12 +400,14 @@ const LayoutManager: React.FC<LayoutManagerProps> = ({
                         className="export-btn"
                         onClick={() => exportLayout(layout)}
                         disabled={isExporting}
+                        title="Export layout to file"
                       >
                         📤 Export
                       </button>
                       <button 
                         className="delete-btn"
                         onClick={() => deleteLayout(layout.id)}
+                        title="Delete this layout"
                       >
                         🗑️ Delete
                       </button>

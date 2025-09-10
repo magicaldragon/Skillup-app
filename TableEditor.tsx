@@ -264,16 +264,21 @@ const TableEditor: React.FC<TableEditorProps> = ({
             <button 
               className={`edit-btn ${isEditing ? 'active' : ''}`}
               onClick={() => setIsEditing(!isEditing)}
+              title={isEditing ? 'Finish editing' : 'Edit columns'}
             >
               {isEditing ? '✅ Done' : '✏️ Edit'}
             </button>
-            <button className="apply-btn" onClick={applyChanges}>
-              💾 Apply
-            </button>
-            <button className="reset-btn" onClick={resetChanges}>
-              🔄 Reset
-            </button>
-            <button className="close-btn" onClick={onClose}>
+            {isEditing && (
+              <>
+                <button className="apply-btn" onClick={applyChanges} title="Apply changes">
+                  💾 Apply
+                </button>
+                <button className="reset-btn" onClick={resetChanges} title="Reset to original">
+                  🔄 Reset
+                </button>
+              </>
+            )}
+            <button className="close-btn" onClick={onClose} title="Close editor">
               ❌ Close
             </button>
           </div>

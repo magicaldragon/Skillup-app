@@ -1,5 +1,4 @@
-import type React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import './LoginPanel.css';
 import { authService } from './frontend/services/authService';
 import type { UserProfile } from './types';
