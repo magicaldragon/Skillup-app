@@ -30,7 +30,7 @@ const AddNewMembers = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const [createdUser, setCreatedUser] = useState<CreatedUser | null>(null);
+  const [, setCreatedUser] = useState<CreatedUser | null>(null);
   const [previewUsername, setPreviewUsername] = useState<string>('');
   const [previewEmail, setPreviewEmail] = useState<string>('');
 
@@ -244,21 +244,7 @@ const AddNewMembers = () => {
     }
   };
 
-  // Helper function to get student ID format
-  const getStudentId = (user: CreatedUser) => {
-    if (user.role === 'student' && user.studentCode) {
-      return user.studentCode;
-    }
-    return 'N/A';
-  };
 
-  // Helper function to get password based on role
-  const getPassword = (user: CreatedUser) => {
-    if (user.role === 'student') {
-      return 'Skillup123';
-    }
-    return 'Skillup@123';
-  };
 
 
 
@@ -511,44 +497,7 @@ const AddNewMembers = () => {
           </div>
         </div>
 
-        {/* Success Info Box - Make visible for testing */}
-        <div className="success-info-section show">
-          <div className="success-info-box">
-            <h3 className="success-title">Congratulations!</h3>
-            <div className="account-details">
-              <div className="account-detail">
-                <span className="detail-label">Full name:</span>
-                <span className="detail-value">{createdUser?.name || 'Test User'}</span>
-              </div>
-              <div className="account-detail">
-                <span className="detail-label">Role:</span>
-                <span className="detail-value">{createdUser?.role ? createdUser.role.charAt(0).toUpperCase() + createdUser.role.slice(1) : 'Student'}</span>
-              </div>
-              <div className="account-detail">
-                <span className="detail-label">Student ID:</span>
-                <span className="detail-value">{createdUser ? getStudentId(createdUser) : 'STU001'}</span>
-              </div>
-              <div className="account-detail">
-                <span className="detail-label">Username:</span>
-                <span className="detail-value">
-                  {createdUser?.username || previewUsername || 'testuser'}
-                </span>
-              </div>
-              <div className="account-detail">
-                <span className="detail-label">Password:</span>
-                <span className="detail-value password-display">
-                  {createdUser ? (createdUser.generatedPassword || getPassword(createdUser)) : 'Skillup123'}
-                </span>
-              </div>
-            </div>
-            <div className="success-instructions">
-              <p>
-                Please copy or take a screenshot of this information and send it to the new
-                member.
-              </p>
-            </div>
-          </div>
-        </div>
+
       </div>
     </div>
   );
