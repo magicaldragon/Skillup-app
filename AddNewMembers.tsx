@@ -259,7 +259,7 @@ const AddNewMembers = () => {
       <div className="add-student-content">
         <div className="registration-form-section">
           <div className="form-container">
-            <h2 className="form-title">Registration Form</h2>
+            <h2 className="form-title">REGISTRATION FORM</h2>
 
             {error && <div className="error-message">{error}</div>}
 
@@ -371,7 +371,7 @@ const AddNewMembers = () => {
               {/* English Name */}
               <div className="form-group">
                 <label htmlFor="englishName" className="form-label">
-                  ENGLISH NAME <span className="optional">(Optional)</span>
+                  ENGLISH NAME
                 </label>
                 <input
                   id="englishName"
@@ -389,7 +389,7 @@ const AddNewMembers = () => {
               {/* Email */}
               <div className="form-group">
                 <label htmlFor="email" className="form-label">
-                  EMAIL <span className="optional">(Optional)</span>
+                  EMAIL
                 </label>
                 <input
                   id="email"
@@ -408,7 +408,7 @@ const AddNewMembers = () => {
               {/* Phone Number */}
               <div className="form-group">
                 <label htmlFor="phone" className="form-label">
-                  PHONE NUMBER <span className="optional">(Optional)</span>
+                  PHONE NUMBER
                 </label>
                 <input
                   id="phone"
@@ -427,7 +427,7 @@ const AddNewMembers = () => {
               {/* Parent's Name */}
               <div className="form-group">
                 <label htmlFor="parentName" className="form-label">
-                  PARENT'S NAME <span className="optional">(Optional)</span>
+                  PARENT'S NAME
                 </label>
                 <input
                   id="parentName"
@@ -444,7 +444,7 @@ const AddNewMembers = () => {
               {/* Parent's Phone */}
               <div className="form-group">
                 <label htmlFor="parentPhone" className="form-label">
-                  PARENT'S PHONE <span className="optional">(Optional)</span>
+                  PARENT'S PHONE
                 </label>
                 <input
                   id="parentPhone"
@@ -461,7 +461,7 @@ const AddNewMembers = () => {
               {/* Notes */}
               <div className="form-group">
                 <label htmlFor="notes" className="form-label">
-                  NOTES <span className="optional">(Optional)</span>
+                  NOTES
                 </label>
                 <textarea
                   id="notes"
