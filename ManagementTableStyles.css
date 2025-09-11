@@ -245,6 +245,13 @@
   height: 56px !important; /* 56-60px row height specification */
 }
 
+/* Center alignment for badge cells */
+.management-table td.student-id-cell,
+.management-table td.checkbox-cell,
+.management-table td.status-cell {
+  text-align: center !important;
+}
+
 /* ==============================================
    BLUEPRINT: WAITING LIST TABLE SPECIFIC STYLING
    ============================================== */
@@ -546,6 +553,7 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   text-align: center;
+  margin: 0 auto;
 }
 
 .student-id-badge.male,

@@ -147,12 +147,20 @@
   height: 56px !important; /* 56-60px row height specification */
 }
 
-/* Left alignment for specific cell types */
-.waiting-list-table td.checkbox-cell,
-.waiting-list-table td.status-cell,
-.waiting-list-table td.assign-cell {
-  text-align: left;
-  vertical-align: middle;
+/* Left alignment for all text content, center for badges */
+.waiting-list-table td {
+  text-align: left !important;
+  vertical-align: middle !important;
+}
+
+.waiting-list-table td.checkbox-cell {
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+.waiting-list-table td.student-id-cell {
+  text-align: center !important;
+  vertical-align: middle !important;
 }
 
 .waiting-list-table tbody tr:hover {
@@ -194,7 +202,7 @@
   font-weight: 700;
   color: #1D9A6C; /* Dark green color */
   font-size: 1rem;
-  text-align: center;
+  text-align: left;
 }
 
 .english-name {
@@ -202,7 +210,7 @@
   color: #1D9A6C; /* Dark green color */
   font-style: italic;
   margin-top: 2px;
-  text-align: center;
+  text-align: left;
 }
 
 /* Gender cell styles */
@@ -217,7 +225,8 @@
 /* Status cell styles */
 .status-cell {
   min-width: 120px;
-  text-align: center;
+  text-align: center !important;
+  vertical-align: middle !important;
 }
 
 .status-select {
@@ -231,6 +240,8 @@
   transition: all 0.2s ease;
   width: 100%;
   text-align: center;
+  margin: 0 auto;
+  display: block;
 }
 
 .status-select:focus {

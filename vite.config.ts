@@ -14,6 +14,12 @@ export default defineConfig({
     headers: {
       'Cache-Control': 'public, max-age=31536000',
     },
+    // Fix WebSocket connection issues
+    hmr: {
+      port: 5173,
+      host: 'localhost',
+    },
+    host: 'localhost',
     // Added proxy to route /api calls to Firebase Functions during dev
     proxy: {
       '/api': {
