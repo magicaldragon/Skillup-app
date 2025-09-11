@@ -138,11 +138,12 @@
   position: relative;
   transition: all var(--transition-normal);
   backdrop-filter: blur(20px);
-  height: auto;
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  overflow-y: visible;
-  max-height: none;
+  margin-top: 28px;
+  padding-bottom: 36px;
 }
 
 .add-student-content .form-container:hover {
@@ -238,7 +239,7 @@
 .registration-form {
   display: grid;
   grid-template-columns: 1fr 1fr; /* 2-column layout */
-  gap: 12px 24px; /* Reduced gaps: Vertical 12px, Horizontal 24px */
+  gap: 20px 32px; /* Optimized gaps: Vertical 20px, Horizontal 32px */
   width: 100%;
   flex: 1;
   align-content: start;
