@@ -30,9 +30,9 @@
     linear-gradient(180deg, #1a3d2a 0%, #295b37 50%, #2d5f3b 100%) !important;
 }
 
-/* MOBILE RESPONSIVE - Enhanced */
-@media (max-width: 56.25rem) {
-  /* 900px */
+/* MOBILE RESPONSIVE - Enhanced (≤768px) */
+@media (max-width: 48rem) {
+  /* 768px */
   .sidebar {
     flex: 0 0 100vw !important;
     width: 100vw !important;
@@ -71,20 +71,20 @@
   }
 }
 
-/* TABLET RESPONSIVE - Enhanced */
-@media (min-width: 56.3125rem) and (max-width: 75rem) {
-  /* 901px to 1200px */
+/* TABLET RESPONSIVE - Enhanced (769px to 1024px) */
+@media (min-width: 48.0625rem) and (max-width: 64rem) {
+  /* 769px to 1024px */
   .sidebar {
-    flex: 0 0 16rem !important;
-    width: 16rem !important;
+    flex: 0 0 15rem !important; /* 240px */
+    width: 15rem !important;
     border-bottom: none !important;
     border-right: 0.1875rem solid #f5b802 !important;
     height: 100vh !important;
     transform: none !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
-    min-width: 15rem !important;
-    max-width: 15rem !important;
+    min-width: 13.75rem !important; /* 220px */
+    max-width: 15rem !important; /* 240px */
     box-shadow: 
       0.25rem 0 1.5rem rgba(0, 0, 0, 0.12),
       inset -0.125rem 0 0.5rem rgba(255, 233, 194, 0.08) !important;
@@ -94,20 +94,20 @@
   }
 }
 
-/* DESKTOP RESPONSIVE - Enhanced */
-@media (min-width: 75.0625rem) {
-  /* 1201px and up */
+/* DESKTOP RESPONSIVE - Enhanced (1025px and up) */
+@media (min-width: 64.0625rem) {
+  /* 1025px and up */
   .sidebar {
-    flex: 0 0 16rem !important;
-    width: 16rem !important;
+    flex: 0 0 17.5rem !important; /* 280px */
+    width: 17.5rem !important;
     border-bottom: none !important;
     border-right: 0.1875rem solid #f5b802 !important;
     height: 100vh !important;
     transform: none !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
-    min-width: 16rem !important;
-    max-width: 16rem !important;
+    min-width: 16.25rem !important; /* 260px */
+    max-width: 17.5rem !important; /* 280px */
     box-shadow: 
       0.25rem 0 2rem rgba(0, 0, 0, 0.15),
       inset -0.125rem 0 0.5rem rgba(255, 233, 194, 0.1) !important;

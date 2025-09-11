@@ -39,6 +39,7 @@ export interface RegistrationResponse {
     role: string;
     username: string;
     password: string;
+    generatedPassword: string;
     studentCode?: string;
   };
 }
