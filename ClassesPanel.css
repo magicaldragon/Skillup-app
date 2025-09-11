@@ -40,7 +40,7 @@
 }
 
 .classes-search {
-  margin-bottom: 1rem;
+  margin-bottom: 24px !important; /* 24px margin above data tables */
 }
 
 .search-controls {
@@ -55,21 +55,21 @@
 .search-bar-container {
   position: relative;
   flex: 1;
-  min-width: 300px;
-  max-width: 800px;
+  min-width: 350px !important; /* 350-400px width specification */
+  max-width: 400px !important;
 }
 
 .search-bar-input {
   width: 100%;
-  padding: 0.6rem 2.5rem 0.6rem 0.75rem;
+  padding: 12px 16px !important; /* 12px 16px internal padding */
   border: 2px solid #e0f7fa;
-  border-radius: 10px;
+  border-radius: 24px !important; /* 24px border-radius for pill-shaped appearance */
   font-size: 0.9rem;
   background: #ffffff;
   color: #307637;
   transition: all 0.3s ease;
   box-shadow: 0 2px 8px rgba(48, 118, 55, 0.05);
-  min-width: 280px;
+  min-width: 350px !important;
 }
 
 .search-bar-input:hover {
@@ -469,16 +469,18 @@
 .students-table th {
   background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
   color: #307637;
-  padding: 0.8rem;
-  text-align: left;
+  padding: 14px 16px !important; /* 12-16px cell padding specification */
+  text-align: left !important; /* Consistent left alignment with proper border spacing */
   font-weight: 600;
   font-size: 0.9rem;
+  height: 60px !important; /* 56-60px row height specification */
 }
 
 .students-table td {
-  padding: 0.8rem;
+  padding: 14px 16px !important; /* 12-16px cell padding specification */
   border-bottom: 1px solid #e0f7fa;
   vertical-align: middle;
+  height: 56px !important; /* 56-60px row height specification */
 }
 
 .student-row:hover {
@@ -1197,19 +1199,21 @@
 .students-table th {
   background: linear-gradient(135deg, #ff8c42 0%, #f5b802 100%);
   color: white;
-  padding: 1rem;
-  text-align: left;
+  padding: 14px 16px !important; /* 12-16px cell padding specification */
+  text-align: left !important; /* Consistent left alignment with proper border spacing */
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
   font-size: 0.9rem;
+  height: 60px !important; /* 56-60px row height specification */
 }
 
 .students-table td {
-  padding: 1rem;
+  padding: 14px 16px !important; /* 12-16px cell padding specification */
   border-bottom: 1px solid #e2e8f0;
   vertical-align: middle;
   background: white;
+  height: 56px !important; /* 56-60px row height specification */
 }
 
 .students-table tbody tr:hover {

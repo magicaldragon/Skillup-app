@@ -31,7 +31,7 @@
 .waiting-list-search {
   display: flex;
   justify-content: center;
-  margin-bottom: 24px;
+  margin-bottom: 24px !important; /* 24px margin above data tables */
 }
 
 .search-controls {
@@ -46,21 +46,21 @@
 .search-bar-container {
   position: relative;
   flex: 1;
-  min-width: 300px;
-  max-width: 800px;
+  min-width: 350px !important; /* 350-400px width specification */
+  max-width: 400px !important;
 }
 
 .search-bar-input {
   width: 100%;
-  padding: 0.8rem 3.5rem 0.8rem 1rem;
+  padding: 12px 16px !important; /* 12px 16px internal padding */
   border: 2px solid #e0f7fa;
-  border-radius: 12px;
+  border-radius: 24px !important; /* 24px border-radius for pill-shaped appearance */
   font-size: 0.95rem;
   background: #ffffff;
   color: #307637;
   transition: all 0.3s ease;
   box-shadow: 0 2px 8px rgba(48, 118, 55, 0.05);
-  min-width: 300px;
+  min-width: 350px !important;
 }
 
 .search-bar-input:hover {
@@ -129,19 +129,21 @@
 .waiting-list-table th {
   background: linear-gradient(135deg, #1D9A6C 0%, #157A54 100%); /* Dark green gradient */
   color: white;
-  padding: 16px;
-  text-align: center; /* Center alignment */
+  padding: 14px 16px !important; /* 12-16px cell padding specification */
+  text-align: left !important; /* Consistent left alignment with proper border spacing */
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
   font-size: 0.9rem;
+  height: 60px !important; /* 56-60px row height specification */
 }
 
 .waiting-list-table td {
-  padding: 16px;
+  padding: 14px 16px !important; /* 12-16px cell padding specification */
   border-bottom: 1px solid #E6F8F0;
   vertical-align: middle;
-  text-align: center; /* Center alignment for all cells */
+  text-align: left !important; /* Consistent left alignment with proper border spacing */
+  height: 56px !important; /* 56-60px row height specification */
 }
 
 /* Center alignment for specific cell types */
