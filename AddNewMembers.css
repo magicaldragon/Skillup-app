@@ -113,15 +113,15 @@
 
 /* ===== REGISTRATION FORM SECTION ===== */
 .registration-form-section {
-  flex: 0 0 700px;
-  max-width: 700px;
+  flex: 1;
+  max-width: 1100px; /* Increased max-width as specified */
   min-width: 500px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   position: relative;
   z-index: 1;
-  margin-right: auto;
+  margin: 40px auto; /* Added top/bottom margin and center alignment */
 }
 
 /* ===== FORM CONTAINER ===== */
@@ -131,19 +131,18 @@
   box-shadow:
     var(--shadow-xl),
     0 0 0 2px var(--dark-green-700);
-  padding: 1.5rem 2rem 2rem 2rem; /* Added extra bottom padding */
+  padding: 32px; /* Updated to 24-32px as specified */
   width: 100%;
   box-sizing: border-box;
   border: 2px solid var(--dark-green-700);
   position: relative;
   transition: all var(--transition-normal);
   backdrop-filter: blur(20px);
-  height: auto; /* Changed from 100% to auto */
-  min-height: calc(100vh - 2rem); /* Ensure minimum height */
+  height: auto;
   display: flex;
   flex-direction: column;
-  overflow-y: visible; /* Changed from auto to visible */
-  max-height: none; /* Removed max-height constraint */
+  overflow-y: visible;
+  max-height: none;
 }
 
 .add-student-content .form-container:hover {
@@ -238,8 +237,8 @@
 /* ===== REGISTRATION FORM GRID ===== */
 .registration-form {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
+  grid-template-columns: 1fr 1fr; /* 2-column layout */
+  gap: 20px 32px; /* Vertical gap: 16-20px, Horizontal gap: 24-32px */
   width: 100%;
   flex: 1;
   align-content: start;
@@ -264,7 +263,7 @@
 .form-label {
   color: var(--neutral-800);
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 14px; /* 14-16px as specified */
   letter-spacing: 0.025em;
   display: flex;
   align-items: center;
@@ -314,10 +313,12 @@
   border: 2px solid var(--neutral-300);
   border-radius: var(--radius-md);
   padding: 0.75rem 1rem;
+  height: 48px; /* 44-48px height as specified */
   font-size: 1rem;
   font-family: var(--font-sans);
   color: var(--neutral-800);
   transition: all var(--transition-fast);
+  box-sizing: border-box;
   box-shadow: var(--shadow-sm);
   width: 100%;
   box-sizing: border-box;
@@ -1003,7 +1004,7 @@
   }
 }
 
-@media (max-width: 56.25rem) { /* 900px */
+@media (max-width: 768px) { /* Updated to 768px as specified */
   .add-student-container {
     padding: var(--space-1);
   }
@@ -1028,8 +1029,8 @@
   }
 
   .registration-form {
-    grid-template-columns: 1fr;
-    gap: var(--space-1);
+    grid-template-columns: 1fr; /* Single column on mobile */
+    gap: 16px; /* Reduced gap for mobile */
   }
 
   .success-info-box {
@@ -1043,8 +1044,8 @@
   .form-input,
   .form-select,
   .form-textarea {
-    font-size: 0.85rem;
-    height: 2rem;
+    font-size: 0.9rem;
+    height: 44px; /* Maintain proper height on mobile */
   }
 
   .form-input[type="search"],

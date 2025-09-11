@@ -1,7 +1,7 @@
 /* Professional Stunning Sidebar Design - ENHANCED VERSION */
 .sidebar {
-  flex: 0 0 16rem !important; /* Slightly wider for better spacing */
-  width: 16rem !important;
+  flex: 0 0 17.5rem !important; /* Increased width for better spacing */
+  width: 17.5rem !important;
   background: linear-gradient(180deg, #1a3d2a 0%, #295b37 50%, #2d5f3b 100%) !important;
   color: #fff !important;
   box-shadow: 
@@ -10,15 +10,16 @@
   z-index: 100 !important;
   border-right: 0.1875rem solid #f5b802 !important;
   margin: 0 !important;
-  padding: 0 !important;
+  padding: 16px !important; /* Added internal padding */
   display: flex !important;
   flex-direction: column !important;
   height: 100vh !important;
   overflow-y: auto !important;
   overflow-x: hidden !important;
-  min-width: 16rem !important;
-  max-width: 16rem !important;
+  min-width: 17.5rem !important;
+  max-width: 17.5rem !important;
   position: relative !important;
+  box-sizing: border-box !important;
   /* Enhanced scrollbar styling */
   scrollbar-width: thin;
   scrollbar-color: rgba(245, 184, 2, 0.5) transparent;
@@ -74,8 +75,8 @@
 @media (min-width: 56.3125rem) and (max-width: 75rem) {
   /* 901px to 1200px */
   .sidebar {
-    flex: 0 0 15rem !important;
-    width: 15rem !important;
+    flex: 0 0 16rem !important;
+    width: 16rem !important;
     border-bottom: none !important;
     border-right: 0.1875rem solid #f5b802 !important;
     height: 100vh !important;
@@ -349,11 +350,12 @@
     linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%),
     linear-gradient(180deg, #2d5f3b 0%, #295b37 100%) !important;
   color: #fff !important;
-  font-weight: 700 !important;
-  font-size: 1.0625rem !important;
+  font-weight: 500 !important; /* Medium weight for normal items */
+  font-size: 15px !important; /* 15-16px font size */
   border: none !important;
-  border-radius: 1rem !important;
-  padding: 1.25rem 1rem 1.25rem 3rem !important;
+  border-radius: 8px !important; /* 8-12px border radius */
+  padding: 12px 16px !important; /* 12px 16px padding */
+  height: 44px !important; /* 44-48px height */
   box-shadow: 
     0 0.25rem 1rem rgba(26, 61, 42, 0.2),
     0 0.0625rem 0.125rem rgba(245, 184, 2, 0.1),
@@ -363,14 +365,13 @@
   letter-spacing: 0.025rem !important;
   outline: none !important;
   width: 100% !important;
-  max-width: 18rem !important;
   text-align: left !important;
   margin-bottom: 0.375rem !important;
   box-sizing: border-box !important;
   display: flex !important;
   align-items: center !important;
+  gap: 12px !important; /* 12px gap between icon and text */
   position: relative !important;
-  min-height: 3.75rem !important;
   /* Professional gradient border */
   border: 0.0625rem solid rgba(245, 184, 2, 0.15) !important;
   overflow: hidden !important;
@@ -412,9 +413,11 @@
 }
 
 .sidebar-btn .sidebar-menu-icon {
-  margin-right: 1rem !important;
+  width: 16px !important; /* 16-20px icon size */
+  height: 16px !important;
   display: flex !important;
   align-items: center !important;
+  justify-content: center !important;
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
   z-index: 2 !important;
   position: relative !important;
@@ -454,7 +457,7 @@
     0 0 0 0.1875rem rgba(245, 184, 2, 0.2) !important;
   border: 0.0625rem solid #1a3d2a !important;
   transform: translateX(0.5rem) scale(1.03) !important;
-  font-weight: 800 !important;
+  font-weight: 600 !important; /* Semi-bold for active items */
   text-shadow: 0 0.0625rem 0.125rem rgba(255, 255, 255, 0.3) !important;
 }
 
