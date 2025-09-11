@@ -514,7 +514,7 @@ const AddNewMembers = () => {
         {/* Success Info Box - Make visible for testing */}
         <div className="success-info-section show">
           <div className="success-info-box">
-            <h3 className="success-title">Account created successfully!</h3>
+            <h3 className="success-title">SUCCESS!</h3>
             <div className="account-details">
               <div className="account-detail">
                 <span className="detail-label">Full name:</span>

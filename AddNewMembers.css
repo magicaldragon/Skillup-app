@@ -463,12 +463,16 @@
 }
 
 .password-display {
-  font-family: monospace;
-  background: #fef3c7;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-weight: 600;
-  color: #92400e;
+  background: transparent;
+  color: #dc2626;
+  padding: 0.5rem;
+  border-radius: none;
+  border: none;
+  font-family: inherit;
+  font-weight: bold;
+  letter-spacing: normal;
+  text-align: left;
+  backdrop-filter: none;
 }
 
 .success-instructions {
@@ -790,35 +794,41 @@
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%);
+  background: transparent;
   border-radius: var(--radius-2xl);
-  border: 2px solid #0ea5e9;
-  box-shadow: var(--shadow-xl);
+  border: none;
+  box-shadow: none;
   position: relative;
   margin: 40px 0;
-  transition: all var(--transition-normal);
+  transition: none;
   opacity: 1;
   visibility: visible;
+  overflow: hidden;
 }
 
 .success-info-section:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-2xl);
-  border-color: #0284c7;
+  transform: none;
+  box-shadow: none;
+  border-color: transparent;
 }
 
 .success-info-box {
-  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%);
-  border-radius: var(--radius-2xl);
-  box-shadow:
-    var(--shadow-xl),
-    0 0 0 2px var(--dark-green-700);
-  padding: 20px; /* Reduced from var(--space-4) to match form container */
+  background: transparent;
+  border-radius: none;
+  box-shadow: none;
+  padding: 20px;
   width: 100%;
   box-sizing: border-box;
-  border: 2px solid var(--dark-green-700);
+  border: none;
+  overflow: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   position: relative;
-  transition: all var(--transition-normal);
+  transition: none;
+}
+
+.success-info-box::-webkit-scrollbar {
+  display: none;
   backdrop-filter: blur(20px);
   max-height: 80vh; /* Reduced from 85vh to 80vh */
   overflow-y: auto;
@@ -897,12 +907,12 @@
 }
 
 .success-title {
-  color: var(--neutral-800);
-  font-size: 1.25rem; /* Reduced from 1.5rem to 1.25rem */
+  color: var(--dark-green-700);
+  font-size: 1.5rem;
   font-weight: 700;
   text-align: center;
-  margin-bottom: 1rem; /* Reduced from var(--space-6) to 1rem */
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
+  text-shadow: none;
   letter-spacing: 0.025em;
   position: relative;
   z-index: 1;
@@ -932,13 +942,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(255, 255, 255, 0.9);
+  background: transparent;
   padding: 8px 12px; /* Reduced from var(--space-4) var(--space-5) to 8px 12px */
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--dark-green-300);
-  box-shadow: var(--shadow-md);
-  backdrop-filter: blur(10px);
-  transition: all var(--transition-fast);
+  border-radius: none;
+  border: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  transition: none;
   position: relative;
   overflow: hidden;
   min-width: 0;
@@ -952,18 +962,49 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(5, 150, 105, 0.1), transparent);
-  transition: left var(--transition-slow);
+  background: transparent;
+  transition: none;
 }
 
 .account-detail:hover {
-  background: rgba(255, 255, 255, 1);
-  transform: translateX(4px);
-  box-shadow: var(--shadow-lg);
+  background: transparent;
+  transform: none;
+  box-shadow: none;
 }
 
 .account-detail:hover::before {
-  left: 100%;
+  left: -100%;
+}
+
+/* Name, Role, Student ID in dark green */
+.account-detail:nth-child(1) .detail-label,
+.account-detail:nth-child(2) .detail-label,
+.account-detail:nth-child(3) .detail-label {
+  color: var(--dark-green-700);
+  font-weight: bold;
+}
+
+.account-detail:nth-child(1) .detail-value,
+.account-detail:nth-child(2) .detail-value,
+.account-detail:nth-child(3) .detail-value {
+  color: var(--dark-green-700);
+  background: transparent;
+  border: none;
+}
+
+/* Username and Password in red */
+.account-detail:nth-child(4) .detail-label,
+.account-detail:nth-child(5) .detail-label {
+  color: #dc2626;
+  font-weight: bold;
+}
+
+.account-detail:nth-child(4) .detail-value,
+.account-detail:nth-child(5) .detail-value {
+  color: #dc2626;
+  font-weight: bold;
+  background: transparent;
+  border: none;
 }
 
 .detail-label {
@@ -1040,13 +1081,13 @@
 }
 
 .success-instructions {
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: var(--radius-xl);
+  background: transparent;
+  border-radius: none;
   padding: var(--space-6);
-  border: 1px solid var(--dark-green-300);
+  border: none;
   position: relative;
   z-index: 1;
-  backdrop-filter: blur(10px);
+  backdrop-filter: none;
 }
 
 .success-instructions p {
@@ -1055,7 +1096,7 @@
   font-weight: 700;
   line-height: 1.6;
   margin: var(--space-2) 0;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  text-shadow: none;
   text-align: center;
 }
 
