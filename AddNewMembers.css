@@ -89,7 +89,7 @@
   flex-direction: column;
   position: relative;
   z-index: 1;
-  margin: 40px 0;
+  margin: 16px 0;
 }
 
 /* ===== FORM CONTAINER ===== */
@@ -98,15 +98,15 @@
   border-radius: 12px;
   border: 1px solid #A0C0B0;
   box-shadow: none;
-  padding: 40px;
-  margin: 0 auto;
+  padding: 20px;
+  margin: 16px auto;
   width: 100%;
   max-width: 1200px;
   box-sizing: border-box;
   position: relative;
   height: auto;
-  min-height: 600px;
-  overflow-y: auto;
+  min-height: auto;
+  overflow-y: visible;
   display: flex;
   flex-direction: column;
 }
@@ -114,10 +114,10 @@
 /* ===== FORM TITLE ===== */
 .form-title {
   color: #006400;
-  font-size: 28px;
+  font-size: 24px;
   font-weight: bold;
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 16px;
   font-family: sans-serif;
   position: relative;
   flex-shrink: 0;
@@ -149,7 +149,7 @@
 .registration-form {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px 40px;
+  gap: 8px 24px;
   width: 100%;
   max-width: none;
 }
@@ -158,7 +158,7 @@
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 12px; /* 12px label-to-field spacing */
+  gap: 4px; /* 4px label-to-field spacing */
   margin-bottom: 0;
 }
 
@@ -169,7 +169,7 @@
 }
 
 .form-group.notes-section {
-  margin-top: var(--space-2);
+  margin-top: 8px;
 }
 
 .form-group.empty-cell {
@@ -181,8 +181,8 @@
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 16px;
-  margin-top: 32px;
+  gap: 12px;
+  margin-top: 16px;
   padding: 0;
 }
 
@@ -260,10 +260,10 @@
 .form-textarea {
   background: var(--background-white);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 16px 20px;
-  height: 52px;
-  font-size: 15px;
+  border-radius: 6px;
+  padding: 10px 14px;
+  height: 40px;
+  font-size: 14px;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: var(--text-primary);
   transition: all 0.2s ease;
@@ -279,7 +279,7 @@
 
 .form-textarea {
   height: auto;
-  min-height: 100px;
+  min-height: 60px;
   resize: vertical;
 }
 
