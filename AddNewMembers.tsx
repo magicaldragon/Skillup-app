@@ -522,7 +522,7 @@ const AddNewMembers = () => {
               </div>
               <div className="account-detail">
                 <span className="detail-label">Role:</span>
-                <span className="detail-value">{createdUser?.role?.charAt(0).toUpperCase() + createdUser?.role?.slice(1) || 'Student'}</span>
+                <span className="detail-value">{createdUser?.role ? createdUser.role.charAt(0).toUpperCase() + createdUser.role.slice(1) : 'Student'}</span>
               </div>
               <div className="account-detail">
                 <span className="detail-label">Student ID:</span>
