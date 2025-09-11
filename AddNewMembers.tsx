@@ -99,6 +99,9 @@ const AddNewMembers = () => {
         if (!value.trim()) return 'Full name is required';
         if (value.trim().length < 2) return 'Full name must be at least 2 characters';
         return null;
+      case 'dob':
+        if (!value.trim()) return 'Date of birth is required';
+        return null;
       case 'email':
         if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
           return 'Please enter a valid email address';
@@ -158,6 +161,9 @@ const AddNewMembers = () => {
     }
     if (form.name.trim().length < 2) {
       return 'Full name must be at least 2 characters long';
+    }
+    if (!form.dob || !form.dob.trim()) {
+      return 'Date of birth is required';
     }
     if (form.role === 'student' && !form.status) {
       return 'Status is required for students';
@@ -258,7 +264,7 @@ const AddNewMembers = () => {
             {error && <div className="error-message">{error}</div>}
 
             <form onSubmit={handleSubmit} className="registration-form">
-              {/* Row 1: Full Name, Role, Gender, English Name */}
+              {/* Row 1: Full Name, Role, Gender, Status */}
               <div className="form-group">
                 <label htmlFor="name" className="form-label">
                   FULL NAME <span className="required">*</span>
@@ -317,6 +323,42 @@ const AddNewMembers = () => {
               </div>
 
               <div className="form-group">
+                <label htmlFor="status" className="form-label">
+                  STATUS <span className="required">*</span>
+                </label>
+                <select
+                  id="status"
+                  name="status"
+                  value={form.status}
+                  onChange={handleChange}
+                  className="form-select"
+                  required
+                >
+                  <option value="potential">Potential</option>
+                  <option value="contacted">Contacted</option>
+                  <option value="studying">Studying</option>
+                </select>
+              </div>
+
+              {/* Row 2: Date of Birth, English Name, Phone Number, Email */}
+              <div className="form-group">
+                <label htmlFor="dob" className="form-label">
+                  DATE OF BIRTH <span className="required">*</span>
+                </label>
+                <input
+                  id="dob"
+                  type="date"
+                  name="dob"
+                  value={form.dob}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  className={`form-input ${fieldErrors.dob ? 'error' : ''}`}
+                  required
+                />
+                {fieldErrors.dob && <span className="field-error">{fieldErrors.dob}</span>}
+              </div>
+
+              <div className="form-group">
                 <label htmlFor="englishName" className="form-label">
                   ENGLISH NAME <span className="optional">(OPTIONAL)</span>
                 </label>
@@ -329,23 +371,6 @@ const AddNewMembers = () => {
                   onBlur={handleBlur}
                   className="form-input"
                   placeholder="Enter English name"
-                />
-              </div>
-
-              {/* Row 2: Date of Birth, Phone Number, Email, Status */}
-              <div className="form-group">
-                <label htmlFor="dob" className="form-label">
-                  DATE OF BIRTH <span className="optional">(OPTIONAL)</span>
-                </label>
-                <input
-                  id="dob"
-                  type="text"
-                  name="dob"
-                  value={form.dob}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className="form-input"
-                  placeholder="mm/dd/yyyy"
                 />
               </div>
 
@@ -383,24 +408,6 @@ const AddNewMembers = () => {
                 {fieldErrors.email && <span className="field-error">{fieldErrors.email}</span>}
               </div>
 
-              <div className="form-group">
-                <label htmlFor="status" className="form-label">
-                  STATUS <span className="required">*</span>
-                </label>
-                <select
-                  id="status"
-                  name="status"
-                  value={form.status}
-                  onChange={handleChange}
-                  className="form-select"
-                  required
-                >
-                  <option value="potential">Potential</option>
-                  <option value="contacted">Contacted</option>
-                  <option value="studying">Studying</option>
-                </select>
-              </div>
-
               {/* Row 3: Parent's Name, Parent's Phone */}
               <div className="form-group">
                 <label htmlFor="parentName" className="form-label">
@@ -432,7 +439,7 @@ const AddNewMembers = () => {
                 />
               </div>
 
-              {/* Empty cells to maintain grid structure */}
+              {/* Empty cells to maintain grid structure for Row 3 */}
               <div className="form-group empty-cell"></div>
               <div className="form-group empty-cell"></div>
 
