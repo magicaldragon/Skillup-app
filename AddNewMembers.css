@@ -139,8 +139,8 @@
   transition: all var(--transition-normal);
   backdrop-filter: blur(20px);
   height: 60vh; /* 60% of viewport height */
-  margin-top: 20vh; /* 20% top spacing */
-  margin-bottom: 20vh; /* 20% bottom spacing */
+  margin-top: 5vh; /* 5% top spacing */
+  margin-bottom: 5vh; /* 5% bottom spacing */
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -157,7 +157,7 @@
 /* ===== FORM TITLE ===== */
 .form-title {
   color: #006400 !important; /* Dark green color to match other pages */
-  font-size: 1.75rem !important; /* Reduced title size */
+  font-size: 2.5rem !important; /* Match Waiting List title size */
   font-weight: 900 !important;
   text-align: center !important;
   margin-bottom: 0.75rem !important; /* Reduced margin */

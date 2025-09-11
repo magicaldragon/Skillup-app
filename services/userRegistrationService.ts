@@ -199,6 +199,7 @@ class UserRegistrationService {
           role: responseData.user.role,
           username,
           password,
+          generatedPassword: password,
           studentCode: responseData.user.studentCode,
         },
       };
