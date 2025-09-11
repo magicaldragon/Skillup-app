@@ -125,19 +125,10 @@ const AddNewMembers = () => {
     }
   };
 
-  // Phone number formatting function
+  // Phone number formatting function - now returns plain text
   const formatPhoneNumber = (value: string) => {
-    // Remove all non-digits
-    const digits = value.replace(/\D/g, '');
-    
-    // Format as (XXX) XXX-XXXX
-    if (digits.length <= 3) {
-      return digits;
-    } else if (digits.length <= 6) {
-      return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
-    } else {
-      return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
-    }
+    // Return the value as-is for plain text input
+    return value;
   };
 
   const handleReset = () => {
@@ -214,8 +205,21 @@ const AddNewMembers = () => {
       console.log('Registration result:', result);
 
       // Ensure we have the user data
+      console.log('Checking result structure:', {
+        hasResult: !!result,
+        hasUser: !!result?.user,
+        resultKeys: result ? Object.keys(result) : [],
+        userKeys: result?.user ? Object.keys(result.user) : []
+      });
+      
       if (result?.user) {
+        console.log('Setting created user:', result.user);
         setCreatedUser(result.user);
+        handleReset();
+      } else if (result) {
+        // Sometimes the response might have a different structure
+        console.log('Result exists but no user property, trying to use result directly');
+        setCreatedUser(result as any);
         handleReset();
       } else {
         throw new Error('Invalid response from server');
@@ -394,7 +398,7 @@ const AddNewMembers = () => {
                   onChange={handleChange}
                   onBlur={handleBlur}
                   className={`form-input ${fieldErrors.phone ? 'error' : ''}`}
-                  placeholder="(123) 456-7890"
+                  placeholder="Enter phone number"
                 />
                 {fieldErrors.phone && <span className="field-error">{fieldErrors.phone}</span>}
               </div>

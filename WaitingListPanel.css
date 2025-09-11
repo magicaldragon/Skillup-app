@@ -7,7 +7,8 @@
 }
 
 .waiting-list-header {
-  text-align: center;
+  text-align: left;
+  vertical-align: middle;
   margin-bottom: 32px;
 }
 
@@ -146,11 +147,12 @@
   height: 56px !important; /* 56-60px row height specification */
 }
 
-/* Center alignment for specific cell types */
+/* Left alignment for specific cell types */
 .waiting-list-table td.checkbox-cell,
 .waiting-list-table td.status-cell,
 .waiting-list-table td.assign-cell {
-  text-align: center;
+  text-align: left;
+  vertical-align: middle;
 }
 
 .waiting-list-table tbody tr:hover {
@@ -205,7 +207,8 @@
 
 /* Gender cell styles */
 .gender-cell {
-  text-align: center; /* Center align gender text */
+  text-align: left; /* Left align gender text */
+  vertical-align: middle;
   font-weight: 600;
   color: #1D9A6C; /* Dark green color */
   text-transform: capitalize;

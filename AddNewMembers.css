@@ -101,27 +101,27 @@
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  justify-content: center;
-  gap: 1rem;
-  padding: 0.25rem 0.25rem 1rem 0.25rem; /* Added bottom padding */
+  justify-content: flex-start; /* Changed from center to flex-start */
+  gap: 2rem; /* Increased gap for better spacing */
+  padding: 0.25rem 0.25rem 1rem 0.25rem;
   box-sizing: border-box;
   min-width: 0;
-  min-height: calc(100vh - 1rem); /* Changed height to min-height */
+  min-height: calc(100vh - 1rem);
   position: relative;
-  overflow: visible; /* Changed from hidden to visible */
+  overflow: visible;
 }
 
 /* ===== REGISTRATION FORM SECTION ===== */
 .registration-form-section {
-  flex: 1;
-  max-width: 1100px; /* Increased max-width as specified */
+  flex: 0 0 60%; /* Fixed width of 60% for form section */
+  max-width: 700px;
   min-width: 500px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   position: relative;
   z-index: 1;
-  margin: 40px auto; /* Added top/bottom margin and center alignment */
+  margin: 40px 0; /* Remove auto centering, keep top/bottom margin */
 }
 
 /* ===== FORM CONTAINER ===== */
@@ -626,13 +626,13 @@
 }
 
 .submit-btn {
-  background-color: var(--primary-600);
+  background-color: #059669; /* Green color instead of blue */
   color: #ffffff;
   box-shadow: var(--shadow-md);
 }
 
 .submit-btn:hover {
-  background-color: var(--primary-700);
+  background-color: #047857; /* Darker green on hover */
   color: #ffffff;
   transform: translateY(-1px);
   box-shadow: var(--shadow-lg);

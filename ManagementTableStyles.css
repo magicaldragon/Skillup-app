@@ -100,6 +100,7 @@
   letter-spacing: 0;
   padding: 14px 16px !important; /* 12-16px cell padding specification */
   text-align: left !important; /* Consistent left alignment with proper border spacing */
+  vertical-align: middle !important;
   border-bottom: 2px solid #E9ECEF; /* Default border, will be overridden by theme */
   position: relative;
   height: 60px !important; /* 56-60px row height specification */
@@ -220,8 +221,9 @@
   font-weight: 600 !important;
   text-transform: uppercase !important;
   letter-spacing: 0.05em !important;
-  text-align: center !important;
-  margin: 0 auto !important;
+  text-align: left !important;
+  vertical-align: middle !important;
+  margin: 0 !important;
 }
 
 .student-id-badge.male,
@@ -234,7 +236,7 @@
 
 .management-table td {
   padding: 14px 16px !important; /* 12-16px cell padding specification */
-  vertical-align: middle;
+  vertical-align: middle !important;
   color: #008000 !important; /* Green color for all cell content */
   font-size: 0.875rem;
   border-bottom: 1px solid #E9ECEF;

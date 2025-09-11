@@ -16,7 +16,8 @@
 
 .classes-header {
   margin-bottom: 1rem;
-  text-align: center;
+  text-align: left;
+  vertical-align: middle;
 }
 
 .classes-title {
@@ -179,7 +180,8 @@
   background: linear-gradient(135deg, #1D9A6C 0%, #157A54 100%); /* Dark green gradient */
   color: white;
   padding: 16px;
-  text-align: center; /* Center alignment */
+  text-align: left; /* Left alignment */
+  vertical-align: middle;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -190,7 +192,8 @@
   padding: 16px;
   border-bottom: 1px solid #E6F8F0;
   vertical-align: middle;
-  text-align: center; /* Center alignment for all cells */
+  text-align: left; /* Left alignment for all cells */
+  vertical-align: middle;
 }
 
 .classes-table tbody tr {
@@ -210,7 +213,8 @@
   min-width: 200px !important;
   max-width: 200px !important;
   vertical-align: middle !important;
-  text-align: center !important;
+  text-align: left !important;
+  vertical-align: middle !important;
   padding: 8px !important;
   position: relative !important;
   overflow: visible !important;

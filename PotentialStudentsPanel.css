@@ -19,7 +19,8 @@
 .potential-students-header {
   width: 100%;
   margin-bottom: 24px;
-  text-align: center;
+  text-align: left;
+  vertical-align: middle;
 }
 
 .potential-students-title {
@@ -183,7 +184,8 @@
   background: #FB923C !important; /* Solid Vibrant Orange */
   color: white;
   padding: 16px;
-  text-align: center; /* Center alignment */
+  text-align: left; /* Left alignment */
+  vertical-align: middle;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -194,7 +196,8 @@
   padding: 16px;
   border-bottom: 1px solid #FFF0E6;
   vertical-align: middle;
-  text-align: center; /* Center alignment for all cells */
+  text-align: left; /* Left alignment for all cells */
+  vertical-align: middle;
 }
 
 /* Center alignment for specific cell types */

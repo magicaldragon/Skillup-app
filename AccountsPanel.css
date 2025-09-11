@@ -18,7 +18,8 @@
   font-size: 2rem;
   font-weight: 900;
   color: #295b37;
-  text-align: center;
+  text-align: left;
+  vertical-align: middle;
   margin-bottom: 1rem;
   text-shadow: none;
 }
@@ -72,7 +73,8 @@
   border-bottom: 1px solid #F3E8FF;
   transition: all 0.2s ease;
   font-size: 0.95rem;
-  text-align: center; /* Center-align all table data cells */
+  text-align: left; /* Left-align all table data cells */
+  vertical-align: middle;
   vertical-align: middle;
 }
 
@@ -356,7 +358,8 @@
   background: #862E9C !important; /* Solid Deep Purple */
   color: #ffffff !important;
   padding: 16px;
-  text-align: center; /* Center alignment */
+  text-align: left; /* Left alignment */
+  vertical-align: middle;
   font-weight: 700;
   font-size: 0.9rem;
   text-transform: uppercase;
