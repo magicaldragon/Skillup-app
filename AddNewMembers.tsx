@@ -264,8 +264,9 @@ const AddNewMembers = () => {
             {error && <div className="error-message">{error}</div>}
 
             <form onSubmit={handleSubmit} className="registration-form">
-              {/* Full Name - Full Width */}
-              <div className="form-group full-width">
+              {/* LEFT COLUMN */}
+              {/* Full Name */}
+              <div className="form-group">
                 <label htmlFor="name" className="form-label">
                   FULL NAME <span className="required">*</span>
                 </label>
@@ -283,7 +284,8 @@ const AddNewMembers = () => {
                 {fieldErrors.name && <span className="field-error">{fieldErrors.name}</span>}
               </div>
 
-              {/* Row 1: Role, Gender */}
+              {/* RIGHT COLUMN */}
+              {/* Role */}
               <div className="form-group">
                 <label htmlFor="role" className="form-label">
                   ROLE <span className="required">*</span>
@@ -304,6 +306,8 @@ const AddNewMembers = () => {
                 </select>
               </div>
 
+              {/* LEFT COLUMN */}
+              {/* Gender */}
               <div className="form-group">
                 <label htmlFor="gender" className="form-label">
                   GENDER <span className="required">*</span>
@@ -323,7 +327,8 @@ const AddNewMembers = () => {
                 </select>
               </div>
 
-              {/* Row 2: Status, Date of Birth */}
+              {/* RIGHT COLUMN */}
+              {/* Status */}
               <div className="form-group">
                 <label htmlFor="status" className="form-label">
                   STATUS <span className="required">*</span>
@@ -342,6 +347,9 @@ const AddNewMembers = () => {
                 </select>
               </div>
 
+              {/* LEFT COLUMN */}
+              {/* Date of Birth */}
+
               <div className="form-group">
                 <label htmlFor="dob" className="form-label">
                   DATE OF BIRTH <span className="required">*</span>
@@ -359,10 +367,11 @@ const AddNewMembers = () => {
                 {fieldErrors.dob && <span className="field-error">{fieldErrors.dob}</span>}
               </div>
 
-              {/* Row 3: English Name, Phone Number */}
+              {/* RIGHT COLUMN */}
+              {/* English Name */}
               <div className="form-group">
                 <label htmlFor="englishName" className="form-label">
-                  ENGLISH NAME <span className="optional">(OPTIONAL)</span>
+                  ENGLISH NAME <span className="optional">(Optional)</span>
                 </label>
                 <input
                   id="englishName"
@@ -376,27 +385,11 @@ const AddNewMembers = () => {
                 />
               </div>
 
-              <div className="form-group">
-                <label htmlFor="phone" className="form-label">
-                  PHONE NUMBER <span className="optional">(OPTIONAL)</span>
-                </label>
-                <input
-                  id="phone"
-                  type="tel"
-                  name="phone"
-                  value={form.phone}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={`form-input ${fieldErrors.phone ? 'error' : ''}`}
-                  placeholder="Enter phone number"
-                />
-                {fieldErrors.phone && <span className="field-error">{fieldErrors.phone}</span>}
-              </div>
-
-              {/* Row 4: Email, Parent's Name */}
+              {/* LEFT COLUMN */}
+              {/* Email */}
               <div className="form-group">
                 <label htmlFor="email" className="form-label">
-                  EMAIL <span className="optional">(OPTIONAL)</span>
+                  EMAIL <span className="optional">(Optional)</span>
                 </label>
                 <input
                   id="email"
@@ -411,9 +404,30 @@ const AddNewMembers = () => {
                 {fieldErrors.email && <span className="field-error">{fieldErrors.email}</span>}
               </div>
 
+              {/* RIGHT COLUMN */}
+              {/* Phone Number */}
+              <div className="form-group">
+                <label htmlFor="phone" className="form-label">
+                  PHONE NUMBER <span className="optional">(Optional)</span>
+                </label>
+                <input
+                  id="phone"
+                  type="tel"
+                  name="phone"
+                  value={form.phone}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  className={`form-input ${fieldErrors.phone ? 'error' : ''}`}
+                  placeholder="Enter phone number"
+                />
+                {fieldErrors.phone && <span className="field-error">{fieldErrors.phone}</span>}
+              </div>
+
+              {/* LEFT COLUMN */}
+              {/* Parent's Name */}
               <div className="form-group">
                 <label htmlFor="parentName" className="form-label">
-                  PARENT'S NAME
+                  PARENT'S NAME <span className="optional">(Optional)</span>
                 </label>
                 <input
                   id="parentName"
@@ -426,10 +440,11 @@ const AddNewMembers = () => {
                 />
               </div>
 
-              {/* Row 5: Parent's Phone (single field) */}
+              {/* RIGHT COLUMN */}
+              {/* Parent's Phone */}
               <div className="form-group">
                 <label htmlFor="parentPhone" className="form-label">
-                  PARENT'S PHONE
+                  PARENT'S PHONE <span className="optional">(Optional)</span>
                 </label>
                 <input
                   id="parentPhone"
@@ -442,10 +457,11 @@ const AddNewMembers = () => {
                 />
               </div>
 
-              {/* Notes - Full Width */}
-              <div className="form-group notes-section full-width">
+              {/* LEFT COLUMN */}
+              {/* Notes */}
+              <div className="form-group">
                 <label htmlFor="notes" className="form-label">
-                  NOTES
+                  NOTES <span className="optional">(Optional)</span>
                 </label>
                 <textarea
                   id="notes"

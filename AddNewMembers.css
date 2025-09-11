@@ -54,9 +54,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: var(--space-1);
+  padding: 0;
   margin: 0;
-  background: var(--background-main);
+  background: #F7FAFC;
   overflow: hidden;
   box-sizing: border-box;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -94,14 +94,14 @@
 
 /* ===== FORM CONTAINER ===== */
 .add-student-content .form-container {
-  background: var(--background-white);
+  background: #F7FAFC;
   border-radius: 12px;
-  border: 2px solid var(--border-color);
-  box-shadow: var(--shadow-lg);
-  padding: var(--space-5);
-  margin: var(--space-5);
-  width: calc(100% - var(--space-10));
-  max-width: 800px;
+  border: 1px solid #A0C0B0;
+  box-shadow: none;
+  padding: 32px;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 1000px;
   box-sizing: border-box;
   position: relative;
   height: auto;
@@ -113,15 +113,15 @@
 
 /* ===== FORM TITLE ===== */
 .form-title {
-  color: var(--primary-action);
-  font-size: 32px;
+  color: #006400;
+  font-size: 28px;
   font-weight: bold;
   text-align: center;
-  margin-bottom: var(--space-5);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  margin-bottom: 32px;
+  font-family: sans-serif;
   position: relative;
   flex-shrink: 0;
-  letter-spacing: 0.5px;
+  letter-spacing: 0;
 }
 
 /* ===== TITLE DECORATION LINE ===== */
@@ -145,16 +145,13 @@
   overflow: visible;
 }
 
-/* ===== REGISTRATION FORM - PROFESSIONAL 2-COLUMN GRID ===== */
+/* ===== PRECISE TWO-COLUMN GRID ===== */
 .registration-form {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-3) var(--space-4); /* 24px row gap, 32px column gap */
+  grid-template-columns: 1fr 1fr;
+  gap: 24px 32px;
   width: 100%;
-  box-sizing: border-box;
-  padding: 0;
-  flex: 1;
-  overflow-y: auto;
+  max-width: none;
 }
 
 /* ===== FORM FIELD STYLING ===== */
@@ -182,11 +179,11 @@
 .form-actions {
   grid-column: 1 / -1;
   display: flex;
-  justify-content: flex-end; /* Align buttons to bottom-right */
+  justify-content: flex-end;
   align-items: center;
-  gap: var(--space-2); /* 16px spacing between buttons */
-  margin-top: var(--space-4);
-  padding: var(--space-3) 0;
+  gap: 16px;
+  margin-top: 32px;
+  padding: 0;
 }
 
 .error-message {
@@ -307,56 +304,56 @@
   padding-right: 2.5rem;
 }
 
-/* ===== PROFESSIONAL BUTTON STYLING ===== */
+/* ===== BUTTON STYLING ===== */
 .register-btn {
-  background: var(--primary-action);
-  color: white;
+  background: #008060;
+  color: #FFFFFF;
   border: none;
-  border-radius: 8px;
-  padding: 12px 24px;
+  border-radius: 4px;
+  padding: 10px 20px;
   font-size: 14px;
-  font-weight: 600;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: bold;
+  font-family: sans-serif;
   cursor: pointer;
   transition: all 0.2s ease;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  min-width: 120px;
+  letter-spacing: 0;
+  min-width: auto;
 }
 
 .register-btn:hover:not(:disabled) {
   background: #006b52;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 128, 96, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 128, 96, 0.3);
 }
 
 .register-btn:disabled {
-  background: var(--secondary-action);
+  background: #cccccc;
   cursor: not-allowed;
   opacity: 0.6;
 }
 
 .reset-btn {
   background: transparent;
-  color: var(--secondary-action);
-  border: 1px solid var(--secondary-action);
-  border-radius: 8px;
-  padding: 12px 24px;
+  color: #6c757d;
+  border: 1px solid #6c757d;
+  border-radius: 4px;
+  padding: 10px 20px;
   font-size: 14px;
-  font-weight: 600;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: bold;
+  font-family: sans-serif;
   cursor: pointer;
   transition: all 0.2s ease;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  min-width: 120px;
+  letter-spacing: 0;
+  min-width: auto;
 }
 
 .reset-btn:hover:not(:disabled) {
-  background: var(--secondary-action);
-  color: white;
+  background: #6c757d;
+  color: #FFFFFF;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+  box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
 }
 
 .reset-btn:disabled {
