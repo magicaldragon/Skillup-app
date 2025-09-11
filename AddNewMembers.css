@@ -83,7 +83,6 @@
   width: 100%;
   height: 100vh;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 0.5rem;
@@ -94,170 +93,136 @@
   font-family: var(--font-sans);
 }
 
-/* ===== CONTENT WRAPPER ===== */
-.add-student-content {
-  width: 100%;
-  max-width: 1200px;
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: flex-start; /* Changed from center to flex-start */
-  gap: 2rem; /* Increased gap for better spacing */
-  padding: 0.25rem 0.25rem 1rem 0.25rem;
+/* ===== MAIN CONTENT - TWO COLUMN GRID ===== */
+.main-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Two equal columns */
+  align-items: center;
+  height: 100vh;
+  padding: 40px;
+  gap: 40px; /* Space between form and announcement */
   box-sizing: border-box;
-  min-width: 0;
-  min-height: calc(100vh - 1rem);
-  position: relative;
-  overflow: visible;
+  width: 100%;
+  max-width: 1400px;
 }
 
-/* ===== REGISTRATION FORM SECTION ===== */
-.registration-form-section {
-  flex: 0 0 60%; /* Fixed width of 60% for form section */
+/* ===== FORM CONTAINER (LEFT SIDE) ===== */
+.form-container {
+  display: flex;
+  justify-content: flex-end; /* Aligns form to the right of its column */
+}
+
+.registration-form {
+  width: 100%;
   max-width: 700px;
-  min-width: 500px;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  z-index: 1;
-  margin: 40px 0; /* Remove auto centering, keep top/bottom margin */
-}
-
-/* ===== FORM CONTAINER ===== */
-.add-student-content .form-container {
+  padding: 2rem 3rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
   background: linear-gradient(135deg, #ffffff 0%, var(--primary-50) 50%, var(--primary-100) 100%);
-  border-radius: var(--radius-2xl);
-  box-shadow:
-    var(--shadow-xl),
-    0 0 0 2px var(--dark-green-700);
-  padding: 16px;
-  width: 100%;
-  box-sizing: border-box;
   border: 2px solid var(--dark-green-700);
-  position: relative;
+  
+  /* Internal grid for the form fields */
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 24px; /* Row and column gap */
   transition: all var(--transition-normal);
-  backdrop-filter: blur(20px);
-  height: 60vh; /* 60% of viewport height */
-  margin-top: 5vh; /* 5% top spacing */
-  margin-bottom: 5vh; /* 5% bottom spacing */
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
 }
 
-.add-student-content .form-container:hover {
-  box-shadow:
-    var(--shadow-2xl),
-    0 0 0 3px var(--dark-green-600);
+.registration-form:hover {
+  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
   border-color: var(--dark-green-600);
   transform: translateY(-2px);
 }
 
 /* ===== FORM TITLE ===== */
 .form-title {
-  color: #006400 !important; /* Dark green color to match other pages */
-  font-size: 2.5rem !important; /* Match Waiting List title size */
-  font-weight: 900 !important;
-  text-align: center !important;
-  margin-bottom: 0.75rem !important; /* Reduced margin */
-  letter-spacing: 1px !important;
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #006400;
+  font-size: 2.5rem;
+  font-weight: 900;
+  margin-bottom: 1.5rem;
+  letter-spacing: 1px;
   text-shadow: 
     0 0 10px rgba(0, 100, 0, 0.3),
     0 0 20px rgba(0, 100, 0, 0.2),
-    0 2px 4px rgba(0, 0, 0, 0.1) !important; /* Glow effect like other titles */
+    0 2px 4px rgba(0, 0, 0, 0.1);
   font-family: var(--font-sans);
-  position: relative;
-  flex-shrink: 0;
 }
 
-.form-title::after {
-  content: "";
-  position: absolute;
-  bottom: calc(-1 * var(--space-4));
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80px;
-  height: 4px;
-  background: linear-gradient(90deg, #059669 0%, #047857 50%, #059669 100%);
-  border-radius: var(--radius-full);
+/* ===== ANNOUNCEMENT BOX (RIGHT SIDE) ===== */
+.announcement-container {
+  display: flex;
+  justify-content: flex-start; /* Aligns box to the left of its column */
 }
 
-/* ===== TITLE DECORATION LINE ===== */
-.title-decoration-line {
-  width: 100%;
-  height: 3px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    #006400 15%,
-    #004d00 50%,
-    #006400 85%,
-    transparent 100%
-  );
-  margin: 0 auto 1rem auto;
-  border-radius: var(--radius-full);
-  box-shadow: 
-    0 2px 12px rgba(0, 100, 0, 0.3),
-    0 1px 4px rgba(0, 100, 0, 0.2);
-  position: relative;
-  overflow: visible;
+.announcement-box {
+  padding: 30px;
+  border-radius: 12px;
+  background-color: #eef7ff;
+  border: 1px solid #bde0fe;
+  max-width: 450px;
+  transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
-.title-decoration-line::before {
-  content: "";
-  position: absolute;
-  top: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 20px;
-  height: 20px;
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
-  border-radius: 50%;
-  border: 4px solid #ffffff;
-  box-shadow: 
-    0 0 0 2px #059669,
-    0 2px 12px rgba(5, 150, 105, 0.4),
-    inset 0 1px 2px rgba(255, 255, 255, 0.3);
-  z-index: 1;
+/* ===== UTILITY CLASS TO HIDE ANNOUNCEMENT BOX ===== */
+.announcement-box.is-hidden {
+  opacity: 0;
+  transform: translateX(20px);
+  pointer-events: none;
 }
 
-.title-decoration-line::after {
-  content: "";
-  position: absolute;
-  top: -4px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 12px;
-  height: 12px;
-  background: radial-gradient(circle, #ffffff 0%, rgba(255, 255, 255, 0.8) 100%);
-  border-radius: 50%;
-  z-index: 2;
+/* ===== CLOSE BUTTON ===== */
+.close-btn {
+  background: var(--accent-red);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: background-color 0.2s ease;
 }
 
-/* ===== REGISTRATION FORM GRID ===== */
-.registration-form {
-  display: grid;
-  grid-template-columns: 1fr 1fr; /* 2-column layout */
-  gap: 8px 24px; /* Significantly reduced gaps: Vertical 8px, Horizontal 24px */
-  width: 100%;
-  flex: 1;
-  align-content: start;
-  overflow: visible;
-  padding: 0;
-  margin-top: 0;
+.close-btn:hover {
+  background: #dc2626;
 }
 
-/* ===== FORM GROUPS ===== */
+/* ===== FORM FIELD STYLING ===== */
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.125rem; /* Reduced gap between label and input */
+  gap: 0.125rem;
   margin-bottom: 0;
 }
 
 .form-group.full-width {
   grid-column: 1 / -1;
+}
+
+.form-actions {
+  grid-column: 1 / -1;
+  text-align: right;
+  margin-top: 1rem;
+}
+
+.error-message {
+  grid-column: 1 / -1;
+  background: #fee2e2;
+  color: #dc2626;
+  padding: 0.75rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  border: 1px solid #fecaca;
+}
+
+.debug-info {
+  grid-column: 1 / -1;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  background: #f0f0f0;
+  border-radius: 0.5rem;
+  font-size: 0.8rem;
 }
 
 /* ===== FORM LABELS ===== */

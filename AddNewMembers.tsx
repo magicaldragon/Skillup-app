@@ -264,15 +264,13 @@ const AddNewMembers = () => {
 
   return (
     <div className="add-student-container">
-      <div className="add-student-content">
-        <div className="registration-form-section">
-          <div className="form-container">
+      <div className="main-content">
+        {/* Left Column: Registration Form */}
+        <div className="form-container">
+          <form onSubmit={handleSubmit} className="registration-form">
             <h2 className="form-title">Registration Form</h2>
-            <div className="title-decoration-line"></div>
 
             {error && <div className="error-message">{error}</div>}
-
-            <form onSubmit={handleSubmit} className="registration-form">
               {/* Debug Info - Remove in production */}
               {process.env.NODE_ENV === 'development' && (
                 <div
@@ -507,15 +505,15 @@ const AddNewMembers = () => {
                   Reset
                 </button>
               </div>
-            </form>
-          </div>
+          </form>
         </div>
 
-        {/* Success Info Box - appears when account is created successfully */}
-        {createdUser && (
-          <div className="success-info-section show">
-            <div className="success-info-box">
-              <h3 className="success-title">Account created successfully!</h3>
+        {/* Right Column: Announcement Area */}
+        <div className="announcement-container">
+          <div id="announcement-box" className={`announcement-box ${!createdUser ? 'is-hidden' : ''}`}>
+            <h3>Registration Successful!</h3>
+            <p>The new member has been added.</p>
+            {createdUser && (
               <div className="account-details">
                 <div className="account-detail">
                   <span className="detail-label">Full name:</span>
@@ -542,15 +540,22 @@ const AddNewMembers = () => {
                   </span>
                 </div>
               </div>
-              <div className="success-instructions">
-                <p>
-                  Please copy or take a screenshot of this information and send it to the new
-                  member.
-                </p>
-              </div>
+            )}
+            <div className="success-instructions">
+              <p>
+                Please copy or take a screenshot of this information and send it to the new
+                member.
+              </p>
             </div>
+            <button 
+              id="close-announcement" 
+              onClick={() => setCreatedUser(null)}
+              className="close-btn"
+            >
+              Close
+            </button>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
