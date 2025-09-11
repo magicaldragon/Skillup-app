@@ -264,8 +264,8 @@ const AddNewMembers = () => {
             {error && <div className="error-message">{error}</div>}
 
             <form onSubmit={handleSubmit} className="registration-form">
-              {/* Row 1: Full Name, Role, Gender, Status */}
-              <div className="form-group">
+              {/* Full Name - Full Width */}
+              <div className="form-group full-width">
                 <label htmlFor="name" className="form-label">
                   FULL NAME <span className="required">*</span>
                 </label>
@@ -283,6 +283,7 @@ const AddNewMembers = () => {
                 {fieldErrors.name && <span className="field-error">{fieldErrors.name}</span>}
               </div>
 
+              {/* Row 1: Role, Gender */}
               <div className="form-group">
                 <label htmlFor="role" className="form-label">
                   ROLE <span className="required">*</span>
@@ -322,6 +323,7 @@ const AddNewMembers = () => {
                 </select>
               </div>
 
+              {/* Row 2: Status, Date of Birth */}
               <div className="form-group">
                 <label htmlFor="status" className="form-label">
                   STATUS <span className="required">*</span>
@@ -340,7 +342,6 @@ const AddNewMembers = () => {
                 </select>
               </div>
 
-              {/* Row 2: Date of Birth, English Name, Phone Number, Email */}
               <div className="form-group">
                 <label htmlFor="dob" className="form-label">
                   DATE OF BIRTH <span className="required">*</span>
@@ -358,6 +359,7 @@ const AddNewMembers = () => {
                 {fieldErrors.dob && <span className="field-error">{fieldErrors.dob}</span>}
               </div>
 
+              {/* Row 3: English Name, Phone Number */}
               <div className="form-group">
                 <label htmlFor="englishName" className="form-label">
                   ENGLISH NAME <span className="optional">(OPTIONAL)</span>
@@ -391,6 +393,7 @@ const AddNewMembers = () => {
                 {fieldErrors.phone && <span className="field-error">{fieldErrors.phone}</span>}
               </div>
 
+              {/* Row 4: Email, Parent's Name */}
               <div className="form-group">
                 <label htmlFor="email" className="form-label">
                   EMAIL <span className="optional">(OPTIONAL)</span>
@@ -408,7 +411,6 @@ const AddNewMembers = () => {
                 {fieldErrors.email && <span className="field-error">{fieldErrors.email}</span>}
               </div>
 
-              {/* Row 3: Parent's Name, Parent's Phone */}
               <div className="form-group">
                 <label htmlFor="parentName" className="form-label">
                   PARENT'S NAME
@@ -424,6 +426,7 @@ const AddNewMembers = () => {
                 />
               </div>
 
+              {/* Row 5: Parent's Phone (single field) */}
               <div className="form-group">
                 <label htmlFor="parentPhone" className="form-label">
                   PARENT'S PHONE
@@ -439,12 +442,8 @@ const AddNewMembers = () => {
                 />
               </div>
 
-              {/* Empty cells to maintain grid structure for Row 3 */}
-              <div className="form-group empty-cell"></div>
-              <div className="form-group empty-cell"></div>
-
-              {/* Row 4: Notes - Full Width */}
-              <div className="form-group notes-section">
+              {/* Notes - Full Width */}
+              <div className="form-group notes-section full-width">
                 <label htmlFor="notes" className="form-label">
                   NOTES
                 </label>
