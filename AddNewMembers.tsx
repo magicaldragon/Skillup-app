@@ -254,33 +254,14 @@ const AddNewMembers = () => {
         <div className="registration-form-section">
           <div className="form-container">
             <h2 className="form-title">Registration Form</h2>
-            <div className="title-decoration-line"></div>
 
             {error && <div className="error-message">{error}</div>}
 
             <form onSubmit={handleSubmit} className="registration-form">
-              {/* Debug Info - Remove in production */}
-              {process.env.NODE_ENV === 'development' && (
-                <div
-                  className="debug-info"
-                  style={{
-                    gridColumn: '1 / -1',
-                    marginBottom: '1rem',
-                    padding: '0.5rem',
-                    background: '#f0f0f0',
-                    borderRadius: '0.5rem',
-                    fontSize: '0.8rem',
-                  }}
-                >
-                  <strong>Debug Info:</strong> Name: "{form.name}" | Role: {form.role} | Status:{' '}
-                  {form.status} | Username: {previewUsername} | Email: {previewEmail}
-                </div>
-              )}
-
-              {/* Full Name */}
+              {/* Row 1: Full Name, Role, Gender, English Name */}
               <div className="form-group">
                 <label htmlFor="name" className="form-label">
-                  Full name <span className="required">*</span>
+                  FULL NAME <span className="required">*</span>
                 </label>
                 <input
                   id="name"
@@ -291,15 +272,14 @@ const AddNewMembers = () => {
                   onBlur={handleBlur}
                   className={`form-input ${fieldErrors.name ? 'error' : ''}`}
                   required
-                  placeholder="Enter Vietnamese full name (e.g., Nguyễn Văn A)"
+                  placeholder="Enter Vietnamese full name (e.g.)"
                 />
                 {fieldErrors.name && <span className="field-error">{fieldErrors.name}</span>}
               </div>
 
-              {/* Role */}
               <div className="form-group">
                 <label htmlFor="role" className="form-label">
-                  Role <span className="required">*</span>
+                  ROLE <span className="required">*</span>
                 </label>
                 <select
                   id="role"
@@ -317,10 +297,9 @@ const AddNewMembers = () => {
                 </select>
               </div>
 
-              {/* Gender */}
               <div className="form-group">
                 <label htmlFor="gender" className="form-label">
-                  Gender <span className="required">*</span>
+                  GENDER <span className="required">*</span>
                 </label>
                 <select
                   id="gender"
@@ -337,10 +316,9 @@ const AddNewMembers = () => {
                 </select>
               </div>
 
-              {/* English Name */}
               <div className="form-group">
                 <label htmlFor="englishName" className="form-label">
-                  English name <span className="optional">(optional)</span>
+                  ENGLISH NAME <span className="optional">(OPTIONAL)</span>
                 </label>
                 <input
                   id="englishName"
@@ -354,27 +332,26 @@ const AddNewMembers = () => {
                 />
               </div>
 
-              {/* Date of Birth */}
+              {/* Row 2: Date of Birth, Phone Number, Email, Status */}
               <div className="form-group">
                 <label htmlFor="dob" className="form-label">
-                  Date of birth <span className="optional">(optional)</span>
+                  DATE OF BIRTH <span className="optional">(OPTIONAL)</span>
                 </label>
                 <input
                   id="dob"
-                  type="date"
+                  type="text"
                   name="dob"
                   value={form.dob}
                   onChange={handleChange}
                   onBlur={handleBlur}
                   className="form-input"
-                  title="Select date of birth"
+                  placeholder="mm/dd/yyyy"
                 />
               </div>
 
-              {/* Phone Number */}
               <div className="form-group">
                 <label htmlFor="phone" className="form-label">
-                  Phone number <span className="optional">(optional)</span>
+                  PHONE NUMBER <span className="optional">(OPTIONAL)</span>
                 </label>
                 <input
                   id="phone"
@@ -389,10 +366,9 @@ const AddNewMembers = () => {
                 {fieldErrors.phone && <span className="field-error">{fieldErrors.phone}</span>}
               </div>
 
-              {/* Email - Now separate from generated Firebase email */}
               <div className="form-group">
                 <label htmlFor="email" className="form-label">
-                  Email <span className="optional">(optional)</span>
+                  EMAIL <span className="optional">(OPTIONAL)</span>
                 </label>
                 <input
                   id="email"
@@ -407,67 +383,63 @@ const AddNewMembers = () => {
                 {fieldErrors.email && <span className="field-error">{fieldErrors.email}</span>}
               </div>
 
-              {/* Status - Only for students */}
-              {form.role === 'student' && (
-                <div className="form-group">
-                  <label htmlFor="status" className="form-label">
-                    Status <span className="required">*</span>
-                  </label>
-                  <select
-                    id="status"
-                    name="status"
-                    value={form.status}
-                    onChange={handleChange}
-                    className="form-select"
-                    required
-                  >
-                    <option value="potential">Potential</option>
-                    <option value="contacted">Contacted</option>
-                    <option value="studying">Studying</option>
-                  </select>
-                </div>
-              )}
+              <div className="form-group">
+                <label htmlFor="status" className="form-label">
+                  STATUS <span className="required">*</span>
+                </label>
+                <select
+                  id="status"
+                  name="status"
+                  value={form.status}
+                  onChange={handleChange}
+                  className="form-select"
+                  required
+                >
+                  <option value="potential">Potential</option>
+                  <option value="contacted">Contacted</option>
+                  <option value="studying">Studying</option>
+                </select>
+              </div>
 
-              {/* Parent's Name - Only for students */}
-              {form.role === 'student' && (
-                <div className="form-group">
-                  <label htmlFor="parentName" className="form-label">
-                    Parent's Name
-                  </label>
-                  <input
-                    id="parentName"
-                    type="text"
-                    name="parentName"
-                    value={form.parentName}
-                    onChange={handleChange}
-                    className="form-input"
-                    placeholder="Enter parent's name"
-                  />
-                </div>
-              )}
+              {/* Row 3: Parent's Name, Parent's Phone */}
+              <div className="form-group">
+                <label htmlFor="parentName" className="form-label">
+                  PARENT'S NAME
+                </label>
+                <input
+                  id="parentName"
+                  type="text"
+                  name="parentName"
+                  value={form.parentName}
+                  onChange={handleChange}
+                  className="form-input"
+                  placeholder="Enter parent's name"
+                />
+              </div>
 
-              {/* Parent's Phone - Only for students */}
-              {form.role === 'student' && (
-                <div className="form-group">
-                  <label htmlFor="parentPhone" className="form-label">
-                    Parent's Phone
-                  </label>
-                  <input
-                    id="parentPhone"
-                    type="tel"
-                    name="parentPhone"
-                    value={form.parentPhone}
-                    onChange={handleChange}
-                    className="form-input"
-                    placeholder="Enter parent's phone number"
-                  />
-                </div>
-              )}
+              <div className="form-group">
+                <label htmlFor="parentPhone" className="form-label">
+                  PARENT'S PHONE
+                </label>
+                <input
+                  id="parentPhone"
+                  type="tel"
+                  name="parentPhone"
+                  value={form.parentPhone}
+                  onChange={handleChange}
+                  className="form-input"
+                  placeholder="Enter parent's phone number"
+                />
+              </div>
 
-              {/* Notes - Full Width at the end */}
-              <div className="form-group full-width">
+              {/* Empty cells to maintain grid structure */}
+              <div className="form-group empty-cell"></div>
+              <div className="form-group empty-cell"></div>
+
+              {/* Row 4: Notes - Full Width */}
+              <div className="form-group notes-section">
                 <label htmlFor="notes" className="form-label">
-                  Notes
+                  NOTES
                 </label>
                 <textarea
                   id="notes"
@@ -475,14 +447,15 @@ const AddNewMembers = () => {
                   value={form.notes}
                   onChange={handleChange}
                   className="form-textarea"
-                  rows={2}
+                  rows={3}
                   placeholder="Any additional notes or information..."
                 />
               </div>
 
+              {/* Action Buttons */}
               <div className="form-actions">
-                <button type="submit" className="submit-btn" disabled={loading}>
-                  {loading ? 'Registering...' : 'Register'}
+                <button type="submit" className="register-btn" disabled={loading}>
+                  {loading ? 'REGISTERING...' : 'REGISTER'}
                 </button>
                 <button
                   type="button"
@@ -490,14 +463,12 @@ const AddNewMembers = () => {
                   onClick={handleReset}
                   disabled={loading}
                 >
-                  Reset
+                  RESET
                 </button>
               </div>
             </form>
           </div>
         </div>
-
-
       </div>
     </div>
   );
