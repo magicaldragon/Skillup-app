@@ -83,6 +83,7 @@
   width: 100%;
   height: 100vh;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 0.5rem;
@@ -93,99 +94,126 @@
   font-family: var(--font-sans);
 }
 
-/* ===== MAIN CONTENT - TWO COLUMN GRID ===== */
-.main-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr; /* Two equal columns */
-  align-items: center;
-  height: 100vh;
-  padding: 40px;
-  gap: 40px; /* Space between form and announcement */
-  box-sizing: border-box;
+/* ===== CONTENT WRAPPER ===== */
+.add-student-content {
   width: 100%;
-  max-width: 1400px;
-}
-
-/* ===== FORM CONTAINER (LEFT SIDE) ===== */
-.form-container {
+  max-width: 1200px;
   display: flex;
-  justify-content: flex-end; /* Aligns form to the right of its column */
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 2rem;
+  padding: 0.25rem 0.25rem 1rem 0.25rem;
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: calc(100vh - 1rem);
+  position: relative;
+  overflow: visible;
 }
 
-.registration-form {
-  width: 100%;
+/* ===== REGISTRATION FORM SECTION ===== */
+.registration-form-section {
+  flex: 0 0 60%;
   max-width: 700px;
-  padding: 2rem 3rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-  background: linear-gradient(135deg, #ffffff 0%, var(--primary-50) 50%, var(--primary-100) 100%);
-  border: 2px solid var(--dark-green-700);
-  
-  /* Internal grid for the form fields */
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px 24px; /* Row and column gap */
-  transition: all var(--transition-normal);
+  min-width: 500px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
+  margin: 40px 0;
 }
 
-.registration-form:hover {
-  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+/* ===== FORM CONTAINER ===== */
+.add-student-content .form-container {
+  background: linear-gradient(135deg, #ffffff 0%, var(--primary-50) 50%, var(--primary-100) 100%);
+  border-radius: var(--radius-2xl);
+  box-shadow:
+    var(--shadow-xl),
+    0 0 0 2px var(--dark-green-700);
+  padding: 16px;
+  width: 100%;
+  box-sizing: border-box;
+  border: 2px solid var(--dark-green-700);
+  position: relative;
+  transition: all var(--transition-normal);
+  backdrop-filter: blur(20px);
+  height: 60vh;
+  margin-top: 5vh;
+  margin-bottom: 5vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.add-student-content .form-container:hover {
+  box-shadow:
+    var(--shadow-2xl),
+    0 0 0 3px var(--dark-green-600);
   border-color: var(--dark-green-600);
   transform: translateY(-2px);
 }
 
 /* ===== FORM TITLE ===== */
 .form-title {
-  grid-column: 1 / -1;
-  text-align: center;
-  color: #006400;
-  font-size: 2.5rem;
-  font-weight: 900;
-  margin-bottom: 1.5rem;
-  letter-spacing: 1px;
+  color: #006400 !important;
+  font-size: 2.5rem !important;
+  font-weight: 900 !important;
+  text-align: center !important;
+  margin-bottom: 0.75rem !important;
+  letter-spacing: 1px !important;
   text-shadow: 
     0 0 10px rgba(0, 100, 0, 0.3),
     0 0 20px rgba(0, 100, 0, 0.2),
-    0 2px 4px rgba(0, 0, 0, 0.1);
+    0 2px 4px rgba(0, 0, 0, 0.1) !important;
   font-family: var(--font-sans);
+  position: relative;
+  flex-shrink: 0;
 }
 
-/* ===== ANNOUNCEMENT BOX (RIGHT SIDE) ===== */
-.announcement-container {
-  display: flex;
-  justify-content: flex-start; /* Aligns box to the left of its column */
+.form-title::after {
+  content: "";
+  position: absolute;
+  bottom: calc(-1 * var(--space-4));
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, #059669 0%, #047857 50%, #059669 100%);
+  border-radius: var(--radius-full);
 }
 
-.announcement-box {
-  padding: 30px;
-  border-radius: 12px;
-  background-color: #eef7ff;
-  border: 1px solid #bde0fe;
-  max-width: 450px;
-  transition: opacity 0.4s ease, transform 0.4s ease;
+/* ===== TITLE DECORATION LINE ===== */
+.title-decoration-line {
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    #006400 15%,
+    #004d00 50%,
+    #006400 85%,
+    transparent 100%
+  );
+  margin: 0 auto 1rem auto;
+  border-radius: var(--radius-full);
+  box-shadow: 
+    0 2px 12px rgba(0, 100, 0, 0.3),
+    0 1px 4px rgba(0, 100, 0, 0.2);
+  position: relative;
+  overflow: visible;
 }
 
-/* ===== UTILITY CLASS TO HIDE ANNOUNCEMENT BOX ===== */
-.announcement-box.is-hidden {
-  opacity: 0;
-  transform: translateX(20px);
-  pointer-events: none;
-}
-
-/* ===== CLOSE BUTTON ===== */
-.close-btn {
-  background: var(--accent-red);
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  margin-top: 1rem;
-  transition: background-color 0.2s ease;
-}
-
-.close-btn:hover {
-  background: #dc2626;
+/* ===== REGISTRATION FORM ===== */
+.registration-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 1.5rem;
+  flex: 1;
+  overflow-y: auto;
 }
 
 /* ===== FORM FIELD STYLING ===== */
@@ -346,6 +374,112 @@
   margin-bottom: var(--space-2) !important;
   padding: var(--space-2) !important;
   font-size: 0.75rem !important;
+}
+
+/* ===== SUCCESS INFO SECTION ===== */
+.success-info-section {
+  flex: 0 0 35%;
+  max-width: 400px;
+  min-width: 300px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%);
+  border-radius: var(--radius-2xl);
+  border: 2px solid #0ea5e9;
+  box-shadow: var(--shadow-xl);
+  position: relative;
+  margin: 40px 0;
+  transition: all var(--transition-normal);
+}
+
+.success-info-section:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-2xl);
+  border-color: #0284c7;
+}
+
+.success-info-section h3 {
+  color: #0c4a6e;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.success-info-section p {
+  color: #075985;
+  font-size: 1rem;
+  line-height: 1.6;
+  text-align: center;
+  margin-bottom: 0.75rem;
+}
+
+.success-info-section .highlight {
+  background: #fef3c7;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+  color: #92400e;
+}
+
+/* ===== SUCCESS INFO BOX CONTENT ===== */
+.success-title {
+  color: #0c4a6e;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.account-details {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.account-detail {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(14, 165, 233, 0.2);
+}
+
+.account-detail:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: #075985;
+}
+
+.detail-value {
+  font-weight: 500;
+  color: #0c4a6e;
+}
+
+.password-display {
+  font-family: monospace;
+  background: #fef3c7;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+  color: #92400e;
+}
+
+.success-instructions {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.success-instructions p {
+  color: #075985;
+  font-size: 0.9rem;
+  line-height: 1.5;
 }
 
 /* ===== EMAIL HINT ===== */
@@ -647,27 +781,30 @@
 
 /* ===== SUCCESS INFO SECTION ===== */
 .success-info-section {
-  flex: 0 0 400px;
+  flex: 0 0 35%;
   max-width: 400px;
-  min-width: 350px;
-  height: auto; /* Changed from 100% to auto */
-  position: fixed; /* Changed from absolute to fixed */
-  top: 50%; /* Center vertically */
-  right: -420px;
-  transform: translateY(-50%); /* Center vertically */
-  transition: all var(--transition-slow);
-  z-index: 1000; /* Increased z-index */
+  min-width: 300px;
+  box-sizing: border-box;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-sizing: border-box;
-}
-
-.success-info-section.show {
-  right: 20px; /* Fixed distance from right edge */
-  transform: translateY(-50%); /* Maintain vertical centering */
+  padding: 2rem;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%);
+  border-radius: var(--radius-2xl);
+  border: 2px solid #0ea5e9;
+  box-shadow: var(--shadow-xl);
+  position: relative;
+  margin: 40px 0;
+  transition: all var(--transition-normal);
   opacity: 1;
   visibility: visible;
+}
+
+.success-info-section:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-2xl);
+  border-color: #0284c7;
 }
 
 .success-info-box {

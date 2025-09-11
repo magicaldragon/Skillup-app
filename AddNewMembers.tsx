@@ -264,13 +264,15 @@ const AddNewMembers = () => {
 
   return (
     <div className="add-student-container">
-      <div className="main-content">
-        {/* Left Column: Registration Form */}
-        <div className="form-container">
-          <form onSubmit={handleSubmit} className="registration-form">
+      <div className="add-student-content">
+        <div className="registration-form-section">
+          <div className="form-container">
             <h2 className="form-title">Registration Form</h2>
+            <div className="title-decoration-line"></div>
 
             {error && <div className="error-message">{error}</div>}
+
+            <form onSubmit={handleSubmit} className="registration-form">
               {/* Debug Info - Remove in production */}
               {process.env.NODE_ENV === 'development' && (
                 <div
@@ -505,55 +507,46 @@ const AddNewMembers = () => {
                   Reset
                 </button>
               </div>
-          </form>
+            </form>
+          </div>
         </div>
 
-        {/* Right Column: Announcement Area */}
-        <div className="announcement-container">
-          <div id="announcement-box" className={`announcement-box ${!createdUser ? 'is-hidden' : ''}`}>
-            <h3>Registration Successful!</h3>
-            <p>The new member has been added.</p>
-            {createdUser && (
-              <div className="account-details">
-                <div className="account-detail">
-                  <span className="detail-label">Full name:</span>
-                  <span className="detail-value">{createdUser.name || 'N/A'}</span>
-                </div>
-                <div className="account-detail">
-                  <span className="detail-label">Role:</span>
-                  <span className="detail-value">{createdUser.role?.charAt(0).toUpperCase() + createdUser.role?.slice(1) || 'N/A'}</span>
-                </div>
-                <div className="account-detail">
-                  <span className="detail-label">Student ID:</span>
-                  <span className="detail-value">{getStudentId(createdUser)}</span>
-                </div>
-                <div className="account-detail">
-                  <span className="detail-label">Username:</span>
-                  <span className="detail-value">
-                    {createdUser.username || previewUsername || 'N/A'}
-                  </span>
-                </div>
-                <div className="account-detail">
-                  <span className="detail-label">Password:</span>
-                  <span className="detail-value password-display">
-                    {createdUser.generatedPassword || getPassword(createdUser)}
-                  </span>
-                </div>
+        {/* Success Info Box - Make visible for testing */}
+        <div className="success-info-section show">
+          <div className="success-info-box">
+            <h3 className="success-title">Account created successfully!</h3>
+            <div className="account-details">
+              <div className="account-detail">
+                <span className="detail-label">Full name:</span>
+                <span className="detail-value">{createdUser?.name || 'Test User'}</span>
               </div>
-            )}
+              <div className="account-detail">
+                <span className="detail-label">Role:</span>
+                <span className="detail-value">{createdUser?.role?.charAt(0).toUpperCase() + createdUser?.role?.slice(1) || 'Student'}</span>
+              </div>
+              <div className="account-detail">
+                <span className="detail-label">Student ID:</span>
+                <span className="detail-value">{createdUser ? getStudentId(createdUser) : 'STU001'}</span>
+              </div>
+              <div className="account-detail">
+                <span className="detail-label">Username:</span>
+                <span className="detail-value">
+                  {createdUser?.username || previewUsername || 'testuser'}
+                </span>
+              </div>
+              <div className="account-detail">
+                <span className="detail-label">Password:</span>
+                <span className="detail-value password-display">
+                  {createdUser ? (createdUser.generatedPassword || getPassword(createdUser)) : 'Skillup123'}
+                </span>
+              </div>
+            </div>
             <div className="success-instructions">
               <p>
                 Please copy or take a screenshot of this information and send it to the new
                 member.
               </p>
             </div>
-            <button 
-              id="close-announcement" 
-              onClick={() => setCreatedUser(null)}
-              className="close-btn"
-            >
-              Close
-            </button>
           </div>
         </div>
       </div>
