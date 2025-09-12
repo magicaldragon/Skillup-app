@@ -260,6 +260,7 @@ const AddNewMembers = () => {
         <div className="registration-form-section">
           <div className="form-container">
             <h2 className="form-title">REGISTRATION FORM</h2>
+            <div className="title-decoration-line"></div>
 
             {error && <div className="error-message">{error}</div>}
 

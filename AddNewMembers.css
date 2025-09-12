@@ -53,11 +53,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 0;
+  justify-content: flex-start; /* Changed from center to flex-start */
+  padding: 0.5rem 0; /* Added small padding */
   margin: 0;
   background: #F7FAFC;
-  overflow: hidden;
+  overflow-y: auto; /* Allow scrolling if needed */
   box-sizing: border-box;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
@@ -65,31 +65,31 @@
 /* ===== CONTENT WRAPPER ===== */
 .add-student-content {
   width: 100%;
-  max-width: 1400px;
+  max-width: 1200px; /* Reduced max-width for better fit */
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  justify-content: flex-start;
-  gap: 2rem;
-  padding: 0.25rem 0.25rem 1rem 0.25rem;
+  justify-content: center; /* Center the content */
+  gap: 1rem; /* Reduced gap */
+  padding: 0.5rem;
   box-sizing: border-box;
   min-width: 0;
-  min-height: calc(100vh - 1rem);
+  min-height: auto; /* Changed from calc(100vh - 1rem) */
   position: relative;
   overflow: visible;
 }
 
 /* ===== REGISTRATION FORM SECTION ===== */
 .registration-form-section {
-  flex: 0 0 60%;
-  max-width: 700px;
+  flex: 1;
+  max-width: 900px; /* Increased to match form container */
   min-width: 500px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   position: relative;
   z-index: 1;
-  margin: 16px 0;
+  margin: 8px 0; /* Reduced margin */
 }
 
 /* ===== FORM CONTAINER ===== */
@@ -98,10 +98,10 @@
   border-radius: 12px;
   border: 1px solid #A0C0B0;
   box-shadow: none;
-  padding: 16px;
-  margin: 12px auto;
+  padding: 12px; /* Reduced padding */
+  margin: 0 auto; /* Removed top/bottom margin */
   width: 100%;
-  max-width: 1200px;
+  max-width: 900px; /* Reduced max-width */
   box-sizing: border-box;
   position: relative;
   height: auto;
@@ -114,20 +114,24 @@
 /* ===== FORM TITLE ===== */
 .form-title {
   color: #006400;
-  font-size: 22px;
+  font-size: 32px; /* Increased font size */
   font-weight: bold;
   text-align: center;
-  margin-bottom: 12px;
+  margin-bottom: 8px; /* Reduced margin */
   font-family: sans-serif;
   position: relative;
   flex-shrink: 0;
-  letter-spacing: 0;
+  letter-spacing: 1px;
+  text-shadow: 
+    0 0 10px rgba(0, 100, 0, 0.6),
+    0 0 20px rgba(0, 100, 0, 0.4),
+    0 0 30px rgba(0, 100, 0, 0.3); /* Glow effect */
 }
 
 /* ===== TITLE DECORATION LINE ===== */
 .title-decoration-line {
-  width: 100%;
-  height: 3px;
+  width: 80%;
+  height: 4px;
   background: linear-gradient(
     90deg,
     transparent 0%,
@@ -136,11 +140,12 @@
     #006400 85%,
     transparent 100%
   );
-  margin: 0 auto 1rem auto;
+  margin: 0 auto 0.75rem auto; /* Reduced bottom margin */
   border-radius: var(--radius-full);
   box-shadow: 
-    0 2px 12px rgba(0, 100, 0, 0.3),
-    0 1px 4px rgba(0, 100, 0, 0.2);
+    0 2px 12px rgba(0, 100, 0, 0.4),
+    0 1px 4px rgba(0, 100, 0, 0.3),
+    0 0 8px rgba(0, 100, 0, 0.2); /* Enhanced glow */
   position: relative;
   overflow: visible;
 }
@@ -149,7 +154,7 @@
 .registration-form {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 6px 20px;
+  gap: 4px 20px; /* Reduced vertical gap */
   width: 100%;
   max-width: none;
 }
@@ -158,8 +163,10 @@
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 3px; /* 3px label-to-field spacing */
+  gap: 2px; /* Reduced label-to-field spacing */
   margin-bottom: 0;
+  align-items: flex-start; /* Left-align horizontally */
+  justify-content: center; /* Center-align vertically */
 }
 
 /* Full-width fields */
@@ -169,7 +176,7 @@
 }
 
 .form-group.notes-section {
-  margin-top: 6px;
+  margin-top: 4px; /* Reduced margin */
 }
 
 .form-group.empty-cell {
@@ -259,6 +266,8 @@
 .form-select,
 .form-textarea {
   background: var(--background-white);
+  text-align: left; /* Left-align text content */
+  vertical-align: middle; /* Center-align vertically */
   border: 1px solid var(--border-color);
   border-radius: 6px;
   padding: 8px 12px;
@@ -705,11 +714,12 @@
 .form-actions {
   grid-column: 1 / -1;
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   align-items: center;
   gap: 16px;
-  margin-top: 32px;
-  flex-shrink: 0;
+  margin-top: 8px; /* Reduced margin */
+  padding: 0;
+  flex-shrink: 0; /* Prevent shrinking */
 }
 
 .submit-btn,
@@ -1006,9 +1016,9 @@
 /* ===== FORM TEXTAREA ===== */
 .form-textarea {
   resize: vertical;
-  height: 80px;
-  min-height: 80px;
-  max-height: 200px;
+  height: 60px; /* Reduced height */
+  min-height: 60px;
+  max-height: 120px; /* Reduced max-height */
   font-family: Arial, sans-serif;
   line-height: 1.5;
 }
