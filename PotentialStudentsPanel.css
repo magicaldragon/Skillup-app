@@ -181,23 +181,23 @@
 }
 
 .potential-students-table th {
-  background: #FB923C !important; /* Solid Vibrant Orange */
+  background: linear-gradient(135deg, #1D9A6C 0%, #157A54 100%); /* Dark green gradient */
   color: white;
-  padding: 16px;
-  text-align: left; /* Left alignment */
-  vertical-align: middle;
+  padding: 14px 16px !important; /* 12-16px cell padding specification */
+  text-align: left !important; /* Consistent left alignment with proper border spacing */
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
   font-size: 0.9rem;
+  height: 60px !important; /* 56-60px row height specification */
 }
 
 .potential-students-table td {
-  padding: 16px;
-  border-bottom: 1px solid #FFF0E6;
+  padding: 14px 16px !important; /* 12-16px cell padding specification */
+  border-bottom: 1px solid #E6F8F0;
   vertical-align: middle;
-  text-align: left; /* Left alignment for all cells */
-  vertical-align: middle;
+  text-align: left !important; /* Consistent left alignment with proper border spacing */
+  height: 56px !important; /* 56-60px row height specification */
 }
 
 /* Center alignment for specific cell types */

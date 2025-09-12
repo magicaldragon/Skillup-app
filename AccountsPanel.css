@@ -355,37 +355,33 @@
 }
 
 .accounts-table th {
-  background: #862E9C !important; /* Solid Deep Purple */
-  color: #ffffff !important;
-  padding: 16px;
-  text-align: left; /* Left alignment */
-  vertical-align: middle;
+  background: linear-gradient(135deg, #1D9A6C 0%, #157A54 100%) !important; /* Dark green gradient */
+  color: white !important;
+  padding: 14px 16px !important; /* 12-16px cell padding specification */
+  text-align: left !important; /* Consistent left alignment with proper border spacing */
   font-weight: 700;
-  font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 1px;
-  border-bottom: 3px solid #6a1b9a !important; /* Purple theme border */
+  font-size: 0.9rem;
+  height: 60px !important; /* 56-60px row height specification */
   position: relative;
-  height: auto;
 }
 
-.accounts-table th::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, #9c27b0, #ba68c8, #9c27b0); /* Purple theme gradient */
-}
+
 
 .accounts-table td {
-  padding: 16px;
-  border-bottom: 1px solid #e2e8f0;
+  padding: 14px 16px !important; /* 12-16px cell padding specification */
+  border-bottom: 1px solid #E6F8F0;
   transition: all 0.2s ease;
   font-size: 0.95rem;
-  text-align: center; /* Center-align all table data cells */
+  text-align: left !important; /* Left alignment for all cells by default */
   vertical-align: middle;
+  height: 56px !important; /* 56-60px row height specification */
+}
+
+/* Center alignment specifically for Action column */
+.accounts-table td:last-child {
+  text-align: center !important;
 }
 
 .accounts-table tbody tr {
