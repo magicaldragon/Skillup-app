@@ -53,11 +53,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start; /* Changed from center to flex-start */
-  padding: 0.5rem 0; /* Added small padding */
+  justify-content: flex-start;
+  padding: 0.25rem 0; /* Reduced padding for better fit */
   margin: 0;
   background: #F7FAFC;
-  overflow-y: auto; /* Allow scrolling if needed */
+  overflow-y: auto;
   box-sizing: border-box;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
@@ -65,16 +65,16 @@
 /* ===== CONTENT WRAPPER ===== */
 .add-student-content {
   width: 100%;
-  max-width: 1200px; /* Reduced max-width for better fit */
+  max-width: 1200px;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  justify-content: center; /* Center the content */
-  gap: 1rem; /* Reduced gap */
-  padding: 0.5rem;
+  justify-content: center;
+  gap: 0.5rem; /* Further reduced gap */
+  padding: 0.25rem; /* Reduced padding */
   box-sizing: border-box;
   min-width: 0;
-  min-height: auto; /* Changed from calc(100vh - 1rem) */
+  min-height: auto;
   position: relative;
   overflow: visible;
 }
@@ -82,14 +82,14 @@
 /* ===== REGISTRATION FORM SECTION ===== */
 .registration-form-section {
   flex: 1;
-  max-width: 900px; /* Increased to match form container */
+  max-width: 900px;
   min-width: 500px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   position: relative;
   z-index: 1;
-  margin: 8px 0; /* Reduced margin */
+  margin: 4px 0; /* Further reduced margin */
 }
 
 /* ===== FORM CONTAINER ===== */
@@ -98,10 +98,10 @@
   border-radius: 12px;
   border: 1px solid #A0C0B0;
   box-shadow: none;
-  padding: 12px; /* Reduced padding */
-  margin: 0 auto; /* Removed top/bottom margin */
+  padding: 8px; /* Further reduced padding */
+  margin: 0 auto;
   width: 100%;
-  max-width: 900px; /* Reduced max-width */
+  max-width: 900px;
   box-sizing: border-box;
   position: relative;
   height: auto;
@@ -113,39 +113,38 @@
 
 /* ===== FORM TITLE ===== */
 .form-title {
-  color: #006400;
-  font-size: 32px; /* Increased font size */
-  font-weight: bold;
+  color: #ff8c42;
+  font-size: 2.5rem; /* Match Potential Students title exactly */
+  font-weight: 900; /* Match Potential Students title exactly */
   text-align: center;
-  margin-bottom: 8px; /* Reduced margin */
+  margin-bottom: 8px;
   font-family: sans-serif;
   position: relative;
   flex-shrink: 0;
-  letter-spacing: 1px;
-  text-shadow: 
-    0 0 10px rgba(0, 100, 0, 0.6),
-    0 0 20px rgba(0, 100, 0, 0.4),
-    0 0 30px rgba(0, 100, 0, 0.3); /* Glow effect */
+  letter-spacing: 1.5px; /* Match Potential Students title */
+  text-shadow:
+    0 4px 12px rgba(48, 118, 55, 0.13),
+    0 1px 0 #fffbe6; /* Match Potential Students title exactly */
+  text-transform: uppercase; /* Match Potential Students title */
 }
 
 /* ===== TITLE DECORATION LINE ===== */
 .title-decoration-line {
-  width: 80%;
-  height: 4px;
+  width: 60%;
+  height: 3px;
   background: linear-gradient(
     90deg,
     transparent 0%,
-    #006400 15%,
-    #004d00 50%,
-    #006400 85%,
+    #ff8c42 20%,
+    #ff6b35 50%,
+    #ff8c42 80%,
     transparent 100%
   );
-  margin: 0 auto 0.75rem auto; /* Reduced bottom margin */
+  margin: 0 auto 1rem auto;
   border-radius: var(--radius-full);
   box-shadow: 
-    0 2px 12px rgba(0, 100, 0, 0.4),
-    0 1px 4px rgba(0, 100, 0, 0.3),
-    0 0 8px rgba(0, 100, 0, 0.2); /* Enhanced glow */
+    0 2px 8px rgba(255, 140, 66, 0.3),
+    0 1px 3px rgba(255, 140, 66, 0.2);
   position: relative;
   overflow: visible;
 }
@@ -154,7 +153,7 @@
 .registration-form {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 4px 20px; /* Reduced vertical gap */
+  gap: 8px 20px; /* Reduced vertical gap for compact layout */
   width: 100%;
   max-width: none;
 }
@@ -176,7 +175,8 @@
 }
 
 .form-group.notes-section {
-  margin-top: 4px; /* Reduced margin */
+  margin-top: 8px;
+  grid-column: 1 / -1; /* Ensure notes section spans two columns */
 }
 
 .form-group.empty-cell {
@@ -189,7 +189,7 @@
   justify-content: center;
   align-items: center;
   gap: 16px;
-  margin-top: 12px;
+  margin-top: 6px; /* Reduced margin for better fit */
   padding: 0;
 }
 
@@ -288,7 +288,7 @@
 
 .form-textarea {
   height: auto;
-  min-height: 54px;
+  min-height: 48px; /* Reduced min-height for compact layout */
   resize: vertical;
 }
 
