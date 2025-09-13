@@ -280,7 +280,7 @@ const AddNewMembers = () => {
                   onBlur={handleBlur}
                   className={`form-input ${fieldErrors.name ? 'error' : ''}`}
                   required
-                  placeholder="Enter Vietnamese full name (e.g.)"
+                  placeholder="Enter Vietnamese full name"
                 />
                 {fieldErrors.name && <span className="field-error">{fieldErrors.name}</span>}
               </div>
@@ -458,9 +458,8 @@ const AddNewMembers = () => {
                 />
               </div>
 
-              {/* LEFT COLUMN */}
-              {/* Notes */}
-              <div className="form-group">
+              {/* FULL WIDTH - Notes Section */}
+              <div className="form-group notes-section">
                 <label htmlFor="notes" className="form-label">
                   NOTES
                 </label>
@@ -470,7 +469,7 @@ const AddNewMembers = () => {
                   value={form.notes}
                   onChange={handleChange}
                   className="form-textarea"
-                  rows={3}
+                  rows={2}
                   placeholder="Any additional notes or information..."
                 />
               </div>

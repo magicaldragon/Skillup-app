@@ -54,7 +54,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: 0.25rem 0; /* Reduced padding for better fit */
+  padding: 0.125rem 0; /* Further reduced padding */
   margin: 0;
   background: #F7FAFC;
   overflow-y: auto;
@@ -70,8 +70,8 @@
   flex-direction: row;
   align-items: flex-start;
   justify-content: center;
-  gap: 0.5rem; /* Further reduced gap */
-  padding: 0.25rem; /* Reduced padding */
+  gap: 0.25rem; /* Minimal gap */
+  padding: 0.125rem; /* Minimal padding */
   box-sizing: border-box;
   min-width: 0;
   min-height: auto;
@@ -89,7 +89,7 @@
   flex-direction: column;
   position: relative;
   z-index: 1;
-  margin: 4px 0; /* Further reduced margin */
+  margin: 2px 0; /* Minimal margin */
 }
 
 /* ===== FORM CONTAINER ===== */
@@ -98,7 +98,7 @@
   border-radius: 12px;
   border: 1px solid #A0C0B0;
   box-shadow: none;
-  padding: 8px; /* Further reduced padding */
+  padding: 6px; /* Minimal padding */
   margin: 0 auto;
   width: 100%;
   max-width: 900px;
@@ -114,10 +114,10 @@
 /* ===== FORM TITLE ===== */
 .form-title {
   color: #ff8c42;
-  font-size: 2.5rem; /* Match Potential Students title exactly */
+  font-size: 2.2rem; /* Slightly smaller for compact layout */
   font-weight: 900; /* Match Potential Students title exactly */
   text-align: center;
-  margin-bottom: 8px;
+  margin-bottom: 4px; /* Reduced margin */
   font-family: sans-serif;
   position: relative;
   flex-shrink: 0;
@@ -140,7 +140,7 @@
     #ff8c42 80%,
     transparent 100%
   );
-  margin: 0 auto 1rem auto;
+  margin: 0 auto 0.5rem auto; /* Reduced bottom margin */
   border-radius: var(--radius-full);
   box-shadow: 
     0 2px 8px rgba(255, 140, 66, 0.3),
@@ -153,7 +153,7 @@
 .registration-form {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 4px 20px; /* Further reduced vertical gap for more compact layout */
+  gap: 2px 16px; /* Minimal vertical gap for ultra-compact layout */
   width: 100%;
   max-width: none;
 }
@@ -162,7 +162,7 @@
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 2px; /* Reduced label-to-field spacing */
+  gap: 1px; /* Minimal label-to-field spacing */
   margin: 0; /* Remove all margins */
   padding: 0; /* Remove all padding */
   align-items: flex-start; /* Left-align horizontally */
@@ -176,7 +176,7 @@
 }
 
 .form-group.notes-section {
-  margin-top: 8px;
+  margin-top: 4px; /* Reduced margin */
   grid-column: 1 / -1; /* Ensure notes section spans two columns */
 }
 
@@ -189,8 +189,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 16px;
-  margin-top: 6px; /* Reduced margin for better fit */
+  gap: 12px; /* Reduced gap */
+  margin-top: 4px; /* Minimal margin */
   padding: 0;
 }
 
@@ -217,7 +217,7 @@
 .form-label {
   color: var(--text-primary);
   font-weight: 700;
-  font-size: 13px;
+  font-size: 12px; /* Slightly smaller font */
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   display: flex;
   align-items: center;
@@ -271,8 +271,8 @@
   vertical-align: middle; /* Center-align vertically */
   border: 1px solid var(--border-color);
   border-radius: 6px;
-  padding: 8px 12px;
-  height: 36px;
+  padding: 6px 10px; /* Reduced padding for compact layout */
+  height: 32px; /* Reduced height */
   font-size: 14px;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: var(--text-primary);
@@ -289,7 +289,7 @@
 
 .form-textarea {
   height: auto;
-  min-height: 48px; /* Reduced min-height for compact layout */
+  min-height: 40px; /* Further reduced min-height for compact layout */
   resize: vertical;
 }
 
@@ -702,6 +702,58 @@
 .add-student-container {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+  .registration-form {
+    grid-template-columns: 1fr; /* Single column on mobile */
+    gap: 1px 0; /* Minimal gap on mobile */
+  }
+  
+  .form-group.notes-section {
+    grid-column: 1; /* Single column span on mobile */
+  }
+  
+  .form-actions {
+    grid-column: 1; /* Single column span on mobile */
+    flex-direction: column; /* Stack buttons vertically on mobile */
+    gap: 8px;
+  }
+  
+  .add-student-content {
+    padding: 0.25rem; /* Slightly more padding on mobile */
+  }
+  
+  .form-title {
+    font-size: 1.8rem; /* Smaller title on mobile */
+  }
+}
+
+@media (max-width: 480px) {
+  .add-student-content .form-container {
+    padding: 4px; /* Minimal padding on small mobile */
+  }
+  
+  .form-input,
+  .form-select,
+  .form-textarea {
+    height: 28px; /* Smaller inputs on small mobile */
+    padding: 4px 8px;
+    font-size: 13px;
+  }
+  
+  .form-textarea {
+    min-height: 36px;
+  }
+  
+  .form-label {
+    font-size: 11px; /* Smaller labels on small mobile */
+  }
+  
+  .form-title {
+    font-size: 1.5rem; /* Even smaller title on small mobile */
+  }
 }
 
 /* ===== FORM ACTIONS ===== */
