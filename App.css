@@ -395,21 +395,14 @@ input[type="date"]:focus:invalid {
   color: inherit;
 }
 
-/* Add content before the date input to show format hint */
+/* Add content before the date input to show format hint - DISABLED */
 input[type="date"]::before {
-  content: attr(placeholder);
-  color: #999;
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none;
-  font-style: italic;
+  display: none !important; /* Hide format hint */
 }
 
 input[type="date"]:focus::before,
 input[type="date"]:valid::before {
-  display: none;
+  display: none !important;
 }
 
 /* Enhanced date input styling */
@@ -441,12 +434,12 @@ input[type="date"]:focus {
 }
 
 .date-input-wrapper::after {
-  display: none; /* Completely disable format hint */
+  display: none !important; /* Completely disable format hint */
 }
 
 .date-input-wrapper input[type="date"]:invalid + .date-format-hint::after,
 .date-input-wrapper input[type="date"]:placeholder-shown + .date-format-hint::after {
-  display: none; /* Disable format hints */
+  display: none !important; /* Disable format hints */
 }
 
 /* Global Search Bar Styling */

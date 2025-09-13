@@ -515,7 +515,62 @@ const ClassesPanel = ({
     [handleClassClick]
   );
 
-  // Add new class
+  // Auto-create class when date is selected (if level is already selected)
+  const handleAutoCreateClass = useCallback(async (levelId: string, startingDate: string) => {
+    if (!levelId || !startingDate) return;
+
+    setAdding(true);
+    try {
+      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+      
+      const requestBody = { 
+        levelId: levelId,
+        startingDate: startingDate
+      };
+
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
+      
+      const res = await fetch(`${apiUrl}/classes`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || `HTTP error! status: ${res.status}`);
+      }
+
+      const data = await res.json();
+
+      if (data.success) {
+        setNewClassLevelId('');
+        setNewClassStartingDate('');
+        alert(`Class created successfully! Class Code: ${data.class.classCode}`);
+        onDataRefresh?.();
+      } else {
+        alert(data.message || 'Failed to create class');
+      }
+    } catch (error) {
+      console.error('Error auto-creating class:', error);
+      alert(error instanceof Error ? error.message : 'Failed to create class. Please try again.');
+    } finally {
+      setAdding(false);
+    }
+  }, [onDataRefresh]);
+
+  // Handle date change and auto-create class
+  const handleDateChange = useCallback((date: string) => {
+    setNewClassStartingDate(date);
+    if (newClassLevelId && date) {
+      handleAutoCreateClass(newClassLevelId, date);
+    }
+  }, [newClassLevelId, handleAutoCreateClass]);
+
+  // Add new class (manual trigger - kept for backward compatibility)
   const handleAddClass = useCallback(async () => {
     if (!newClassLevelId) {
       alert('Please select a level');
@@ -1096,10 +1151,10 @@ const ClassesPanel = ({
                 id="starting-date"
                 type="date"
                 value={newClassStartingDate}
-                onChange={(e) => setNewClassStartingDate(e.target.value)}
+                onChange={(e) => handleDateChange(e.target.value)}
                 className="starting-date-input"
                 title="" // Removed title to eliminate hover tooltip
-                placeholder=""
+                placeholder="Select starting date"
               />
             </div>
 

@@ -589,35 +589,19 @@
 }
 
 .date-format-preview {
-  margin-top: 0.25rem;
-  padding: 0.5rem;
-  background: rgba(5, 150, 105, 0.1);
-  border-radius: 0.375rem;
-  border-left: 3px solid #059669;
-  font-style: italic;
+  display: none !important; /* Hide date format preview */
 }
 
 .date-format-preview small {
-  color: #059669;
-  font-weight: 600;
-  font-size: 0.8rem;
+  display: none !important; /* Hide date format preview text */
 }
 
 .date-clarification {
-  margin-top: 0.5rem;
-  padding: 0.5rem;
-  background: rgba(33, 150, 243, 0.1);
-  border-radius: 0.375rem;
-  border-left: 3px solid #2196f3;
+  display: none !important; /* Hide date clarification */
 }
 
 .date-clarification small {
-  color: #1565c0;
-  font-weight: 600;
-  font-size: 0.85rem;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
+  display: none !important; /* Hide date clarification text */
 }
 
 .starting-date-input {
@@ -1903,7 +1887,8 @@
 }
 
 .student-report-modal .form-group {
-  margin-bottom: var(--space-4);
+  margin: 0; /* Remove all margins */
+  padding: 0; /* Remove all padding */
 }
 
 .student-report-modal .form-group label {
@@ -2001,7 +1986,7 @@
 }
 
 .starting-date-input::-webkit-calendar-picker-indicator {
-  display: block;
+  display: none; /* Remove calendar icon */
   cursor: pointer;
 }
 

@@ -453,7 +453,8 @@
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin: 0; /* Remove all margins */
+  padding: 0; /* Remove all padding */
 }
 
 .form-group label {
