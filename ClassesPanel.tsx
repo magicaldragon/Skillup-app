@@ -30,33 +30,19 @@ interface ClassEditModal {
   students: Student[];
 }
 
-// Interface for class info editing modal
-interface ClassInfoEditModal {
-  isOpen: boolean;
-  classId: string;
-  className: string;
-  levelId: string | null;
-  description: string;
-}
 
-// Interface for report modal
-interface ReportModal {
-  isOpen: boolean;
-  studentId: string | null;
-  studentName: string;
-  classId: string;
-  className: string;
-}
-
-const ClassesPanel = ({
-  students,
-  classes,
-  onDataRefresh,
-}: {
+// Add explicit props interface for this panel
+interface ClassesPanelProps {
   students: Student[];
   classes: StudentClass[];
   onDataRefresh?: () => void;
-}) => {
+}
+
+export default function ClassesPanel({
+  students,
+  classes,
+  onDataRefresh,
+}: ClassesPanelProps) {
   const [adding, setAdding] = useState(false);
   const [levels, setLevels] = useState<Level[]>([]);
   const [levelsLoading, setLevelsLoading] = useState(true);
@@ -78,46 +64,6 @@ const ClassesPanel = ({
     students: [],
   });
 
-  // Class info editing modal state
-  const [classInfoEditModal, setClassInfoEditModal] = useState<ClassInfoEditModal>({
-    isOpen: false,
-    classId: '',
-    className: '',
-    levelId: null,
-    description: '',
-  });
-
-  // Report modal state
-  const [reportModal, setReportModal] = useState<ReportModal>({
-    isOpen: false,
-    studentId: null,
-    studentName: '',
-    classId: '',
-    className: '',
-  });
-
-  // Add report modal state
-  const [studentReportModal, setStudentReportModal] = useState<{
-    isOpen: boolean;
-    studentId: string | null;
-    studentName: string;
-    classId: string;
-    className: string;
-    caseNo: string;
-    problems: string;
-  }>({
-    isOpen: false,
-    studentId: null,
-    studentName: '',
-    classId: '',
-    className: '',
-    caseNo: '',
-    problems: '',
-  });
-
-  // Bulk selection state
-  const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
-
   // Add new class with level selection
   const [newClassLevelId, setNewClassLevelId] = useState<string>('');
   const [newClassStartingDate, setNewClassStartingDate] = useState<string>('');
@@ -125,9 +71,9 @@ const ClassesPanel = ({
   // Add state for showing action buttons
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
 
-// Per-row assignment UI state
-const [singleAssignStudentId, setSingleAssignStudentId] = useState<string | null>(null);
-const [singleAssignTargetClassId, setSingleAssignTargetClassId] = useState<string>('');
+  // Per-row assignment UI state
+  const [singleAssignStudentId, setSingleAssignStudentId] = useState<string | null>(null);
+  const [singleAssignTargetClassId, setSingleAssignTargetClassId] = useState<string>('');
 
   // Open class edit modal
   const handleEditClass = useCallback(
@@ -151,7 +97,6 @@ const [singleAssignTargetClassId, setSingleAssignTargetClassId] = useState<strin
         levelName,
         students: classStudents,
       });
-      setSelectedStudentIds([]);
     },
     [classes, levels, students]
   );
@@ -165,24 +110,6 @@ const [singleAssignTargetClassId, setSingleAssignTargetClassId] = useState<strin
       levelName: '',
       students: [],
     });
-    setSelectedStudentIds([]);
-  }, []);
-
-  // Toggle student selection for bulk actions
-  const toggleStudentSelection = useCallback((studentId: string) => {
-    setSelectedStudentIds((prev) =>
-      prev.includes(studentId) ? prev.filter((id) => id !== studentId) : [...prev, studentId]
-    );
-  }, []);
-
-  // Select all students
-  const selectAllStudents = useCallback(() => {
-    setSelectedStudentIds(classEditModal.students.map((s) => s.id));
-  }, [classEditModal.students]);
-
-  // Clear all selections
-  const clearAllSelections = useCallback(() => {
-    setSelectedStudentIds([]);
   }, []);
 
   // Fetch levels for class creation
@@ -253,10 +180,6 @@ const [singleAssignTargetClassId, setSingleAssignTargetClassId] = useState<strin
     }
   }, []);
 
-
-
-
-
   useEffect(() => {
     fetchLevels();
   }, [fetchLevels]);
@@ -283,6 +206,19 @@ const [singleAssignTargetClassId, setSingleAssignTargetClassId] = useState<strin
       fetchLevels();
     }
   }, [onDataRefresh, fetchLevels]);
+
+  // ESC key closes the modal (in-scope effect)
+  useEffect(() => {
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        if (classEditModal.isOpen) {
+          handleCloseClassEditModal();
+        }
+      }
+    };
+    document.addEventListener('keydown', handleEscKey);
+    return () => document.removeEventListener('keydown', handleEscKey);
+  }, [classEditModal.isOpen, handleCloseClassEditModal]);
 
   // Filter classes based on search and level filter
   const filteredClasses = classes.filter((c) => {
@@ -368,146 +304,64 @@ const [singleAssignTargetClassId, setSingleAssignTargetClassId] = useState<strin
     }
   }, [singleAssignStudentId, singleAssignTargetClassId, classEditModal.classId]);
 
-  // Report a student
-  const handleReportStudent = useCallback(
-    (studentId: string, studentName: string, classId: string, className: string) => {
-      // Generate case number (this should come from backend, but for now we'll generate it)
-      const timestamp = Date.now();
-      const caseNo = `Case ${timestamp.toString().slice(-6)}`;
-      
-      setStudentReportModal({
-        isOpen: true,
-        studentId,
-        studentName,
-        classId,
-        className,
-        caseNo,
-        problems: '',
-      });
-    },
-    []
-  );
-
-  // Submit student report
-  const handleSubmitReport = useCallback(async () => {
-    if (!studentReportModal.studentId || !studentReportModal.problems || !(studentReportModal.problems || '').trim()) {
-      alert('Please fill in all required fields');
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
-      
-      const reportData = {
-        studentId: studentReportModal.studentId,
-        classId: studentReportModal.classId,
-        className: studentReportModal.className,
-        problems: studentReportModal.problems,
-        caseNo: studentReportModal.caseNo,
-      };
-
-      const response = await fetch(`${apiUrl}/student-reports`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(reportData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to submit report');
+  // Single-student remove handler (replaces bulk remove usage in per-row action)
+  const handleRemoveSingle = useCallback(
+    async (studentId: string) => {
+      if (!classEditModal.classId) {
+        alert('No class selected');
+        return;
       }
+      const student = classEditModal.students.find((s) => s.id === studentId);
+      const studentName = student?.name || 'this student';
+      if (!window.confirm(`Remove ${studentName} to waiting list?`)) return;
 
-      const data = await response.json();
-      if (data.success) {
-        alert('Report submitted successfully!');
-        setStudentReportModal({
-          isOpen: false,
-          studentId: null,
-          studentName: '',
-          classId: '',
-          className: '',
-          caseNo: '',
-          problems: '',
+      try {
+        const token =
+          localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+        const apiUrl =
+          import.meta.env.VITE_API_BASE_URL ||
+          'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
+
+        // Remove from current class
+        const removeRes = await fetch(
+          `${apiUrl}/classes/${classEditModal.classId}/students/${studentId}`,
+          {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        if (!removeRes.ok) {
+          throw new Error(`Failed to remove student ${studentId} from class`);
+        }
+
+        // Update student status to 'studying' (waiting list)
+        const updateRes = await fetch(`${apiUrl}/users/${studentId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status: 'studying' }),
         });
-        // Refresh data if callback provided
+        if (!updateRes.ok) {
+          console.warn(`Failed to update student ${studentId} status`);
+        }
+
+        // Reflect removal in the modal without closing
+        setClassEditModal((prev) => ({
+          ...prev,
+          students: prev.students.filter((s) => s.id !== studentId),
+        }));
+
+        alert('Student removed to waiting list successfully!');
         onDataRefresh?.();
-      } else {
-        throw new Error(data.message || 'Failed to submit report');
+      } catch (error) {
+        console.error('Error removing student:', error);
+        alert('Failed to remove student. Please try again.');
       }
-    } catch (error) {
-      console.error('Error submitting report:', error);
-      alert(error instanceof Error ? error.message : 'Failed to submit report. Please try again.');
-    }
-  }, [studentReportModal, onDataRefresh]);
-
-  // Close student report modal
-  const handleCloseStudentReportModal = useCallback(() => {
-    setStudentReportModal({
-      isOpen: false,
-      studentId: null,
-      studentName: '',
-      classId: '',
-      className: '',
-      caseNo: '',
-      problems: '',
-    });
-  }, []);
-
-  // Close class info edit modal
-  const handleCloseClassInfoEditModal = useCallback(() => {
-    setClassInfoEditModal({
-      isOpen: false,
-      classId: '',
-      className: '',
-      levelId: null,
-      description: '',
-    });
-  }, []);
-
-  // Update class information
-  const handleUpdateClassInfo = useCallback(async () => {
-    if (!classInfoEditModal.classId) return;
-
-    const confirmUpdate = window.confirm(
-      `Are you sure you want to update the level for class "${classInfoEditModal.className}"?\n\n` +
-        `• New Level: ${levels.find((l) => l._id === classInfoEditModal.levelId)?.name || 'Not specified'}\n` +
-        `• Description: ${classInfoEditModal.description || 'None'}\n\n` +
-        `Proceed with update?`
-    );
-
-    if (!confirmUpdate) return;
-
-    try {
-      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
-      const res = await fetch(`${apiUrl}/classes/${classInfoEditModal.classId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          // Do not allow changing class code/name
-          levelId: classInfoEditModal.levelId || null,
-          description: classInfoEditModal.description,
-        }),
-      });
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-      alert(`✅ Class "${classInfoEditModal.className}" has been successfully updated!`);
-      handleCloseClassInfoEditModal();
-      onDataRefresh?.();
-      setSelectedClassId(null);
-    } catch (error) {
-      console.error('Error updating class info:', error);
-      alert('❌ Failed to update class information. Please try again.');
-    }
-  }, [classInfoEditModal, levels, handleCloseClassInfoEditModal, onDataRefresh]);
+    },
+    [classEditModal.classId, classEditModal.students, onDataRefresh]
+  );
 
   // Delete class
   const handleDeleteClass = useCallback(
@@ -567,17 +421,6 @@ const [singleAssignTargetClassId, setSingleAssignTargetClassId] = useState<strin
     [classes, levels, onDataRefresh]
   );
 
-  // Close report modal
-  const handleCloseReportModal = useCallback(() => {
-    setReportModal({
-      isOpen: false,
-      studentId: null,
-      studentName: '',
-      classId: '',
-      className: '',
-    });
-  }, []);
-
   // Handle keyboard events for accessibility
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent, classId: string) => {
@@ -588,7 +431,6 @@ const [singleAssignTargetClassId, setSingleAssignTargetClassId] = useState<strin
     },
     [handleClassClick]
   );
-
 
   // Handle date change (removed auto-create to avoid unexpected requests)
   const handleDateChange = useCallback((date: string) => {
@@ -668,156 +510,6 @@ const [singleAssignTargetClassId, setSingleAssignTargetClassId] = useState<strin
       setAdding(false);
     }
   }, [newClassLevelId, newClassStartingDate, onDataRefresh]);
-
-  // Bulk assign students to another class
-  const handleBulkAssign = useCallback(
-    async (targetClassId: string) => {
-      if (selectedStudentIds.length === 0) {
-        alert('Please select students to assign');
-        return;
-      }
-
-      if (!classEditModal.classId) {
-        alert('No source class selected');
-        return;
-      }
-
-      try {
-        const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-        const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
-
-        // First, remove students from current class
-        for (const studentId of selectedStudentIds) {
-          const removeRes = await fetch(
-            `${apiUrl}/classes/${classEditModal.classId}/students/${studentId}`,
-            {
-              method: 'DELETE',
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-
-          if (!removeRes.ok) {
-            throw new Error(`Failed to remove student ${studentId} from current class`);
-          }
-        }
-
-        // Then, add students to target class
-        for (const studentId of selectedStudentIds) {
-          const addRes = await fetch(`${apiUrl}/classes/${targetClassId}/students/${studentId}`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({ studentId }),
-          });
-
-          if (!addRes.ok) {
-            throw new Error(`Failed to assign student ${studentId} to target class`);
-          }
-        }
-
-        alert('Students assigned successfully!');
-        onDataRefresh?.();
-        handleCloseClassEditModal();
-      } catch (error) {
-        console.error('Error bulk assigning students:', error);
-        alert('Failed to assign students. Please try again.');
-      }
-    },
-    [selectedStudentIds, classEditModal.classId, onDataRefresh, handleCloseClassEditModal]
-  );
-
-  // Bulk remove students to waiting list
-  const handleBulkRemove = useCallback(async () => {
-    if (selectedStudentIds.length === 0) {
-      alert('Please select students to remove');
-      return;
-    }
-
-    if (!classEditModal.classId) {
-      alert('No class selected');
-      return;
-    }
-
-    if (
-      !window.confirm(
-        `Are you sure you want to remove ${selectedStudentIds.length} students to the waiting list?`
-      )
-    )
-      return;
-
-    try {
-      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
-
-      for (const studentId of selectedStudentIds) {
-        // Remove from current class
-        const removeRes = await fetch(
-          `${apiUrl}/classes/${classEditModal.classId}/students/${studentId}`,
-          {
-            method: 'DELETE',
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (!removeRes.ok) {
-          throw new Error(`Failed to remove student ${studentId} from class`);
-        }
-
-        // Update student status to 'studying' (waiting list)
-        const updateRes = await fetch(`${apiUrl}/users/${studentId}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ 
-            status: 'studying'
-          }),
-        });
-
-        if (!updateRes.ok) {
-          console.warn(`Failed to update student ${studentId} status`);
-        }
-      }
-
-      alert('Students removed to waiting list successfully!');
-      onDataRefresh?.();
-      handleCloseClassEditModal();
-    } catch (error) {
-      console.error('Error bulk removing students:', error);
-      alert('Failed to remove students. Please try again.');
-    }
-  }, [selectedStudentIds, classEditModal.classId, onDataRefresh, handleCloseClassEditModal]);
-
-  // Handle ESC key to close modals
-  useEffect(() => {
-    const handleEscKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        if (classEditModal.isOpen) {
-          handleCloseClassEditModal();
-        }
-        if (reportModal.isOpen) {
-          handleCloseReportModal();
-        }
-      }
-    };
-
-    document.addEventListener('keydown', handleEscKey);
-    return () => document.removeEventListener('keydown', handleEscKey);
-  }, [
-    classEditModal.isOpen,
-    reportModal.isOpen,
-    handleCloseClassEditModal,
-    handleCloseReportModal,
-  ]);
-
-
 
   return (
     <div className="management-panel">
@@ -997,7 +689,93 @@ const [singleAssignTargetClassId, setSingleAssignTargetClassId] = useState<strin
                         style={{
                           padding: '8px 16px',
                           border: '2px solid rgba(255, 255, 255, 0.3)',
-                          borderRadius: '20px',                  </td>
+                          borderRadius: '20px',
+                          fontWeight: '700',
+                          fontSize: '11px',
+                          cursor: 'pointer',
+                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                          minWidth: '60px',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px',
+                          position: 'relative',
+                          overflow: 'hidden',
+                          outline: 'none',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                          display: 'inline-block',
+                          background:
+                            'linear-gradient(135deg, #00c853 0%, #4caf50 50%, #66bb6a 100%)',
+                          color: 'white',
+                          textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
+                        }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEditClass(safeClassId);
+                        }}
+                        title="Edit Class"
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background =
+                            'linear-gradient(135deg, #4caf50 0%, #66bb6a 50%, #00c853 100%)';
+                          e.currentTarget.style.boxShadow =
+                            '0 8px 25px rgba(76, 175, 80, 0.4), 0 0 0 3px rgba(76, 175, 80, 0.2)';
+                          e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background =
+                            'linear-gradient(135deg, #00c853 0%, #4caf50 50%, #66bb6a 100%)';
+                          e.currentTarget.style.boxShadow =
+                            '0 4px 12px rgba(0, 0, 0, 0.15)';
+                          e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                        }}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        style={{
+                          padding: '8px 16px',
+                          border: '2px solid rgba(255, 255, 255, 0.3)',
+                          borderRadius: '20px',
+                          fontWeight: '700',
+                          fontSize: '11px',
+                          cursor: 'pointer',
+                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                          minWidth: '60px',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px',
+                          position: 'relative',
+                          overflow: 'hidden',
+                          outline: 'none',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                          display: 'inline-block',
+                          background:
+                            'linear-gradient(135deg, #f44336 0%, #ef5350 50%, #e57373 100%)',
+                          color: 'white',
+                          textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
+                        }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteClass(safeClassId);
+                        }}
+                        title="Delete Class"
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background =
+                            'linear-gradient(135deg, #ef5350 0%, #e57373 50%, #f44336 100%)';
+                          e.currentTarget.style.boxShadow =
+                            '0 8px 25px rgba(244, 67, 54, 0.4), 0 0 0 3px rgba(244, 67, 54, 0.2)';
+                          e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background =
+                            'linear-gradient(135deg, #f44336 0%, #ef5350 50%, #e57373 100%)';
+                          e.currentTarget.style.boxShadow =
+                            '0 4px 12px rgba(0, 0, 0, 0.15)';
+                          e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               );
             })}
@@ -1040,7 +818,7 @@ const [singleAssignTargetClassId, setSingleAssignTargetClassId] = useState<strin
                 value={newClassStartingDate}
                 onChange={(e) => handleDateChange(e.target.value)}
                 className="starting-date-input"
-                title="" // Removed title to eliminate hover tooltip
+                title=""
                 placeholder="Select starting date"
               />
             </div>
@@ -1064,7 +842,7 @@ const [singleAssignTargetClassId, setSingleAssignTargetClassId] = useState<strin
           <div className="modal-content">
             <div className="modal-header">
               <h3 className="modal-title">
-                CLASS: {classEditModal.className} / LEVEL: {classEditModal.levelName}
+                EDIT CLASS — {classEditModal.className} / LEVEL: {classEditModal.levelName}
               </h3>
               <button type="button" className="close-btn" onClick={handleCloseClassEditModal}>
                 ×
@@ -1075,22 +853,6 @@ const [singleAssignTargetClassId, setSingleAssignTargetClassId] = useState<strin
               <div className="students-section">
                 <div className="section-header">
                   <h4>List of Students ({classEditModal.students.length})</h4>
-                  <div className="bulk-actions">
-                    <button
-                      type="button"
-                      className="bulk-btn select-all-btn"
-                      onClick={selectAllStudents}
-                    >
-                      Select All
-                    </button>
-                    <button
-                      type="button"
-                      className="bulk-btn clear-all-btn"
-                      onClick={clearAllSelections}
-                    >
-                      Clear All
-                    </button>
-                  </div>
                 </div>
 
                 {classEditModal.students.length === 0 ? (
@@ -1100,21 +862,6 @@ const [singleAssignTargetClassId, setSingleAssignTargetClassId] = useState<strin
                     <table className="students-table">
                       <thead>
                         <tr>
-                          <th className="checkbox-header">
-                            <input
-                              type="checkbox"
-                              checked={
-                                selectedStudentIds.length === classEditModal.students.length &&
-                                classEditModal.students.length > 0
-                              }
-                              onChange={
-                                selectedStudentIds.length === classEditModal.students.length
-                                  ? clearAllSelections
-                                  : selectAllStudents
-                              }
-                              className="select-all-checkbox"
-                            />
-                          </th>
                           <th>Student ID</th>
                           <th>Full Name</th>
                           <th>English Name</th>
@@ -1124,16 +871,9 @@ const [singleAssignTargetClassId, setSingleAssignTargetClassId] = useState<strin
                         </tr>
                       </thead>
                       <tbody>
+                        {/* FIX: Use a single tbody; removed nested <tbody> */}
                         {classEditModal.students.map((student) => (
                           <tr key={student.id} className="student-row">
-                            <td className="checkbox-cell">
-                              <input
-                                type="checkbox"
-                                checked={selectedStudentIds.includes(student.id)}
-                                onChange={() => toggleStudentSelection(student.id)}
-                                className="row-checkbox"
-                              />
-                            </td>
                             <td>{student.studentCode || student.id}</td>
                             <td>
                               <div className="student-name">
@@ -1144,34 +884,71 @@ const [singleAssignTargetClassId, setSingleAssignTargetClassId] = useState<strin
                               </div>
                             </td>
                             <td>{student.englishName || 'N/A'}</td>
-                            <td>
-                              {student.dob ? formatDateMMDDYYYY(student.dob) : 'N/A'}
-                            </td>
+                            <td>{student.dob ? formatDateMMDDYYYY(student.dob) : 'N/A'}</td>
                             <td>{student.gender || 'N/A'}</td>
                             <td className="student-actions">
                               <div className="action-buttons">
                                 <button
                                   type="button"
-                                  onClick={() => handleReportStudent(student.id, student.name, classEditModal.classId || '', classEditModal.className)}
-                                  className="action-btn report-btn"
-                                  title="Report student issue"
-                                >
-                                  📝 Report
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    // Remove single student to waiting list
-                                    if (window.confirm(`Remove ${student.name} to waiting list?`)) {
-                                      setSelectedStudentIds([student.id]);
-                                      handleBulkRemove();
-                                    }
-                                  }}
+                                  onClick={() => handleRemoveSingle(student.id)}
                                   className="action-btn remove-btn"
                                   title="Remove student to waiting list"
                                 >
                                   ➖ Remove
                                 </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleAssignButtonClick(student.id)}
+                                  className="action-btn"
+                                  title="Assign student to another class"
+                                  style={{
+                                    background:
+                                      'linear-gradient(135deg, #00c853 0%, #4caf50 50%, #66bb6a 100%)',
+                                    color: 'white',
+                                  }}
+                                >
+                                  ➕ Assign
+                                </button>
+                                {singleAssignStudentId === student.id && (
+                                  <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
+                                    <select
+                                      value={singleAssignTargetClassId}
+                                      onChange={(e) => setSingleAssignTargetClassId(e.target.value)}
+                                      className="target-class-select"
+                                      title="Choose target class"
+                                    >
+                                      <option value="">Select target class...</option>
+                                      {classes
+                                        ?.filter((c) => (c._id || c.id) !== classEditModal.classId)
+                                        .map((cls) => {
+                                          const levelName =
+                                            cls.levelId
+                                              ? typeof cls.levelId === 'object'
+                                                ? cls.levelId.name
+                                                : levels.find((l) => l._id === cls.levelId)?.name || 'N/A'
+                                              : 'N/A';
+                                          const displayName = cls.classCode || cls.name || 'Unnamed Class';
+                                          return (
+                                            <option key={cls._id || cls.id} value={(cls._id || cls.id) as string}>
+                                              {displayName} ({levelName})
+                                            </option>
+                                          );
+                                        })}
+                                    </select>
+                                    <button
+                                      type="button"
+                                      onClick={handleConfirmSingleAssign}
+                                      className="bulk-btn"
+                                      style={{
+                                        background:
+                                          'linear-gradient(135deg, #00c853 0%, #4caf50 50%, #66bb6a 100%)',
+                                        color: 'white',
+                                      }}
+                                    >
+                                      Confirm
+                                    </button>
+                                  </div>
+                                )}
                               </div>
                             </td>
                           </tr>
@@ -1181,207 +958,13 @@ const [singleAssignTargetClassId, setSingleAssignTargetClassId] = useState<strin
                   </div>
                 )}
               </div>
-
-              {selectedStudentIds.length > 0 && (
-                <div className="bulk-actions-section">
-                  <h4>Bulk Actions for {selectedStudentIds.length} selected student(s):</h4>
-                  <div className="bulk-actions-buttons">
-                    <div className="bulk-action-group">
-                      <label htmlFor="target-class-select">Assign to another class:</label>
-                      <select
-                        id="target-class-select"
-                        className="target-class-select"
-                        onChange={(e) => {
-                          if (e.target.value) {
-                            const targetClass = classes.find(c => c.id === e.target.value);
-                            if (targetClass && window.confirm(
-                              `Assign ${selectedStudentIds.length} student(s) to ${targetClass.name || targetClass.classCode}?`
-                            )) {
-                              handleBulkAssign(e.target.value);
-                              e.target.value = '';
-                            } else {
-                              e.target.value = '';
-                            }
-                          }
-                        }}
-                      >
-                        <option value="">Select target class...</option>
-                        {classes &&
-                          Array.isArray(classes) &&
-                          classes
-                            .filter((c) => c.id !== classEditModal.classId)
-                            .map((cls) => {
-                              // Handle both populated levelId object and string levelId
-                              const levelName = cls.levelId
-                                ? typeof cls.levelId === 'object'
-                                  ? cls.levelId.name
-                                  : levels.find((l) => l._id === cls.levelId)?.name || 'N/A'
-                                : 'N/A';
-                              const displayName = cls.classCode || cls.name || 'Unnamed Class';
-                              return (
-                                <option key={cls.id} value={cls.id}>
-                                  {displayName} ({levelName}) - {cls.studentIds?.length || 0} students
-                                </option>
-                              );
-                            })}
-                      </select>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={handleBulkRemove}
-                      className="bulk-btn remove-btn"
-                    >
-                      ➖ Remove to Waiting List
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </div>
       )}
 
-      {/* Class Info Edit Modal */}
-      {classInfoEditModal.isOpen && (
-        <div className="class-info-edit-modal">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h3>Edit Class Level</h3>
-              <button type="button" className="close-btn" onClick={handleCloseClassInfoEditModal}>
-                ×
-              </button>
-            </div>
-            <div className="modal-body">
-              <div className="form-group">
-                <label htmlFor="class-name">Class Code:</label>
-                <input
-                  id="class-name"
-                  type="text"
-                  value={classInfoEditModal.className}
-                  readOnly
-                  disabled
-                  className="form-input"
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="class-level">Level:</label>
-                <select
-                  id="class-level"
-                  value={classInfoEditModal.levelId || ''}
-                  onChange={(e) =>
-                    setClassInfoEditModal((prev) => ({ ...prev, levelId: e.target.value || null }))
-                  }
-                  className="form-select"
-                >
-                  <option value="">Select Level</option>
-                  {levels.map((level) => (
-                    <option key={level._id} value={level._id}>
-                      {level.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="form-group">
-                <label htmlFor="class-description">Description (Optional):</label>
-                <textarea
-                  id="class-description"
-                  value={classInfoEditModal.description}
-                  onChange={(e) =>
-                    setClassInfoEditModal((prev) => ({ ...prev, description: e.target.value }))
-                  }
-                  className="form-textarea"
-                  rows={3}
-                  placeholder="Add any additional notes about this class..."
-                />
-              </div>
-              <div className="modal-actions">
-                <button type="button" onClick={handleUpdateClassInfo} className="save-btn">
-                  Update Class
-                </button>
-                <button
-                  type="button"
-                  onClick={handleCloseClassInfoEditModal}
-                  className="cancel-btn"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Removed: Report Student modal */}
 
-      {/* Student Report Modal */}
-      {studentReportModal.isOpen && (
-        <div className="student-report-modal">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h3>Report Student: {studentReportModal.studentName}</h3>
-              <button type="button" className="close-btn" onClick={handleCloseStudentReportModal}>
-                ×
-              </button>
-            </div>
-            <div className="modal-body">
-              <div className="form-group">
-                <label htmlFor="case-no">Case Number:</label>
-                <input
-                  id="case-no"
-                  type="text"
-                  value={studentReportModal.caseNo}
-                  readOnly
-                  disabled
-                  className="form-input"
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="student-name">Student Name:</label>
-                <input
-                  id="student-name"
-                  type="text"
-                  value={studentReportModal.studentName}
-                  readOnly
-                  disabled
-                  className="form-input"
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="class-name">Class:</label>
-                <input
-                  id="class-name"
-                  type="text"
-                  value={studentReportModal.className}
-                  readOnly
-                  disabled
-                  className="form-input"
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="problems">Problem Description:</label>
-                <textarea
-                  id="problems"
-                  value={studentReportModal.problems}
-                  onChange={(e) =>
-                    setStudentReportModal((prev) => ({ ...prev, problems: e.target.value }))
-                  }
-                  placeholder="Describe the problem or misbehavior..."
-                  rows={4}
-                  className="form-textarea"
-                />
-              </div>
-              <div className="modal-actions">
-                <button type="button" onClick={handleSubmitReport} className="save-btn">
-                  Submit Report
-                </button>
-                <button type="button" onClick={handleCloseStudentReportModal} className="cancel-btn">
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
-};
-
-export default ClassesPanel;
+}
