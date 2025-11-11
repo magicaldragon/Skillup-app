@@ -6,6 +6,21 @@ import { formatDateMMDDYYYY } from './utils/stringUtils';
 import './ClassesPanel.css';
 import './ManagementTableStyles.css';
 
+// Resolve API base consistently for local dev and deployed hosting
+function resolveApiBase(): string {
+  try {
+    if (typeof window !== 'undefined' && window.location.host.endsWith('.web.app')) {
+      return '/api';
+    }
+  } catch {
+    // ignore
+  }
+  return (import.meta.env?.VITE_API_BASE_URL as string) || '/api';
+}
+
+const API_BASE_URL: string = resolveApiBase();
+
+
 // Interface for class editing modal
 interface ClassEditModal {
   isOpen: boolean;
@@ -166,7 +181,7 @@ const ClassesPanel = ({
     setLevelsLoading(true);
     try {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
+      const apiUrl = API_BASE_URL;
       
       console.log('Fetching levels from:', `${apiUrl}/levels`);
       console.log('Token available:', !!token);
@@ -515,62 +530,12 @@ const ClassesPanel = ({
     [handleClassClick]
   );
 
-  // Auto-create class when date is selected (if level is already selected)
-  const handleAutoCreateClass = useCallback(async (levelId: string, startingDate: string) => {
-    if (!levelId || !startingDate) return;
 
-    setAdding(true);
-    try {
-      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      
-      const requestBody = { 
-        levelId: levelId,
-        startingDate: startingDate
-      };
-
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
-      
-      const res = await fetch(`${apiUrl}/classes`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || `HTTP error! status: ${res.status}`);
-      }
-
-      const data = await res.json();
-
-      if (data.success) {
-        setNewClassLevelId('');
-        setNewClassStartingDate('');
-        alert(`Class created successfully! Class Code: ${data.class.classCode}`);
-        onDataRefresh?.();
-      } else {
-        alert(data.message || 'Failed to create class');
-      }
-    } catch (error) {
-      console.error('Error auto-creating class:', error);
-      alert(error instanceof Error ? error.message : 'Failed to create class. Please try again.');
-    } finally {
-      setAdding(false);
-    }
-  }, [onDataRefresh]);
-
-  // Handle date change and auto-create class
+  // Handle date change (removed auto-create to avoid unexpected requests)
   const handleDateChange = useCallback((date: string) => {
     setNewClassStartingDate(date);
-    if (newClassLevelId && date) {
-      handleAutoCreateClass(newClassLevelId, date);
-    }
-  }, [newClassLevelId, handleAutoCreateClass]);
+  }, []);
 
-  // Add new class (manual trigger - kept for backward compatibility)
   const handleAddClass = useCallback(async () => {
     if (!newClassLevelId) {
       alert('Please select a level');
@@ -582,30 +547,26 @@ const ClassesPanel = ({
       return;
     }
 
-    // Note: Date restriction removed - users can create classes with any date
-
     setAdding(true);
     try {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      
-      // Debug: Check user info
-      const userInfo = localStorage.getItem('skillup_user');
-      console.log('🔍 Class Creation Debug Info:', {
-        hasToken: !!token,
-        tokenLength: token ? token.length : 0,
-        userInfo: userInfo ? JSON.parse(userInfo) : null,
-        levelId: newClassLevelId,
-        startingDate: newClassStartingDate
-      });
+      if (!token) {
+        alert('You must be logged in as a teacher/admin to create a class.');
+        return;
+      }
 
-      const requestBody = { 
+      const userInfoRaw = localStorage.getItem('skillup_user');
+      const userInfo = userInfoRaw ? JSON.parse(userInfoRaw) : null;
+
+      const requestBody: any = { 
         levelId: newClassLevelId,
         startingDate: newClassStartingDate
       };
+      if (userInfo?.role === 'teacher' || userInfo?.role === 'admin') {
+        requestBody.teacherId = userInfo.id || userInfo._id || userInfo.docId;
+      }
 
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
-      console.log('🔍 Making class creation request to:', `${apiUrl}/classes`);
-      
+      const apiUrl = API_BASE_URL;
       const res = await fetch(`${apiUrl}/classes`, {
         method: 'POST',
         headers: {
@@ -615,20 +576,24 @@ const ClassesPanel = ({
         body: JSON.stringify(requestBody),
       });
 
-      console.log('📡 Class creation response:', {
-        status: res.status,
-        statusText: res.statusText,
-        ok: res.ok
-      });
-
       if (!res.ok) {
-        const errorData = await res.json();
-        console.error('❌ Class creation error:', errorData);
-        throw new Error(errorData.message || `HTTP error! status: ${res.status}`);
+        let message = `HTTP error! status: ${res.status}`;
+        try {
+          const ct = res.headers.get('content-type') || '';
+          if (ct.includes('application/json')) {
+            const errorData = await res.json();
+            message = errorData.message || message;
+          } else {
+            const text = await res.text();
+            message = text || message;
+          }
+        } catch {
+          // keep default message
+        }
+        throw new Error(message);
       }
 
       const data = await res.json();
-      console.log('✅ Class creation success:', data);
 
       if (data.success) {
         setNewClassLevelId('');
@@ -639,7 +604,6 @@ const ClassesPanel = ({
         alert(data.message || 'Failed to create class');
       }
     } catch (error) {
-      console.error('Error adding class:', error);
       alert(error instanceof Error ? error.message : 'Failed to add class. Please try again.');
     } finally {
       setAdding(false);
