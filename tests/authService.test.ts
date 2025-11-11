@@ -22,9 +22,27 @@ const originalFetch = global.fetch;
 
 describe('authService.login', () => {
   beforeEach(() => {
-    vi.restoreAllMocks();
+    // Reset mock state but keep module mocks intact
+    vi.clearAllMocks();
+    // Reinitialize mockSignIn for each test to avoid stale references
+    mockSignIn = vi.fn();
+    // Ensure AuthService uses the test seam for sign-in
+    (authService as any)['signInFn'] = (...args: any[]) => mockSignIn(...args);
     localStorage.clear();
-    global.fetch = originalFetch;
+
+    // Default fetch: make backend health check pass in Node
+    global.fetch = vi.fn((input: any) => {
+      const url = typeof input === 'string' ? input : input?.url;
+      if (String(url).includes('/health')) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          headers: { get: () => 'application/json' },
+          json: async () => ({ ok: true }),
+        } as any);
+      }
+      return Promise.reject(new Error('Fetch not mocked for this URL'));
+    }) as any;
   });
 
   it('rejects empty fields', async () => {
@@ -58,11 +76,20 @@ describe('authService.login', () => {
 
   it('succeeds with valid credentials and backend exchange', async () => {
     mockSignIn.mockResolvedValueOnce({ user: { getIdToken: mockGetIdToken } });
-    global.fetch = vi.fn().mockResolvedValueOnce({
-      ok: true,
-      headers: { get: () => 'application/json' },
-      json: async () => ({ success: true, token: 'SESSION_TOKEN', user: { id: 'u1', role: 'admin' } }),
-    } as any);
+
+    // First call: /health ok, second call: /auth/firebase-login success
+    global.fetch = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        headers: { get: () => 'application/json' },
+        json: async () => ({ ok: true }),
+      } as any)
+      .mockResolvedValueOnce({
+        ok: true,
+        headers: { get: () => 'application/json' },
+        json: async () => ({ success: true, token: 'SESSION_TOKEN', user: { id: 'u1', role: 'admin' } }),
+      } as any);
 
     const res = await authService.login('user@admin.skillup', 'Valid123!');
     expect(res.success).toBe(true);
@@ -71,7 +98,17 @@ describe('authService.login', () => {
 
   it('reports network error on fetch failure', async () => {
     mockSignIn.mockResolvedValueOnce({ user: { getIdToken: mockGetIdToken } });
-    global.fetch = vi.fn().mockRejectedValueOnce(new Error('Network failed'));
+
+    // First call: /health ok, second call: exchange rejects
+    global.fetch = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        headers: { get: () => 'application/json' },
+        json: async () => ({ ok: true }),
+      } as any)
+      .mockRejectedValueOnce(new Error('Network failed'));
+
     const res = await authService.login('user@admin.skillup', 'Valid123!');
     expect(res.success).toBe(false);
     expect(res.message).toMatch(/network error/i);
@@ -80,15 +117,39 @@ describe('authService.login', () => {
 
 describe('authService.login network behavior', () => {
   beforeEach(() => {
-    vi.restoreAllMocks();
+    vi.clearAllMocks();
+    mockSignIn = vi.fn();
+    (authService as any)['signInFn'] = (...args: any[]) => mockSignIn(...args);
     localStorage.clear();
+
+    // Default fetch: make backend health check pass in Node
+    global.fetch = vi.fn((input: any) => {
+      const url = typeof input === 'string' ? input : input?.url;
+      if (String(url).includes('/health')) {
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          headers: { get: () => 'application/json' },
+          json: async () => ({ ok: true }),
+        } as any);
+      }
+      return Promise.reject(new Error('Fetch not mocked for this URL'));
+    }) as any;
   });
 
   it('shows a network error only when fetch rejects (offline/CORS)', async () => {
     const userCredential = { user: { getIdToken: vi.fn().mockResolvedValue('FAKE_ID_TOKEN') } };
     mockSignIn.mockResolvedValueOnce(userCredential as any);
 
-    global.fetch = vi.fn().mockRejectedValueOnce(new TypeError('NetworkError'));
+    // First call: /health ok, second call: exchange rejects with network-type error
+    global.fetch = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        headers: { get: () => 'application/json' },
+        json: async () => ({ ok: true }),
+      } as any)
+      .mockRejectedValueOnce(new TypeError('NetworkError'));
 
     const res = await authService.login('admin@admin.skillup', 'Valid123!');
     expect(res.success).toBe(false);
@@ -99,11 +160,20 @@ describe('authService.login network behavior', () => {
     const userCredential = { user: { getIdToken: vi.fn().mockResolvedValue('FAKE_ID_TOKEN') } };
     mockSignIn.mockResolvedValueOnce(userCredential as any);
 
-    global.fetch = vi.fn().mockResolvedValueOnce({
-      ok: false,
-      status: 401,
-      json: async () => ({ success: false, message: 'Invalid credentials' }),
-    } as any);
+    // First call: /health ok, second call: exchange returns 401
+    global.fetch = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        headers: { get: () => 'application/json' },
+        json: async () => ({ ok: true }),
+      } as any)
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 401,
+        headers: { get: () => 'application/json' },
+        json: async () => ({ success: false, message: 'Invalid credentials' }),
+      } as any);
 
     const res = await authService.login('admin@admin.skillup', 'Invalid123!');
     expect(res.success).toBe(false);
@@ -114,11 +184,20 @@ describe('authService.login network behavior', () => {
     const userCredential = { user: { getIdToken: vi.fn().mockResolvedValue('FAKE_ID_TOKEN') } };
     mockSignIn.mockResolvedValueOnce(userCredential as any);
 
-    global.fetch = vi.fn().mockResolvedValueOnce({
-      ok: true,
-      status: 200,
-      json: async () => ({ success: true, token: 'FAKE_SESSION', user: { id: 'u1', email: 'admin@admin.skillup', role: 'admin' } }),
-    } as any);
+    // First call: /health ok, second call: exchange success
+    global.fetch = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        headers: { get: () => 'application/json' },
+        json: async () => ({ ok: true }),
+      } as any)
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        headers: { get: () => 'application/json' },
+        json: async () => ({ success: true, token: 'FAKE_SESSION', user: { id: 'u1', email: 'admin@admin.skillup', role: 'admin' } }),
+      } as any);
 
     const res = await authService.login('admin@admin.skillup', 'Valid123!');
     expect(res.success).toBe(true);

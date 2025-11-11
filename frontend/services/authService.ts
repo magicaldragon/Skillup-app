@@ -13,36 +13,13 @@ function resolveApiBase(): string {
   return (import.meta.env?.VITE_API_BASE_URL as string) || '/api';
 }
 
+import type { UserProfile } from '../../types';
+
 const API_BASE_URL: string = resolveApiBase();
 
 export interface LoginCredentials {
   email: string;
   password: string;
-}
-
-export interface UserProfile {
-  _id: string;
-  id?: string;
-  fullname?: string;
-  name?: string;
-  email: string;
-  role: string;
-  username: string;
-  phone?: string;
-  englishName?: string;
-  dob?: string;
-  gender?: string;
-  parentName?: string;
-  parentPhone?: string;
-  notes?: string;
-  status?: string;
-  studentCode?: string;
-  avatarUrl?: string;
-  diceBearStyle?: string;
-  diceBearSeed?: string;
-  classIds?: string[];
-  createdAt?: string;
-  updatedAt?: string;
 }
 
 // AuthService.login and helpers
@@ -76,6 +53,9 @@ function clearFailedAttempts() {
 }
 
 class AuthService {
+  // Inject-able sign-in function to simplify testing without Firebase browser internals
+  private signInFn = signInWithEmailAndPassword;
+
   async testBackendConnection(): Promise<boolean> {
     try {
       console.log('Testing backend connection...');
@@ -132,7 +112,7 @@ class AuthService {
       }
 
       console.log('🔐 Attempting Firebase authentication...');
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await this.signInFn(auth, email, password);
       const firebaseUser = userCredential.user;
 
       console.log('🔐 Firebase authentication successful, getting ID token...');

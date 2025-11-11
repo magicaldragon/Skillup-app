@@ -26,9 +26,7 @@
     };
 
     // Assign polyfill to global
-    // ... existing code ...
     (globalThis as any).localStorage = localStoragePolyfill;
-    // ... existing code ...
     console.info('[testSetup] localStorage polyfilled (Node environment detected)');
   } else {
     console.info('[testSetup] jsdom environment detected; localStorage is available');

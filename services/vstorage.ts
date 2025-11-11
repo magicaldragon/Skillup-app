@@ -135,19 +135,22 @@ export async function listFiles(
   prefix: string = ''
 ): Promise<{ key: string; url: string; size: number; lastModified: Date }[]> {
   try {
-    const command = new ListObjectsV2Command({
-      Bucket: vstorageConfig.bucket,
-      Prefix: prefix,
-    });
+    const result = await s3.send(
+      new ListObjectsV2Command({
+        Bucket: vstorageConfig.bucket,
+        Prefix: prefix,
+      })
+    );
 
-    const result = await s3.send(command);
+    const contents = Array.isArray(result.Contents) ? result.Contents : [];
 
-    if (!result.Contents) {
+    if (contents.length === 0) {
+      console.info(`No files found for prefix: "${prefix}"`);
       return [];
     }
 
     const files = await Promise.all(
-      result.Contents.map(async (object: { Key?: string; Size?: number; LastModified?: Date }) => {
+      contents.map(async (object: { Key?: string; Size?: number; LastModified?: Date }) => {
         const key = object.Key;
         if (!key) return null;
         const url = await getFileURL(key);
@@ -161,8 +164,12 @@ export async function listFiles(
     );
 
     return files.filter(
-      (file): file is { key: string; url: string; size: number; lastModified: Date } =>
-        file !== null
+      (file: { key: string; url: string; size: number; lastModified: Date } | null): file is {
+        key: string;
+        url: string;
+        size: number;
+        lastModified: Date;
+      } => file !== null
     );
   } catch (error) {
     console.error('Error listing files:', error);

@@ -24,18 +24,28 @@
     "test:vstorage": "node scripts/testVStorage.cjs",
     "deploy:all": "npm run build && npm run firebase:deploy",
     "setup:firebase": "npm install -g firebase-tools && firebase login",
-    "test": "echo \"No tests in repo. Unit tests removed.\" && exit /b 0"
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "firebase": "^10.14.0",
+    "react-icons": "^4.12.0",
+    "@aws-sdk/client-s3": "^3.864.0",
+    "@aws-sdk/s3-request-presigner": "^3.864.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.1.4",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
+    "@types/node": "^20.11.30",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.18",
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",
     "terser": "^5.43.1",
     "typescript": "^5.2.2",
-    "vite": "^7.0.6"
+    "vite": "^7.0.6",
+    "vitest": "^1.6.0"
   }
 }
