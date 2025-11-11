@@ -1,7 +1,7 @@
 // Service Worker for SkillUp Center - Optimized for instant loading
 // Implements aggressive caching strategy for maximum performance
 
-const CACHE_VERSION = 'v2.0.0';
+const CACHE_VERSION = 'v2.0.1';
 const STATIC_CACHE = `skillup-static-${CACHE_VERSION}`;
 const API_CACHE = `skillup-api-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `skillup-runtime-${CACHE_VERSION}`;
@@ -99,13 +99,21 @@ async function handleApiRequest(request) {
   const url = new URL(request.url);
   const cache = await caches.open(API_CACHE);
 
+  // Bypass SW timeout/caching for non-GET requests (e.g., auth login)
+  if (request.method !== 'GET') {
+    try {
+      return await fetch(request);
+    } catch (error) {
+      throw error;
+    }
+  }
+
   // For GET requests, try cache first for faster response
   if (request.method === 'GET' && CACHE_PATTERNS.api.test(url.pathname)) {
     const cachedResponse = await cache.match(request);
     if (cachedResponse) {
       const cacheDate = new Date(cachedResponse.headers.get('sw-cache-date') || 0);
       const isExpired = Date.now() - cacheDate.getTime() > CACHE_DURATION.api;
-      
       if (!isExpired) {
         console.log('Serving from API cache:', url.pathname);
         return cachedResponse;
@@ -114,17 +122,11 @@ async function handleApiRequest(request) {
   }
 
   try {
-    // Network request with timeout
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 8000);
-    
-    const response = await fetch(request, {
-      signal: controller.signal,
-    });
-    
+    const response = await fetch(request, { signal: controller.signal });
     clearTimeout(timeoutId);
 
-    // Cache successful GET requests
     if (request.method === 'GET' && response.ok && response.status < 300) {
       const responseClone = response.clone();
       responseClone.headers.set('sw-cache-date', new Date().toISOString());
@@ -134,24 +136,17 @@ async function handleApiRequest(request) {
     return response;
   } catch (error) {
     console.log('API request failed, checking cache:', error);
-    
-    // Fallback to cached response even if expired
     const cachedResponse = await cache.match(request);
     if (cachedResponse) {
       return cachedResponse;
     }
-
-    // Return error response
     return new Response(
       JSON.stringify({
         success: false,
         message: 'Network error - please check your connection',
         offline: true,
       }),
-      {
-        status: 503,
-        headers: { 'Content-Type': 'application/json' },
-      }
+      { status: 503, headers: { 'Content-Type': 'application/json' } }
     );
   }
 }

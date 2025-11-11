@@ -4,9 +4,7 @@ import { defineConfig } from 'vite';
 export default defineConfig({
   plugins: [
     react({
-      // Enable SWC for faster builds
       jsxRuntime: 'automatic',
-      // Exclude node_modules from processing to speed up dev
       exclude: /node_modules/,
     })
   ],
@@ -32,9 +30,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
-    // Disable source maps in production for faster loading
     sourcemap: false,
-    // Optimize chunk splitting for better caching
     rollupOptions: {
       output: {
         experimentalMinChunkSize: 500,
@@ -94,7 +90,6 @@ export default defineConfig({
         },
       },
     },
-    // Aggressive minification for production
     minify: 'terser',
     terserOptions: {
       compress: {
@@ -107,21 +102,15 @@ export default defineConfig({
         safari10: true,
       },
     },
-    // Optimize chunk size
     chunkSizeWarningLimit: 800,
-    // Enable CSS code splitting
     cssCodeSplit: true,
-    // Enable compression reporting
-    reportCompressedSize: false, // Disable to speed up build
-    // Optimize dependencies
+    reportCompressedSize: false,
     commonjsOptions: {
       include: [/node_modules/],
       transformMixedEsModules: true,
     },
-    // Target modern browsers for smaller bundles
     target: ['es2020', 'edge88', 'firefox78', 'chrome87', 'safari13.1'],
   },
-  // Optimize dependencies for faster cold starts
   optimizeDeps: {
     include: [
       'react', 
@@ -139,10 +128,8 @@ export default defineConfig({
       'react-chartjs-2'
     ],
     exclude: ['firebase-admin'],
-    // Force optimization of specific dependencies
     force: true,
   },
-  // Enable compression and performance optimizations
   preview: {
     port: 4173,
     host: true,
@@ -150,9 +137,9 @@ export default defineConfig({
       'Cache-Control': 'public, max-age=31536000',
     },
   },
-  // Performance improvements
   esbuild: {
     target: 'es2020',
     drop: ['console', 'debugger'],
   },
+  // Removed invalid `test` block to satisfy Vite's UserConfigExport
 });

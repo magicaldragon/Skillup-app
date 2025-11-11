@@ -1,5 +1,16 @@
 // Authentication service for Firebase Functions backend - Optimized for performance
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+function resolveApiBase(): string {
+  try {
+    if (typeof window !== 'undefined' && window.location.host.endsWith('.web.app')) {
+      return '/api';
+    }
+  } catch {
+    // ignore
+  }
+  return (import.meta.env?.VITE_API_BASE_URL as string) || '/api';
+}
+
+const API_BASE_URL = resolveApiBase();
 
 // Cache for backend connection status
 let backendConnectionCache: { status: boolean; timestamp: number } | null = null;
@@ -204,7 +215,7 @@ class AuthService {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000); // Reduced timeout
       
-      const response = await fetch(`${API_BASE_URL}/auth/test`, {
+      const response = await fetch(`${API_BASE_URL}/test`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

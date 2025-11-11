@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { usersAPI } from './services/apiService';
-import { authService } from './services/authService';
+import { authService } from './frontend/services/authService';
 import type { UserUpdateData } from './types';
 import './AccountsPanel.css';
 import './ManagementTableStyles.css';
@@ -36,33 +36,48 @@ const AccountsPanel = () => {
   const [passwordChangeId, setPasswordChangeId] = useState<string | null>(null);
   const [newPassword, setNewPassword] = useState('');
   const [passwordChanging, setPasswordChanging] = useState(false);
-  const [currentUser, setCurrentUser] = useState<ReturnType<
-    typeof authService.getCurrentUser
-  > | null>(null);
+  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
   const [syncStatus, setSyncStatus] = useState<string>('');
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
 
   // Get current user for permission checks
   useEffect(() => {
-    // Try to get user from localStorage first (this contains the complete user data with role)
+    // Prefer localStorage first
     const localUser = localStorage.getItem('skillup_user');
     if (localUser) {
       try {
-        const parsedUser = JSON.parse(localUser);
-        console.log('🔍 Got user from localStorage:', parsedUser);
-        console.log('🔍 User role:', parsedUser.role);
+        const parsedUser: CurrentUser = JSON.parse(localUser);
         setCurrentUser(parsedUser);
         return;
       } catch (e) {
         console.error('Failed to parse user from localStorage:', e);
       }
     }
-    
-    // Fallback to authService if localStorage fails
-    const user = authService.getCurrentUser();
-    console.log('🔍 Fallback user from authService:', user);
-    setCurrentUser(user);
+
+    // Fallback: fetch from backend
+    (async () => {
+      try {
+        const user = await authService.getCurrentUser();
+        if (user) {
+          const normalized: CurrentUser = {
+            _id: user._id ?? user.id ?? '',
+            id: user.id ?? user._id ?? '',
+            name: user.name ?? user.fullname ?? '',
+            fullname: user.fullname ?? user.name ?? '',
+            email: user.email ?? '',
+            role: user.role ?? 'student',
+            username: user.username ?? user.email ?? '',
+          };
+          setCurrentUser(normalized);
+        } else {
+          setCurrentUser(null);
+        }
+      } catch (err) {
+        console.error('Error loading current user:', err);
+        setCurrentUser(null);
+      }
+    })();
   }, []);
 
   // Permission checking functions - Enhanced for admin accounts
@@ -870,6 +885,18 @@ const AccountsPanel = () => {
       )}
     </div>
   );
+};
+
+// Define a concrete type for the current user used in this panel
+type CurrentUser = {
+  _id?: string;
+  id?: string;
+  name?: string;
+  fullname?: string;
+  email: string;
+  role: string;
+  username?: string;
+  // add other fields you access as needed
 };
 
 export default AccountsPanel;

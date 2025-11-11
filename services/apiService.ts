@@ -21,7 +21,8 @@ import type {
 } from '../types';
 import { auth } from './firebase';
 
-const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
+// Top-level API_BASE_URL definition
+const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL || '/api';
 
 // Helper function to get auth token
 async function getAuthToken(): Promise<string> {
