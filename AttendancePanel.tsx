@@ -51,6 +51,29 @@ export default function AttendancePanel({
   const selectAll = (ids: string[]) => setSelectedIds(new Set(ids));
   const clearAll = () => setSelectedIds(new Set());
 
+  const markSelectedPresent = () => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) {
+      setStatusMessage('No students selected.');
+      setStatusType('error');
+      return;
+    }
+    try {
+      setAttendance((prev) => {
+        const next = { ...prev };
+        ids.forEach((id) => {
+          next[id] = 'present';
+        });
+        return next;
+      });
+      setStatusMessage(`Marked ${ids.length} students present for ${selectedDate}.`);
+      setStatusType('success');
+      onDataRefresh?.();
+    } catch {
+      setStatusMessage('Failed to mark selected students present.');
+      setStatusType('error');
+    }
+  };
   // Export CSV (Phase 1)
   const classStudents = useMemo(
     () => students.filter((s) => (s.classIds || []).includes(selectedClassId)),
@@ -81,62 +104,7 @@ export default function AttendancePanel({
     URL.revokeObjectURL(url);
   };
 
-  // Export XLSX (Phase 2)
-  const exportXLSX = async () => {
-    try {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore - Optional dependency: types might not be present in dev
-      const xlsx = await import('xlsx');
-      const rows = classStudents.map((s) => ({
-        Student: s.name,
-        Status: attendance[s.id] ?? 'present',
-        Class: selectedClass?.name ?? '',
-        Date: selectedDate,
-      }));
-      const ws = xlsx.utils.json_to_sheet(rows);
-      // Set column widths
-      ws['!cols'] = [{ wch: 24 }, { wch: 12 }, { wch: 18 }, { wch: 12 }];
-      // Best-effort header freeze (may require modern xlsx)
-      (ws as any)['!freeze'] = { xSplit: 0, ySplit: 1, topLeftCell: 'A2', activePane: 'bottomLeft', state: 'frozen' };
-
-      const wb = xlsx.utils.book_new();
-      xlsx.utils.book_append_sheet(wb, ws, 'Attendance');
-      xlsx.writeFile(wb, `attendance_${selectedClass?.name || 'class'}_${selectedDate}.xlsx`);
-      setStatusMessage('XLSX exported successfully.');
-      setStatusType('success');
-    } catch (e) {
-      setStatusMessage('XLSX export failed. CSV is still available.');
-      setStatusType('error');
-    }
-  };
-
-  // Batch: mark all present with confirmation
-  const markSelectedPresent = () => {
-    const ids = Array.from(selectedIds);
-    if (ids.length === 0) {
-      setStatusMessage('No students selected.');
-      setStatusType('error');
-      return;
-    }
-    const ok = window.confirm(`Mark ${ids.length} selected as Present for ${selectedDate}?`);
-    if (!ok) return;
-
-    try {
-      setAttendance((prev: Record<string, 'present' | 'absent'>) => {
-        const next = { ...prev };
-        ids.forEach((id) => {
-          next[id] = 'present';
-        });
-        return next;
-      });
-      setStatusMessage(`Marked ${ids.length} students Present.`);
-      setStatusType('success');
-      onDataRefresh?.();
-    } catch (e) {
-      setStatusMessage('Failed to mark selected students Present.');
-      setStatusType('error');
-    }
-  };
+  // NOTE: XLSX export removed due to security advisory (GHSA-4r6h-8v6p-xvw6, GHSA-5pgg-2g8v-p4x9)
 
   return (
     <div className="attendance-panel">
@@ -161,7 +129,7 @@ export default function AttendancePanel({
           onChange={(e) => setSelectedDate(e.target.value)}
         />
         <button className="btn-export" onClick={exportCSV}>Export CSV</button>
-        <button className="btn-export" onClick={exportXLSX}>Export XLSX</button>
+        {/* XLSX export button removed */}
       </div>
 
       {statusMessage && (
