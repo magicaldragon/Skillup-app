@@ -7,7 +7,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
     steps:
     - uses: actions/checkout@v4
     
@@ -23,6 +22,10 @@ jobs:
         VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
       run: |
         npm ci
+        npm run lint
+        npx tsc --noEmit
+        npm run test
+        npm audit --omit=dev --audit-level=high
         npm run build
 
     # Authenticate to Google Cloud with the service account
@@ -50,4 +53,4 @@ jobs:
     
     # Deploy to Firebase using service account for production deployment
     - name: Deploy to Firebase
-      run: firebase deploy --project skillup-3beaf --non-interactive 
+      run: firebase deploy --project skillup-3beaf --non-interactive

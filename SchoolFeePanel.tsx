@@ -244,48 +244,7 @@ export default function SchoolFeePanel({
     setStatusType('success');
   };
 
-  // Export XLSX (Phase 2)
-  const exportXLSX = async () => {
-    try {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore - Optional dependency: types might not be present in dev
-      const xlsx = await import('xlsx');
-      const rows = filteredStudents.map((s) => {
-        const row = feeMap[s.id] || {
-          studentId: s.id,
-          baseAmount: baseFromLevel,
-          extras: 0,
-          total: baseFromLevel,
-          paid: false,
-        };
-        return {
-          Student: s.name,
-          Base: row.baseAmount,
-          Extras: row.extras,
-          Total: row.total,
-          Paid: row.paid ? 'Yes' : 'No',
-          PaidDate: row.paidDate || '',
-          StaffId: row.staffId || '',
-          ChangedBy: row.changedBy || '',
-          UpdatedAt: row.updatedAt || '',
-          Overridden: row.overridden ? 'Yes' : 'No',
-        };
-      });
-      const ws = xlsx.utils.json_to_sheet(rows);
-      ws['!cols'] = [{ wch: 24 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 8 }, { wch: 12 }, { wch: 20 }, { wch: 16 }, { wch: 20 }, { wch: 10 }];
-      (ws as any)['!freeze'] = { xSplit: 0, ySplit: 1, topLeftCell: 'A2', activePane: 'bottomLeft', state: 'frozen' };
-
-      const wb = xlsx.utils.book_new();
-      xlsx.utils.book_append_sheet(wb, ws, 'SchoolFee');
-      const className = selectedClass?.name || 'class';
-      xlsx.writeFile(wb, `school_fee_${className}_${selectedMonth}.xlsx`);
-      setStatusMessage('XLSX exported successfully.');
-      setStatusType('success');
-    } catch (e) {
-      setStatusMessage('XLSX export failed. CSV is still available.');
-      setStatusType('error');
-    }
-  };
+  // NOTE: XLSX export removed due to security advisory (GHSA-4r6h-8v6p-xvw6, GHSA-5pgg-2g8v-p4x9)
 
   // Printable A4 bills (two per page)
   const printBills = () => {
@@ -355,7 +314,7 @@ export default function SchoolFeePanel({
         </select>
         <input type="month" value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)} />
         <button className="btn-export" onClick={exportCSV}>Export CSV</button>
-        <button className="btn-export" onClick={exportXLSX}>Export XLSX</button>
+        {/* XLSX export button removed */}
         <button className="btn-edit" onClick={printBills}>Print Bills</button>
       </div>
 
