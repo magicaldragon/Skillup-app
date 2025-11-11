@@ -55,13 +55,39 @@ export default function ClassesPanel({
   const [classSearch, setClassSearch] = useState('');
   const [levelFilter, setLevelFilter] = useState<string>('');
 
-  // Class editing modal state
+  // Class editing modal state (SHOW modal for student list)
   const [classEditModal, setClassEditModal] = useState<ClassEditModal>({
     isOpen: false,
     classId: null,
     className: '',
     levelName: '',
     students: [],
+  });
+
+  // New: data for EDIT CLASS (update name/level, keep code fixed)
+  interface ClassUpdateModal {
+    isOpen: boolean;
+    classId: string | null;
+    classCode: string;
+    name: string;
+    levelId: string | null;
+  }
+  const [classUpdateModal, setClassUpdateModal] = useState<ClassUpdateModal>({
+    isOpen: false,
+    classId: null,
+    classCode: '',
+    name: '',
+    levelId: null,
+  });
+
+  // New: inline student edit inside SHOW modal
+  interface StudentEditModal {
+    isOpen: boolean;
+    student: Student | null;
+  }
+  const [studentEditModal, setStudentEditModal] = useState<StudentEditModal>({
+    isOpen: false,
+    student: null,
   });
 
   // Add new class with level selection
@@ -100,6 +126,124 @@ export default function ClassesPanel({
     },
     [classes, levels, students]
   );
+
+  // New: open EDIT CLASS (update name/level) modal
+  const handleOpenClassUpdateModal = useCallback(
+    (classId: string) => {
+      const classObj = classes.find((c) => (c._id || c.id) === classId);
+      if (!classObj) return;
+
+      const levelId =
+        classObj.levelId && typeof classObj.levelId === 'object'
+          ? classObj.levelId._id
+          : (classObj.levelId as string | null) || null;
+
+      setClassUpdateModal({
+        isOpen: true,
+        classId,
+        classCode: classObj.classCode || 'N/A',
+        name: classObj.name || '',
+        levelId,
+      });
+    },
+    [classes]
+  );
+
+  const handleCloseClassUpdateModal = useCallback(() => {
+    setClassUpdateModal({
+      isOpen: false,
+      classId: null,
+      classCode: '',
+      name: '',
+      levelId: null,
+    });
+  }, []);
+
+  const handleSaveClassUpdate = useCallback(async () => {
+    if (!classUpdateModal.classId) return;
+    try {
+      const token =
+        localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+      const apiUrl =
+        import.meta.env.VITE_API_BASE_URL ||
+        'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
+
+      const payload: Record<string, unknown> = {
+        name: classUpdateModal.name,
+      };
+      if (classUpdateModal.levelId) {
+        payload.levelId = classUpdateModal.levelId;
+      }
+
+      const res = await fetch(`${apiUrl}/classes/${classUpdateModal.classId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error('Failed to update class');
+
+      alert('Class updated successfully!');
+      onDataRefresh?.();
+      handleCloseClassUpdateModal();
+    } catch (err) {
+      console.error(err);
+      alert('Update failed. Please try again.');
+    }
+  }, [classUpdateModal, onDataRefresh, handleCloseClassUpdateModal]);
+
+  // New: student edit modal handlers
+  const handleOpenStudentEdit = useCallback(
+    (studentId: string) => {
+      const st = classEditModal.students.find((s) => s.id === studentId);
+      if (!st) return;
+      setStudentEditModal({ isOpen: true, student: { ...st } });
+    },
+    [classEditModal.students]
+  );
+
+  const handleCloseStudentEdit = useCallback(() => {
+    setStudentEditModal({ isOpen: false, student: null });
+  }, []);
+
+  const handleSaveStudentEdit = useCallback(async () => {
+    if (!studentEditModal.student) return;
+    try {
+      const token =
+        localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+      const apiUrl =
+        import.meta.env.VITE_API_BASE_URL ||
+        'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
+
+      const { id, name, englishName, dob, gender } = studentEditModal.student;
+      const res = await fetch(`${apiUrl}/users/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ name, englishName, dob, gender }),
+      });
+      if (!res.ok) throw new Error('Failed to update student');
+
+      // reflect changes in the SHOW modal list
+      setClassEditModal((prev) => ({
+        ...prev,
+        students: prev.students.map((s) =>
+          s.id === id ? { ...s, name, englishName, dob, gender } : s
+        ),
+      }));
+
+      alert('Student updated successfully!');
+      handleCloseStudentEdit();
+      onDataRefresh?.();
+    } catch (err) {
+      console.error(err);
+      alert('Student update failed. Please try again.');
+    }
+  }, [studentEditModal, onDataRefresh, handleCloseStudentEdit]);
 
   // Close class edit modal
   const handleCloseClassEditModal = useCallback(() => {
@@ -683,6 +827,7 @@ export default function ClassesPanel({
                         filter: isSelected ? 'grayscale(0%)' : 'grayscale(50%)',
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                       }}
+                      className="action-buttons"
                     >
                       <button
                         type="button"
@@ -703,25 +848,70 @@ export default function ClassesPanel({
                           boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
                           display: 'inline-block',
                           background:
-                            'linear-gradient(135deg, #00c853 0%, #4caf50 50%, #66bb6a 100%)',
-                          color: 'white',
-                          textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
+                            'linear-gradient(135deg, #f5b802 0%, #ffd54f 50%, #fbc02d 100%)',
+                          color: '#2b2b2b',
+                          textShadow: '0 1px 2px rgba(255, 255, 255, 0.2)',
                         }}
                         onClick={(e) => {
                           e.stopPropagation();
                           handleEditClass(safeClassId);
                         }}
-                        title="Edit Class"
+                        title="Show: list students, assign/remove"
                         onMouseEnter={(e) => {
                           e.currentTarget.style.background =
-                            'linear-gradient(135deg, #4caf50 0%, #66bb6a 50%, #00c853 100%)';
+                            'linear-gradient(135deg, #ffd54f 0%, #fbc02d 50%, #f5b802 100%)';
                           e.currentTarget.style.boxShadow =
-                            '0 8px 25px rgba(76, 175, 80, 0.4), 0 0 0 3px rgba(76, 175, 80, 0.2)';
+                            '0 8px 25px rgba(245, 184, 2, 0.35), 0 0 0 3px rgba(245, 184, 2, 0.25)';
                           e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
                         }}
                         onMouseLeave={(e) => {
                           e.currentTarget.style.background =
-                            'linear-gradient(135deg, #00c853 0%, #4caf50 50%, #66bb6a 100%)';
+                            'linear-gradient(135deg, #f5b802 0%, #ffd54f 50%, #fbc02d 100%)';
+                          e.currentTarget.style.boxShadow =
+                            '0 4px 12px rgba(0, 0, 0, 0.15)';
+                          e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                        }}
+                      >
+                        Show
+                      </button>
+                      <button
+                        type="button"
+                        style={{
+                          padding: '8px 16px',
+                          border: '2px solid rgba(255, 255, 255, 0.3)',
+                          borderRadius: '20px',
+                          fontWeight: '700',
+                          fontSize: '11px',
+                          cursor: 'pointer',
+                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                          minWidth: '60px',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px',
+                          position: 'relative',
+                          overflow: 'hidden',
+                          outline: 'none',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                          display: 'inline-block',
+                          background:
+                            'linear-gradient(135deg, #a5d6a7 0%, #81c784 50%, #66bb6a 100%)',
+                          color: 'white',
+                          textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
+                        }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenClassUpdateModal(safeClassId);
+                        }}
+                        title="Edit class name or level"
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background =
+                            'linear-gradient(135deg, #81c784 0%, #66bb6a 50%, #4caf50 100%)';
+                          e.currentTarget.style.boxShadow =
+                            '0 8px 25px rgba(102, 187, 106, 0.4), 0 0 0 3px rgba(102, 187, 106, 0.2)';
+                          e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background =
+                            'linear-gradient(135deg, #a5d6a7 0%, #81c784 50%, #66bb6a 100%)';
                           e.currentTarget.style.boxShadow =
                             '0 4px 12px rgba(0, 0, 0, 0.15)';
                           e.currentTarget.style.transform = 'translateY(0) scale(1)';
@@ -836,13 +1026,13 @@ export default function ClassesPanel({
         </div>
       </div>
 
-      {/* Class Edit Modal */}
+      {/* Class SHOW Modal (renamed header) */}
       {classEditModal.isOpen && (
         <div className="class-edit-modal">
           <div className="modal-content">
             <div className="modal-header">
               <h3 className="modal-title">
-                EDIT CLASS — {classEditModal.className} / LEVEL: {classEditModal.levelName}
+                SHOW CLASS — {classEditModal.className} / LEVEL: {classEditModal.levelName}
               </h3>
               <button type="button" className="close-btn" onClick={handleCloseClassEditModal}>
                 ×
@@ -871,11 +1061,10 @@ export default function ClassesPanel({
                         </tr>
                       </thead>
                       <tbody>
-                        {/* FIX: Use a single tbody; removed nested <tbody> */}
                         {classEditModal.students.map((student) => (
                           <tr key={student.id} className="student-row">
-                            <td>{student.studentCode || student.id}</td>
-                            <td>
+                            <td style={{ color: '#1D9A6C' }}>{student.studentCode || student.id}</td>
+                            <td style={{ color: '#1D9A6C' }}>
                               <div className="student-name">
                                 <strong>{student.name}</strong>
                                 {student.englishName && (
@@ -883,11 +1072,24 @@ export default function ClassesPanel({
                                 )}
                               </div>
                             </td>
-                            <td>{student.englishName || 'N/A'}</td>
-                            <td>{student.dob ? formatDateMMDDYYYY(student.dob) : 'N/A'}</td>
-                            <td>{student.gender || 'N/A'}</td>
+                            <td style={{ color: '#1D9A6C' }}>{student.englishName || 'N/A'}</td>
+                            <td style={{ color: '#1D9A6C' }}>{student.dob ? formatDateMMDDYYYY(student.dob) : 'N/A'}</td>
+                            <td style={{ color: '#1D9A6C' }}>{student.gender || 'N/A'}</td>
                             <td className="student-actions">
                               <div className="action-buttons">
+                                <button
+                                  type="button"
+                                  onClick={() => handleOpenStudentEdit(student.id)}
+                                  className="action-btn"
+                                  title="Edit student details"
+                                  style={{
+                                    background:
+                                      'linear-gradient(135deg, #a5d6a7 0%, #81c784 50%, #66bb6a 100%)',
+                                    color: 'white',
+                                  }}
+                                >
+                                  Edit Details
+                                </button>
                                 <button
                                   type="button"
                                   onClick={() => handleRemoveSingle(student.id)}
@@ -957,6 +1159,172 @@ export default function ClassesPanel({
                     </table>
                   </div>
                 )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* New: EDIT CLASS modal (change name or level; class code fixed) */}
+      {classUpdateModal.isOpen && (
+        <div className="class-edit-modal">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3 className="modal-title">EDIT CLASS</h3>
+              <button type="button" className="close-btn" onClick={handleCloseClassUpdateModal}>
+                ×
+              </button>
+            </div>
+
+            <div className="modal-body">
+              <div className="form-grid">
+                <div className="form-row">
+                  <label>Class Code</label>
+                  <input type="text" value={classUpdateModal.classCode} disabled />
+                </div>
+                <div className="form-row">
+                  <label>Class Name</label>
+                  <input
+                    type="text"
+                    value={classUpdateModal.name}
+                    onChange={(e) =>
+                      setClassUpdateModal((prev) => ({ ...prev, name: e.target.value }))
+                    }
+                  />
+                </div>
+                <div className="form-row">
+                  <label>Level</label>
+                  <select
+                    value={classUpdateModal.levelId || ''}
+                    onChange={(e) =>
+                      setClassUpdateModal((prev) => ({
+                        ...prev,
+                        levelId: e.target.value || null,
+                      }))
+                    }
+                  >
+                    <option value="">Select Level</option>
+                    {sortedLevels.map((lvl) => (
+                      <option key={lvl._id} value={lvl._id}>
+                        {lvl.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="action-buttons" style={{ marginTop: '12px' }}>
+                <button
+                  type="button"
+                  onClick={handleSaveClassUpdate}
+                  className="action-btn"
+                  style={{
+                    background:
+                      'linear-gradient(135deg, #a5d6a7 0%, #81c784 50%, #66bb6a 100%)',
+                    color: 'white',
+                  }}
+                >
+                  Save Changes
+                </button>
+                <button type="button" className="action-btn remove-btn" onClick={handleCloseClassUpdateModal}>
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* New: Student Edit modal */}
+      {studentEditModal.isOpen && studentEditModal.student && (
+        <div className="class-edit-modal">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3 className="modal-title">EDIT STUDENT</h3>
+              <button type="button" className="close-btn" onClick={handleCloseStudentEdit}>
+                ×
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="form-grid">
+                <div className="form-row">
+                  <label>Full Name</label>
+                  <input
+                    type="text"
+                    value={studentEditModal.student.name || ''}
+                    onChange={(e) =>
+                      setStudentEditModal((prev) =>
+                        prev.student
+                          ? { ...prev, student: { ...prev.student, name: e.target.value } }
+                          : prev
+                      )
+                    }
+                  />
+                </div>
+                <div className="form-row">
+                  <label>English Name</label>
+                  <input
+                    type="text"
+                    value={studentEditModal.student.englishName || ''}
+                    onChange={(e) =>
+                      setStudentEditModal((prev) =>
+                        prev.student
+                          ? { ...prev, student: { ...prev.student, englishName: e.target.value } }
+                          : prev
+                      )
+                    }
+                  />
+                </div>
+                <div className="form-row">
+                  <label>DOB</label>
+                  <input
+                    type="date"
+                    value={studentEditModal.student.dob || ''}
+                    onChange={(e) =>
+                      setStudentEditModal((prev) =>
+                        prev.student
+                          ? { ...prev, student: { ...prev.student, dob: e.target.value } }
+                          : prev
+                      )
+                    }
+                  />
+                </div>
+                <div className="form-row">
+                  <label>Gender</label>
+                  <select
+                    value={studentEditModal.student.gender || ''}
+                    onChange={(e) =>
+                      setStudentEditModal((prev) =>
+                        prev.student
+                          ? { ...prev, student: { ...prev.student, gender: e.target.value } }
+                          : prev
+                      )
+                    }
+                  >
+                    <option value="">Select</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="action-buttons" style={{ marginTop: '12px' }}>
+                <button
+                  type="button"
+                  onClick={handleSaveStudentEdit}
+                  className="action-btn"
+                  style={{
+                    background:
+                      'linear-gradient(135deg, #a5d6a7 0%, #81c784 50%, #66bb6a 100%)',
+                    color: 'white',
+                  }}
+                >
+                  Save Student
+                </button>
+                <button type="button" className="action-btn remove-btn" onClick={handleCloseStudentEdit}>
+                  Cancel
+                </button>
               </div>
             </div>
           </div>
