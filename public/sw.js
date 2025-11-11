@@ -79,12 +79,15 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Skip non-HTTP requests
   if (!url.protocol.startsWith('http')) {
     return;
   }
 
-  // Handle different request types with optimized strategies
+  // Do not intercept authentication endpoints at all; let browser handle directly
+  if (url.pathname.startsWith('/api/auth/')) {
+    return;
+  }
+
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(handleApiRequest(request));
   } else if (CACHE_PATTERNS.static.test(url.pathname)) {

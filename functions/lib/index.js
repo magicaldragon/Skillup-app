@@ -75,7 +75,12 @@ const submissions_1 = __importDefault(require("./routes/submissions"));
 const users_1 = require("./routes/users");
 const app = (0, express_1.default)();
 // Middleware
-app.use((0, cors_1.default)({ origin: true }));
+app.use((0, cors_1.default)({
+    origin: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+app.options('*', (0, cors_1.default)()); // Handle preflight requests globally
 app.use(express_1.default.json({ limit: '10mb' }));
 app.use(express_1.default.urlencoded({ extended: true }));
 // Health check endpoint

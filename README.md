@@ -37,3 +37,10 @@ Testing professional deployment with official Firebase GitHub Action...
 
 ---
 *Last updated: Testing professional Firebase deployment*
+
+## Login Reliability and Error Handling
+
+- The login flow authenticates with Firebase and then verifies via `POST ${API_BASE_URL}/auth/firebase-login`.
+- A backend connectivity check (`GET ${API_BASE_URL}/test`) runs before login. If unreachable, login shows “Server unavailable. Please try again later.”.
+- The backend verification call uses short retries for transient network errors; on repeated failure, it reports “Network error - please check your connection.”.
+- The service worker no longer intercepts `/api/auth/*` requests to avoid interference with authentication.

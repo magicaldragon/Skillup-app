@@ -108,7 +108,6 @@ class AuthService {
       const email = typeof emailOrCreds === 'string' ? (emailOrCreds || '').trim() : (emailOrCreds.email || '').trim();
       const password = typeof emailOrCreds === 'string' ? (passwordArg || '') : (emailOrCreds.password || '');
 
-      // Lockout guard (5 failures within 15 minutes)
       const { count, lastTs } = getLockoutState();
       const now = Date.now();
       if (count >= 5 && now - lastTs < 15 * 60 * 1000) {
@@ -126,47 +125,48 @@ class AuthService {
         };
       }
 
-      // Optional preflight health check (non-blocking)
-      const tHealthStart = performance.now();
+      // Backend availability check
       const backendReachable = await this.testBackendConnection();
-      console.log('🌐 Backend health check:', {
-        reachable: backendReachable,
-        ms: Math.round(performance.now() - tHealthStart),
-      });
+      if (!backendReachable) {
+        return { success: false, message: 'Server unavailable. Please try again later.' };
+      }
 
       console.log('🔐 Attempting Firebase authentication...');
-      const tAuthStart = performance.now();
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      console.log('⏱ Firebase signIn duration (ms):', Math.round(performance.now() - tAuthStart));
       const firebaseUser = userCredential.user;
 
       console.log('🔐 Firebase authentication successful, getting ID token...');
-      const tTokenStart = performance.now();
       const idToken = await firebaseUser.getIdToken();
-      console.log('⏱ getIdToken duration (ms):', Math.round(performance.now() - tTokenStart));
 
       console.log('🔐 ID token obtained, verifying with backend...');
-      let response: Response;
-      try {
-        const tVerifyStart = performance.now();
-        response = await fetch(`${API_BASE_URL}/auth/firebase-login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ firebaseToken: idToken, email }),
-        });
-        console.log('⏱ Backend verification fetch duration (ms):', Math.round(performance.now() - tVerifyStart));
-      } catch (netErr) {
-        console.error('🔐 Network error during backend verification:', {
-          name: netErr instanceof Error ? netErr.name : 'Unknown',
-          message: netErr instanceof Error ? netErr.message : String(netErr),
-        });
+      const verifyUrl = `${API_BASE_URL}/auth/firebase-login`;
+      const maxAttempts = 3;
+      let response: Response | null = null;
+
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+          response = await fetch(verifyUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ firebaseToken: idToken, email }),
+            mode: 'cors',
+            credentials: 'omit',
+          });
+          break;
+        } catch (err) {
+          if (attempt < maxAttempts) {
+            await new Promise((r) => setTimeout(r, 300 * attempt));
+          }
+        }
+      }
+
+      if (!response) {
         localStorage.removeItem('skillup_token');
         localStorage.removeItem('skillup_user');
         recordFailedAttempt();
         return { success: false, message: 'Network error - please check your connection.' };
       }
 
-      console.log('🔐 Backend verification response status:', response.status);
       if (response.ok) {
         const data = await response.json();
         if (data.success && data.token && data.user) {
@@ -174,29 +174,25 @@ class AuthService {
           localStorage.setItem('skillup_user', JSON.stringify(data.user));
           clearFailedAttempts();
           return { success: true, message: 'Login successful', user: data.user };
-        } else {
-          console.error('🔐 Backend verification failed - invalid structure:', data);
-          recordFailedAttempt();
-          return { success: false, message: data.message || 'Authentication failed. Please try again.' };
         }
+        recordFailedAttempt();
+        return { success: false, message: data.message || 'Authentication failed. Please try again.' };
       } else {
         let errorMessage = 'Authentication failed. Please try again.';
         try {
-          const errorData = await response.json();
-          console.log('🔐 Backend error payload:', errorData);
-          errorMessage = errorData.message || errorMessage;
+          const ct = response.headers.get('content-type') || '';
+          if (ct.includes('application/json')) {
+            const errorData = await response.json();
+            errorMessage = errorData.message || errorMessage;
+          }
         } catch {
-          console.warn('🔐 Failed to parse backend error payload; using default message.');
+          // default message
         }
         recordFailedAttempt();
-        throw new Error(errorMessage);
+        return { success: false, message: errorMessage };
       }
     } catch (error: any) {
-      console.error('Login error details:', {
-        name: error?.name,
-        message: error?.message,
-        code: error?.code,
-      });
+      console.error('Login error details:', { name: error?.name, message: error?.message, code: error?.code });
       localStorage.removeItem('skillup_token');
       localStorage.removeItem('skillup_user');
 
@@ -210,7 +206,6 @@ class AuthService {
         return { success: false, message: 'Too many failed attempts. Please try again later.' };
       }
 
-      // Count any other sign-in failures (e.g., "auth/invalid-credential" without code)
       recordFailedAttempt();
       return { success: false, message: 'Login failed. Please try again.' };
     }
