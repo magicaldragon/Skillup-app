@@ -64,6 +64,7 @@ export interface FirestoreLevel {
   description?: string;
   order: number;
   isActive: boolean;
+  monthlyFee?: number; // optional per-level monthly fee stored on level docs
   createdAt?: Timestamp;
   updatedAt?: Timestamp;
 }

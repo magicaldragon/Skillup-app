@@ -18,6 +18,8 @@ import type {
   FirestoreUser,
 } from './services/firestoreService';
 import type { UserProfile } from './types';
+import AttendancePanel from './AttendancePanel';
+import SchoolFeePanel from './SchoolFeePanel';
 
 const TeacherDashboard = ({
   user,
@@ -72,6 +74,10 @@ const TeacherDashboard = ({
           classes={classes as any}
           onDataRefresh={onDataRefresh}
         />
+      ) : activeKey === 'attendance' ? (
+        <AttendancePanel students={students as any} classes={classes as any} onDataRefresh={onDataRefresh} />
+      ) : activeKey === 'school-fee' ? (
+        <SchoolFeePanel students={students as any} classes={classes as any} onDataRefresh={onDataRefresh} />
       ) : activeKey === 'levels' ? (
         <LevelsPanel onDataRefresh={onDataRefresh} />
       ) : activeKey === 'records' ? (

@@ -30,6 +30,7 @@ export interface Level {
   name: string;
   code: string;
   description: string;
+  monthlyFee?: number; // optional per-level monthly fee for School Fee prefill
 }
 
 export interface StudentClass {

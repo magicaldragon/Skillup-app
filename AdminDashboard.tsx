@@ -13,6 +13,8 @@ import SettingsPanel from './SettingsPanel';
 import type { Assignment, Student, StudentClass } from './types';
 import WaitingListPanel from './WaitingListPanel';
 import './AdminDashboard.css';
+import AttendancePanel from './AttendancePanel';
+import SchoolFeePanel from './SchoolFeePanel';
 
 // Define proper props interface
 interface AdminDashboardProps {
@@ -80,6 +82,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
         <WaitingListPanel classes={classes} onDataRefresh={onDataRefresh} />
       ) : activeKey === 'classes' ? (
         <ClassesPanel students={students} classes={classes} onDataRefresh={onDataRefresh} />
+      ) : activeKey === 'attendance' ? (
+        <AttendancePanel students={students} classes={classes} onDataRefresh={onDataRefresh} />
+      ) : activeKey === 'school-fee' ? (
+        <SchoolFeePanel students={students} classes={classes} onDataRefresh={onDataRefresh} />
       ) : activeKey === 'levels' ? (
         <LevelsPanel onDataRefresh={onDataRefresh} />
       ) : activeKey === 'records' ? (

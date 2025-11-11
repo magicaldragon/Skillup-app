@@ -1122,3 +1122,90 @@ button:disabled::before, .btn:disabled::before, input[type="button"]:disabled::b
   border-color: #d39e00;
   color: #ffffff;
 }
+
+/* ==============================================
+   STANDARDIZED ACTION BUTTONS (ADDED)
+   ============================================== */
+:root {
+  --btn-height: 34px;
+  --btn-padding: 8px 12px;
+  --btn-radius: 6px;
+  --btn-font-size: 14px;
+}
+
+/* Standardized action buttons */
+.btn-edit,
+.btn-delete,
+.btn-export,
+.btn-save {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--btn-height);
+  padding: var(--btn-padding);
+  border-radius: var(--btn-radius);
+  font-size: var(--btn-font-size);
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.02s ease;
+  text-decoration: none;
+}
+
+/* Requested palette */
+.btn-edit {
+  background-color: #90EE90; /* light green */
+  color: #0b480b;
+}
+.btn-edit:hover {
+  background-color: #7bdc7b;
+}
+
+.btn-delete {
+  background-color: #FF0000; /* red */
+  color: #ffffff;
+}
+.btn-delete:hover {
+  background-color: #cc0000;
+}
+
+.btn-export {
+  background-color: #ADD8E6; /* light blue */
+  color: #003b5c;
+}
+.btn-export:hover {
+  background-color: #9fcfe0;
+}
+
+.btn-save {
+  background-color: #008000; /* solid green */
+  color: #ffffff;
+}
+.btn-save:hover {
+  background-color: #006a00;
+}
+
+/* Maintain consistent button sizing where used */
+.action-buttons .btn-edit,
+.action-buttons .btn-delete,
+.action-buttons .btn-export,
+.action-buttons .btn-save {
+  margin-right: 8px;
+}
+
+/* Slight active feel */
+.btn-edit:active,
+.btn-delete:active,
+.btn-export:active,
+.btn-save:active {
+  transform: translateY(0.5px);
+}
+
+/* Optional: standardized disabled style */
+.btn-edit:disabled,
+.btn-delete:disabled,
+.btn-export:disabled,
+.btn-save:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}

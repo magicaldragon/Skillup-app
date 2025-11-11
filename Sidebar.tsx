@@ -68,7 +68,18 @@ const menuConfig = (role: string) => [
         key: 'classes',
         visible: role === 'staff' || role === 'teacher' || role === 'admin',
       },
-
+      {
+        label: 'Attendance',
+        icon: <FaClipboardCheck />,
+        key: 'attendance',
+        visible: role === 'staff' || role === 'teacher' || role === 'admin',
+      },
+      {
+        label: 'School Fee',
+        icon: <FaListAlt />,
+        key: 'school-fee',
+        visible: role === 'staff' || role === 'teacher' || role === 'admin',
+      },
       {
         label: 'Levels',
         icon: <FaListAlt />,

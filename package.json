@@ -24,21 +24,22 @@
     "test:vstorage": "node scripts/testVStorage.cjs",
     "deploy:all": "npm run build && npm run firebase:deploy",
     "setup:firebase": "npm install -g firebase-tools && firebase login",
-    "test": "vitest run"
+    "test": "vitest run",
+    "eslint": "eslint . --ext .ts,.tsx"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.864.0",
+    "@aws-sdk/s3-request-presigner": "^3.864.0",
+    "firebase": "^10.14.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "firebase": "^10.14.0",
-    "react-icons": "^4.12.0",
-    "@aws-sdk/client-s3": "^3.864.0",
-    "@aws-sdk/s3-request-presigner": "^3.864.0"
+    "react-icons": "^4.12.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.1.4",
+    "@types/node": "^20.11.30",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
-    "@types/node": "^20.11.30",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.18",
     "postcss": "^8.4.35",
