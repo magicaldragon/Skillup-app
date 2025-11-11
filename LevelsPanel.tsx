@@ -410,7 +410,9 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
   }, [selectedLevel, editingLevel]);
 
   // Use backend levels if available, otherwise fall back to constants
-  const displayLevels = levels.length > 0 ? levels : LEVELS;
+  const displayLevels = (levels.length > 0 ? levels : LEVELS)
+    .slice()
+    .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
 
   if (loading) {
     return (
@@ -554,32 +556,33 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
               />
             </div>
           </div>
-          <div className="levels-form-actions">
-            <button
-              type="button"
-              className="levels-form-save-btn"
-              onClick={handleUpdateLevel}
-              disabled={loading || !editLevel.name || !editLevel.code}
-            >
-              {loading ? 'Updating...' : 'Update Level'}
-            </button>
-            <button
-              type="button"
-              className="levels-form-cancel-btn"
-              onClick={handleCancelEdit}
-              disabled={loading}
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              className="levels-form-delete-btn"
-              onClick={() => handleDeleteLevel(editingLevel._id)}
-              disabled={loading}
-            >
-              Delete Level
-            </button>
-          </div>
+          // LevelsPanel component (Edit Level form actions)
+                     <div className="levels-form-actions">
+                       <button
+                         type="button"
+                         className="levels-form-save-btn"
+                         onClick={handleUpdateLevel}
+                         disabled={loading || !editLevel.name || !editLevel.code}
+                       >
+                         {loading ? 'Updating...' : 'Update Level'}
+                       </button>
+                       <button
+                         type="button"
+                         className="levels-form-delete-btn"
+                         onClick={() => handleDeleteLevel(editingLevel._id)}
+                         disabled={loading}
+                       >
+                         Delete Level
+                       </button>
+                       <button
+                         type="button"
+                         className="levels-form-cancel-btn"
+                         onClick={handleCancelEdit}
+                         disabled={loading}
+                       >
+                         Cancel
+                       </button>
+                     </div>
         </div>
       )}
 

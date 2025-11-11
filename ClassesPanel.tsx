@@ -61,6 +61,11 @@ const ClassesPanel = ({
   const [levels, setLevels] = useState<Level[]>([]);
   const [levelsLoading, setLevelsLoading] = useState(true);
 
+  // Create an alphabetically sorted copy for UI
+  const sortedLevels = Array.isArray(levels)
+    ? [...levels].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
+    : [];
+
   const [classSearch, setClassSearch] = useState('');
   const [levelFilter, setLevelFilter] = useState<string>('');
 
@@ -808,8 +813,8 @@ const ClassesPanel = ({
             <option value="">All Levels</option>
             {levelsLoading ? (
               <option value="" disabled>Loading levels...</option>
-            ) : levels && Array.isArray(levels) && levels.length > 0 ? (
-              levels.map((level) => (
+            ) : sortedLevels && Array.isArray(sortedLevels) && sortedLevels.length > 0 ? (
+              sortedLevels.map((level) => (
                 <option key={level._id} value={level._id}>
                   {level.name}
                 </option>
@@ -1095,8 +1100,8 @@ const ClassesPanel = ({
             <option value="">Select Level</option>
             {levelsLoading ? (
               <option value="" disabled>Loading levels...</option>
-            ) : levels && Array.isArray(levels) && levels.length > 0 ? (
-              levels.map((level) => (
+            ) : sortedLevels && Array.isArray(sortedLevels) && sortedLevels.length > 0 ? (
+              sortedLevels.map((level) => (
                 <option key={level._id} value={level._id}>
                   {level.name}
                 </option>

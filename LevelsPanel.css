@@ -201,8 +201,9 @@
 
 .levels-form-actions {
   display: flex;
-  gap: 1rem;
-  justify-content: center;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  flex-wrap: wrap;
 }
 
 .levels-form-save-btn,
@@ -299,6 +300,7 @@
 .levels-card-red,
 .levels-card-gray {
   /* All levels now use the same dashboard styling */
+  --dashboard-style: unified;
 }
 
 .levels-card-header {
@@ -550,6 +552,8 @@
 
   .levels-form-actions {
     flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
   }
 
   .levels-card-header {
