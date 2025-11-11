@@ -125,6 +125,10 @@ const ClassesPanel = ({
   // Add state for showing action buttons
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
 
+// Per-row assignment UI state
+const [singleAssignStudentId, setSingleAssignStudentId] = useState<string | null>(null);
+const [singleAssignTargetClassId, setSingleAssignTargetClassId] = useState<string>('');
+
   // Open class edit modal
   const handleEditClass = useCallback(
     (classId: string) => {
@@ -313,6 +317,56 @@ const ClassesPanel = ({
     },
     [selectedClassId]
   );
+
+  // Single-student assign UI handlers
+  const handleAssignButtonClick = useCallback((studentId: string) => {
+    setSingleAssignStudentId((prev) => (prev === studentId ? null : studentId));
+    setSingleAssignTargetClassId('');
+  }, []);
+
+  const handleConfirmSingleAssign = useCallback(async () => {
+    if (!singleAssignStudentId || !singleAssignTargetClassId) {
+      alert('Please choose a target class to assign.');
+      return;
+    }
+
+    if (!classEditModal.classId) {
+      alert('No class is currently open.');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+      if (!token) {
+        alert('Authentication required. Please log in again.');
+        return;
+      }
+      const apiUrl = API_BASE_URL;
+
+      const addRes = await fetch(
+        `${apiUrl}/classes/${singleAssignTargetClassId}/students/${singleAssignStudentId}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ studentId: singleAssignStudentId }),
+        }
+      );
+
+      if (!addRes.ok) {
+        throw new Error('Failed to assign student to the selected class.');
+      }
+
+      alert('Student assigned to the selected class.');
+      setSingleAssignStudentId(null);
+      setSingleAssignTargetClassId('');
+    } catch (err) {
+      console.error(err);
+      alert('Assignment failed. Please try again.');
+    }
+  }, [singleAssignStudentId, singleAssignTargetClassId, classEditModal.classId]);
 
   // Report a student
   const handleReportStudent = useCallback(
@@ -849,13 +903,14 @@ const ClassesPanel = ({
               <th>Class Code</th>
               <th>Level</th>
               <th>Students</th>
+              <th>Description</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredClasses.length === 0 && (
               <tr>
-                <td colSpan={4} className="empty-table">
+                <td colSpan={5} className="empty-table">
                   <div className="empty-state">
                     <div className="empty-icon">📚</div>
                     <p>No classes found.</p>
@@ -887,7 +942,9 @@ const ClassesPanel = ({
                   ? cls.levelId.name
                   : levels.find((l) => l._id === cls.levelId)?.name || 'N/A'
                 : 'N/A';
-              const studentCount = cls.studentIds?.length || 0;
+              const studentCount = students.filter(
+                (s) => (s.classIds || []).includes(safeClassId)
+              ).length;
               const isSelected = selectedClassId === safeClassId;
 
               return (
@@ -906,6 +963,7 @@ const ClassesPanel = ({
                     <span className="level-badge">{levelName}</span>
                   </td>
                   <td className="students-cell">{studentCount} students</td>
+                  <td className="description-cell">{cls.description || '-'}</td>
                   <td
                     style={{
                       width: '200px',
@@ -939,147 +997,7 @@ const ClassesPanel = ({
                         style={{
                           padding: '8px 16px',
                           border: '2px solid rgba(255, 255, 255, 0.3)',
-                          borderRadius: '20px',
-                          fontWeight: '700',
-                          fontSize: '11px',
-                          cursor: 'pointer',
-                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                          minWidth: '60px',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.5px',
-                          position: 'relative',
-                          overflow: 'hidden',
-                          outline: 'none',
-                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                          display: 'inline-block',
-                          background:
-                            'linear-gradient(135deg, #00c853 0%, #4caf50 50%, #66bb6a 100%)',
-                          color: 'white',
-                          textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
-                        }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEditClass(safeClassId);
-                        }}
-                        title="Show class details"
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background =
-                            'linear-gradient(135deg, #4caf50 0%, #66bb6a 50%, #00c853 100%)';
-                          e.currentTarget.style.boxShadow =
-                            '0 8px 25px rgba(76, 175, 80, 0.4), 0 0 0 3px rgba(76, 175, 80, 0.2)';
-                          e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background =
-                            'linear-gradient(135deg, #00c853 0%, #4caf50 50%, #66bb6a 100%)';
-                          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-                          e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                        }}
-                      >
-                        Show
-                      </button>
-                      <button
-                        type="button"
-                        style={{
-                          padding: '8px 16px',
-                          border: '2px solid rgba(255, 255, 255, 0.3)',
-                          borderRadius: '20px',
-                          fontWeight: '700',
-                          fontSize: '11px',
-                          cursor: 'pointer',
-                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                          minWidth: '60px',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.5px',
-                          position: 'relative',
-                          overflow: 'hidden',
-                          outline: 'none',
-                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                          display: 'inline-block',
-                          background:
-                            'linear-gradient(135deg, #2196f3 0%, #42a5f5 50%, #64b5f6 100%)',
-                          color: 'white',
-                          textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
-                        }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const cls = classes.find((c) => (c._id || c.id) === safeClassId);
-                          if (!cls) return;
-                          const displayNameLocal = cls.classCode || cls.name || 'Unnamed Class';
-                          setClassInfoEditModal({
-                            isOpen: true,
-                            classId: safeClassId,
-                            className: displayNameLocal,
-                            levelId:
-                              typeof cls.levelId === 'object'
-                                ? cls.levelId?._id || null
-                                : cls.levelId || null,
-                            description: cls.description || '',
-                          });
-                        }}
-                        title="Edit Level"
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background =
-                            'linear-gradient(135deg, #42a5f5 0%, #64b5f6 50%, #2196f3 100%)';
-                          e.currentTarget.style.boxShadow =
-                            '0 8px 25px rgba(33, 150, 243, 0.4), 0 0 0 3px rgba(33, 150, 243, 0.2)';
-                          e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background =
-                            'linear-gradient(135deg, #2196f3 0%, #42a5f5 50%, #64b5f6 100%)';
-                          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-                          e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                        }}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        style={{
-                          padding: '8px 16px',
-                          border: '2px solid rgba(255, 255, 255, 0.3)',
-                          borderRadius: '20px',
-                          fontWeight: '700',
-                          fontSize: '11px',
-                          cursor: 'pointer',
-                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                          minWidth: '60px',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.5px',
-                          position: 'relative',
-                          overflow: 'hidden',
-                          outline: 'none',
-                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                          display: 'inline-block',
-                          background:
-                            'linear-gradient(135deg, #f44336 0%, #ef5350 50%, #e57373 100%)',
-                          color: 'white',
-                          textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
-                        }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteClass(safeClassId);
-                        }}
-                        title="Delete Class"
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background =
-                            'linear-gradient(135deg, #ef5350 0%, #e57373 50%, #f44336 100%)';
-                          e.currentTarget.style.boxShadow =
-                            '0 8px 25px rgba(244, 67, 54, 0.4), 0 0 0 3px rgba(244, 67, 54, 0.2)';
-                          e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background =
-                            'linear-gradient(135deg, #f44336 0%, #ef5350 50%, #e57373 100%)';
-                          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-                          e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                        }}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
+                          borderRadius: '20px',                  </td>
                 </tr>
               );
             })}

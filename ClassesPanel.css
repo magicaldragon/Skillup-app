@@ -1119,6 +1119,12 @@
   color: white !important;
 }
 
+.class-edit-modal .close-btn {
+  top: 0.75rem;
+  right: 1rem;
+  transform: none;
+}
+
 .modal-body {
   padding: 2rem;
   overflow-y: auto;
