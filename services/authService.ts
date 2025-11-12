@@ -65,7 +65,7 @@ class AuthService {
       // Add timeout and retry logic
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);
-      
+
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: {
@@ -85,7 +85,7 @@ class AuthService {
         // Store in localStorage
         localStorage.setItem('skillup_token', data.token);
         localStorage.setItem('skillup_user', JSON.stringify(data.user));
-        
+
         // Cache the profile
         this.profileCache = {
           user: data.user,
@@ -98,14 +98,14 @@ class AuthService {
       }
     } catch (error) {
       console.error('Login error:', error);
-      
+
       if (error instanceof Error && error.name === 'AbortError') {
         return {
           success: false,
           message: 'Login timeout. Please try again.',
         };
       }
-      
+
       return {
         success: false,
         message: 'Network error. Please check your connection.',
@@ -144,7 +144,7 @@ class AuthService {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 8000);
-      
+
       const response = await fetch(`${API_BASE_URL}/auth/profile`, {
         headers: {
           Authorization: `Bearer ${this.token}`,
@@ -158,13 +158,13 @@ class AuthService {
       if (data.success) {
         this.user = data.user;
         localStorage.setItem('skillup_user', JSON.stringify(data.user));
-        
+
         // Update cache
         this.profileCache = {
           user: data.user,
           timestamp: Date.now(),
         };
-        
+
         return data.user;
       } else {
         // Token might be invalid, clear auth
@@ -173,13 +173,13 @@ class AuthService {
       }
     } catch (error) {
       console.error('Get profile error:', error);
-      
+
       // If we have cached user data, return it as fallback
       if (this.user) {
         console.log('Using fallback cached user due to network error');
         return this.user;
       }
-      
+
       this.clearAuth();
       return null;
     }
@@ -214,7 +214,7 @@ class AuthService {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000); // Reduced timeout
-      
+
       const response = await fetch(`${API_BASE_URL}/test`, {
         method: 'GET',
         headers: {
@@ -222,26 +222,26 @@ class AuthService {
         },
         signal: controller.signal,
       });
-      
+
       clearTimeout(timeoutId);
       const isConnected = response.ok;
-      
+
       // Cache the result
       backendConnectionCache = {
         status: isConnected,
         timestamp: Date.now(),
       };
-      
+
       return isConnected;
     } catch (error) {
       console.error('Backend connection test failed:', error);
-      
+
       // Cache negative result for shorter time
       backendConnectionCache = {
         status: false,
         timestamp: Date.now(),
       };
-      
+
       return false;
     }
   }
@@ -277,7 +277,7 @@ class AuthService {
         console.log('Using cached profile for initialization');
         return this.profileCache.user;
       }
-      
+
       // Otherwise verify token is still valid by getting profile
       return await this.getProfile();
     }
@@ -287,7 +287,7 @@ class AuthService {
   // Preload critical data for faster dashboard loading
   async preloadCriticalData(): Promise<void> {
     if (!this.token) return;
-    
+
     try {
       // Preload profile if not cached
       if (!this.profileCache || Date.now() - this.profileCache.timestamp > this.PROFILE_CACHE_TTL) {

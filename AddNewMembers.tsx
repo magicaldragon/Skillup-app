@@ -34,11 +34,10 @@ const AddNewMembers = () => {
   const [previewUsername, setPreviewUsername] = useState<string>('');
   const [previewEmail, setPreviewEmail] = useState<string>('');
 
-
   // Debounced username generation for performance
   const debouncedUsernameGeneration = useCallback(
     debounce((fullName: string, role: string) => {
-      if (fullName && fullName.trim()) {
+      if (fullName?.trim()) {
         const username = generateVietnameseUsername(fullName);
         const email = `${username}@${role}.skillup`;
         setPreviewUsername(username);
@@ -68,26 +67,28 @@ const AddNewMembers = () => {
   }, [form.name, form.role, form.status, previewUsername, previewEmail]);
 
   // Handle general form input changes
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    
+
     // Apply phone number formatting
     if (name === 'phone' || name === 'parentPhone') {
       const formattedValue = formatPhoneNumber(value);
-      setForm(prev => ({ ...prev, [name]: formattedValue }));
+      setForm((prev) => ({ ...prev, [name]: formattedValue }));
     } else {
-      setForm(prev => ({ ...prev, [name]: value }));
+      setForm((prev) => ({ ...prev, [name]: value }));
     }
-    
+
     // Clear field-specific error when user starts typing
     if (fieldErrors[name]) {
-      setFieldErrors(prev => {
+      setFieldErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[name];
         return newErrors;
       });
     }
-    
+
     setError(null);
     setCreatedUser(null);
   };
@@ -119,12 +120,14 @@ const AddNewMembers = () => {
   };
 
   // Handle field blur for validation
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleBlur = (
+    e: React.FocusEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     const fieldError = validateField(name, value);
-    
+
     if (fieldError) {
-      setFieldErrors(prev => ({ ...prev, [name]: fieldError }));
+      setFieldErrors((prev) => ({ ...prev, [name]: fieldError }));
     }
   };
 
@@ -152,7 +155,6 @@ const AddNewMembers = () => {
     setCreatedUser(null);
     setPreviewUsername('');
     setPreviewEmail('');
-
   };
 
   const validateForm = (): string | null => {
@@ -215,20 +217,15 @@ const AddNewMembers = () => {
         hasResult: !!result,
         hasUser: !!result?.user,
         resultKeys: result ? Object.keys(result) : [],
-        userKeys: result?.user ? Object.keys(result.user) : []
+        userKeys: result?.user ? Object.keys(result.user) : [],
       });
-      
+
       if (result?.user) {
         console.log('Setting created user:', result.user);
         setCreatedUser(result.user);
         handleReset();
-      } else if (result) {
-        // Sometimes the response might have a different structure
-        console.log('Result exists but no user property, trying to use result directly');
-        setCreatedUser(result as any);
-        handleReset();
       } else {
-        throw new Error('Invalid response from server');
+        throw new Error('Invalid response from server: missing user');
       }
     } catch (err: unknown) {
       console.error('Registration error:', err);
@@ -249,10 +246,6 @@ const AddNewMembers = () => {
       setLoading(false);
     }
   };
-
-
-
-
 
   return (
     <div className="add-student-container">

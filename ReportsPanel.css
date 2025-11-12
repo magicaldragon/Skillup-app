@@ -433,8 +433,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .reports-error h3 {
@@ -471,11 +475,11 @@
     align-items: stretch;
     gap: var(--space-3);
   }
-  
+
   .search-section {
     max-width: none;
   }
-  
+
   .filter-section {
     justify-content: center;
   }
@@ -485,17 +489,17 @@
   .reports-panel {
     padding: var(--space-4);
   }
-  
+
   .reports-title {
     font-size: 2rem;
   }
-  
+
   .reports-table th,
   .reports-table td {
     padding: var(--space-3);
     font-size: 0.9rem;
   }
-  
+
   .problems-cell,
   .solution-cell {
     max-width: 200px;
@@ -506,25 +510,25 @@
   .reports-panel {
     padding: var(--space-3);
   }
-  
+
   .reports-title {
     font-size: 1.75rem;
   }
-  
+
   .reports-table {
     font-size: 0.8rem;
   }
-  
+
   .reports-table th,
   .reports-table td {
     padding: var(--space-2);
   }
-  
+
   .status-actions {
     flex-direction: column;
     gap: var(--space-1);
   }
-  
+
   .status-btn {
     font-size: 0.75rem;
     padding: var(--space-1) var(--space-2);

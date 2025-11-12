@@ -24,4 +24,4 @@ export function getEnvironmentConfig(): EnvironmentConfig {
   };
 }
 
-export const config = getEnvironmentConfig(); 
+export const config = getEnvironmentConfig();

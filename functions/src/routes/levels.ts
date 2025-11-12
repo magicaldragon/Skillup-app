@@ -27,7 +27,7 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
     console.log(`Fetched ${levels.length} levels`);
     return res.json({
       success: true,
-      levels: levels
+      levels: levels,
     });
   } catch (error) {
     console.error('Error fetching levels:', error);
@@ -97,10 +97,10 @@ router.post('/', verifyToken, requireAdmin, async (req: AuthenticatedRequest, re
     };
 
     const docRef = await admin.firestore().collection('levels').add(levelData);
-    const newLevel = { 
-      id: docRef.id, 
+    const newLevel = {
+      id: docRef.id,
       _id: docRef.id, // Add _id for frontend compatibility
-      ...levelData 
+      ...levelData,
     };
 
     return res.status(201).json({
@@ -118,110 +118,115 @@ router.post('/', verifyToken, requireAdmin, async (req: AuthenticatedRequest, re
 });
 
 // Seed levels with predefined data
-router.post('/seed', verifyToken, requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
-  try {
-    // Predefined levels from constants
-    const predefinedLevels = [
-      {
-        name: 'STARTERS (PRE)',
-        description: 'Cambridge English Qualifications Pre A1 Starters.',
-        code: 'PRE',
-        order: 1,
-        isActive: true,
-      },
-      {
-        name: 'MOVERS (A1)',
-        description: 'Cambridge English Qualifications A1 Movers.',
-        code: 'A1',
-        order: 2,
-        isActive: true,
-      },
-      {
-        name: 'FLYERS (A2A)',
-        description: 'Cambridge English Qualifications A2 Flyers.',
-        code: 'A2A',
-        order: 3,
-        isActive: true,
-      },
-      {
-        name: 'KET (A2B)',
-        description: 'Cambridge English Qualifications A2 Key for Schools.',
-        code: 'A2B',
-        order: 4,
-        isActive: true,
-      },
-      {
-        name: 'PET (B1)',
-        description: 'Cambridge English Qualifications B1 Preliminary for Schools.',
-        code: 'B1',
-        order: 5,
-        isActive: true,
-      },
-      {
-        name: 'PRE-IELTS (B2PRE)',
-        description: 'Foundation for IELTS.',
-        code: 'B2PRE',
-        order: 6,
-        isActive: true,
-      },
-      {
-        name: 'IELTS',
-        description: 'International English Language Testing System.',
-        code: 'I',
-        order: 7,
-        isActive: true,
-      },
-    ];
+router.post(
+  '/seed',
+  verifyToken,
+  requireAdmin,
+  async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      // Predefined levels from constants
+      const predefinedLevels = [
+        {
+          name: 'STARTERS (PRE)',
+          description: 'Cambridge English Qualifications Pre A1 Starters.',
+          code: 'PRE',
+          order: 1,
+          isActive: true,
+        },
+        {
+          name: 'MOVERS (A1)',
+          description: 'Cambridge English Qualifications A1 Movers.',
+          code: 'A1',
+          order: 2,
+          isActive: true,
+        },
+        {
+          name: 'FLYERS (A2A)',
+          description: 'Cambridge English Qualifications A2 Flyers.',
+          code: 'A2A',
+          order: 3,
+          isActive: true,
+        },
+        {
+          name: 'KET (A2B)',
+          description: 'Cambridge English Qualifications A2 Key for Schools.',
+          code: 'A2B',
+          order: 4,
+          isActive: true,
+        },
+        {
+          name: 'PET (B1)',
+          description: 'Cambridge English Qualifications B1 Preliminary for Schools.',
+          code: 'B1',
+          order: 5,
+          isActive: true,
+        },
+        {
+          name: 'PRE-IELTS (B2PRE)',
+          description: 'Foundation for IELTS.',
+          code: 'B2PRE',
+          order: 6,
+          isActive: true,
+        },
+        {
+          name: 'IELTS',
+          description: 'International English Language Testing System.',
+          code: 'I',
+          order: 7,
+          isActive: true,
+        },
+      ];
 
-    let created = 0;
-    let skipped = 0;
+      let created = 0;
+      let skipped = 0;
 
-    for (const levelData of predefinedLevels) {
-      try {
-        // Check if level already exists by name
-        const existingLevel = await admin
-          .firestore()
-          .collection('levels')
-          .where('name', '==', levelData.name)
-          .limit(1)
-          .get();
+      for (const levelData of predefinedLevels) {
+        try {
+          // Check if level already exists by name
+          const existingLevel = await admin
+            .firestore()
+            .collection('levels')
+            .where('name', '==', levelData.name)
+            .limit(1)
+            .get();
 
-        if (!existingLevel.empty) {
-          console.log(`Level "${levelData.name}" already exists, skipping...`);
-          skipped++;
-          continue;
+          if (!existingLevel.empty) {
+            console.log(`Level "${levelData.name}" already exists, skipping...`);
+            skipped++;
+            continue;
+          }
+
+          // Create level in Firestore
+          const newLevelData = {
+            ...levelData,
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          };
+
+          await admin.firestore().collection('levels').add(newLevelData);
+          console.log(`Created level: ${levelData.name}`);
+          created++;
+        } catch (error) {
+          console.error(`Error creating level ${levelData.name}:`, error);
         }
-
-        // Create level in Firestore
-        const newLevelData = {
-          ...levelData,
-          createdAt: admin.firestore.FieldValue.serverTimestamp(),
-          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        };
-
-        await admin.firestore().collection('levels').add(newLevelData);
-        console.log(`Created level: ${levelData.name}`);
-        created++;
-      } catch (error) {
-        console.error(`Error creating level ${levelData.name}:`, error);
       }
-    }
 
-    return res.json({
-      success: true,
-      message: 'Levels seeding completed',
-      created,
-      skipped,
-      total: predefinedLevels.length,
-    });
-  } catch (error) {
-    console.error('Error seeding levels:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Failed to seed levels',
-    });
+      return res.json({
+        success: true,
+        message: 'Levels seeding completed',
+        created,
+        skipped,
+        total: predefinedLevels.length,
+      });
+    } catch (error) {
+      console.error('Error seeding levels:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to seed levels',
+      });
+    }
   }
-});
+);
 
 // Get level by ID
 router.get('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response) => {
@@ -273,16 +278,16 @@ router.put('/:id', verifyToken, requireAdmin, async (req: AuthenticatedRequest, 
 
     // Get the updated level data
     const updatedDoc = await admin.firestore().collection('levels').doc(id).get();
-    const updatedLevel = { 
-      id: updatedDoc.id, 
+    const updatedLevel = {
+      id: updatedDoc.id,
       _id: updatedDoc.id, // Add _id for frontend compatibility
-      ...updatedDoc.data() 
+      ...updatedDoc.data(),
     };
 
-    return res.json({ 
-      success: true, 
+    return res.json({
+      success: true,
       message: 'Level updated successfully',
-      level: updatedLevel
+      level: updatedLevel,
     });
   } catch (error) {
     console.error('Error updating level:', error);

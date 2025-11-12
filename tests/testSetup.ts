@@ -3,9 +3,9 @@
   if (typeof globalThis.localStorage === 'undefined') {
     const store = new Map<string, string>();
 
-    const localStoragePolyfill = {
+    const localStoragePolyfill: Storage = {
       getItem(key: string) {
-        return store.has(key) ? store.get(key)! : null;
+        return store.has(key) ? (store.get(key) ?? null) : null;
       },
       setItem(key: string, value: string) {
         store.set(key, String(value));
@@ -23,10 +23,16 @@
       get length() {
         return store.size;
       },
-    };
+    } as unknown as Storage;
 
-    // Assign polyfill to global
-    (globalThis as any).localStorage = localStoragePolyfill;
+    // Assign polyfill to global without using 'any'
+    Object.defineProperty(globalThis, 'localStorage', {
+      value: localStoragePolyfill,
+      writable: true,
+      configurable: true,
+      enumerable: true,
+    });
+
     console.info('[testSetup] localStorage polyfilled (Node environment detected)');
   } else {
     console.info('[testSetup] jsdom environment detected; localStorage is available');

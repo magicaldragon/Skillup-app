@@ -69,7 +69,7 @@ class AuthService {
 
       clearTimeout(timeoutId);
       const isConnected = response.ok;
-      
+
       console.log('Backend connection test result:', isConnected);
       return isConnected;
     } catch (error) {
@@ -80,13 +80,22 @@ class AuthService {
 
   // Overloads for compatibility with both app and tests
   // Overloads to support both call styles: (email, password) and { email, password }
-  async login(email: string, password: string): Promise<{ success: boolean; message: string; user?: UserProfile }>;
-  async login(credentials: LoginCredentials): Promise<{ success: boolean; message: string; user?: UserProfile }>;
+  async login(
+    email: string,
+    password: string
+  ): Promise<{ success: boolean; message: string; user?: UserProfile }>;
+  async login(
+    credentials: LoginCredentials
+  ): Promise<{ success: boolean; message: string; user?: UserProfile }>;
   async login(emailOrCreds: string | LoginCredentials, passwordArg?: string) {
     try {
       console.log('🔐 Starting login process...');
-      const email = typeof emailOrCreds === 'string' ? (emailOrCreds || '').trim() : (emailOrCreds.email || '').trim();
-      const password = typeof emailOrCreds === 'string' ? (passwordArg || '') : (emailOrCreds.password || '');
+      const email =
+        typeof emailOrCreds === 'string'
+          ? (emailOrCreds || '').trim()
+          : (emailOrCreds.email || '').trim();
+      const password =
+        typeof emailOrCreds === 'string' ? passwordArg || '' : emailOrCreds.password || '';
 
       const { count, lastTs } = getLockoutState();
       const now = Date.now();
@@ -101,7 +110,8 @@ class AuthService {
       if (!isPasswordComplex(password)) {
         return {
           success: false,
-          message: 'Password must be at least 8 characters including letters and numbers or special characters.',
+          message:
+            'Password must be at least 8 characters including letters and numbers or special characters.',
         };
       }
 
@@ -156,7 +166,10 @@ class AuthService {
           return { success: true, message: 'Login successful', user: data.user };
         }
         recordFailedAttempt();
-        return { success: false, message: data.message || 'Authentication failed. Please try again.' };
+        return {
+          success: false,
+          message: data.message || 'Authentication failed. Please try again.',
+        };
       } else {
         let errorMessage = 'Authentication failed. Please try again.';
         try {
@@ -172,7 +185,11 @@ class AuthService {
         return { success: false, message: errorMessage };
       }
     } catch (error: any) {
-      console.error('Login error details:', { name: error?.name, message: error?.message, code: error?.code });
+      console.error('Login error details:', {
+        name: error?.name,
+        message: error?.message,
+        code: error?.code,
+      });
       localStorage.removeItem('skillup_token');
       localStorage.removeItem('skillup_user');
 
@@ -194,27 +211,27 @@ class AuthService {
   async logout(): Promise<{ success: boolean; message: string }> {
     try {
       console.log('🔓 Starting logout process...');
-      
+
       // Clear local storage first
       localStorage.removeItem('skillup_token');
       localStorage.removeItem('skillup_user');
       console.log('🔓 Local storage cleared');
-      
+
       // Sign out from Firebase
       await signOut(auth);
       console.log('🔓 Firebase sign out completed');
-      
+
       return {
         success: true,
         message: 'Logged out successfully',
       };
     } catch (error: any) {
       console.error('Logout error:', error);
-      
+
       // Even if Firebase logout fails, clear local data
       localStorage.removeItem('skillup_token');
       localStorage.removeItem('skillup_user');
-      
+
       return {
         success: true, // Still return success since local cleanup is done
         message: 'Logged out (with warnings)',

@@ -20,7 +20,6 @@ function resolveApiBase(): string {
 
 const API_BASE_URL: string = resolveApiBase();
 
-
 // Interface for class editing modal
 interface ClassEditModal {
   isOpen: boolean;
@@ -30,7 +29,6 @@ interface ClassEditModal {
   students: Student[];
 }
 
-
 // Add explicit props interface for this panel
 interface ClassesPanelProps {
   students: Student[];
@@ -38,11 +36,7 @@ interface ClassesPanelProps {
   onDataRefresh?: () => void;
 }
 
-export default function ClassesPanel({
-  students,
-  classes,
-  onDataRefresh,
-}: ClassesPanelProps) {
+export default function ClassesPanel({ students, classes, onDataRefresh }: ClassesPanelProps) {
   const [adding, setAdding] = useState(false);
   const [levels, setLevels] = useState<Level[]>([]);
   const [levelsLoading, setLevelsLoading] = useState(true);
@@ -162,8 +156,7 @@ export default function ClassesPanel({
   const handleSaveClassUpdate = useCallback(async () => {
     if (!classUpdateModal.classId) return;
     try {
-      const token =
-        localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
       const apiUrl =
         import.meta.env.VITE_API_BASE_URL ||
         'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
@@ -211,8 +204,7 @@ export default function ClassesPanel({
   const handleSaveStudentEdit = useCallback(async () => {
     if (!studentEditModal.student) return;
     try {
-      const token =
-        localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
       const apiUrl =
         import.meta.env.VITE_API_BASE_URL ||
         'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
@@ -262,10 +254,10 @@ export default function ClassesPanel({
     try {
       const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
       const apiUrl = API_BASE_URL;
-      
+
       console.log('Fetching levels from:', `${apiUrl}/levels`);
       console.log('Token available:', !!token);
-      
+
       const response = await fetch(`${apiUrl}/levels`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -287,7 +279,7 @@ export default function ClassesPanel({
 
       const data = await response.json();
       console.log('Levels response data:', data);
-      
+
       // Handle both new structured response and legacy array response
       let levelsData: Level[] = [];
       if (data && typeof data === 'object' && 'success' in data && data.success) {
@@ -304,10 +296,10 @@ export default function ClassesPanel({
       }
 
       // Ensure all levels have _id property for consistency
-      levelsData = levelsData.map(level => ({
+      levelsData = levelsData.map((level) => ({
         ...level,
         _id: level._id || level.id || '',
-        id: level._id || level.id || ''
+        id: level._id || level.id || '',
       }));
 
       setLevels(levelsData);
@@ -460,8 +452,7 @@ export default function ClassesPanel({
       if (!window.confirm(`Remove ${studentName} to waiting list?`)) return;
 
       try {
-        const token =
-          localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
+        const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
         const apiUrl =
           import.meta.env.VITE_API_BASE_URL ||
           'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
@@ -540,7 +531,9 @@ export default function ClassesPanel({
 
       try {
         const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-        const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
+        const apiUrl =
+          import.meta.env.VITE_API_BASE_URL ||
+          'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
 
         const res = await fetch(`${apiUrl}/classes/${classId}`, {
           method: 'DELETE',
@@ -603,9 +596,9 @@ export default function ClassesPanel({
       const userInfoRaw = localStorage.getItem('skillup_user');
       const userInfo = userInfoRaw ? JSON.parse(userInfoRaw) : null;
 
-      const requestBody: any = { 
+      const requestBody: any = {
         levelId: newClassLevelId,
-        startingDate: newClassStartingDate
+        startingDate: newClassStartingDate,
       };
       if (userInfo?.role === 'teacher' || userInfo?.role === 'admin') {
         requestBody.teacherId = userInfo.id || userInfo._id || userInfo.docId;
@@ -698,11 +691,13 @@ export default function ClassesPanel({
             value={levelFilter}
             onChange={(e) => setLevelFilter(e.target.value)}
             disabled={levelsLoading}
-            title={levelsLoading ? "Loading levels..." : "Filter by level"}
+            title={levelsLoading ? 'Loading levels...' : 'Filter by level'}
           >
             <option value="">All Levels</option>
             {levelsLoading ? (
-              <option value="" disabled>Loading levels...</option>
+              <option value="" disabled>
+                Loading levels...
+              </option>
             ) : sortedLevels && Array.isArray(sortedLevels) && sortedLevels.length > 0 ? (
               sortedLevels.map((level) => (
                 <option key={level._id} value={level._id}>
@@ -710,7 +705,9 @@ export default function ClassesPanel({
                 </option>
               ))
             ) : (
-              <option value="" disabled>No levels available</option>
+              <option value="" disabled>
+                No levels available
+              </option>
             )}
           </select>
         </div>
@@ -723,7 +720,8 @@ export default function ClassesPanel({
             {(classSearch || levelFilter) && (
               <span className="filter-info">
                 {classSearch && ` matching "${classSearch}"`}
-                {levelFilter && ` in ${levels.find((l) => l._id === levelFilter)?.name || 'Unknown Level'}`}
+                {levelFilter &&
+                  ` in ${levels.find((l) => l._id === levelFilter)?.name || 'Unknown Level'}`}
               </span>
             )}
           </>
@@ -778,8 +776,8 @@ export default function ClassesPanel({
                   ? cls.levelId.name
                   : levels.find((l) => l._id === cls.levelId)?.name || 'N/A'
                 : 'N/A';
-              const studentCount = students.filter(
-                (s) => (s.classIds || []).includes(safeClassId)
+              const studentCount = students.filter((s) =>
+                (s.classIds || []).includes(safeClassId)
               ).length;
               const isSelected = selectedClassId === safeClassId;
 
@@ -867,8 +865,7 @@ export default function ClassesPanel({
                         onMouseLeave={(e) => {
                           e.currentTarget.style.background =
                             'linear-gradient(135deg, #f5b802 0%, #ffd54f 50%, #fbc02d 100%)';
-                          e.currentTarget.style.boxShadow =
-                            '0 4px 12px rgba(0, 0, 0, 0.15)';
+                          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
                           e.currentTarget.style.transform = 'translateY(0) scale(1)';
                         }}
                       >
@@ -912,8 +909,7 @@ export default function ClassesPanel({
                         onMouseLeave={(e) => {
                           e.currentTarget.style.background =
                             'linear-gradient(135deg, #a5d6a7 0%, #81c784 50%, #66bb6a 100%)';
-                          e.currentTarget.style.boxShadow =
-                            '0 4px 12px rgba(0, 0, 0, 0.15)';
+                          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
                           e.currentTarget.style.transform = 'translateY(0) scale(1)';
                         }}
                       >
@@ -957,8 +953,7 @@ export default function ClassesPanel({
                         onMouseLeave={(e) => {
                           e.currentTarget.style.background =
                             'linear-gradient(135deg, #f44336 0%, #ef5350 50%, #e57373 100%)';
-                          e.currentTarget.style.boxShadow =
-                            '0 4px 12px rgba(0, 0, 0, 0.15)';
+                          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
                           e.currentTarget.style.transform = 'translateY(0) scale(1)';
                         }}
                       >
@@ -985,7 +980,9 @@ export default function ClassesPanel({
           >
             <option value="">Select Level</option>
             {levelsLoading ? (
-              <option value="" disabled>Loading levels...</option>
+              <option value="" disabled>
+                Loading levels...
+              </option>
             ) : sortedLevels && Array.isArray(sortedLevels) && sortedLevels.length > 0 ? (
               sortedLevels.map((level) => (
                 <option key={level._id} value={level._id}>
@@ -993,10 +990,12 @@ export default function ClassesPanel({
                 </option>
               ))
             ) : (
-              <option value="" disabled>No levels available</option>
+              <option value="" disabled>
+                No levels available
+              </option>
             )}
           </select>
-          
+
           <div className="date-input-container">
             <label htmlFor="starting-date" className="date-label">
               Starting Date
@@ -1012,9 +1011,8 @@ export default function ClassesPanel({
                 placeholder="Select starting date"
               />
             </div>
-
           </div>
-          
+
           <button
             type="button"
             onClick={handleAddClass}
@@ -1063,7 +1061,9 @@ export default function ClassesPanel({
                       <tbody>
                         {classEditModal.students.map((student) => (
                           <tr key={student.id} className="student-row">
-                            <td style={{ color: '#1D9A6C' }}>{student.studentCode || student.id}</td>
+                            <td style={{ color: '#1D9A6C' }}>
+                              {student.studentCode || student.id}
+                            </td>
                             <td style={{ color: '#1D9A6C' }}>
                               <div className="student-name">
                                 <strong>{student.name}</strong>
@@ -1073,7 +1073,9 @@ export default function ClassesPanel({
                               </div>
                             </td>
                             <td style={{ color: '#1D9A6C' }}>{student.englishName || 'N/A'}</td>
-                            <td style={{ color: '#1D9A6C' }}>{student.dob ? formatDateMMDDYYYY(student.dob) : 'N/A'}</td>
+                            <td style={{ color: '#1D9A6C' }}>
+                              {student.dob ? formatDateMMDDYYYY(student.dob) : 'N/A'}
+                            </td>
                             <td style={{ color: '#1D9A6C' }}>{student.gender || 'N/A'}</td>
                             <td className="student-actions">
                               <div className="action-buttons">
@@ -1123,15 +1125,19 @@ export default function ClassesPanel({
                                       {classes
                                         ?.filter((c) => (c._id || c.id) !== classEditModal.classId)
                                         .map((cls) => {
-                                          const levelName =
-                                            cls.levelId
-                                              ? typeof cls.levelId === 'object'
-                                                ? cls.levelId.name
-                                                : levels.find((l) => l._id === cls.levelId)?.name || 'N/A'
-                                              : 'N/A';
-                                          const displayName = cls.classCode || cls.name || 'Unnamed Class';
+                                          const levelName = cls.levelId
+                                            ? typeof cls.levelId === 'object'
+                                              ? cls.levelId.name
+                                              : levels.find((l) => l._id === cls.levelId)?.name ||
+                                                'N/A'
+                                            : 'N/A';
+                                          const displayName =
+                                            cls.classCode || cls.name || 'Unnamed Class';
                                           return (
-                                            <option key={cls._id || cls.id} value={(cls._id || cls.id) as string}>
+                                            <option
+                                              key={cls._id || cls.id}
+                                              value={(cls._id || cls.id) as string}
+                                            >
                                               {displayName} ({levelName})
                                             </option>
                                           );
@@ -1219,14 +1225,17 @@ export default function ClassesPanel({
                   onClick={handleSaveClassUpdate}
                   className="action-btn"
                   style={{
-                    background:
-                      'linear-gradient(135deg, #a5d6a7 0%, #81c784 50%, #66bb6a 100%)',
+                    background: 'linear-gradient(135deg, #a5d6a7 0%, #81c784 50%, #66bb6a 100%)',
                     color: 'white',
                   }}
                 >
                   Save Changes
                 </button>
-                <button type="button" className="action-btn remove-btn" onClick={handleCloseClassUpdateModal}>
+                <button
+                  type="button"
+                  className="action-btn remove-btn"
+                  onClick={handleCloseClassUpdateModal}
+                >
                   Cancel
                 </button>
               </div>
@@ -1315,14 +1324,17 @@ export default function ClassesPanel({
                   onClick={handleSaveStudentEdit}
                   className="action-btn"
                   style={{
-                    background:
-                      'linear-gradient(135deg, #a5d6a7 0%, #81c784 50%, #66bb6a 100%)',
+                    background: 'linear-gradient(135deg, #a5d6a7 0%, #81c784 50%, #66bb6a 100%)',
                     color: 'white',
                   }}
                 >
                   Save Student
                 </button>
-                <button type="button" className="action-btn remove-btn" onClick={handleCloseStudentEdit}>
+                <button
+                  type="button"
+                  className="action-btn remove-btn"
+                  onClick={handleCloseStudentEdit}
+                >
                   Cancel
                 </button>
               </div>
@@ -1332,7 +1344,6 @@ export default function ClassesPanel({
       )}
 
       {/* Removed: Report Student modal */}
-
     </div>
   );
 }

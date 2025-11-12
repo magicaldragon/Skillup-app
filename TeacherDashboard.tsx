@@ -5,21 +5,21 @@
 import './TeacherDashboard.css';
 import AccountsPanel from './AccountsPanel';
 import AddNewMembers from './AddNewMembers';
+import AttendancePanel from './AttendancePanel';
 import ChangeLogPanel from './ChangeLogPanel';
 import ClassesPanel from './ClassesPanel';
 import LevelsPanel from './LevelsPanel';
 import PotentialStudentsPanel from './PotentialStudentsPanel';
 import RecordsPanel from './RecordsPanel';
+import SchoolFeePanel from './SchoolFeePanel';
 import SettingsPanel from './SettingsPanel';
-import WaitingListPanel from './WaitingListPanel';
 import type {
   FirestoreAssignment,
   FirestoreClass,
   FirestoreUser,
 } from './services/firestoreService';
 import type { UserProfile } from './types';
-import AttendancePanel from './AttendancePanel';
-import SchoolFeePanel from './SchoolFeePanel';
+import WaitingListPanel from './WaitingListPanel';
 
 const TeacherDashboard = ({
   user,
@@ -75,9 +75,17 @@ const TeacherDashboard = ({
           onDataRefresh={onDataRefresh}
         />
       ) : activeKey === 'attendance' ? (
-        <AttendancePanel students={students as any} classes={classes as any} onDataRefresh={onDataRefresh} />
+        <AttendancePanel
+          students={students as any}
+          classes={classes as any}
+          onDataRefresh={onDataRefresh}
+        />
       ) : activeKey === 'school-fee' ? (
-        <SchoolFeePanel students={students as any} classes={classes as any} onDataRefresh={onDataRefresh} />
+        <SchoolFeePanel
+          students={students as any}
+          classes={classes as any}
+          onDataRefresh={onDataRefresh}
+        />
       ) : activeKey === 'levels' ? (
         <LevelsPanel onDataRefresh={onDataRefresh} />
       ) : activeKey === 'records' ? (

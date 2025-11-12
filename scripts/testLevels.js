@@ -1,7 +1,8 @@
 // testLevels.js - Test script to verify levels functionality
 const fetch = require('node-fetch');
 
-const API_BASE_URL = process.env.VITE_API_BASE_URL || 'http://localhost:5001/skillup-xxxxx/us-central1/api';
+const API_BASE_URL =
+  process.env.VITE_API_BASE_URL || 'http://localhost:5001/skillup-xxxxx/us-central1/api';
 
 async function testLevelsFunctionality() {
   console.log('🧪 Testing Levels Functionality...\n');
@@ -13,7 +14,7 @@ async function testLevelsFunctionality() {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer test-token', // This will be handled by Firebase Auth
+        Authorization: 'Bearer test-token', // This will be handled by Firebase Auth
       },
     });
 
@@ -21,7 +22,7 @@ async function testLevelsFunctionality() {
       const levelsData = await levelsResponse.json();
       console.log('✅ Levels fetched successfully');
       console.log(`📊 Found ${levelsData.levels?.length || 0} levels in database`);
-      
+
       if (levelsData.levels && levelsData.levels.length > 0) {
         console.log('📋 Current levels:');
         levelsData.levels.forEach((level, index) => {
@@ -46,7 +47,7 @@ async function testLevelsFunctionality() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer test-token',
+        Authorization: 'Bearer test-token',
       },
       body: JSON.stringify(newLevelData),
     });
@@ -55,20 +56,20 @@ async function testLevelsFunctionality() {
       const createData = await createResponse.json();
       console.log('✅ Test level created successfully');
       console.log('📝 Created level ID:', createData.level?.id);
-      
+
       // Test 3: Verify the new level appears in the list
       console.log('\n3️⃣ Testing: Verify new level in list');
       const verifyResponse = await fetch(`${API_BASE_URL}/levels`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer test-token',
+          Authorization: 'Bearer test-token',
         },
       });
 
       if (verifyResponse.ok) {
         const verifyData = await verifyResponse.json();
-        const testLevel = verifyData.levels?.find(l => l.name === 'TEST LEVEL');
+        const testLevel = verifyData.levels?.find((l) => l.name === 'TEST LEVEL');
         if (testLevel) {
           console.log('✅ Test level found in database');
           console.log('📋 Test level details:', {
@@ -88,11 +89,10 @@ async function testLevelsFunctionality() {
     }
 
     console.log('\n🎉 Levels functionality test completed!');
-
   } catch (error) {
     console.error('❌ Test failed with error:', error.message);
   }
 }
 
 // Run the test
-testLevelsFunctionality(); 
+testLevelsFunctionality();

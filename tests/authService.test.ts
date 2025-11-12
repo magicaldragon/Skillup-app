@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Hoisted mocks: stub Firebase modules before importing the service
 let mockSignIn: any;
@@ -88,7 +88,11 @@ describe('authService.login', () => {
       .mockResolvedValueOnce({
         ok: true,
         headers: { get: () => 'application/json' },
-        json: async () => ({ success: true, token: 'SESSION_TOKEN', user: { id: 'u1', role: 'admin' } }),
+        json: async () => ({
+          success: true,
+          token: 'SESSION_TOKEN',
+          user: { id: 'u1', role: 'admin' },
+        }),
       } as any);
 
     const res = await authService.login('user@admin.skillup', 'Valid123!');
@@ -196,7 +200,11 @@ describe('authService.login network behavior', () => {
         ok: true,
         status: 200,
         headers: { get: () => 'application/json' },
-        json: async () => ({ success: true, token: 'FAKE_SESSION', user: { id: 'u1', email: 'admin@admin.skillup', role: 'admin' } }),
+        json: async () => ({
+          success: true,
+          token: 'FAKE_SESSION',
+          user: { id: 'u1', email: 'admin@admin.skillup', role: 'admin' },
+        }),
       } as any);
 
     const res = await authService.login('admin@admin.skillup', 'Valid123!');

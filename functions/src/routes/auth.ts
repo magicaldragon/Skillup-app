@@ -14,9 +14,9 @@ router.get('/profile', verifyToken, async (req: AuthenticatedRequest, res: Respo
 
     if (!userDoc.exists) {
       console.error('User profile not found for userId:', userId);
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        message: 'User profile not found. Please contact administrator.' 
+        message: 'User profile not found. Please contact administrator.',
       });
     }
 
@@ -34,9 +34,9 @@ router.get('/profile', verifyToken, async (req: AuthenticatedRequest, res: Respo
     });
   } catch (error) {
     console.error('Error fetching user profile:', error);
-    return res.status(500).json({ 
+    return res.status(500).json({
       success: false,
-      message: 'Failed to fetch user profile' 
+      message: 'Failed to fetch user profile',
     });
   }
 });
@@ -195,7 +195,7 @@ router.post('/firebase-login', async (req: AuthenticatedRequest, res: Response) 
         // Extract role from email domain (username@role.skillup)
         const roleMatch = email.match(/@(admin|teacher|student|staff)\.skillup$/);
         const role = roleMatch ? roleMatch[1] : 'student';
-        
+
         console.log(`Role determined from email: ${role} (from ${email})`);
 
         const newUserData = {
@@ -218,7 +218,7 @@ router.post('/firebase-login', async (req: AuthenticatedRequest, res: Response) 
         // Fallback to basic user creation with proper role extraction
         const roleMatch = email.match(/@(admin|teacher|student|staff)\.skillup$/);
         const role = roleMatch ? roleMatch[1] : 'student';
-        
+
         const fallbackUserData = {
           email: email,
           firebaseUid: decodedToken.uid,
@@ -254,7 +254,7 @@ router.post('/firebase-login', async (req: AuthenticatedRequest, res: Response) 
         hasUserData: !!userData,
         hasRole: !!userData?.role,
         hasEmail: !!userData?.email,
-        userData: userData
+        userData: userData,
       });
       return res.status(500).json({
         success: false,
@@ -263,13 +263,15 @@ router.post('/firebase-login', async (req: AuthenticatedRequest, res: Response) 
     }
 
     // Create a simple session token (in production, use proper JWT library)
-    const sessionToken = Buffer.from(JSON.stringify({
-      uid: decodedToken.uid,
-      userId: userDoc.id,
-      role: userData.role,
-      email: userData.email,
-      exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60), // 24 hours
-    })).toString('base64');
+    const sessionToken = Buffer.from(
+      JSON.stringify({
+        uid: decodedToken.uid,
+        userId: userDoc.id,
+        role: userData.role,
+        email: userData.email,
+        exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60, // 24 hours
+      })
+    ).toString('base64');
 
     console.log('Login successful for user:', {
       uid: decodedToken.uid,
@@ -463,7 +465,7 @@ router.post('/sync-users', async (_req: AuthenticatedRequest, res: Response) => 
           // User doesn't exist in Firestore, create them
           const roleMatch = firebaseUser.email?.match(/@(admin|teacher|student|staff)\.skillup$/);
           const role = roleMatch ? roleMatch[1] : 'student';
-          
+
           console.log(`Creating user with role: ${role} (from ${firebaseUser.email})`);
 
           const newUserData = {

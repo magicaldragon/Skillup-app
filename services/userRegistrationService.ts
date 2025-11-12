@@ -42,7 +42,9 @@ class UserRegistrationService {
   // Generate username from full name
   private async generateUsername(fullname: string): Promise<string> {
     // Remove special characters and convert to lowercase
-    const cleanName = (fullname || '').toString().trim()
+    const cleanName = (fullname || '')
+      .toString()
+      .trim()
       .toLowerCase()
       .replace(/[^a-z0-9\s]/g, '')
       .replace(/\s+/g, '');

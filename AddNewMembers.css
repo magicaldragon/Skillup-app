@@ -3,23 +3,23 @@
 /* ===== PROFESSIONAL DESIGN SYSTEM - 8px Base Unit ===== */
 :root {
   /* Professional Color Palette */
-  --primary-action: #008060;     /* Primary Register button */
-  --secondary-action: #6c757d;   /* Secondary Reset button */
-  --text-primary: #333333;       /* Main text color */
-  --border-color: #A0C0B0;       /* Soft green borders */
-  --background-main: #F7FAFC;    /* Clean background */
-  --background-white: #ffffff;   /* Input backgrounds */
-  --error-color: #ef4444;        /* Error states */
+  --primary-action: #008060; /* Primary Register button */
+  --secondary-action: #6c757d; /* Secondary Reset button */
+  --text-primary: #333333; /* Main text color */
+  --border-color: #a0c0b0; /* Soft green borders */
+  --background-main: #f7fafc; /* Clean background */
+  --background-white: #ffffff; /* Input backgrounds */
+  --error-color: #ef4444; /* Error states */
 
   /* 8px Base Unit Spacing System */
   --base-unit: 8px;
-  --space-1: calc(var(--base-unit) * 1);  /* 8px */
-  --space-2: calc(var(--base-unit) * 2);  /* 16px */
-  --space-3: calc(var(--base-unit) * 3);  /* 24px - Row gap */
-  --space-4: calc(var(--base-unit) * 4);  /* 32px - Column gap */
-  --space-5: calc(var(--base-unit) * 5);  /* 40px */
-  --space-6: calc(var(--base-unit) * 6);  /* 48px */
-  --space-8: calc(var(--base-unit) * 8);  /* 64px */
+  --space-1: calc(var(--base-unit) * 1); /* 8px */
+  --space-2: calc(var(--base-unit) * 2); /* 16px */
+  --space-3: calc(var(--base-unit) * 3); /* 24px - Row gap */
+  --space-4: calc(var(--base-unit) * 4); /* 32px - Column gap */
+  --space-5: calc(var(--base-unit) * 5); /* 40px */
+  --space-6: calc(var(--base-unit) * 6); /* 48px */
+  --space-8: calc(var(--base-unit) * 8); /* 64px */
   --space-10: calc(var(--base-unit) * 10); /* 80px */
 
   /* Professional Shadows */
@@ -56,10 +56,10 @@
   justify-content: flex-start;
   padding: 0.125rem 0; /* Further reduced padding */
   margin: 0;
-  background: #F7FAFC;
+  background: #f7fafc;
   overflow-y: auto;
   box-sizing: border-box;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 /* ===== CONTENT WRAPPER ===== */
@@ -94,9 +94,9 @@
 
 /* ===== FORM CONTAINER ===== */
 .add-student-content .form-container {
-  background: #F7FAFC;
+  background: #f7fafc;
   border-radius: 12px;
-  border: 1px solid #A0C0B0;
+  border: 1px solid #a0c0b0;
   box-shadow: none;
   padding: 6px; /* Minimal padding */
   margin: 0 auto;
@@ -142,7 +142,7 @@
   );
   margin: 0 auto 0.5rem auto; /* Reduced bottom margin */
   border-radius: var(--radius-full);
-  box-shadow: 
+  box-shadow:
     0 2px 8px rgba(255, 140, 66, 0.3),
     0 1px 3px rgba(255, 140, 66, 0.2);
   position: relative;
@@ -218,7 +218,7 @@
   color: var(--text-primary);
   font-weight: 700;
   font-size: 12px; /* Slightly smaller font */
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   display: flex;
   align-items: center;
   gap: 0.25rem;
@@ -228,7 +228,7 @@
 }
 
 .required {
-  color: #FF0000;
+  color: #ff0000;
   font-weight: normal;
 }
 
@@ -274,7 +274,7 @@
   padding: 6px 10px; /* Reduced padding for compact layout */
   height: 32px; /* Reduced height */
   font-size: 14px;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   color: var(--text-primary);
   transition: all 0.2s ease;
   box-sizing: border-box;
@@ -320,8 +320,8 @@
 }
 
 .form-select option {
-  background: #FFFFFF;
-  color: #1F2937;
+  background: #ffffff;
+  color: #1f2937;
   padding: 8px 12px;
   font-size: 14px;
   position: relative;
@@ -331,7 +331,7 @@
 /* ===== BUTTON STYLING ===== */
 .register-btn {
   background: #008060;
-  color: #FFFFFF;
+  color: #ffffff;
   border: none;
   border-radius: 4px;
   padding: 10px 20px;
@@ -375,7 +375,7 @@
 
 .reset-btn:hover:not(:disabled) {
   background: #6c757d;
-  color: #FFFFFF;
+  color: #ffffff;
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
 }
@@ -698,7 +698,7 @@
 }
 
 .registration-form,
-.form-container,
+.add-student-content .form-container,
 .add-student-container {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -710,21 +710,21 @@
     grid-template-columns: 1fr; /* Single column on mobile */
     gap: 1px 0; /* Minimal gap on mobile */
   }
-  
+
   .form-group.notes-section {
     grid-column: 1; /* Single column span on mobile */
   }
-  
+
   .form-actions {
     grid-column: 1; /* Single column span on mobile */
     flex-direction: column; /* Stack buttons vertically on mobile */
     gap: 8px;
   }
-  
+
   .add-student-content {
     padding: 0.25rem; /* Slightly more padding on mobile */
   }
-  
+
   .form-title {
     font-size: 1.8rem; /* Smaller title on mobile */
   }
@@ -734,7 +734,7 @@
   .add-student-content .form-container {
     padding: 4px; /* Minimal padding on small mobile */
   }
-  
+
   .form-input,
   .form-select,
   .form-textarea {
@@ -742,15 +742,15 @@
     padding: 4px 8px;
     font-size: 13px;
   }
-  
+
   .form-textarea {
     min-height: 36px;
   }
-  
+
   .form-label {
     font-size: 11px; /* Smaller labels on small mobile */
   }
-  
+
   .form-title {
     font-size: 1.5rem; /* Even smaller title on small mobile */
   }
@@ -806,7 +806,7 @@
 
 .submit-btn {
   background-color: #006400;
-  color: #FFFFFF;
+  color: #ffffff;
   border-radius: 6px;
   padding: 10px 20px;
   font-size: 16px;
@@ -817,12 +817,12 @@
 
 .submit-btn:hover {
   background-color: #004d00;
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 .reset-btn {
   background-color: #6c757d;
-  color: #FFFFFF;
+  color: #ffffff;
   border-radius: 6px;
   padding: 10px 20px;
   font-size: 16px;
@@ -833,7 +833,7 @@
 
 .reset-btn:hover {
   background-color: #5a6268;
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 .test-btn {
@@ -851,16 +851,9 @@
   box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
 }
 
-
-
-
-
-
-
-
-
 /* ===== RESPONSIVE DESIGN ===== */
-@media (max-width: 75rem) { /* 1200px */
+@media (max-width: 75rem) {
+  /* 1200px */
   .add-student-content {
     flex-direction: column;
     align-items: center;
@@ -884,14 +877,13 @@
     min-height: auto; /* Changed from 500px to auto */
   }
 
-
-
   .registration-form {
     padding-right: 0;
   }
 }
 
-@media (max-width: 768px) { /* Updated to 768px as specified */
+@media (max-width: 768px) {
+  /* Updated to 768px as specified */
   .add-student-container {
     padding: var(--space-1);
   }
@@ -920,8 +912,6 @@
     gap: 10px; /* Further reduced gap for mobile */
   }
 
-
-
   .form-input,
   .form-select,
   .form-textarea {
@@ -936,7 +926,8 @@
   }
 }
 
-@media (max-width: 37.5rem) { /* 600px */
+@media (max-width: 37.5rem) {
+  /* 600px */
   .add-student-container {
     padding: 0.5rem;
   }
@@ -1014,8 +1005,6 @@
     min-width: 100px;
     font-size: 0.8rem;
   }
-
-
 }
 
 /* ===== MESSAGES & NOTIFICATIONS ===== */
@@ -1100,20 +1089,20 @@
     max-width: 1400px;
     gap: 3rem;
   }
-  
+
   .add-student-content .form-container {
     max-width: 1200px;
     padding: 48px;
   }
-  
+
   .registration-form {
     gap: 24px 48px;
   }
-  
+
   .form-group {
     gap: 14px;
   }
-  
+
   .form-input,
   .form-select,
   .form-textarea {
@@ -1121,7 +1110,7 @@
     padding: 18px 22px;
     font-size: 16px;
   }
-  
+
   .form-label {
     font-size: 14px;
     letter-spacing: 1px;
@@ -1133,20 +1122,20 @@
     max-width: 100%;
     gap: 1rem;
   }
-  
+
   .add-student-content .form-container {
     max-width: 100%;
     padding: 24px;
   }
-  
+
   .registration-form {
     gap: 12px 16px;
   }
-  
+
   .form-group {
     gap: 8px;
   }
-  
+
   .form-input,
   .form-select,
   .form-textarea {
@@ -1154,7 +1143,7 @@
     padding: 12px 16px;
     font-size: 14px;
   }
-  
+
   .form-label {
     font-size: 12px;
     letter-spacing: 0.5px;

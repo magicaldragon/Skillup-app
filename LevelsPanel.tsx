@@ -142,8 +142,8 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
   // Add new level
   const handleAddLevel = async () => {
     const name = (newLevel.name || '').toString().trim();
-        const code = (newLevel.code || '').toString().trim();
-        const description = (newLevel.description || '').toString().trim();
+    const code = (newLevel.code || '').toString().trim();
+    const description = (newLevel.description || '').toString().trim();
 
     if (!name || !code) {
       alert('Level name and code are required');
@@ -194,7 +194,7 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
 
       const data = await res.json();
       console.log('Level creation response:', data);
-      
+
       if (data.success) {
         const newLevelData = {
           ...data.level,
@@ -206,7 +206,7 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
         setShowAddForm(false);
         onDataRefresh?.();
         alert('Level created successfully!');
-        
+
         // Dispatch event to notify other components
         window.dispatchEvent(new CustomEvent('levelUpdated'));
       } else {
@@ -226,8 +226,8 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
     if (!editingLevel) return;
 
     const name = (editLevel.name || '').toString().trim();
-        const code = (editLevel.code || '').toString().trim();
-        const description = (editLevel.description || '').toString().trim();
+    const code = (editLevel.code || '').toString().trim();
+    const description = (editLevel.description || '').toString().trim();
 
     if (!name || !code) {
       alert('Level name and code are required');
@@ -279,7 +279,7 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
 
       const data = await res.json();
       console.log('Level update response:', data);
-      
+
       if (data.success) {
         const updatedLevelData = {
           ...editingLevel,
@@ -292,7 +292,7 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
         setEditLevel({ name: '', code: '', description: '' });
         onDataRefresh?.();
         alert('Level updated successfully!');
-        
+
         // Dispatch event to notify other components
         window.dispatchEvent(new CustomEvent('levelUpdated'));
       } else {
@@ -337,7 +337,7 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
         setSelectedLevel(null);
         onDataRefresh?.();
         alert('Level deleted successfully!');
-        
+
         // Dispatch event to notify other components
         window.dispatchEvent(new CustomEvent('levelUpdated'));
       } else {
@@ -557,32 +557,32 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
             </div>
           </div>
           // LevelsPanel component (Edit Level form actions)
-                     <div className="levels-form-actions">
-                       <button
-                         type="button"
-                         className="levels-form-save-btn"
-                         onClick={handleUpdateLevel}
-                         disabled={loading || !editLevel.name || !editLevel.code}
-                       >
-                         {loading ? 'Updating...' : 'Update Level'}
-                       </button>
-                       <button
-                         type="button"
-                         className="levels-form-delete-btn"
-                         onClick={() => handleDeleteLevel(editingLevel._id)}
-                         disabled={loading}
-                       >
-                         Delete Level
-                       </button>
-                       <button
-                         type="button"
-                         className="levels-form-cancel-btn"
-                         onClick={handleCancelEdit}
-                         disabled={loading}
-                       >
-                         Cancel
-                       </button>
-                     </div>
+          <div className="levels-form-actions">
+            <button
+              type="button"
+              className="levels-form-save-btn"
+              onClick={handleUpdateLevel}
+              disabled={loading || !editLevel.name || !editLevel.code}
+            >
+              {loading ? 'Updating...' : 'Update Level'}
+            </button>
+            <button
+              type="button"
+              className="levels-form-delete-btn"
+              onClick={() => handleDeleteLevel(editingLevel._id)}
+              disabled={loading}
+            >
+              Delete Level
+            </button>
+            <button
+              type="button"
+              className="levels-form-cancel-btn"
+              onClick={handleCancelEdit}
+              disabled={loading}
+            >
+              Cancel
+            </button>
+          </div>
         </div>
       )}
 
@@ -629,10 +629,10 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
                 <div className="level-expanded-code-count">
                   <span className="level-expanded-code">{selectedLevel.code}</span>
                   <span className="level-expanded-class-count">
-                    {classesByLevel[selectedLevel._id] && classesByLevel[selectedLevel._id].length > 0 
+                    {classesByLevel[selectedLevel._id] &&
+                    classesByLevel[selectedLevel._id].length > 0
                       ? `${classesByLevel[selectedLevel._id].length} class${classesByLevel[selectedLevel._id].length !== 1 ? 'es' : ''}`
-                      : 'EMPTY'
-                    }
+                      : 'EMPTY'}
                   </span>
                 </div>
               </div>

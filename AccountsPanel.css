@@ -70,7 +70,7 @@
 /* Enhanced table styles for better data consistency */
 .accounts-table td {
   padding: 16px;
-  border-bottom: 1px solid #F3E8FF;
+  border-bottom: 1px solid #f3e8ff;
   transition: all 0.2s ease;
   font-size: 0.95rem;
   text-align: left; /* Left-align all table data cells */
@@ -93,7 +93,7 @@
   font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 1px;
-  border-bottom: 2px solid #862E9C; /* Purple theme color */
+  border-bottom: 2px solid #862e9c; /* Purple theme color */
   position: relative;
 }
 
@@ -311,7 +311,7 @@
   border: 2px solid #e0f7fa;
   border-radius: 12px;
   background: #ffffff;
-  color: #862E9C; /* Purple theme color */
+  color: #862e9c; /* Purple theme color */
   font-weight: 600;
   font-size: 0.95rem;
   cursor: pointer;
@@ -321,13 +321,13 @@
 }
 
 .filter-select:hover {
-  border-color: #862E9C; /* Purple theme color */
+  border-color: #862e9c; /* Purple theme color */
   box-shadow: 0 4px 16px rgba(134, 46, 156, 0.1); /* Purple theme shadow */
 }
 
 .filter-select:focus {
   outline: none;
-  border-color: #862E9C; /* Purple theme color */
+  border-color: #862e9c; /* Purple theme color */
   box-shadow: 0 8px 24px rgba(134, 46, 156, 0.2); /* Purple theme shadow */
   transform: translateY(-2px);
 }
@@ -355,7 +355,7 @@
 }
 
 .accounts-table th {
-  background: linear-gradient(135deg, #1D9A6C 0%, #157A54 100%) !important; /* Dark green gradient */
+  background: linear-gradient(135deg, #1d9a6c 0%, #157a54 100%) !important; /* Dark green gradient */
   color: white !important;
   padding: 14px 16px !important; /* 12-16px cell padding specification */
   text-align: left !important; /* Consistent left alignment with proper border spacing */
@@ -367,11 +367,9 @@
   position: relative;
 }
 
-
-
 .accounts-table td {
   padding: 14px 16px !important; /* 12-16px cell padding specification */
-  border-bottom: 1px solid #E6F8F0;
+  border-bottom: 1px solid #e6f8f0;
   transition: all 0.2s ease;
   font-size: 0.95rem;
   text-align: left !important; /* Left alignment for all cells by default */
@@ -399,7 +397,7 @@
 }
 
 .accounts-table tbody tr:hover {
-  background: #F3E8FF;
+  background: #f3e8ff;
   transform: scale(1.01);
   transition: all 0.2s ease;
 }
@@ -411,7 +409,9 @@
 
 .clickable-row:hover {
   transform: translateX(4px) translateY(-1px) !important;
-  box-shadow: 0 6px 20px rgba(156, 39, 176, 0.15), 0 2px 8px rgba(156, 39, 176, 0.1) !important;
+  box-shadow:
+    0 6px 20px rgba(156, 39, 176, 0.15),
+    0 2px 8px rgba(156, 39, 176, 0.1) !important;
 }
 
 .accounts-table tbody tr.no-permission-row {
@@ -536,7 +536,7 @@
   .action-buttons button {
     width: 100%;
   }
-  
+
   .accounts-table th,
   .accounts-table td {
     padding: 12px 8px;
@@ -708,14 +708,14 @@
   border-radius: 12px;
   font-size: 0.95rem;
   background: #ffffff;
-  color: #862E9C; /* Purple theme color */
+  color: #862e9c; /* Purple theme color */
   transition: all 0.3s ease;
   box-shadow: 0 2px 8px rgba(134, 46, 156, 0.05); /* Purple theme shadow */
   min-width: 300px;
 }
 
 .search-bar-input:hover {
-  border-color: #862E9C; /* Purple theme color */
+  border-color: #862e9c; /* Purple theme color */
   box-shadow: 0 4px 16px rgba(134, 46, 156, 0.1); /* Purple theme shadow */
 }
 
@@ -723,11 +723,11 @@
   outline: none;
   box-shadow: 0 8px 24px rgba(134, 46, 156, 0.2); /* Purple theme shadow */
   transform: translateY(-2px);
-  border-color: #862E9C; /* Purple theme color */
+  border-color: #862e9c; /* Purple theme color */
 }
 
 .search-bar-input::placeholder {
-  color: #862E9C; /* Purple theme color */
+  color: #862e9c; /* Purple theme color */
   opacity: 0.7;
   font-style: italic;
   white-space: nowrap;
@@ -806,7 +806,7 @@
 .theme-purple .pill,
 .theme-purple .status-badge,
 .theme-purple .student-id-badge {
-  background-color: #F3E8FF; /* Light Lavender background */
-  color: #862E9C; /* Deep Purple text */
+  background-color: #f3e8ff; /* Light Lavender background */
+  color: #862e9c; /* Deep Purple text */
   text-align: center;
 }

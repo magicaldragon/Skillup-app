@@ -164,7 +164,9 @@ export async function listFiles(
     );
 
     return files.filter(
-      (file: { key: string; url: string; size: number; lastModified: Date } | null): file is {
+      (
+        file: { key: string; url: string; size: number; lastModified: Date } | null
+      ): file is {
         key: string;
         url: string;
         size: number;

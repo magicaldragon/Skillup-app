@@ -94,7 +94,9 @@ export default function AttendancePanel({
       classCode,
     ]);
     const header = ['Student ID', 'Name', 'Status', 'Date', 'Class'];
-    const csv = [header, ...rows].map((r) => r.map((v) => `"${String(v || '').replace(/"/g, '""')}"`).join(',')).join('\n');
+    const csv = [header, ...rows]
+      .map((r) => r.map((v) => `"${String(v || '').replace(/"/g, '""')}"`).join(','))
+      .join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -109,10 +111,7 @@ export default function AttendancePanel({
   return (
     <div className="attendance-panel">
       <div className="filters">
-        <select
-          value={selectedClassId}
-          onChange={(e) => setSelectedClassId(e.target.value)}
-        >
+        <select value={selectedClassId} onChange={(e) => setSelectedClassId(e.target.value)}>
           <option value="">Select Class</option>
           {classes.map((c) => {
             const id = c._id || c.id;
@@ -123,12 +122,10 @@ export default function AttendancePanel({
             ) : null;
           })}
         </select>
-        <input
-          type="date"
-          value={selectedDate}
-          onChange={(e) => setSelectedDate(e.target.value)}
-        />
-        <button className="btn-export" onClick={exportCSV}>Export CSV</button>
+        <input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} />
+        <button className="btn-export" onClick={exportCSV}>
+          Export CSV
+        </button>
         {/* XLSX export button removed */}
       </div>
 
@@ -147,23 +144,21 @@ export default function AttendancePanel({
       )}
 
       <div className="action-buttons" style={{ marginTop: 8 }}>
-        <button
-          className="btn-edit"
-          onClick={() => selectAll(classStudents.map((s) => s.id))}
-        >
+        <button className="btn-edit" onClick={() => selectAll(classStudents.map((s) => s.id))}>
           Select All
         </button>
-        <button className="btn-edit" onClick={clearAll}>Clear All</button>
-        <button className="btn-save" onClick={markSelectedPresent}>Mark all present</button>
+        <button className="btn-edit" onClick={clearAll}>
+          Clear All
+        </button>
+        <button className="btn-save" onClick={markSelectedPresent}>
+          Mark all present
+        </button>
       </div>
 
       <table className="attendance-table">
         <thead>
           <tr>
-            <th>
-              {/* selection header is handled by buttons above */}
-              #
-            </th>
+            <th>{/* selection header is handled by buttons above */}#</th>
             <th>Student ID</th>
             <th>Name</th>
             <th>Status</th>

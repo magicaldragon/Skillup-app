@@ -10,7 +10,14 @@ const TeacherDashboard = lazy(() => import('./TeacherDashboard'));
 const Login = lazy(() => import('./Login'));
 const Sidebar = lazy(() => import('./Sidebar'));
 
-import type { Assignment, Student, StudentClass, Submission, UserProfile, ExamLevel } from './types';
+import type {
+  Assignment,
+  ExamLevel,
+  Student,
+  StudentClass,
+  Submission,
+  UserProfile,
+} from './types';
 
 // Loading component for better UX
 const LoadingSpinner = () => (
@@ -139,33 +146,34 @@ const App: React.FC = () => {
         console.log('Students fetched and sanitized successfully:', sanitizedStudents.length);
       } else if (data && Array.isArray(data)) {
         // Handle case where data is directly an array
-        const sanitizedStudents = data.map(
-          (student: Partial<Student> & { fullname?: string }) => ({
-            id: student.id || student._id || '',
-            _id: student._id || student.id || '',
-            name: (student.name || student.fullname || student.displayName || '').toString(),
-            email: (student.email || '').toString(),
-            role: student.role || 'student',
-            username: (student.username || student.email || '').toString(),
-            englishName: (student.englishName || student.name || student.fullname || '').toString(),
-            gender: (student.gender || '').toString(),
-            dob: (student.dob || '').toString(),
-            phone: (student.phone || '').toString(),
-            parentName: (student.parentName || '').toString(),
-            parentPhone: (student.parentPhone || '').toString(),
-            notes: (student.notes || '').toString(),
-            status: (student.status || '').toString(),
-            studentCode: (student.studentCode || '').toString(),
-            avatarUrl: (student.avatarUrl || '').toString(),
-            diceBearStyle: (student.diceBearStyle || '').toString(),
-            diceBearSeed: (student.diceBearSeed || '').toString(),
-            classIds: Array.isArray(student.classIds) ? student.classIds : [],
-            createdAt: (student.createdAt || '').toString(),
-            updatedAt: (student.updatedAt || '').toString(),
-          })
-        );
+        const sanitizedStudents = data.map((student: Partial<Student> & { fullname?: string }) => ({
+          id: student.id || student._id || '',
+          _id: student._id || student.id || '',
+          name: (student.name || student.fullname || student.displayName || '').toString(),
+          email: (student.email || '').toString(),
+          role: student.role || 'student',
+          username: (student.username || student.email || '').toString(),
+          englishName: (student.englishName || student.name || student.fullname || '').toString(),
+          gender: (student.gender || '').toString(),
+          dob: (student.dob || '').toString(),
+          phone: (student.phone || '').toString(),
+          parentName: (student.parentName || '').toString(),
+          parentPhone: (student.parentPhone || '').toString(),
+          notes: (student.notes || '').toString(),
+          status: (student.status || '').toString(),
+          studentCode: (student.studentCode || '').toString(),
+          avatarUrl: (student.avatarUrl || '').toString(),
+          diceBearStyle: (student.diceBearStyle || '').toString(),
+          diceBearSeed: (student.diceBearSeed || '').toString(),
+          classIds: Array.isArray(student.classIds) ? student.classIds : [],
+          createdAt: (student.createdAt || '').toString(),
+          updatedAt: (student.updatedAt || '').toString(),
+        }));
         setStudents(sanitizedStudents);
-        console.log('Students fetched and sanitized successfully (direct array):', sanitizedStudents.length);
+        console.log(
+          'Students fetched and sanitized successfully (direct array):',
+          sanitizedStudents.length
+        );
       } else {
         console.log('No students data or empty array returned:', data);
         setStudents([]);
@@ -207,7 +215,9 @@ const App: React.FC = () => {
           (assignment: Partial<Assignment> & { _id?: string }) => ({
             id: assignment.id || assignment._id || '',
             title: (assignment.title || '').toString(),
-            level: (assignment.level && typeof assignment.level === 'string' ? assignment.level : (assignment.level as any)?.name || 'IELTS') as ExamLevel,
+            level: (assignment.level && typeof assignment.level === 'string'
+              ? assignment.level
+              : (assignment.level as any)?.name || 'IELTS') as ExamLevel,
             skill: assignment.skill || 'Reading',
             description: (assignment.description || '').toString(),
             questions: Array.isArray(assignment.questions) ? assignment.questions : [],
@@ -230,7 +240,9 @@ const App: React.FC = () => {
           (assignment: Partial<Assignment> & { _id?: string }) => ({
             id: assignment.id || assignment._id || '',
             title: (assignment.title || '').toString(),
-            level: (assignment.level && typeof assignment.level === 'string' ? assignment.level : (assignment.level as any)?.name || 'IELTS') as ExamLevel,
+            level: (assignment.level && typeof assignment.level === 'string'
+              ? assignment.level
+              : (assignment.level as any)?.name || 'IELTS') as ExamLevel,
             skill: assignment.skill || 'Reading',
             description: (assignment.description || '').toString(),
             questions: Array.isArray(assignment.questions) ? assignment.questions : [],
@@ -246,7 +258,10 @@ const App: React.FC = () => {
           })
         );
         setAssignments(sanitizedAssignments);
-        console.log('Assignments fetched and sanitized successfully (direct array):', sanitizedAssignments.length);
+        console.log(
+          'Assignments fetched and sanitized successfully (direct array):',
+          sanitizedAssignments.length
+        );
       } else {
         console.log('No assignments data or empty array returned:', data);
         setAssignments([]);
@@ -287,11 +302,11 @@ const App: React.FC = () => {
           (submission: Partial<Submission> & { _id?: string }) => ({
             id: submission.id || submission._id || '',
             studentId: (submission.studentId || '').toString(),
-        assignmentId: (submission.assignmentId || '').toString(),
-        submittedAt: (submission.submittedAt || '').toString(),
-        content: (submission.content || '').toString(),
-        score: submission.score || 0,
-        feedback: (submission.feedback || '').toString(),
+            assignmentId: (submission.assignmentId || '').toString(),
+            submittedAt: (submission.submittedAt || '').toString(),
+            content: (submission.content || '').toString(),
+            score: submission.score || 0,
+            feedback: (submission.feedback || '').toString(),
           })
         );
         setSubmissions(sanitizedSubmissions);
@@ -302,15 +317,18 @@ const App: React.FC = () => {
           (submission: Partial<Submission> & { _id?: string }) => ({
             id: submission.id || submission._id || '',
             studentId: (submission.studentId || '').toString(),
-        assignmentId: (submission.assignmentId || '').toString(),
-        submittedAt: (submission.submittedAt || '').toString(),
-        content: (submission.content || '').toString(),
-        score: submission.score || 0,
-        feedback: (submission.feedback || '').toString(),
+            assignmentId: (submission.assignmentId || '').toString(),
+            submittedAt: (submission.submittedAt || '').toString(),
+            content: (submission.content || '').toString(),
+            score: submission.score || 0,
+            feedback: (submission.feedback || '').toString(),
           })
         );
         setSubmissions(sanitizedSubmissions);
-        console.log('Submissions fetched and sanitized successfully (direct array):', sanitizedSubmissions.length);
+        console.log(
+          'Submissions fetched and sanitized successfully (direct array):',
+          sanitizedSubmissions.length
+        );
       } else {
         console.log('No submissions data or empty array returned:', data);
         setSubmissions([]);
@@ -365,23 +383,24 @@ const App: React.FC = () => {
         console.log('Classes fetched and sanitized successfully:', sanitizedClasses.length);
       } else if (data && Array.isArray(data)) {
         // Handle case where data is directly an array
-        const sanitizedClasses = data.map(
-          (cls: Partial<StudentClass> & { _id?: string }) => ({
-            _id: cls._id || cls.id || '',
-            id: cls.id || cls._id || '',
-            name: cls.name || '',
-            classCode: cls.classCode || '',
-            levelId: cls.levelId || null,
-            studentIds: Array.isArray(cls.studentIds) ? cls.studentIds : [],
-            teacherId: cls.teacherId || '',
-            description: cls.description || '',
-            isActive: cls.isActive !== undefined ? cls.isActive : true,
-            createdAt: cls.createdAt || '',
-            updatedAt: cls.updatedAt || '',
-          })
-        );
+        const sanitizedClasses = data.map((cls: Partial<StudentClass> & { _id?: string }) => ({
+          _id: cls._id || cls.id || '',
+          id: cls.id || cls._id || '',
+          name: cls.name || '',
+          classCode: cls.classCode || '',
+          levelId: cls.levelId || null,
+          studentIds: Array.isArray(cls.studentIds) ? cls.studentIds : [],
+          teacherId: cls.teacherId || '',
+          description: cls.description || '',
+          isActive: cls.isActive !== undefined ? cls.isActive : true,
+          createdAt: cls.createdAt || '',
+          updatedAt: cls.updatedAt || '',
+        }));
         setClasses(sanitizedClasses);
-        console.log('Classes fetched and sanitized successfully (direct array):', sanitizedClasses.length);
+        console.log(
+          'Classes fetched and sanitized successfully (direct array):',
+          sanitizedClasses.length
+        );
       } else {
         console.log('No classes data or empty array returned:', data);
         setClasses([]);
@@ -399,7 +418,7 @@ const App: React.FC = () => {
     const fetchData = async () => {
       setDataLoading(true);
       setDataError(null);
-      
+
       try {
         console.log('Starting data fetch...');
 
@@ -445,8 +464,6 @@ const App: React.FC = () => {
     if (loading) {
       return <LoadingSpinner />;
     }
-
-
 
     if (!user) {
       return (
@@ -499,28 +516,28 @@ const App: React.FC = () => {
     );
 
     return (
-        <div className="app-container">
-          <Suspense fallback={<LoadingSpinner />}>
-            <Sidebar
-              role={user.role}
-              activeKey={navKey}
-              onNavigate={setNavKey}
-              onLogout={handleLogout}
+      <div className="app-container">
+        <Suspense fallback={<LoadingSpinner />}>
+          <Sidebar
+            role={user.role}
+            activeKey={navKey}
+            onNavigate={setNavKey}
+            onLogout={handleLogout}
+            user={user}
+          />
+          <main className="main-content">
+            <DashboardComponent
               user={user}
+              students={students}
+              assignments={assignments}
+              classes={classes}
+              activeKey={navKey}
+              onDataRefresh={refreshData}
+              isAdmin={user.role === 'admin'}
             />
-            <main className="main-content">
-              <DashboardComponent
-                user={user}
-                students={students}
-                assignments={assignments}
-                classes={classes}
-                activeKey={navKey}
-                onDataRefresh={refreshData}
-                isAdmin={user.role === 'admin'}
-              />
-            </main>
-          </Suspense>
-        </div>
+          </main>
+        </Suspense>
+      </div>
     );
   }, [
     loading,

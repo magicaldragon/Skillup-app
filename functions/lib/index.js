@@ -1,206 +1,230 @@
-"use strict";
 // functions/src/index.ts - Firebase Functions Main Entry Point
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
+var __createBinding =
+  (this && this.__createBinding) ||
+  (Object.create
+    ? (o, m, k, k2) => {
+        if (k2 === undefined) k2 = k;
+        var desc = Object.getOwnPropertyDescriptor(m, k);
+        if (!desc || ('get' in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+          desc = {
+            enumerable: true,
+            get: () => m[k],
+          };
+        }
+        Object.defineProperty(o, k2, desc);
+      }
+    : (o, m, k, k2) => {
+        if (k2 === undefined) k2 = k;
+        o[k2] = m[k];
+      });
+var __setModuleDefault =
+  (this && this.__setModuleDefault) ||
+  (Object.create
+    ? (o, v) => {
+        Object.defineProperty(o, 'default', { enumerable: true, value: v });
+      }
+    : (o, v) => {
+        o['default'] = v;
+      });
+var __importStar =
+  (this && this.__importStar) ||
+  (() => {
+    var ownKeys = (o) => {
+      ownKeys =
+        Object.getOwnPropertyNames ||
+        ((o) => {
+          var ar = [];
+          for (var k in o) if (Object.hasOwn(o, k)) ar[ar.length] = k;
+          return ar;
+        });
+      return ownKeys(o);
     };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
+    return (mod) => {
+      if (mod && mod.__esModule) return mod;
+      var result = {};
+      if (mod != null)
+        for (var k = ownKeys(mod), i = 0; i < k.length; i++)
+          if (k[i] !== 'default') __createBinding(result, mod, k[i]);
+      __setModuleDefault(result, mod);
+      return result;
     };
-})();
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
+  })();
+var __importDefault =
+  (this && this.__importDefault) || ((mod) => (mod && mod.__esModule ? mod : { default: mod }));
+Object.defineProperty(exports, '__esModule', { value: true });
 exports.api = void 0;
-const cors_1 = __importDefault(require("cors"));
-const express_1 = __importDefault(require("express"));
-const admin = __importStar(require("firebase-admin"));
-const https_1 = require("firebase-functions/v2/https");
+const cors_1 = __importDefault(require('cors'));
+const express_1 = __importDefault(require('express'));
+const admin = __importStar(require('firebase-admin'));
+const https_1 = require('firebase-functions/v2/https');
 // Initialize Firebase Admin with proper error handling
 try {
-    // Check if already initialized
-    if (admin.apps.length === 0) {
-        admin.initializeApp();
-        console.log('Firebase Admin SDK initialized successfully');
-    }
-    else {
-        console.log('Firebase Admin SDK already initialized');
-    }
-    // Verify Firestore connection
-    console.log('Firestore connection verified');
-    // Verify Auth connection
-    console.log('Firebase Auth connection verified');
+  // Check if already initialized
+  if (admin.apps.length === 0) {
+    admin.initializeApp();
+    console.log('Firebase Admin SDK initialized successfully');
+  } else {
+    console.log('Firebase Admin SDK already initialized');
+  }
+  // Verify Firestore connection
+  console.log('Firestore connection verified');
+  // Verify Auth connection
+  console.log('Firebase Auth connection verified');
+} catch (error) {
+  console.error('Failed to initialize Firebase Admin SDK:', error);
+  throw new Error(
+    `Firebase initialization failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+  );
 }
-catch (error) {
-    console.error('Failed to initialize Firebase Admin SDK:', error);
-    throw new Error(`Firebase initialization failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-}
-const assignments_1 = require("./routes/assignments");
+const assignments_1 = require('./routes/assignments');
 // Import routes
-const auth_1 = require("./routes/auth");
-const changeLogs_1 = require("./routes/changeLogs");
-const classes_1 = require("./routes/classes");
-const levels_1 = require("./routes/levels");
-const notifications_1 = require("./routes/notifications");
-const potentialStudents_1 = require("./routes/potentialStudents");
-const studentRecords_1 = require("./routes/studentRecords");
-const student_reports_1 = require("./routes/student-reports");
-const submissions_1 = __importDefault(require("./routes/submissions"));
-const users_1 = require("./routes/users");
+const auth_1 = require('./routes/auth');
+const changeLogs_1 = require('./routes/changeLogs');
+const classes_1 = require('./routes/classes');
+const levels_1 = require('./routes/levels');
+const notifications_1 = require('./routes/notifications');
+const potentialStudents_1 = require('./routes/potentialStudents');
+const studentRecords_1 = require('./routes/studentRecords');
+const student_reports_1 = require('./routes/student-reports');
+const submissions_1 = __importDefault(require('./routes/submissions'));
+const users_1 = require('./routes/users');
 const app = (0, express_1.default)();
 // Middleware
-app.use((0, cors_1.default)({
+app.use(
+  (0, cors_1.default)({
     origin: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+  })
+);
 app.options('*', (0, cors_1.default)()); // Handle preflight requests globally
 app.use(express_1.default.json({ limit: '10mb' }));
 app.use(express_1.default.urlencoded({ extended: true }));
 // Health check endpoint
 app.get('/health', async (_req, res) => {
-    try {
-        // Test Firestore connection by checking if we can access the database
-        const db = admin.firestore();
-        // Use a simple query to test connection instead of accessing a specific collection
-        await db.collection('users').limit(1).get();
-        // Test Auth connection
-        admin.auth();
-        res.json({
-            status: 'healthy',
-            timestamp: new Date().toISOString(),
-            environment: process.env.NODE_ENV || 'development',
-            firebase: {
-                projectId: admin.app().options.projectId,
-                database: 'firestore',
-                firestore: 'connected',
-                auth: 'connected',
-            },
-            vstorage: {
-                accessKey: process.env.VSTORAGE_ACCESS_KEY ? 'configured' : 'not configured',
-                bucket: process.env.VSTORAGE_BUCKET || 'skillup',
-                endpoint: process.env.VSTORAGE_ENDPOINT || 'https://s3.vngcloud.vn',
-            },
-        });
-    }
-    catch (error) {
-        console.error('Health check failed:', error);
-        res.status(503).json({
-            status: 'unhealthy',
-            timestamp: new Date().toISOString(),
-            error: error instanceof Error ? error.message : 'Unknown error',
-            firebase: {
-                projectId: admin.app().options.projectId,
-                database: 'firestore',
-                firestore: 'disconnected',
-                auth: 'disconnected',
-            },
-        });
-    }
+  try {
+    // Test Firestore connection by checking if we can access the database
+    const db = admin.firestore();
+    // Use a simple query to test connection instead of accessing a specific collection
+    await db.collection('users').limit(1).get();
+    // Test Auth connection
+    admin.auth();
+    res.json({
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development',
+      firebase: {
+        projectId: admin.app().options.projectId,
+        database: 'firestore',
+        firestore: 'connected',
+        auth: 'connected',
+      },
+      vstorage: {
+        accessKey: process.env.VSTORAGE_ACCESS_KEY ? 'configured' : 'not configured',
+        bucket: process.env.VSTORAGE_BUCKET || 'skillup',
+        endpoint: process.env.VSTORAGE_ENDPOINT || 'https://s3.vngcloud.vn',
+      },
+    });
+  } catch (error) {
+    console.error('Health check failed:', error);
+    res.status(503).json({
+      status: 'unhealthy',
+      timestamp: new Date().toISOString(),
+      error: error instanceof Error ? error.message : 'Unknown error',
+      firebase: {
+        projectId: admin.app().options.projectId,
+        database: 'firestore',
+        firestore: 'disconnected',
+        auth: 'disconnected',
+      },
+    });
+  }
 });
 // Test endpoint for connectivity
 app.get('/test', (_req, res) => {
-    res.json({
-        status: 'connected',
-        timestamp: new Date().toISOString(),
-        message: 'Backend is reachable',
-    });
+  res.json({
+    status: 'connected',
+    timestamp: new Date().toISOString(),
+    message: 'Backend is reachable',
+  });
 });
 // Helper to mount all API routes under a base path ('' or '/api')
 function mountApiRoutes(basePath) {
-    app.use(`${basePath}/auth`, auth_1.authRouter);
-    app.use(`${basePath}/users`, users_1.usersRouter);
-    app.use(`${basePath}/classes`, classes_1.classesRouter);
-    app.use(`${basePath}/levels`, levels_1.levelsRouter);
-    app.use(`${basePath}/assignments`, assignments_1.assignmentsRouter);
-    app.use(`${basePath}/submissions`, submissions_1.default);
-    app.use(`${basePath}/potential-students`, potentialStudents_1.potentialStudentsRouter);
-    app.use(`${basePath}/student-records`, studentRecords_1.studentRecordsRouter);
-    app.use(`${basePath}/student-reports`, student_reports_1.studentReportsRouter);
-    app.use(`${basePath}/notifications`, notifications_1.notificationsRouter);
-    app.use(`${basePath}/change-logs`, changeLogs_1.changeLogsRouter);
+  app.use(`${basePath}/auth`, auth_1.authRouter);
+  app.use(`${basePath}/users`, users_1.usersRouter);
+  app.use(`${basePath}/classes`, classes_1.classesRouter);
+  app.use(`${basePath}/levels`, levels_1.levelsRouter);
+  app.use(`${basePath}/assignments`, assignments_1.assignmentsRouter);
+  app.use(`${basePath}/submissions`, submissions_1.default);
+  app.use(`${basePath}/potential-students`, potentialStudents_1.potentialStudentsRouter);
+  app.use(`${basePath}/student-records`, studentRecords_1.studentRecordsRouter);
+  app.use(`${basePath}/student-reports`, student_reports_1.studentReportsRouter);
+  app.use(`${basePath}/notifications`, notifications_1.notificationsRouter);
+  app.use(`${basePath}/change-logs`, changeLogs_1.changeLogsRouter);
 }
 // Mount routes for both direct function invocation ('') and Hosting rewrite ('/api')
 mountApiRoutes('');
 mountApiRoutes('/api');
 // Add specific handlers for the /api prefix as well
-app.use('/api', express_1.default.Router().get('/health', async (_req, res) => {
+app.use(
+  '/api',
+  express_1.default.Router().get('/health', async (_req, res) => {
     try {
-        const db = admin.firestore();
-        await db.collection('users').limit(1).get();
-        admin.auth();
-        res.json({
-            status: 'healthy',
-            timestamp: new Date().toISOString(),
-            environment: process.env.NODE_ENV || 'development',
-            firebase: {
-                projectId: admin.app().options.projectId,
-                database: 'firestore',
-                firestore: 'connected',
-                auth: 'connected',
-            },
-        });
-    }
-    catch (error) {
-        console.error('Health check failed:', error);
-        res.status(503).json({
-            status: 'unhealthy',
-            timestamp: new Date().toISOString(),
-            error: error instanceof Error ? error.message : 'Unknown error',
-        });
-    }
-}));
-app.use('/api', express_1.default.Router().get('/test', (_req, res) => {
-    res.json({
-        status: 'connected',
+      const db = admin.firestore();
+      await db.collection('users').limit(1).get();
+      admin.auth();
+      res.json({
+        status: 'healthy',
         timestamp: new Date().toISOString(),
-        message: 'Backend is reachable via /api',
+        environment: process.env.NODE_ENV || 'development',
+        firebase: {
+          projectId: admin.app().options.projectId,
+          database: 'firestore',
+          firestore: 'connected',
+          auth: 'connected',
+        },
+      });
+    } catch (error) {
+      console.error('Health check failed:', error);
+      res.status(503).json({
+        status: 'unhealthy',
+        timestamp: new Date().toISOString(),
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+  })
+);
+app.use(
+  '/api',
+  express_1.default.Router().get('/test', (_req, res) => {
+    res.json({
+      status: 'connected',
+      timestamp: new Date().toISOString(),
+      message: 'Backend is reachable via /api',
     });
-}));
+  })
+);
 // Error handling middleware
 app.use((err, _req, res, _next) => {
-    const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
-    console.error('Unhandled error:', err);
-    res.status(500).json({
-        success: false,
-        message: 'Internal server error',
-        error: errorMessage,
-    });
+  const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+  console.error('Unhandled error:', err);
+  res.status(500).json({
+    success: false,
+    message: 'Internal server error',
+    error: errorMessage,
+  });
 });
 // 404 handler
 app.use('*', (_req, res) => {
-    res.status(404).json({ error: 'Route not found' });
+  res.status(404).json({ error: 'Route not found' });
 });
 // Export the Express app as a Firebase Function
-exports.api = (0, https_1.onRequest)({
+exports.api = (0, https_1.onRequest)(
+  {
     region: 'us-central1',
     timeoutSeconds: 540,
     memory: '256MiB',
-}, app);
+  },
+  app
+);
 //# sourceMappingURL=index.js.map

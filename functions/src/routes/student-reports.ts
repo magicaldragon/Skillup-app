@@ -14,7 +14,7 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
     }
 
     const { role } = req.user;
-    
+
     // Only admin, teachers, and staff can view reports
     if (role !== 'admin' && role !== 'teacher' && role !== 'staff') {
       return res.status(403).json({ message: 'Access denied' });
@@ -52,19 +52,13 @@ router.post('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =
     }
 
     const { role } = req.user;
-    
+
     // Only admin, teachers, and staff can create reports
     if (role !== 'admin' && role !== 'teacher' && role !== 'staff') {
       return res.status(403).json({ message: 'Access denied' });
     }
 
-    const {
-      studentId,
-      classId,
-      className,
-      problems,
-      caseNo,
-    } = req.body;
+    const { studentId, classId, className, problems, caseNo } = req.body;
 
     if (!studentId || !classId || !problems || !caseNo) {
       return res.status(400).json({
@@ -83,7 +77,7 @@ router.post('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =
     }
 
     const studentData = studentDoc.data();
-    
+
     // Get class information for level
     const classDoc = await admin.firestore().collection('classes').doc(classId).get();
     let levelName = 'Unknown';
@@ -185,7 +179,7 @@ router.patch('/:id/status', verifyToken, async (req: AuthenticatedRequest, res: 
     }
 
     const { role } = req.user;
-    
+
     // Only admin, teachers, and staff can update report status
     if (role !== 'admin' && role !== 'teacher' && role !== 'staff') {
       return res.status(403).json({ message: 'Access denied' });
@@ -237,7 +231,7 @@ router.patch('/:id', verifyToken, async (req: AuthenticatedRequest, res: Respons
     }
 
     const { role } = req.user;
-    
+
     // Only admin, teachers, and staff can update report solutions
     if (role !== 'admin' && role !== 'teacher' && role !== 'staff') {
       return res.status(403).json({ message: 'Access denied' });
@@ -289,7 +283,7 @@ router.get('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response)
     }
 
     const { role } = req.user;
-    
+
     // Only admin, teachers, and staff can view reports
     if (role !== 'admin' && role !== 'teacher' && role !== 'staff') {
       return res.status(403).json({ message: 'Access denied' });
@@ -321,32 +315,37 @@ router.get('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response)
 });
 
 // Delete report (admin only)
-router.delete('/:id', verifyToken, requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
-  try {
-    const { id } = req.params;
-    const reportRef = admin.firestore().collection('studentReports').doc(id);
-    const reportDoc = await reportRef.get();
+router.delete(
+  '/:id',
+  verifyToken,
+  requireAdmin,
+  async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { id } = req.params;
+      const reportRef = admin.firestore().collection('studentReports').doc(id);
+      const reportDoc = await reportRef.get();
 
-    if (!reportDoc.exists) {
-      return res.status(404).json({
+      if (!reportDoc.exists) {
+        return res.status(404).json({
+          success: false,
+          message: 'Report not found',
+        });
+      }
+
+      await reportRef.delete();
+
+      return res.json({
+        success: true,
+        message: 'Report deleted successfully',
+      });
+    } catch (error) {
+      console.error('Error deleting report:', error);
+      return res.status(500).json({
         success: false,
-        message: 'Report not found',
+        message: 'Failed to delete report',
       });
     }
-
-    await reportRef.delete();
-
-    return res.json({
-      success: true,
-      message: 'Report deleted successfully',
-    });
-  } catch (error) {
-    console.error('Error deleting report:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Failed to delete report',
-    });
   }
-});
+);
 
-export { router as studentReportsRouter }; 
+export { router as studentReportsRouter };

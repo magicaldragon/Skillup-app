@@ -6,9 +6,6 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "lint": "biome check .",
-    "lint:fix": "biome check --write .",
-    "format": "biome format --write .",
     "preview": "vite preview",
     "firebase:deploy": "node scripts/deployFirebase.cjs deploy",
     "firebase:status": "node scripts/deployFirebase.cjs status",
@@ -25,6 +22,10 @@
     "deploy:all": "npm run build && npm run firebase:deploy",
     "setup:firebase": "npm install -g firebase-tools && firebase login",
     "test": "vitest run",
+    "lint": "biome check .",
+    "lint:apply": "biome check . --write",
+    "lint:apply-unsafe": "biome check . --write --unsafe",
+    "format": "biome format . --write",
     "eslint": "eslint . --ext .ts,.tsx"
   },
   "dependencies": {

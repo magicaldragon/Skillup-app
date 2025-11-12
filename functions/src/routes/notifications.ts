@@ -9,9 +9,9 @@ const router = Router();
 router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.user) {
-      return res.status(401).json({ 
+      return res.status(401).json({
         success: false,
-        message: 'User not authenticated' 
+        message: 'User not authenticated',
       });
     }
 
@@ -36,7 +36,7 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
       });
     } catch (indexError) {
       console.warn('Composite index not available, falling back to simple query:', indexError);
-      
+
       // Fallback: Get notifications without ordering (requires less complex index)
       const snapshot = await admin
         .firestore()
@@ -67,7 +67,7 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
     return res.status(500).json({
       success: false,
       message: 'Failed to fetch notifications',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 });
@@ -181,4 +181,4 @@ export const createNotification = async (
   }
 };
 
-export { router as notificationsRouter }; 
+export { router as notificationsRouter };

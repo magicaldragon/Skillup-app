@@ -17,7 +17,7 @@ import type {
   SubmissionCreateData,
   SubmissionUpdateData,
   UserCreateData,
-  UserUpdateData
+  UserUpdateData,
 } from '../types';
 import { auth } from './firebase';
 
@@ -30,19 +30,19 @@ async function getAuthToken(): Promise<string> {
   if (user) {
     return await user.getIdToken();
   }
-  
+
   const sessionToken = localStorage.getItem('skillup_token');
   if (sessionToken) {
     return sessionToken;
   }
-  
+
   throw new Error('No authentication token available');
 }
 
 // Simple API call function
 async function apiCall<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = await getAuthToken();
-  
+
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
     headers: {
@@ -76,7 +76,7 @@ export const authAPI = {
     return apiCall('/auth/profile', {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
     });
   },

@@ -181,7 +181,7 @@
 }
 
 .potential-students-table th {
-  background: linear-gradient(135deg, #1D9A6C 0%, #157A54 100%); /* Dark green gradient */
+  background: linear-gradient(135deg, #1d9a6c 0%, #157a54 100%); /* Dark green gradient */
   color: white;
   padding: 14px 16px !important; /* 12-16px cell padding specification */
   text-align: left !important; /* Consistent left alignment with proper border spacing */
@@ -194,7 +194,7 @@
 
 .potential-students-table td {
   padding: 14px 16px !important; /* 12-16px cell padding specification */
-  border-bottom: 1px solid #E6F8F0;
+  border-bottom: 1px solid #e6f8f0;
   vertical-align: middle;
   text-align: left !important; /* Consistent left alignment with proper border spacing */
   height: 56px !important; /* 56-60px row height specification */
@@ -213,7 +213,7 @@
 }
 
 .potential-students-table tbody tr:hover {
-  background: #FFF0E6;
+  background: #fff0e6;
   transform: scale(1.01);
   transition: all 0.2s ease;
 }
@@ -267,14 +267,14 @@
 
 .student-name {
   font-weight: 700;
-  color: #1D9A6C;
+  color: #1d9a6c;
   font-size: 1rem;
   text-align: center;
 }
 
 .english-name {
   font-size: 0.85rem;
-  color: #1D9A6C;
+  color: #1d9a6c;
   font-style: italic;
   margin-top: 2px;
   text-align: center;
@@ -392,7 +392,7 @@
 .gender-cell {
   text-align: center;
   font-weight: 600;
-  color: #1D9A6C;
+  color: #1d9a6c;
   text-transform: capitalize;
 }
 
@@ -400,7 +400,7 @@
 .parent-name-cell {
   text-align: center;
   font-weight: 500;
-  color: #1D9A6C;
+  color: #1d9a6c;
   max-width: 150px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -411,7 +411,7 @@
 .parent-phone-cell {
   text-align: center;
   font-weight: 500;
-  color: #1D9A6C;
+  color: #1d9a6c;
   max-width: 120px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -831,19 +831,19 @@
     max-width: 500px;
     min-width: 250px;
   }
-  
+
   .search-bar-input {
     min-width: 250px;
     font-size: 0.9rem;
     padding: 0.7rem 3rem 0.7rem 0.8rem;
   }
-  
+
   .search-controls {
     flex-direction: column;
     gap: 1rem;
     align-items: stretch;
   }
-  
+
   .status-filter-select {
     min-width: 120px;
   }
@@ -854,13 +854,13 @@
     max-width: 100%;
     min-width: 200px;
   }
-  
+
   .search-bar-input {
     min-width: 200px;
     font-size: 0.85rem;
     padding: 0.6rem 2.5rem 0.6rem 0.7rem;
   }
-  
+
   .status-filter-select {
     min-width: 100px;
     font-size: 0.9rem;

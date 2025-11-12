@@ -6,7 +6,7 @@ export default defineConfig({
     react({
       jsxRuntime: 'automatic',
       exclude: /node_modules/,
-    })
+    }),
   ],
   server: {
     headers: {
@@ -72,7 +72,10 @@ export default defineConfig({
         },
         // Optimize chunk naming for better caching
         chunkFileNames: (chunkInfo) => {
-          const facadeModuleId = chunkInfo.facadeModuleId ? chunkInfo.facadeModuleId.split('/').pop()?.replace('.tsx', '').replace('.ts', '') || 'chunk' : 'chunk';
+          const facadeModuleId = chunkInfo.facadeModuleId
+            ? chunkInfo.facadeModuleId.split('/').pop()?.replace('.tsx', '').replace('.ts', '') ||
+              'chunk'
+            : 'chunk';
           return `assets/js/[name]-${facadeModuleId}-[hash].js`;
         },
         entryFileNames: 'assets/js/[name]-[hash].js',
@@ -113,11 +116,11 @@ export default defineConfig({
   },
   optimizeDeps: {
     include: [
-      'react', 
-      'react-dom', 
+      'react',
+      'react-dom',
       'react-dom/client',
       'react/jsx-runtime',
-      'firebase/app', 
+      'firebase/app',
       'firebase/auth',
       'firebase/firestore',
       'react-icons/fa',
@@ -125,7 +128,7 @@ export default defineConfig({
       'react-icons/io',
       'date-fns',
       'chart.js',
-      'react-chartjs-2'
+      'react-chartjs-2',
     ],
     exclude: ['firebase-admin'],
     force: true,

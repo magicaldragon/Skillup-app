@@ -3,7 +3,8 @@ import './RecordsPanel.css';
 import './ManagementTableStyles.css';
 import { formatDateMMDDYYYY, formatDateTimeDDMMYYYY } from './utils/stringUtils';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
 
 interface StudentRecord {
   _id: string;
@@ -142,46 +143,44 @@ const RecordsPanel = () => {
   // Helper functions for records display
   const getActionColor = (action: string): string => {
     const actionColors: { [key: string]: string } = {
-      'user_created': 'success',
-      'user_updated': 'info',
-      'user_deleted': 'danger',
-      'role_changed': 'warning',
-      'status_changed': 'warning',
-      'class_assigned': 'success',
-      'class_removed': 'danger',
-      'assignment_submitted': 'info',
-      'assignment_graded': 'success',
+      user_created: 'success',
+      user_updated: 'info',
+      user_deleted: 'danger',
+      role_changed: 'warning',
+      status_changed: 'warning',
+      class_assigned: 'success',
+      class_removed: 'danger',
+      assignment_submitted: 'info',
+      assignment_graded: 'success',
     };
     return actionColors[action] || 'default';
   };
 
   const getActionDisplayName = (action: string): string => {
     const actionNames: { [key: string]: string } = {
-      'user_created': 'User Created',
-      'user_updated': 'User Updated',
-      'user_deleted': 'User Deleted',
-      'role_changed': 'Role Changed',
-      'status_changed': 'Status Changed',
-      'class_assigned': 'Class Assigned',
-      'class_removed': 'Class Removed',
-      'assignment_submitted': 'Assignment Submitted',
-      'assignment_graded': 'Assignment Graded',
+      user_created: 'User Created',
+      user_updated: 'User Updated',
+      user_deleted: 'User Deleted',
+      role_changed: 'Role Changed',
+      status_changed: 'Status Changed',
+      class_assigned: 'Class Assigned',
+      class_removed: 'Class Removed',
+      assignment_submitted: 'Assignment Submitted',
+      assignment_graded: 'Assignment Graded',
     };
     return actionNames[action] || action;
   };
 
   const getCategoryDisplayName = (category: string): string => {
     const categoryNames: { [key: string]: string } = {
-      'academic': 'Academic',
-      'administrative': 'Administrative',
-      'financial': 'Financial',
-      'attendance': 'Attendance',
-      'assessment': 'Assessment',
+      academic: 'Academic',
+      administrative: 'Administrative',
+      financial: 'Financial',
+      attendance: 'Attendance',
+      assessment: 'Assessment',
     };
     return categoryNames[category] || category;
   };
-
-
 
   useEffect(() => {
     fetchRecords();
@@ -287,33 +286,33 @@ const RecordsPanel = () => {
         </div>
 
         <div className="filter-controls">
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value as any)}
+            className="filter-select"
+          >
+            <option value="all">All Categories</option>
+            <option value="academic">Academic</option>
+            <option value="administrative">Administrative</option>
+            <option value="financial">Financial</option>
+            <option value="attendance">Attendance</option>
+            <option value="assessment">Assessment</option>
+            <option value="students">Students</option>
+          </select>
+
+          {/* Show status filter only when students category is selected */}
+          {filter === 'students' && (
             <select
-              value={filter}
-              onChange={(e) => setFilter(e.target.value as any)}
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as 'all' | 'off' | 'alumni')}
               className="filter-select"
             >
-              <option value="all">All Categories</option>
-              <option value="academic">Academic</option>
-              <option value="administrative">Administrative</option>
-              <option value="financial">Financial</option>
-              <option value="attendance">Attendance</option>
-              <option value="assessment">Assessment</option>
-              <option value="students">Students</option>
+              <option value="all">All Statuses</option>
+              <option value="off">Off</option>
+              <option value="alumni">Alumni</option>
             </select>
-            
-            {/* Show status filter only when students category is selected */}
-            {filter === 'students' && (
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value as 'all' | 'off' | 'alumni')}
-                className="filter-select"
-              >
-                <option value="all">All Statuses</option>
-                <option value="off">Off</option>
-                <option value="alumni">Alumni</option>
-              </select>
-            )}
-          </div>
+          )}
+        </div>
       </div>
 
       <div className="records-stats">

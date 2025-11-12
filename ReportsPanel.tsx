@@ -3,7 +3,8 @@ import './ReportsPanel.css';
 import './ManagementTableStyles.css';
 import { formatDateMMDDYYYY } from './utils/stringUtils';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
 
 interface StudentReport {
   _id: string;
@@ -30,7 +31,9 @@ const ReportsPanel = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'observing' | 'solved'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'observing' | 'solved'>(
+    'all'
+  );
   const [editingReportId, setEditingReportId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<StudentReport>>({});
 
@@ -97,9 +100,7 @@ const ReportsPanel = () => {
 
       // Update local state
       setReports((prev) =>
-        prev.map((report) =>
-          report._id === reportId ? { ...report, status: newStatus } : report
-        )
+        prev.map((report) => (report._id === reportId ? { ...report, status: newStatus } : report))
       );
 
       alert(`Report status updated to ${newStatus}`);
@@ -135,9 +136,7 @@ const ReportsPanel = () => {
       // Update local state
       setReports((prev) =>
         prev.map((report) =>
-          report._id === editingReportId 
-            ? { ...report, solution: editForm.solution } 
-            : report
+          report._id === editingReportId ? { ...report, solution: editForm.solution } : report
         )
       );
 
@@ -306,9 +305,7 @@ const ReportsPanel = () => {
                   <td className="student-id-cell">
                     <strong>{report.studentId}</strong>
                   </td>
-                  <td className="english-name-cell">
-                    {report.studentEnglishName || 'N/A'}
-                  </td>
+                  <td className="english-name-cell">{report.studentEnglishName || 'N/A'}</td>
                   <td className="class-cell">{report.className}</td>
                   <td className="level-cell">{report.levelName || 'Unknown'}</td>
                   <td className="problems-cell">

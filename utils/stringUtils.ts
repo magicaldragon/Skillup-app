@@ -152,12 +152,12 @@ export const generateVietnameseUsername = (fullName: string): string => {
 };
 
 // Debounced username generation for performance
-export const debounce = <T extends (...args: any[]) => any>(
-  func: T,
+export const debounce = <TArgs extends unknown[], TReturn>(
+  func: (...args: TArgs) => TReturn,
   wait: number
-): ((...args: Parameters<T>) => void) => {
+): ((...args: TArgs) => void) => {
   let timeout: NodeJS.Timeout;
-  return (...args: Parameters<T>) => {
+  return (...args: TArgs) => {
     clearTimeout(timeout);
     timeout = setTimeout(() => func(...args), wait);
   };
@@ -171,14 +171,14 @@ export const debounce = <T extends (...args: any[]) => any>(
 export const formatDateDDMMYYYY = (dateString: string | Date): string => {
   try {
     const date = new Date(dateString);
-    if (isNaN(date.getTime())) {
+    if (Number.isNaN(date.getTime())) {
       return '-';
     }
-    
+
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
-    
+
     return `${day}/${month}/${year}`;
   } catch (error) {
     console.error('Error formatting date:', error);
@@ -194,20 +194,20 @@ export const formatDateDDMMYYYY = (dateString: string | Date): string => {
 export const formatDateMMDDYYYY = (dateString: string | Date): string => {
   try {
     const date = new Date(dateString);
-    if (isNaN(date.getTime())) {
+    if (Number.isNaN(date.getTime())) {
       return '-';
     }
-    
+
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
-    
+
     return `${month}/${day}/${year}`;
   } catch (error) {
     console.error('Error formatting date:', error);
     return '-';
   }
-}
+};
 
 /**
  * Format date to dd/mm/yyyy hh:mm format
@@ -217,16 +217,16 @@ export const formatDateMMDDYYYY = (dateString: string | Date): string => {
 export const formatDateTimeDDMMYYYY = (dateString: string | Date): string => {
   try {
     const date = new Date(dateString);
-    if (isNaN(date.getTime())) {
+    if (Number.isNaN(date.getTime())) {
       return '-';
     }
-    
+
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
-    
+
     return `${day}/${month}/${year} ${hours}:${minutes}`;
   } catch (error) {
     console.error('Error formatting date time:', error);
@@ -243,12 +243,12 @@ export const convertDDMMYYYYToInputFormat = (dateString: string): string => {
   if (!dateString || !dateString.includes('/')) {
     return dateString;
   }
-  
+
   const parts = dateString.split('/');
   if (parts.length !== 3) {
     return dateString;
   }
-  
+
   const [day, month, year] = parts;
   return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
 };
@@ -262,12 +262,12 @@ export const convertInputFormatToDDMMYYYY = (dateString: string): string => {
   if (!dateString || !dateString.includes('-')) {
     return dateString;
   }
-  
+
   const parts = dateString.split('-');
   if (parts.length !== 3) {
     return dateString;
   }
-  
+
   const [year, month, day] = parts;
   return `${day}/${month}/${year}`;
 };
@@ -287,14 +287,12 @@ export const getCurrentDateDDMMYYYY = (): string => {
  */
 export const isValidDDMMYYYYDate = (dateString: string): boolean => {
   if (!dateString) return false;
-  
+
   const regex = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/;
   if (!regex.test(dateString)) return false;
-  
+
   const [day, month, year] = dateString.split('/').map(Number);
   const date = new Date(year, month - 1, day);
-  
-  return date.getDate() === day && 
-         date.getMonth() === month - 1 && 
-         date.getFullYear() === year;
+
+  return date.getDate() === day && date.getMonth() === month - 1 && date.getFullYear() === year;
 };

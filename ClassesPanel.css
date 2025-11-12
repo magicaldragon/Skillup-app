@@ -2,7 +2,7 @@
 
 .classes-panel {
   padding: 0.75rem;
-  background: #F8F9FA; /* Light neutral gray page background */
+  background: #f8f9fa; /* Light neutral gray page background */
   border-radius: 10px;
   box-shadow:
     0 4px 16px 0 rgba(48, 118, 55, 0.08),
@@ -162,9 +162,11 @@
 }
 
 .classes-table-container {
-  background: #FFFFFF; /* White card background */
+  background: #ffffff; /* White card background */
   border-radius: 20px;
-  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1); /* Specified box-shadow */
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -2px rgba(0, 0, 0, 0.1); /* Specified box-shadow */
   overflow: hidden;
   margin-bottom: 24px;
 }
@@ -177,7 +179,7 @@
 }
 
 .classes-table th {
-  background: linear-gradient(135deg, #1D9A6C 0%, #157A54 100%); /* Dark green gradient */
+  background: linear-gradient(135deg, #1d9a6c 0%, #157a54 100%); /* Dark green gradient */
   color: white;
   padding: 14px 16px !important; /* 12-16px cell padding specification */
   text-align: left !important; /* Consistent left alignment with proper border spacing */
@@ -190,7 +192,7 @@
 
 .classes-table td {
   padding: 14px 16px !important; /* 12-16px cell padding specification */
-  border-bottom: 1px solid #E6F8F0;
+  border-bottom: 1px solid #e6f8f0;
   vertical-align: middle;
   text-align: left !important; /* Consistent left alignment with proper border spacing */
   height: 56px !important; /* 56-60px row height specification */
@@ -202,7 +204,7 @@
 }
 
 .classes-table tbody tr:hover {
-  background: #E6F8F0;
+  background: #e6f8f0;
   transform: scale(1.01);
   transition: all 0.2s ease;
 }
@@ -471,7 +473,7 @@
 }
 
 .students-table th {
-  background: linear-gradient(135deg, #1D9A6C 0%, #157A54 100%); /* Dark green gradient */
+  background: linear-gradient(135deg, #1d9a6c 0%, #157a54 100%); /* Dark green gradient */
   color: white;
   padding: 14px 16px !important; /* 12-16px cell padding specification */
   text-align: left !important; /* Consistent left alignment with proper border spacing */
@@ -736,7 +738,7 @@
 }
 
 .reports-table th {
-  background: linear-gradient(135deg, #1D9A6C 0%, #157A54 100%); /* Dark green gradient */
+  background: linear-gradient(135deg, #1d9a6c 0%, #157a54 100%); /* Dark green gradient */
   color: white;
   padding: 14px 16px !important; /* 12-16px cell padding specification */
   text-align: left !important; /* Consistent left alignment with proper border spacing */
@@ -749,7 +751,7 @@
 
 .reports-table td {
   padding: 14px 16px !important; /* 12-16px cell padding specification */
-  border-bottom: 1px solid #E6F8F0;
+  border-bottom: 1px solid #e6f8f0;
   vertical-align: middle;
   text-align: left !important; /* Consistent left alignment with proper border spacing */
   height: 56px !important; /* 56-60px row height specification */
@@ -1198,7 +1200,7 @@
 }
 
 .students-table th {
-  background: linear-gradient(135deg, #1D9A6C 0%, #157A54 100%); /* Dark green gradient */
+  background: linear-gradient(135deg, #1d9a6c 0%, #157a54 100%); /* Dark green gradient */
   color: white;
   padding: 14px 16px !important; /* 12-16px cell padding specification */
   text-align: left !important; /* Consistent left alignment with proper border spacing */
@@ -1211,7 +1213,7 @@
 
 .students-table td {
   padding: 14px 16px !important; /* 12-16px cell padding specification */
-  border-bottom: 1px solid #E6F8F0;
+  border-bottom: 1px solid #e6f8f0;
   vertical-align: middle;
   text-align: left !important; /* Consistent left alignment with proper border spacing */
   background: white;

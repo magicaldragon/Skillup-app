@@ -1,7 +1,12 @@
 // functions/src/routes/classes.ts - Classes API Routes
 import { type Response, Router } from 'express';
 import * as admin from 'firebase-admin';
-import { type AuthenticatedRequest, requireAdmin, requireTeacher, verifyToken } from '../middleware/auth';
+import {
+  type AuthenticatedRequest,
+  requireAdmin,
+  requireTeacher,
+  verifyToken,
+} from '../middleware/auth';
 
 const router = Router();
 
@@ -85,7 +90,7 @@ router.post('/', verifyToken, requireTeacher, async (req: AuthenticatedRequest, 
 
     // Validate starting date is provided
     const startDate = new Date(startingDate);
-    
+
     // Note: Allow any date - no future date restriction as per user requirements
 
     // Get level information to generate class code
@@ -111,11 +116,11 @@ router.post('/', verifyToken, requireTeacher, async (req: AuthenticatedRequest, 
       .get();
 
     let nextNumber = 1;
-    
+
     if (!existingClassesSnapshot.empty) {
-      const existingCodes = existingClassesSnapshot.docs.map(doc => doc.data().classCode).sort();
+      const existingCodes = existingClassesSnapshot.docs.map((doc) => doc.data().classCode).sort();
       console.log(`Existing class codes for ${levelCode}:`, existingCodes);
-      
+
       // Find the first missing number in the sequence
       let expectedNumber = 1;
       for (const existingCode of existingCodes) {
@@ -129,7 +134,7 @@ router.post('/', verifyToken, requireTeacher, async (req: AuthenticatedRequest, 
           break;
         }
       }
-      
+
       // If no gaps found, use the next number after the highest existing
       if (nextNumber === 1) {
         const highestCode = existingCodes[existingCodes.length - 1];
@@ -175,10 +180,10 @@ router.post('/', verifyToken, requireTeacher, async (req: AuthenticatedRequest, 
     };
 
     const docRef = await admin.firestore().collection('classes').add(classData);
-    const newClass = { 
-      id: docRef.id, 
+    const newClass = {
+      id: docRef.id,
       _id: docRef.id, // Add _id for frontend compatibility
-      ...classData 
+      ...classData,
     };
 
     // Update students' classIds if provided
@@ -249,126 +254,138 @@ router.get('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response)
 });
 
 // Check for gaps in class code sequence
-router.get('/check-gaps/:levelId', verifyToken, requireTeacher, async (req: AuthenticatedRequest, res: Response) => {
-  try {
-    const { levelId } = req.params;
-    
-    // Get level information
-    const levelDoc = await admin.firestore().collection('levels').doc(levelId).get();
-    if (!levelDoc.exists) {
-      return res.status(400).json({
-        success: false,
-        message: 'Level not found',
-      });
-    }
+router.get(
+  '/check-gaps/:levelId',
+  verifyToken,
+  requireTeacher,
+  async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { levelId } = req.params;
 
-    const levelData = levelDoc.data();
-    const levelCode = levelData?.code || levelData?.name?.substring(0, 2).toUpperCase() || 'SU';
+      // Get level information
+      const levelDoc = await admin.firestore().collection('levels').doc(levelId).get();
+      if (!levelDoc.exists) {
+        return res.status(400).json({
+          success: false,
+          message: 'Level not found',
+        });
+      }
 
-    // Find all existing class codes for this level (SU-001, SU-002, etc.)
-    const existingClassesSnapshot = await admin
-      .firestore()
-      .collection('classes')
-      .where('classCode', '>=', `${levelCode}-001`)
-      .where('classCode', '<=', `${levelCode}-999`)
-      .orderBy('classCode', 'asc')
-      .get();
+      const levelData = levelDoc.data();
+      const levelCode = levelData?.code || levelData?.name?.substring(0, 2).toUpperCase() || 'SU';
 
-    const existingCodes = existingClassesSnapshot.docs.map(doc => doc.data().classCode).sort();
-    const gaps: string[] = [];
-    
-    // Find gaps in the sequence
-    let expectedNumber = 1;
-    for (const existingCode of existingCodes) {
-      const existingNumber = parseInt(existingCode.slice(-3));
-      while (expectedNumber < existingNumber) {
-        const gapCode = `${levelCode}-${expectedNumber.toString().padStart(3, '0')}`;
-        gaps.push(gapCode);
+      // Find all existing class codes for this level (SU-001, SU-002, etc.)
+      const existingClassesSnapshot = await admin
+        .firestore()
+        .collection('classes')
+        .where('classCode', '>=', `${levelCode}-001`)
+        .where('classCode', '<=', `${levelCode}-999`)
+        .orderBy('classCode', 'asc')
+        .get();
+
+      const existingCodes = existingClassesSnapshot.docs.map((doc) => doc.data().classCode).sort();
+      const gaps: string[] = [];
+
+      // Find gaps in the sequence
+      let expectedNumber = 1;
+      for (const existingCode of existingCodes) {
+        const existingNumber = parseInt(existingCode.slice(-3));
+        while (expectedNumber < existingNumber) {
+          const gapCode = `${levelCode}-${expectedNumber.toString().padStart(3, '0')}`;
+          gaps.push(gapCode);
+          expectedNumber++;
+        }
         expectedNumber++;
       }
-      expectedNumber++;
-    }
 
-    // Check if there's a gap after the last existing code
-    if (existingCodes.length > 0) {
-      const lastNumber = parseInt(existingCodes[existingCodes.length - 1].slice(-3));
-      const nextAvailable = lastNumber + 1;
-      if (nextAvailable <= 999) {
-        const nextCode = `${levelCode}-${nextAvailable.toString().padStart(3, '0')}`;
-        gaps.push(nextCode);
+      // Check if there's a gap after the last existing code
+      if (existingCodes.length > 0) {
+        const lastNumber = parseInt(existingCodes[existingCodes.length - 1].slice(-3));
+        const nextAvailable = lastNumber + 1;
+        if (nextAvailable <= 999) {
+          const nextCode = `${levelCode}-${nextAvailable.toString().padStart(3, '0')}`;
+          gaps.push(nextCode);
+        }
       }
-    }
 
-    return res.json({
-      success: true,
-      levelCode,
-      existingCodes,
-      gaps,
-      nextAvailable: gaps.length > 0 ? gaps[0] : `${levelCode}-001`
-    });
-  } catch (error) {
-    console.error('Error checking class code gaps:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Failed to check class code gaps',
-    });
+      return res.json({
+        success: true,
+        levelCode,
+        existingCodes,
+        gaps,
+        nextAvailable: gaps.length > 0 ? gaps[0] : `${levelCode}-001`,
+      });
+    } catch (error) {
+      console.error('Error checking class code gaps:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to check class code gaps',
+      });
+    }
   }
-});
+);
 
 // Update class
-router.put('/:id', verifyToken, requireTeacher, async (req: AuthenticatedRequest, res: Response) => {
-  try {
-    const { id } = req.params;
-    const updateData = req.body;
+router.put(
+  '/:id',
+  verifyToken,
+  requireTeacher,
+  async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const { id } = req.params;
+      const updateData = req.body;
 
-    // Remove fields that shouldn't be updated
-    delete updateData.createdAt;
-    updateData.updatedAt = admin.firestore.FieldValue.serverTimestamp();
+      // Remove fields that shouldn't be updated
+      delete updateData.createdAt;
+      updateData.updatedAt = admin.firestore.FieldValue.serverTimestamp();
 
-    // Handle student enrollment changes
-    if (updateData.studentIds !== undefined) {
-      const currentClass = await admin.firestore().collection('classes').doc(id).get();
-      const currentData = currentClass.data();
-      const currentStudentIds = currentData?.studentIds || [];
-      const newStudentIds = updateData.studentIds;
+      // Handle student enrollment changes
+      if (updateData.studentIds !== undefined) {
+        const currentClass = await admin.firestore().collection('classes').doc(id).get();
+        const currentData = currentClass.data();
+        const currentStudentIds = currentData?.studentIds || [];
+        const newStudentIds = updateData.studentIds;
 
-      // Find students to add and remove
-      const studentsToAdd = newStudentIds.filter((sid: string) => !currentStudentIds.includes(sid));
-      const studentsToRemove = currentStudentIds.filter(
-        (sid: string) => !newStudentIds.includes(sid)
-      );
+        // Find students to add and remove
+        const studentsToAdd = newStudentIds.filter(
+          (sid: string) => !currentStudentIds.includes(sid)
+        );
+        const studentsToRemove = currentStudentIds.filter(
+          (sid: string) => !newStudentIds.includes(sid)
+        );
 
-      const batch = admin.firestore().batch();
+        const batch = admin.firestore().batch();
 
-      // Add students to class
-      for (const studentId of studentsToAdd) {
-        const studentRef = admin.firestore().collection('users').doc(studentId);
-        batch.update(studentRef, {
-          classIds: admin.firestore.FieldValue.arrayUnion(id),
-          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        });
+        // Add students to class
+        for (const studentId of studentsToAdd) {
+          const studentRef = admin.firestore().collection('users').doc(studentId);
+          batch.update(studentRef, {
+            classIds: admin.firestore.FieldValue.arrayUnion(id),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+        }
+
+        // Remove students from class
+        for (const studentId of studentsToRemove) {
+          const studentRef = admin.firestore().collection('users').doc(studentId);
+          batch.update(studentRef, {
+            classIds: admin.firestore.FieldValue.arrayRemove(id),
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+        }
+
+        await batch.commit();
       }
 
-      // Remove students from class
-      for (const studentId of studentsToRemove) {
-        const studentRef = admin.firestore().collection('users').doc(studentId);
-        batch.update(studentRef, {
-          classIds: admin.firestore.FieldValue.arrayRemove(id),
-          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        });
-      }
+      await admin.firestore().collection('classes').doc(id).update(updateData);
 
-      await batch.commit();
+      return res.json({ success: true, message: 'Class updated successfully' });
+    } catch (error) {
+      console.error('Error updating class:', error);
+      return res.status(500).json({ message: 'Failed to update class' });
     }
-
-    await admin.firestore().collection('classes').doc(id).update(updateData);
-
-    return res.json({ success: true, message: 'Class updated successfully' });
-  } catch (error) {
-    console.error('Error updating class:', error);
-    return res.status(500).json({ message: 'Failed to update class' });
   }
-});
+);
 
 // Delete class
 router.delete(

@@ -1,7 +1,7 @@
 // functions/src/routes/users.ts - Users API Routes - Updated with HTTP 500 fixes
 import { type Response, Router } from 'express';
 import * as admin from 'firebase-admin';
-import type { Query, QueryDocumentSnapshot, DocumentData } from 'firebase-admin/firestore';
+import type { DocumentData, Query, QueryDocumentSnapshot } from 'firebase-admin/firestore';
 import { type AuthenticatedRequest, requireAdmin, verifyToken } from '../middleware/auth';
 
 const router = Router();
@@ -15,14 +15,14 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
       query: req.query,
       hasUser: !!req.user,
       userRole: req.user?.role,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
-    
+
     if (!req.user) {
       console.error('❌ [Users API] No user in request after auth middleware');
       return res.status(401).json({ message: 'User not authenticated' });
     }
-    
+
     const { role } = req.user;
     const { status } = req.query;
 
@@ -30,7 +30,7 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
       role,
       status,
       statusType: typeof status,
-      query: req.query
+      query: req.query,
     });
 
     let query: Query<DocumentData> = admin.firestore().collection('users');
@@ -49,23 +49,23 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
       console.log('🔍 [Users API] Status filtering input:', {
         status,
         type: typeof status,
-        isArray: Array.isArray(status)
+        isArray: Array.isArray(status),
       });
-      
+
       try {
         if (Array.isArray(status)) {
           // If status is already an array, filter out null/undefined values
           statusArray = status
-            .filter(s => s != null && s !== '')
-            .map(s => String(s).trim())
-            .filter(s => s.length > 0);
+            .filter((s) => s != null && s !== '')
+            .map((s) => String(s).trim())
+            .filter((s) => s.length > 0);
         } else if (typeof status === 'string' && status.trim()) {
           // If status is a string, handle comma-separated values
           if (status.includes(',')) {
             statusArray = status
               .split(',')
-              .map(s => s?.trim())
-              .filter(s => s != null && s !== '' && s.length > 0);
+              .map((s) => s?.trim())
+              .filter((s) => s != null && s !== '' && s.length > 0);
           } else {
             statusArray = [status.trim()];
           }
@@ -76,12 +76,12 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
             statusArray = [statusStr];
           }
         }
-        
+
         if (statusArray.length === 0) {
           console.log('⚠️ [Users API] No valid status values found, skipping status filter');
         } else {
           console.log('🎯 [Users API] Status filter applied:', statusArray);
-          
+
           if (statusArray.length === 1) {
             query = query.where('status', '==', statusArray[0]);
           } else {
@@ -140,11 +140,11 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
       stack: error instanceof Error ? error.stack : 'No stack trace',
       statusParam: req.query.status,
       userRole: req.user?.role,
-      userUid: req.user?.uid
+      userUid: req.user?.uid,
     });
-    return res.status(500).json({ 
+    return res.status(500).json({
       message: 'Failed to fetch users',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 });
@@ -288,7 +288,7 @@ router.get('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response)
     if (!req.user) {
       return res.status(401).json({ message: 'User not authenticated' });
     }
-    
+
     const { id } = req.params;
     const { role } = req.user;
 
@@ -316,7 +316,7 @@ router.put('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response)
     if (!req.user) {
       return res.status(401).json({ message: 'User not authenticated' });
     }
-    
+
     const { id } = req.params;
     const { role } = req.user;
     const updateData = req.body;
@@ -336,7 +336,7 @@ router.put('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response)
     if (!currentUserData) {
       return res.status(404).json({ message: 'User data not found' });
     }
-    
+
     const newEmail = updateData.email;
     const currentEmail = currentUserData.email;
 
@@ -545,7 +545,7 @@ router.post('/sync-potential-students', async (req: AuthenticatedRequest, res: R
 
     for (const doc of snapshot.docs) {
       const userData = doc.data();
-      
+
       // Check if PotentialStudent record already exists
       const existingPotentialStudent = await admin
         .firestore()
@@ -567,7 +567,8 @@ router.post('/sync-potential-students', async (req: AuthenticatedRequest, res: R
           parentPhone: userData.parentPhone,
           source: 'sync_existing_users',
           status: 'pending',
-          notes: userData.notes || `Synced from existing user. Student Code: ${userData.studentCode}`,
+          notes:
+            userData.notes || `Synced from existing user. Student Code: ${userData.studentCode}`,
           assignedTo: null,
           createdAt: admin.firestore.FieldValue.serverTimestamp(),
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
@@ -648,10 +649,10 @@ router.post('/:id/avatar', verifyToken, async (req: AuthenticatedRequest, res: R
     if (!req.user) {
       return res.status(401).json({ message: 'User not authenticated' });
     }
-    
+
     const { id } = req.params;
     const { role } = req.user;
-    
+
     // Students can only update their own avatar
     if (role === 'student' && req.user.userId !== id) {
       return res.status(403).json({ message: 'Access denied' });
@@ -660,7 +661,7 @@ router.post('/:id/avatar', verifyToken, async (req: AuthenticatedRequest, res: R
     // For now, we'll handle the avatar URL from the request body
     // In a full implementation, this would handle file upload to Firebase Storage
     const { avatarUrl } = req.body;
-    
+
     if (!avatarUrl) {
       return res.status(400).json({ message: 'Avatar URL is required' });
     }
@@ -672,7 +673,7 @@ router.post('/:id/avatar', verifyToken, async (req: AuthenticatedRequest, res: R
     });
 
     console.log(`Updated avatar for user ${id}: ${avatarUrl}`);
-    
+
     return res.json({
       success: true,
       message: 'Avatar updated successfully',
@@ -697,8 +698,6 @@ router.delete('/:id/avatar', verifyToken, async (req: AuthenticatedRequest, res:
   }
 });
 
-
-
 // Helper function to generate student code with gap filling (STU-001, STU-002, etc.)
 async function generateStudentCode(): Promise<string> {
   // Find all existing student codes (STU-001, STU-002, etc.)
@@ -711,11 +710,11 @@ async function generateStudentCode(): Promise<string> {
     .get();
 
   let nextNumber = 1;
-  
+
   if (!snapshot.empty) {
-    const existingCodes = snapshot.docs.map(doc => doc.data().studentCode).sort();
+    const existingCodes = snapshot.docs.map((doc) => doc.data().studentCode).sort();
     console.log('Existing student codes:', existingCodes);
-    
+
     // Find the first missing number in the sequence
     let expectedNumber = 1;
     for (const existingCode of existingCodes) {
@@ -729,13 +728,15 @@ async function generateStudentCode(): Promise<string> {
         break;
       }
     }
-    
+
     // If no gaps found, use the next number after the highest existing
     if (nextNumber === 1) {
       const highestCode = existingCodes[existingCodes.length - 1];
       const highestNumber = parseInt(highestCode.slice(-3));
       nextNumber = highestNumber + 1;
-      console.log(`No gaps found in student codes, incrementing from highest: ${highestNumber} -> ${nextNumber}`);
+      console.log(
+        `No gaps found in student codes, incrementing from highest: ${highestNumber} -> ${nextNumber}`
+      );
     }
   } else {
     console.log('No existing student codes, starting with STU-001');

@@ -1,9 +1,5 @@
 // dataSyncService.ts - Comprehensive data synchronization service for Firebase/Firestore
-import type {
-  CreateMethod,
-  DeleteMethod,
-  UpdateMethod,
-} from '../types';
+import type { CreateMethod, DeleteMethod, UpdateMethod } from '../types';
 import { assignmentsAPI, classesAPI, levelsAPI, usersAPI } from './apiService';
 
 // Data synchronization configuration - removed unused constants
@@ -111,11 +107,7 @@ export class DataSyncService {
   // Queue operation for processing - removed unused methods
 
   // Create entity with rollback support
-  async createEntity<T>(
-    entity: string,
-    data: T,
-    apiMethod: CreateMethod<T>
-  ): Promise<unknown> {
+  async createEntity<T>(entity: string, data: T, apiMethod: CreateMethod<T>): Promise<unknown> {
     const syncId = `${entity}_create_${Date.now()}`;
     const syncStatus: SyncStatus = {
       entity,
@@ -244,11 +236,7 @@ export class DataSyncService {
   }
 
   // Delete entity with rollback support
-  async deleteEntity(
-    entity: string,
-    id: string,
-    apiMethod: DeleteMethod
-  ): Promise<unknown> {
+  async deleteEntity(entity: string, id: string, apiMethod: DeleteMethod): Promise<unknown> {
     const syncId = `${entity}_delete_${id}_${Date.now()}`;
     const syncStatus: SyncStatus = {
       entity,
@@ -327,7 +315,7 @@ export class DataSyncService {
           let result: unknown;
 
           switch (operation.type) {
-            case 'create':
+            case 'create': {
               result = await apiMethods.create(operation.data);
               // Extract ID from result for rollback - handle different response structures
               const createdId = this.extractIdFromResult(result);
@@ -335,6 +323,7 @@ export class DataSyncService {
                 rollbackData.push({ type: 'delete', data: result, id: createdId });
               }
               break;
+            }
             case 'update': {
               if (!operation.id) throw new Error('ID required for update operation');
               const currentData = await this.getCurrentData(entity, operation.id);
@@ -394,7 +383,7 @@ export class DataSyncService {
       // Check for direct id properties
       if (obj.id && typeof obj.id === 'string') return obj.id;
       if (obj._id && typeof obj._id === 'string') return obj._id;
-      
+
       // Check for nested data.id properties
       if (obj.data && typeof obj.data === 'object') {
         const dataObj = obj.data as Record<string, unknown>;
@@ -468,7 +457,7 @@ export class DataSyncService {
     }
   ): Promise<void> {
     console.log(`Rolling back bulk ${entity} operations:`, rollbackData.length, 'operations');
-    
+
     for (const rollback of rollbackData) {
       try {
         switch (rollback.type) {

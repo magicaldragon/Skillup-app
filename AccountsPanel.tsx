@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { usersAPI } from './services/apiService';
 import { authService } from './frontend/services/authService';
+import { usersAPI } from './services/apiService';
 import type { UserUpdateData } from './types';
 import './AccountsPanel.css';
 import './ManagementTableStyles.css';
@@ -89,7 +89,7 @@ const AccountsPanel = () => {
 
     const currentUserRole = currentUser.role;
     const targetUserRole = targetUser.role;
-    
+
     console.log('🔍 Permission check:', { currentUserRole, targetUserRole });
 
     // Admin can manage all users
@@ -387,11 +387,7 @@ const AccountsPanel = () => {
         <div className="management-error">
           <h3>Error Loading Accounts</h3>
           <p>{error}</p>
-          <button
-            type="button"
-            onClick={fetchAccounts}
-            className="management-retry-btn"
-          >
+          <button type="button" onClick={fetchAccounts} className="management-retry-btn">
             Retry
           </button>
         </div>
@@ -757,7 +753,11 @@ const AccountsPanel = () => {
                       <td>
                         {editingId === account._id ? (
                           <div className="action-buttons">
-                            <button type="button" onClick={handleEditSave} className="btn-primary-action save-btn">
+                            <button
+                              type="button"
+                              onClick={handleEditSave}
+                              className="btn-primary-action save-btn"
+                            >
                               Save
                             </button>
                             <button

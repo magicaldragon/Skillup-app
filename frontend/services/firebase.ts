@@ -9,7 +9,8 @@ const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'AIzaSyDexK-T8wuuZS13DZbO5tgAagqpMgHZzgc',
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'skillup-3beaf.firebaseapp.com',
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || 'skillup-3beaf',
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'skillup-3beaf.firebasestorage.app',
+  storageBucket:
+    import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'skillup-3beaf.firebasestorage.app',
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '715786145271',
   appId: import.meta.env.VITE_FIREBASE_APP_ID || '1:715786145271:web:7115826d1172113c9832f2',
   // measurementId removed to disable Analytics and eliminate costs

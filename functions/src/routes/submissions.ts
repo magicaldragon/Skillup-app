@@ -1,7 +1,7 @@
 // functions/src/routes/submissions.ts - Submissions API Routes
 import { type Response, Router } from 'express';
 import * as admin from 'firebase-admin';
-import type { Query, QueryDocumentSnapshot, DocumentData } from 'firebase-admin/firestore';
+import type { DocumentData, Query, QueryDocumentSnapshot } from 'firebase-admin/firestore';
 import { type AuthenticatedRequest, verifyToken } from '../middleware/auth';
 
 const router = Router();
@@ -12,7 +12,7 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
     if (!req.user) {
       return res.status(401).json({ message: 'User not authenticated' });
     }
-    
+
     const { role } = req.user;
     const { classId, studentId, assignmentId } = req.query;
 
@@ -67,7 +67,7 @@ router.post('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =
     if (!req.user) {
       return res.status(401).json({ message: 'User not authenticated' });
     }
-    
+
     const { assignmentId, classId, content, fileUrl } = req.body;
     const studentId = req.user.userId;
 
@@ -138,7 +138,9 @@ router.post('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =
 
     const docRef = await admin.firestore().collection('submissions').add(submissionData);
 
-    console.log(`Created submission ${docRef.id} for assignment ${assignmentId} by student ${studentId}`);
+    console.log(
+      `Created submission ${docRef.id} for assignment ${assignmentId} by student ${studentId}`
+    );
     return res.json({
       success: true,
       message: 'Submission created successfully',
@@ -159,7 +161,7 @@ router.get('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response)
     if (!req.user) {
       return res.status(401).json({ message: 'User not authenticated' });
     }
-    
+
     const { id } = req.params;
     const { role } = req.user;
 
@@ -181,7 +183,11 @@ router.get('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response)
 
     // For teachers, check if they teach the class
     if (role === 'teacher') {
-      const classDoc = await admin.firestore().collection('classes').doc(submissionData.classId).get();
+      const classDoc = await admin
+        .firestore()
+        .collection('classes')
+        .doc(submissionData.classId)
+        .get();
       if (!classDoc.exists || classDoc.data()?.teacherId !== req.user.userId) {
         return res.status(403).json({ message: 'Access denied' });
       }
@@ -200,7 +206,7 @@ router.put('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response)
     if (!req.user) {
       return res.status(401).json({ message: 'User not authenticated' });
     }
-    
+
     const { id } = req.params;
     const { role } = req.user;
     const updateData = req.body;
@@ -223,7 +229,11 @@ router.put('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response)
 
     // For teachers, check if they teach the class
     if (role === 'teacher') {
-      const classDoc = await admin.firestore().collection('classes').doc(submissionData.classId).get();
+      const classDoc = await admin
+        .firestore()
+        .collection('classes')
+        .doc(submissionData.classId)
+        .get();
       if (!classDoc.exists || classDoc.data()?.teacherId !== req.user.userId) {
         return res.status(403).json({ message: 'Access denied' });
       }
@@ -274,7 +284,7 @@ router.delete('/:id', verifyToken, async (req: AuthenticatedRequest, res: Respon
     if (!req.user) {
       return res.status(401).json({ message: 'User not authenticated' });
     }
-    
+
     const { id } = req.params;
     const { role } = req.user;
 
@@ -296,7 +306,11 @@ router.delete('/:id', verifyToken, async (req: AuthenticatedRequest, res: Respon
 
     // For teachers, check if they teach the class
     if (role === 'teacher') {
-      const classDoc = await admin.firestore().collection('classes').doc(submissionData.classId).get();
+      const classDoc = await admin
+        .firestore()
+        .collection('classes')
+        .doc(submissionData.classId)
+        .get();
       if (!classDoc.exists || classDoc.data()?.teacherId !== req.user.userId) {
         return res.status(403).json({ message: 'Access denied' });
       }
@@ -322,60 +336,75 @@ router.delete('/:id', verifyToken, async (req: AuthenticatedRequest, res: Respon
 });
 
 // Get submissions by assignment
-router.get('/assignment/:assignmentId', verifyToken, async (req: AuthenticatedRequest, res: Response) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({ message: 'User not authenticated' });
-    }
-    
-    const { assignmentId } = req.params;
-    const { role } = req.user;
+router.get(
+  '/assignment/:assignmentId',
+  verifyToken,
+  async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
 
-    // Verify assignment exists
-    const assignmentDoc = await admin.firestore().collection('assignments').doc(assignmentId).get();
-    if (!assignmentDoc.exists) {
-      return res.status(404).json({ message: 'Assignment not found' });
-    }
+      const { assignmentId } = req.params;
+      const { role } = req.user;
 
-    const assignmentData = assignmentDoc.data();
-    if (!assignmentData) {
-      return res.status(404).json({ message: 'Assignment data not found' });
-    }
+      // Verify assignment exists
+      const assignmentDoc = await admin
+        .firestore()
+        .collection('assignments')
+        .doc(assignmentId)
+        .get();
+      if (!assignmentDoc.exists) {
+        return res.status(404).json({ message: 'Assignment not found' });
+      }
 
-    // Check if user has access to this assignment
-    const classIds = assignmentData.classIds || [];
-    if (!classIds.includes(assignmentData.classId)) {
-      return res.status(403).json({ message: 'Access denied' });
-    }
+      const assignmentData = assignmentDoc.data();
+      if (!assignmentData) {
+        return res.status(404).json({ message: 'Assignment data not found' });
+      }
 
-    // For teachers, check if they teach any of the classes
-    if (role === 'teacher') {
-      const classDoc = await admin.firestore().collection('classes').doc(assignmentData.classId).get();
-      if (!classDoc.exists || classDoc.data()?.teacherId !== req.user.userId) {
+      // Check if user has access to this assignment
+      const classIds = assignmentData.classIds || [];
+      if (!classIds.includes(assignmentData.classId)) {
         return res.status(403).json({ message: 'Access denied' });
       }
+
+      // For teachers, check if they teach any of the classes
+      if (role === 'teacher') {
+        const classDoc = await admin
+          .firestore()
+          .collection('classes')
+          .doc(assignmentData.classId)
+          .get();
+        if (!classDoc.exists || classDoc.data()?.teacherId !== req.user.userId) {
+          return res.status(403).json({ message: 'Access denied' });
+        }
+      }
+
+      // Get submissions for this assignment
+      let query: Query<DocumentData> = admin
+        .firestore()
+        .collection('submissions')
+        .where('assignmentId', '==', assignmentId);
+
+      // Students can only see their own submissions
+      if (role === 'student') {
+        query = query.where('studentId', '==', req.user.userId);
+      }
+
+      const snapshot = await query.orderBy('submittedAt', 'desc').get();
+      const submissions = snapshot.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      console.log(`Fetched ${submissions.length} submissions for assignment ${assignmentId}`);
+      return res.json(submissions);
+    } catch (error) {
+      console.error('Error fetching submissions by assignment:', error);
+      return res.status(500).json({ message: 'Failed to fetch submissions' });
     }
-
-    // Get submissions for this assignment
-    let query: Query<DocumentData> = admin.firestore().collection('submissions').where('assignmentId', '==', assignmentId);
-
-    // Students can only see their own submissions
-    if (role === 'student') {
-      query = query.where('studentId', '==', req.user.userId);
-    }
-
-    const snapshot = await query.orderBy('submittedAt', 'desc').get();
-    const submissions = snapshot.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-
-    console.log(`Fetched ${submissions.length} submissions for assignment ${assignmentId}`);
-    return res.json(submissions);
-  } catch (error) {
-    console.error('Error fetching submissions by assignment:', error);
-    return res.status(500).json({ message: 'Failed to fetch submissions' });
   }
-});
+);
 
 export default router;

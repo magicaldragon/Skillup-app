@@ -7,7 +7,7 @@ export default defineConfig({
     setupFiles: ['tests/testSetup.ts'],
     include: ['tests/**/*.test.ts'],
     coverage: {
-      enabled: false
-    }
-  }
+      enabled: false,
+    },
+  },
 });

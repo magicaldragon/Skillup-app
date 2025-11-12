@@ -7,12 +7,7 @@ const API_CACHE = `skillup-api-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `skillup-runtime-${CACHE_VERSION}`;
 
 // Critical files to cache immediately for instant loading
-const CRITICAL_FILES = [
-  '/',
-  '/index.html',
-  '/vite.svg',
-  '/logo-skillup.png',
-];
+const CRITICAL_FILES = ['/', '/index.html', '/vite.svg', '/logo-skillup.png'];
 
 // Assets to cache for offline functionality
 const CACHE_PATTERNS = {
@@ -37,10 +32,12 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     Promise.all([
       // Cache critical files
-      caches.open(STATIC_CACHE).then((cache) => {
-        console.log('Caching critical files for instant loading');
-        return cache.addAll(CRITICAL_FILES);
-      }),
+      caches
+        .open(STATIC_CACHE)
+        .then((cache) => {
+          console.log('Caching critical files for instant loading');
+          return cache.addAll(CRITICAL_FILES);
+        }),
       // Pre-cache runtime cache
       caches.open(RUNTIME_CACHE),
       caches.open(API_CACHE),
@@ -57,17 +54,19 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     Promise.all([
       // Clean up old caches
-      caches.keys().then((cacheNames) => {
-        return Promise.all(
-          cacheNames.map((cacheName) => {
-            const currentCaches = [STATIC_CACHE, API_CACHE, RUNTIME_CACHE];
-            if (!currentCaches.includes(cacheName)) {
-              console.log('Deleting old cache:', cacheName);
-              return caches.delete(cacheName);
-            }
-          })
-        );
-      }),
+      caches
+        .keys()
+        .then((cacheNames) => {
+          return Promise.all(
+            cacheNames.map((cacheName) => {
+              const currentCaches = [STATIC_CACHE, API_CACHE, RUNTIME_CACHE];
+              if (!currentCaches.includes(cacheName)) {
+                console.log('Deleting old cache:', cacheName);
+                return caches.delete(cacheName);
+              }
+            })
+          );
+        }),
       // Claim all clients immediately
       self.clients.claim(),
     ])
@@ -157,7 +156,7 @@ async function handleApiRequest(request) {
 // Optimized static asset handling with aggressive caching
 async function handleStaticAsset(request) {
   const cache = await caches.open(STATIC_CACHE);
-  
+
   // Always try cache first for static assets
   const cachedResponse = await cache.match(request);
   if (cachedResponse) {
@@ -167,17 +166,17 @@ async function handleStaticAsset(request) {
 
   try {
     const response = await fetch(request);
-    
+
     // Cache successful responses
     if (response.ok) {
       const responseClone = response.clone();
       await cache.put(request, responseClone);
     }
-    
+
     return response;
   } catch (error) {
     console.log('Static asset fetch failed:', error);
-    
+
     // Return a placeholder or cached version if available
     return new Response('Asset not available offline', {
       status: 503,
@@ -190,7 +189,7 @@ async function handleStaticAsset(request) {
 async function handleGeneralRequest(request) {
   const url = new URL(request.url);
   const cache = await caches.open(RUNTIME_CACHE);
-  
+
   // For HTML documents, try network first
   if (request.destination === 'document') {
     try {
@@ -202,20 +201,20 @@ async function handleGeneralRequest(request) {
       return response;
     } catch (error) {
       // Fallback to cached index.html
-      const cachedResponse = await cache.match('/index.html') || await cache.match('/');
+      const cachedResponse = (await cache.match('/index.html')) || (await cache.match('/'));
       if (cachedResponse) {
         return cachedResponse;
       }
       throw error;
     }
   }
-  
+
   // For other resources, cache first
   const cachedResponse = await cache.match(request);
   if (cachedResponse) {
     return cachedResponse;
   }
-  
+
   try {
     const response = await fetch(request);
     if (response.ok) {

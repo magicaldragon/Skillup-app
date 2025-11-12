@@ -158,7 +158,8 @@ body {
 }
 
 /* Mobile responsive - sidebar becomes overlay */
-@media (max-width: 56.25rem) { /* 900px */
+@media (max-width: 56.25rem) {
+  /* 900px */
   .app-container {
     flex-direction: column;
   }
@@ -200,7 +201,8 @@ body {
 }
 
 /* Tablet responsive */
-@media (min-width: 56.3125rem) and (max-width: 75rem) { /* 901px to 1200px */
+@media (min-width: 56.3125rem) and (max-width: 75rem) {
+  /* 901px to 1200px */
   .app-container {
     flex-direction: row;
   }
@@ -228,7 +230,8 @@ body {
 }
 
 /* Desktop responsive */
-@media (min-width: 75.0625rem) { /* 1201px and up */
+@media (min-width: 75.0625rem) {
+  /* 1201px and up */
   .app-container {
     flex-direction: row;
   }
@@ -256,7 +259,8 @@ body {
 }
 
 /* Large desktop */
-@media (min-width: 120rem) { /* 1920px and up */
+@media (min-width: 120rem) {
+  /* 1920px and up */
   .sidebar {
     width: 20rem;
     min-width: 20rem;

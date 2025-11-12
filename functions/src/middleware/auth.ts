@@ -44,7 +44,7 @@ export const verifyToken = async (
       // First try to decode as session token
       try {
         const sessionData = JSON.parse(Buffer.from(token, 'base64').toString());
-        
+
         // Check if token is expired
         if (sessionData.exp && sessionData.exp < Math.floor(Date.now() / 1000)) {
           res.status(401).json({
@@ -55,11 +55,7 @@ export const verifyToken = async (
         }
 
         // Get user data from Firestore by userId
-        const userDoc = await admin
-          .firestore()
-          .collection('users')
-          .doc(sessionData.userId)
-          .get();
+        const userDoc = await admin.firestore().collection('users').doc(sessionData.userId).get();
 
         if (!userDoc.exists) {
           res.status(401).json({
@@ -75,7 +71,11 @@ export const verifyToken = async (
           userData._id = userDoc.id;
           userData.docId = userDoc.id;
         }
-        decodedToken = { uid: sessionData.uid, email: sessionData.email, userId: sessionData.userId };
+        decodedToken = {
+          uid: sessionData.uid,
+          email: sessionData.email,
+          userId: sessionData.userId,
+        };
         console.log('Session token verified successfully for user:', sessionData.email);
       } catch (sessionError) {
         // If session token fails, try Firebase ID token
@@ -109,7 +109,7 @@ export const verifyToken = async (
       }
     } catch (tokenError) {
       console.error('Token verification failed:', tokenError);
-      
+
       // Provide more specific error messages
       if (tokenError instanceof Error) {
         if (tokenError.message.includes('Token used too late')) {

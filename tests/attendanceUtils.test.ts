@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 
 function persistDefaults(classId: string, date: string) {
   localStorage.setItem('attendance:lastClassId', classId);

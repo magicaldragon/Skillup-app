@@ -15,7 +15,9 @@ console.log('   - Email: admin@admin.skillup');
 console.log('   - Password: (choose a secure password)');
 console.log('5. Click "Add user"');
 console.log('\n💡 Alternative: Use Firebase CLI');
-console.log('   firebase auth:create-user --email admin@admin.skillup --password <password> --project skillup-3beaf');
+console.log(
+  '   firebase auth:create-user --email admin@admin.skillup --password <password> --project skillup-3beaf'
+);
 
 console.log('\n🔍 After creating the user, verify:');
 console.log('1. User appears in Authentication > Users');
@@ -30,5 +32,5 @@ console.log('4. Verify the user is created in Firestore with role: admin');
 
 console.log('\n📝 Note: The system will automatically:');
 console.log('- Extract the role "admin" from the email domain');
-console.log('- Create the user in Firestore if they don\'t exist');
-console.log('- Assign the correct permissions based on the role'); 
+console.log("- Create the user in Firestore if they don't exist");
+console.log('- Assign the correct permissions based on the role');

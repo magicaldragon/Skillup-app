@@ -72,16 +72,18 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
     if (!file) return;
     setAvatarUploading(true);
     setAvatarError(null);
-    
+
     try {
       // For now, we'll create a data URL for the file
       // In a full implementation, this would upload to Firebase Storage
       const reader = new FileReader();
       reader.onload = async (event) => {
         const dataUrl = event.target?.result as string;
-        
+
         try {
-          const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
+          const apiUrl =
+            import.meta.env.VITE_API_BASE_URL ||
+            'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
           const res = await fetch(`${apiUrl}/users/${currentUser.id || currentUser._id}/avatar`, {
             method: 'POST',
             headers: {
@@ -90,16 +92,16 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
             },
             body: JSON.stringify({ avatarUrl: dataUrl }),
           });
-          
+
           const data = await res.json();
           if (!res.ok || !data.avatarUrl) throw new Error(data.message || 'Upload failed');
-          
+
           setAvatarUrl(data.avatarUrl);
           setSuccess('Avatar updated!');
-          
+
           // Trigger data refresh to update the sidebar avatar
           onDataRefresh?.();
-          
+
           // Force a page reload to ensure all components update
           setTimeout(() => {
             window.location.reload();
@@ -110,7 +112,7 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
           setAvatarUploading(false);
         }
       };
-      
+
       reader.readAsDataURL(file);
     } catch (err: unknown) {
       setAvatarError(err instanceof Error ? err.message : 'Failed to process file');
@@ -124,7 +126,9 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
     setSuccess(null);
     setError(null);
     try {
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
+      const apiUrl =
+        import.meta.env.VITE_API_BASE_URL ||
+        'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
       const res = await fetch(`${apiUrl}/users/${currentUser.id || currentUser._id}`, {
         method: 'PUT',
         headers: {
@@ -154,10 +158,10 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
       console.log('Update successful:', result);
       setSuccess('Profile updated successfully!');
       setEditMode(false);
-      
+
       // Trigger data refresh to update the sidebar avatar
       onDataRefresh?.();
-      
+
       // Force a page reload to ensure all components update
       setTimeout(() => {
         window.location.reload();

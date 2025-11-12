@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { Student, StudentClass, Level } from './types';
 import { levelsAPI } from './services/apiService';
 import { authService } from './services/authService';
+import type { Level, Student, StudentClass } from './types';
 import './ManagementTableStyles.css';
 
 type FeeRow = {
@@ -81,7 +81,7 @@ export default function SchoolFeePanel({
       typeof selectedClass?.levelId === 'string'
         ? selectedClass?.levelId
         : (selectedClass?.levelId as any)?._id;
-    return levelId ? levelMonthly[levelId] ?? 0 : 0;
+    return levelId ? (levelMonthly[levelId] ?? 0) : 0;
   }, [selectedClass, levelMonthly]);
 
   const filteredStudents = useMemo(() => {
@@ -210,7 +210,18 @@ export default function SchoolFeePanel({
 
   // Export CSV (Phase 1)
   const exportCSV = () => {
-    const hdr = ['Student', 'Base', 'Extras', 'Total', 'Paid', 'PaidDate', 'StaffId', 'ChangedBy', 'UpdatedAt', 'Overridden'];
+    const hdr = [
+      'Student',
+      'Base',
+      'Extras',
+      'Total',
+      'Paid',
+      'PaidDate',
+      'StaffId',
+      'ChangedBy',
+      'UpdatedAt',
+      'Overridden',
+    ];
     const rows = filteredStudents.map((s) => {
       const row = feeMap[s.id] || {
         studentId: s.id,
@@ -232,7 +243,9 @@ export default function SchoolFeePanel({
         row.overridden ? 'Yes' : 'No',
       ].join(',');
     });
-    const blob = new Blob([hdr.join(',') + '\n' + rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob([hdr.join(',') + '\n' + rows.join('\n')], {
+      type: 'text/csv;charset=utf-8;',
+    });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -312,10 +325,18 @@ export default function SchoolFeePanel({
         <select value={selectedClassId} onChange={(e) => setSelectedClassId(e.target.value)}>
           {/* ... existing code ... */}
         </select>
-        <input type="month" value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)} />
-        <button className="btn-export" onClick={exportCSV}>Export CSV</button>
+        <input
+          type="month"
+          value={selectedMonth}
+          onChange={(e) => setSelectedMonth(e.target.value)}
+        />
+        <button className="btn-export" onClick={exportCSV}>
+          Export CSV
+        </button>
         {/* XLSX export button removed */}
-        <button className="btn-edit" onClick={printBills}>Print Bills</button>
+        <button className="btn-edit" onClick={printBills}>
+          Print Bills
+        </button>
       </div>
 
       {statusMessage && (
@@ -336,8 +357,12 @@ export default function SchoolFeePanel({
         <button className="btn-edit" onClick={() => selectAll(filteredStudents.map((s) => s.id))}>
           Select All
         </button>
-        <button className="btn-edit" onClick={clearAll}>Clear All</button>
-        <button className="btn-save" onClick={markSelectedPaid}>Mark all paid</button>
+        <button className="btn-edit" onClick={clearAll}>
+          Clear All
+        </button>
+        <button className="btn-save" onClick={markSelectedPaid}>
+          Mark all paid
+        </button>
       </div>
 
       <table className="fee-table">
@@ -404,7 +429,9 @@ export default function SchoolFeePanel({
                       onChange={(e) =>
                         updateFee(s.id, {
                           paid: e.target.checked,
-                          paidDate: e.target.checked ? new Date().toISOString().slice(0, 10) : undefined,
+                          paidDate: e.target.checked
+                            ? new Date().toISOString().slice(0, 10)
+                            : undefined,
                         })
                       }
                     />

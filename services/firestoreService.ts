@@ -221,10 +221,8 @@ class FirestoreService {
     try {
       const q = query(collection(db, collectionName), ...constraints);
       const querySnapshot = await getDocs(q);
-  
-      return querySnapshot.docs.map(
-        (doc: { id: string; data: () => DocumentData }
-      ) => ({
+
+      return querySnapshot.docs.map((doc: { id: string; data: () => DocumentData }) => ({
         id: doc.id,
         ...doc.data(),
       })) as T[];

@@ -58,7 +58,7 @@ export const userRegistrationService = {
   async registerNewUser(data: RegistrationData): Promise<RegistrationResponse> {
     try {
       console.log('userRegistrationService.registerNewUser called with:', data);
-      
+
       // 1. Generate username and Firebase email based on full name and role
       const username = generateUsername(data.name);
       const firebaseEmail = generateEmail(username, data.role);
@@ -87,10 +87,10 @@ export const userRegistrationService = {
         firebaseUid,
         status: data.status || 'potential', // Pass status from form
       };
-      
+
       console.log('Sending data to backend:', backendData);
       console.log('Backend URL:', `${apiUrl}/users`);
-      
+
       const response = await fetch(`${apiUrl}/users`, {
         method: 'POST',
         headers: {
@@ -122,7 +122,7 @@ export const userRegistrationService = {
           generatedPassword: password,
         },
       };
-      
+
       console.log('Final result to return:', finalResult);
       return finalResult;
     } catch (error) {

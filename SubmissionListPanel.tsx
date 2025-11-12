@@ -60,7 +60,7 @@ const SubmissionListPanel: React.FC<SubmissionListPanelProps> = ({
                 <tr key={s.id}>
                   <td className="p-2">{student ? student.name : s.studentId}</td>
                   <td className="p-2">
-                                         {s.submittedAt ? formatDateTimeDDMMYYYY(s.submittedAt) : '-'}
+                    {s.submittedAt ? formatDateTimeDDMMYYYY(s.submittedAt) : '-'}
                   </td>
                   <td className="p-2">
                     {s.score !== null && s.score !== undefined ? s.score : '-'}

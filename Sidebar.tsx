@@ -175,7 +175,6 @@ const menuConfig = (role: string) => [
     ],
   },
 
-
   {
     label: 'Settings',
     icon: <FaUserCog />,

@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 const quote = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`;
 
@@ -26,9 +26,7 @@ describe('CSV export escaping', () => {
   it('produces row strings consistent with panel logic', () => {
     const header = ['Student ID', 'Name', 'Status', 'Date', 'Class'];
     const row = ['s1', 'Nguyen "A"', 'present', '2025-11-01', '10A'];
-    const csvRow = [header, row]
-      .map((r) => r.map(quote).join(','))
-      .join('\n');
+    const csvRow = [header, row].map((r) => r.map(quote).join(',')).join('\n');
     expect(csvRow).toContain('"Nguyen ""A"""');
   });
 });

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import type React from 'react';
+import { useState } from 'react';
 import './LoginPanel.css';
 import { authService } from './frontend/services/authService';
 import type { UserProfile } from './types';
@@ -13,7 +14,6 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-
   const handleAuthAction = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -27,8 +27,6 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         return;
       }
 
-
-      
       const response = await authService.login({ email: (email || '').trim(), password });
       if (response.success && response.user) {
         localStorage.setItem('skillup_user', JSON.stringify(response.user));

@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { StudentClass } from './types';
 import { formatDateMMDDYYYY } from './utils/stringUtils';
 import './WaitingListPanel.css';
 import './ManagementTableStyles.css';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
 
 interface User {
   _id: string;
@@ -74,7 +75,9 @@ const WaitingListPanel = ({
       baseUrl: API_BASE_URL,
       hasToken: !!token,
       tokenPrefix: token ? token.substring(0, 10) + '...' : 'none',
-      fullToken: token ? `${token.substring(0, 10)}...${token.substring(token.length - 10)}` : 'none'
+      fullToken: token
+        ? `${token.substring(0, 10)}...${token.substring(token.length - 10)}`
+        : 'none',
     });
 
     try {
@@ -82,7 +85,7 @@ const WaitingListPanel = ({
       const response = await fetch(apiUrl, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
@@ -91,7 +94,7 @@ const WaitingListPanel = ({
         status: response.status,
         statusText: response.statusText,
         headers: Object.fromEntries(response.headers.entries()),
-        url: response.url
+        url: response.url,
       });
 
       if (!response.ok) {
@@ -99,9 +102,9 @@ const WaitingListPanel = ({
         console.error('❌ [WaitingStudents] Error Response:', {
           status: response.status,
           statusText: response.statusText,
-          body: errorText
+          body: errorText,
         });
-        
+
         if (response.status === 401) {
           setError('Authentication failed. Please log in again.');
           // Optionally clear the invalid token
@@ -119,9 +122,9 @@ const WaitingListPanel = ({
         dataType: typeof data,
         isArray: Array.isArray(data),
         length: Array.isArray(data) ? data.length : 'N/A',
-        firstItem: Array.isArray(data) && data.length > 0 ? data[0] : 'none'
+        firstItem: Array.isArray(data) && data.length > 0 ? data[0] : 'none',
       });
-      
+
       if (!Array.isArray(data)) {
         console.warn('Received non-array data:', data);
         setWaitingStudents([]);
@@ -133,9 +136,11 @@ const WaitingListPanel = ({
         name: error instanceof Error ? error.name : 'Unknown',
         message: error instanceof Error ? error.message : 'Unknown error',
         stack: error instanceof Error ? error.stack : 'No stack',
-        apiUrl
+        apiUrl,
       });
-      setError(`Failed to load waiting students: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      setError(
+        `Failed to load waiting students: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     } finally {
       setLoading(false);
     }
@@ -227,8 +232,6 @@ const WaitingListPanel = ({
     }
   };
 
-
-
   // Handle status change
   const handleStatusChange = async (studentId: string, newStatus: string) => {
     const token = localStorage.getItem('skillup_token');
@@ -319,7 +322,8 @@ const WaitingListPanel = ({
       <div className="management-header">
         <h2 className="management-title">Waiting List</h2>
         <p className="management-subtitle">
-          Students with "Studying" status ready for class assignment. Change status to "Postponed" to keep them here, or "Off"/"Alumni" to move them to Records.
+          Students with "Studying" status ready for class assignment. Change status to "Postponed"
+          to keep them here, or "Off"/"Alumni" to move them to Records.
         </p>
       </div>
 
@@ -343,13 +347,19 @@ const WaitingListPanel = ({
               title="Search by name, phone, or student ID"
               ref={searchInputRef}
             />
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="search-bar-button"
               onClick={() => searchInputRef.current?.focus()}
               aria-label="Focus search input"
             >
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" role="img" aria-label="Search">
+              <svg
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                role="img"
+                aria-label="Search"
+              >
                 <title>Search</title>
                 <path
                   strokeLinecap="round"
@@ -405,8 +415,8 @@ const WaitingListPanel = ({
                 onClick={() => setSelectedStudent(student)}
                 className="clickable-row"
               >
-                <td 
-                  onClick={(e) => e.stopPropagation()} 
+                <td
+                  onClick={(e) => e.stopPropagation()}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
@@ -424,7 +434,9 @@ const WaitingListPanel = ({
                 </td>
                 <td className="student-id-cell">
                   {student.studentCode ? (
-                    <span className={`student-id-badge ${student.gender?.toLowerCase() || 'other'}`}>
+                    <span
+                      className={`student-id-badge ${student.gender?.toLowerCase() || 'other'}`}
+                    >
                       {student.studentCode}
                     </span>
                   ) : (
@@ -434,9 +446,7 @@ const WaitingListPanel = ({
                 <td className="name-cell">
                   <div className="student-name">{student.name}</div>
                 </td>
-                <td className="english-name-cell">
-                  {student.englishName || 'N/A'}
-                </td>
+                <td className="english-name-cell">{student.englishName || 'N/A'}</td>
                 <td className="gender-cell">{student.gender || 'N/A'}</td>
                 <td className="dob-cell">
                   {student.dob ? formatDateMMDDYYYY(student.dob) : 'N/A'}
@@ -458,7 +468,6 @@ const WaitingListPanel = ({
                     </select>
                   )}
                 </td>
-
               </tr>
             ))}
           </tbody>
@@ -469,11 +478,15 @@ const WaitingListPanel = ({
       {selectedStudent && (
         <div className="student-details-modal">
           <div className="modal-content">
-            <button type="button" className="close-btn" onClick={() => {
-              setSelectedStudent(null);
-              setIsEditing(false);
-              setEditForm({});
-            }}>
+            <button
+              type="button"
+              className="close-btn"
+              onClick={() => {
+                setSelectedStudent(null);
+                setIsEditing(false);
+                setEditForm({});
+              }}
+            >
               ×
             </button>
             <h3>Student Details</h3>
@@ -484,7 +497,7 @@ const WaitingListPanel = ({
                   <input
                     type="text"
                     value={editForm.name || selectedStudent.name}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
+                    onChange={(e) => setEditForm((prev) => ({ ...prev, name: e.target.value }))}
                     className="edit-input"
                   />
                 ) : (
@@ -497,7 +510,9 @@ const WaitingListPanel = ({
                   <input
                     type="text"
                     value={editForm.englishName || selectedStudent.englishName || ''}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, englishName: e.target.value }))}
+                    onChange={(e) =>
+                      setEditForm((prev) => ({ ...prev, englishName: e.target.value }))
+                    }
                     className="edit-input"
                   />
                 ) : (
@@ -510,7 +525,7 @@ const WaitingListPanel = ({
                   <input
                     type="email"
                     value={editForm.email || selectedStudent.email}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, email: e.target.value }))}
+                    onChange={(e) => setEditForm((prev) => ({ ...prev, email: e.target.value }))}
                     className="edit-input"
                   />
                 ) : (
@@ -523,7 +538,7 @@ const WaitingListPanel = ({
                   <input
                     type="tel"
                     value={editForm.phone || selectedStudent.phone || ''}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, phone: e.target.value }))}
+                    onChange={(e) => setEditForm((prev) => ({ ...prev, phone: e.target.value }))}
                     className="edit-input"
                   />
                 ) : (
@@ -535,7 +550,7 @@ const WaitingListPanel = ({
                 {isEditing ? (
                   <select
                     value={editForm.gender || selectedStudent.gender || ''}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, gender: e.target.value }))}
+                    onChange={(e) => setEditForm((prev) => ({ ...prev, gender: e.target.value }))}
                     className="edit-select"
                   >
                     <option value="">Select Gender</option>
@@ -553,11 +568,13 @@ const WaitingListPanel = ({
                   <input
                     type="date"
                     value={editForm.dob || selectedStudent.dob || ''}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, dob: e.target.value }))}
+                    onChange={(e) => setEditForm((prev) => ({ ...prev, dob: e.target.value }))}
                     className="edit-input"
                   />
                 ) : (
-                  <span>{selectedStudent.dob ? formatDateMMDDYYYY(selectedStudent.dob) : 'N/A'}</span>
+                  <span>
+                    {selectedStudent.dob ? formatDateMMDDYYYY(selectedStudent.dob) : 'N/A'}
+                  </span>
                 )}
               </div>
               <div className="detail-item">
@@ -565,7 +582,7 @@ const WaitingListPanel = ({
                 {isEditing ? (
                   <select
                     value={editForm.status || selectedStudent.status}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, status: e.target.value }))}
+                    onChange={(e) => setEditForm((prev) => ({ ...prev, status: e.target.value }))}
                     className="edit-select"
                   >
                     <option value="studying">Studying</option>
@@ -585,7 +602,9 @@ const WaitingListPanel = ({
                   <input
                     type="text"
                     value={editForm.parentName || selectedStudent.parentName || ''}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, parentName: e.target.value }))}
+                    onChange={(e) =>
+                      setEditForm((prev) => ({ ...prev, parentName: e.target.value }))
+                    }
                     className="edit-input"
                   />
                 ) : (
@@ -598,7 +617,9 @@ const WaitingListPanel = ({
                   <input
                     type="tel"
                     value={editForm.parentPhone || selectedStudent.parentPhone || ''}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, parentPhone: e.target.value }))}
+                    onChange={(e) =>
+                      setEditForm((prev) => ({ ...prev, parentPhone: e.target.value }))
+                    }
                     className="edit-input"
                   />
                 ) : (
@@ -607,14 +628,16 @@ const WaitingListPanel = ({
               </div>
               <div className="detail-item">
                 <strong>Student ID:</strong>
-                <span className="locked-field">{selectedStudent.studentCode || 'N/A'} (Locked)</span>
+                <span className="locked-field">
+                  {selectedStudent.studentCode || 'N/A'} (Locked)
+                </span>
               </div>
               <div className="detail-item full-width">
                 <strong>Notes:</strong>
                 {isEditing ? (
                   <textarea
                     value={editForm.notes || selectedStudent.notes || ''}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, notes: e.target.value }))}
+                    onChange={(e) => setEditForm((prev) => ({ ...prev, notes: e.target.value }))}
                     className="edit-textarea"
                     rows={3}
                   />
@@ -631,20 +654,25 @@ const WaitingListPanel = ({
                     onClick={async () => {
                       try {
                         const token = localStorage.getItem('skillup_token');
-                        const response = await fetch(`${API_BASE_URL}/users/${selectedStudent._id}`, {
-                          method: 'PUT',
-                          headers: {
-                            'Content-Type': 'application/json',
-                            Authorization: `Bearer ${token}`,
-                          },
-                          body: JSON.stringify(editForm),
-                        });
-                        
+                        const response = await fetch(
+                          `${API_BASE_URL}/users/${selectedStudent._id}`,
+                          {
+                            method: 'PUT',
+                            headers: {
+                              'Content-Type': 'application/json',
+                              Authorization: `Bearer ${token}`,
+                            },
+                            body: JSON.stringify(editForm),
+                          }
+                        );
+
                         if (response.ok) {
                           await response.json();
-                          setWaitingStudents(prev => 
-                            prev.map(student => 
-                              student._id === selectedStudent._id ? { ...student, ...editForm } : student
+                          setWaitingStudents((prev) =>
+                            prev.map((student) =>
+                              student._id === selectedStudent._id
+                                ? { ...student, ...editForm }
+                                : student
                             )
                           );
                           setSelectedStudent({ ...selectedStudent, ...editForm });
@@ -696,7 +724,9 @@ const WaitingListPanel = ({
       {selectedIds.length > 0 && (
         <div className="contextual-action-bar">
           <div className="selection-info">
-            <span className="selection-count">{selectedIds.length} student{selectedIds.length > 1 ? 's' : ''} selected</span>
+            <span className="selection-count">
+              {selectedIds.length} student{selectedIds.length > 1 ? 's' : ''} selected
+            </span>
           </div>
           <div className="action-buttons-group">
             <button
@@ -711,7 +741,11 @@ const WaitingListPanel = ({
               type="button"
               className="btn-secondary-action"
               onClick={() => setShowBulkStatusUpdate(true)}
-              title={selectedIds.length < 2 ? "Select at least 2 students with the same status to update" : "Update status of selected students"}
+              title={
+                selectedIds.length < 2
+                  ? 'Select at least 2 students with the same status to update'
+                  : 'Update status of selected students'
+              }
               disabled={selectedIds.length < 2}
             >
               Update Status

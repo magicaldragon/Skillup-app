@@ -82,7 +82,7 @@
   .date-input-enhanced input[type="date"] {
     font-size: 16px; /* Prevent zoom on iOS */
   }
-  
+
   .date-input-enhanced::after {
     font-size: 0.8em;
     right: 40px;

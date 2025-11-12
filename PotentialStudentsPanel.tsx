@@ -4,7 +4,8 @@ import { formatDateMMDDYYYY } from './utils/stringUtils';
 import './PotentialStudentsPanel.css';
 import './ManagementTableStyles.css';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
 
 interface User {
   _id: string;
@@ -74,7 +75,9 @@ const PotentialStudentsPanel = ({
       baseUrl: API_BASE_URL,
       hasToken: !!token,
       tokenPrefix: token ? token.substring(0, 10) + '...' : 'none',
-      fullToken: token ? `${token.substring(0, 10)}...${token.substring(token.length - 10)}` : 'none'
+      fullToken: token
+        ? `${token.substring(0, 10)}...${token.substring(token.length - 10)}`
+        : 'none',
     });
 
     try {
@@ -82,7 +85,7 @@ const PotentialStudentsPanel = ({
       const response = await fetch(apiUrl, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
@@ -91,7 +94,7 @@ const PotentialStudentsPanel = ({
         status: response.status,
         statusText: response.statusText,
         headers: Object.fromEntries(response.headers.entries()),
-        url: response.url
+        url: response.url,
       });
 
       if (!response.ok) {
@@ -99,9 +102,9 @@ const PotentialStudentsPanel = ({
         console.error('❌ [PotentialStudents] Error Response:', {
           status: response.status,
           statusText: response.statusText,
-          body: errorText
+          body: errorText,
         });
-        
+
         if (response.status === 401) {
           setError('Authentication failed. Please log in again.');
           // Optionally clear the invalid token
@@ -119,9 +122,9 @@ const PotentialStudentsPanel = ({
         dataType: typeof data,
         isArray: Array.isArray(data),
         length: Array.isArray(data) ? data.length : 'N/A',
-        firstItem: Array.isArray(data) && data.length > 0 ? data[0] : 'none'
+        firstItem: Array.isArray(data) && data.length > 0 ? data[0] : 'none',
       });
-      
+
       if (!Array.isArray(data)) {
         console.warn('Received non-array data:', data);
         setPotentialStudents([]);
@@ -133,9 +136,11 @@ const PotentialStudentsPanel = ({
         name: error instanceof Error ? error.name : 'Unknown',
         message: error instanceof Error ? error.message : 'Unknown error',
         stack: error instanceof Error ? error.stack : 'No stack',
-        apiUrl
+        apiUrl,
       });
-      setError(`Failed to load potential students: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      setError(
+        `Failed to load potential students: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     } finally {
       setLoading(false);
     }
@@ -253,11 +258,7 @@ const PotentialStudentsPanel = ({
         <div className="management-error">
           <h3>Error Loading Potential Students</h3>
           <p>{error}</p>
-          <button
-            type="button"
-            className="management-retry-btn"
-            onClick={fetchPotentialStudents}
-          >
+          <button type="button" className="management-retry-btn" onClick={fetchPotentialStudents}>
             Try Again
           </button>
         </div>
@@ -270,7 +271,8 @@ const PotentialStudentsPanel = ({
       <div className="management-header">
         <h2 className="management-title">Potential Students</h2>
         <p className="management-subtitle">
-          Students with "Potential" or "Contacted" status - they will move to Waiting List when status changes to "Studying"
+          Students with "Potential" or "Contacted" status - they will move to Waiting List when
+          status changes to "Studying"
         </p>
       </div>
 
@@ -293,8 +295,8 @@ const PotentialStudentsPanel = ({
               aria-label="Search potential students"
               title="Search by name, phone, or student ID"
             />
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="search-bar-button"
               onClick={() => {
                 // Search is already live, just focus the input for better UX
@@ -399,7 +401,9 @@ const PotentialStudentsPanel = ({
                 </td>
                 <td className="student-id-cell">
                   {student.studentCode ? (
-                    <span className={`student-id-badge ${student.gender?.toLowerCase() || 'other'}`}>
+                    <span
+                      className={`student-id-badge ${student.gender?.toLowerCase() || 'other'}`}
+                    >
                       {student.studentCode}
                     </span>
                   ) : (
@@ -409,9 +413,7 @@ const PotentialStudentsPanel = ({
                 <td className="name-cell">
                   <div className="student-name">{student.name}</div>
                 </td>
-                <td className="english-name-cell">
-                  {student.englishName || 'N/A'}
-                </td>
+                <td className="english-name-cell">{student.englishName || 'N/A'}</td>
                 <td className="gender-cell">{student.gender || 'N/A'}</td>
                 <td className="dob-cell">
                   {student.dob ? formatDateMMDDYYYY(student.dob) : 'N/A'}
@@ -431,11 +433,15 @@ const PotentialStudentsPanel = ({
       {selectedStudent && (
         <div className="student-details-modal">
           <div className="modal-content">
-            <button type="button" className="close-btn" onClick={() => {
-              setSelectedStudent(null);
-              setIsEditing(false);
-              setEditForm({});
-            }}>
+            <button
+              type="button"
+              className="close-btn"
+              onClick={() => {
+                setSelectedStudent(null);
+                setIsEditing(false);
+                setEditForm({});
+              }}
+            >
               ×
             </button>
             <h3>Student Details</h3>
@@ -446,7 +452,7 @@ const PotentialStudentsPanel = ({
                   <input
                     type="text"
                     value={editForm.name || selectedStudent.name}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
+                    onChange={(e) => setEditForm((prev) => ({ ...prev, name: e.target.value }))}
                     className="edit-input"
                   />
                 ) : (
@@ -459,7 +465,9 @@ const PotentialStudentsPanel = ({
                   <input
                     type="text"
                     value={editForm.englishName || selectedStudent.englishName || ''}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, englishName: e.target.value }))}
+                    onChange={(e) =>
+                      setEditForm((prev) => ({ ...prev, englishName: e.target.value }))
+                    }
                     className="edit-input"
                   />
                 ) : (
@@ -472,7 +480,7 @@ const PotentialStudentsPanel = ({
                   <input
                     type="email"
                     value={editForm.email || selectedStudent.email}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, email: e.target.value }))}
+                    onChange={(e) => setEditForm((prev) => ({ ...prev, email: e.target.value }))}
                     className="edit-input"
                   />
                 ) : (
@@ -485,7 +493,7 @@ const PotentialStudentsPanel = ({
                   <input
                     type="tel"
                     value={editForm.phone || selectedStudent.phone || ''}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, phone: e.target.value }))}
+                    onChange={(e) => setEditForm((prev) => ({ ...prev, phone: e.target.value }))}
                     className="edit-input"
                   />
                 ) : (
@@ -497,7 +505,7 @@ const PotentialStudentsPanel = ({
                 {isEditing ? (
                   <select
                     value={editForm.gender || selectedStudent.gender || ''}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, gender: e.target.value }))}
+                    onChange={(e) => setEditForm((prev) => ({ ...prev, gender: e.target.value }))}
                     className="edit-select"
                   >
                     <option value="">Select Gender</option>
@@ -514,7 +522,7 @@ const PotentialStudentsPanel = ({
                 {isEditing ? (
                   <select
                     value={editForm.status || selectedStudent.status}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, status: e.target.value }))}
+                    onChange={(e) => setEditForm((prev) => ({ ...prev, status: e.target.value }))}
                     className="edit-select"
                   >
                     <option value="potential">Potential</option>
@@ -536,7 +544,9 @@ const PotentialStudentsPanel = ({
                   <input
                     type="text"
                     value={editForm.parentName || selectedStudent.parentName || ''}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, parentName: e.target.value }))}
+                    onChange={(e) =>
+                      setEditForm((prev) => ({ ...prev, parentName: e.target.value }))
+                    }
                     className="edit-input"
                   />
                 ) : (
@@ -549,7 +559,9 @@ const PotentialStudentsPanel = ({
                   <input
                     type="tel"
                     value={editForm.parentPhone || selectedStudent.parentPhone || ''}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, parentPhone: e.target.value }))}
+                    onChange={(e) =>
+                      setEditForm((prev) => ({ ...prev, parentPhone: e.target.value }))
+                    }
                     className="edit-input"
                   />
                 ) : (
@@ -565,7 +577,7 @@ const PotentialStudentsPanel = ({
                 {isEditing ? (
                   <textarea
                     value={editForm.notes || selectedStudent.notes || ''}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, notes: e.target.value }))}
+                    onChange={(e) => setEditForm((prev) => ({ ...prev, notes: e.target.value }))}
                     className="edit-textarea"
                     rows={3}
                   />
@@ -582,15 +594,18 @@ const PotentialStudentsPanel = ({
                     onClick={async () => {
                       try {
                         const token = localStorage.getItem('skillup_token');
-                        const response = await fetch(`${API_BASE_URL}/users/${selectedStudent._id}`, {
-                          method: 'PUT',
-                          headers: {
-                            'Content-Type': 'application/json',
-                            Authorization: `Bearer ${token}`,
-                          },
-                          body: JSON.stringify(editForm),
-                        });
-                        
+                        const response = await fetch(
+                          `${API_BASE_URL}/users/${selectedStudent._id}`,
+                          {
+                            method: 'PUT',
+                            headers: {
+                              'Content-Type': 'application/json',
+                              Authorization: `Bearer ${token}`,
+                            },
+                            body: JSON.stringify(editForm),
+                          }
+                        );
+
                         if (response.ok) {
                           alert('Student details updated successfully!');
                           setIsEditing(false);
@@ -655,11 +670,7 @@ const PotentialStudentsPanel = ({
         >
           Clear
         </button>
-        <button
-          className="btn-secondary-action"
-          onClick={handleSyncExistingStudents}
-          type="button"
-        >
+        <button className="btn-secondary-action" onClick={handleSyncExistingStudents} type="button">
           Sync Existing Students
         </button>
       </div>

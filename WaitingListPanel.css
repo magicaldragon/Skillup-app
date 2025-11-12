@@ -15,7 +15,7 @@
 .waiting-list-title {
   font-size: 2.5rem;
   font-weight: 900;
-  color: #1D9A6C; /* Dark green color */
+  color: #1d9a6c; /* Dark green color */
   margin: 0 0 8px 0;
   text-shadow: 0 0 10px rgba(29, 154, 108, 0.5); /* Glow effect */
   text-transform: uppercase;
@@ -24,7 +24,7 @@
 
 .waiting-list-subtitle {
   font-size: 1.1rem;
-  color: #1D9A6C; /* Dark green color */
+  color: #1d9a6c; /* Dark green color */
   margin: 0;
   font-weight: 500;
 }
@@ -128,7 +128,7 @@
 }
 
 .waiting-list-table th {
-  background: linear-gradient(135deg, #1D9A6C 0%, #157A54 100%); /* Dark green gradient */
+  background: linear-gradient(135deg, #1d9a6c 0%, #157a54 100%); /* Dark green gradient */
   color: white;
   padding: 14px 16px !important; /* 12-16px cell padding specification */
   text-align: left !important; /* Consistent left alignment with proper border spacing */
@@ -141,7 +141,7 @@
 
 .waiting-list-table td {
   padding: 14px 16px !important; /* 12-16px cell padding specification */
-  border-bottom: 1px solid #E6F8F0;
+  border-bottom: 1px solid #e6f8f0;
   vertical-align: middle;
   text-align: left !important; /* Consistent left alignment with proper border spacing */
   height: 56px !important; /* 56-60px row height specification */
@@ -164,7 +164,7 @@
 }
 
 .waiting-list-table tbody tr:hover {
-  background: #E6F8F0;
+  background: #e6f8f0;
   transform: scale(1.01);
   transition: all 0.2s ease;
 }
@@ -200,14 +200,14 @@
 
 .student-name {
   font-weight: 700;
-  color: #1D9A6C; /* Dark green color */
+  color: #1d9a6c; /* Dark green color */
   font-size: 1rem;
   text-align: left;
 }
 
 .english-name {
   font-size: 0.85rem;
-  color: #1D9A6C; /* Dark green color */
+  color: #1d9a6c; /* Dark green color */
   font-style: italic;
   margin-top: 2px;
   text-align: left;
@@ -218,7 +218,7 @@
   text-align: left; /* Left align gender text */
   vertical-align: middle;
   font-weight: 600;
-  color: #1D9A6C; /* Dark green color */
+  color: #1d9a6c; /* Dark green color */
   text-transform: capitalize;
 }
 
@@ -231,11 +231,11 @@
 
 .status-select {
   padding: 8px 12px;
-  border: 2px solid #1D9A6C; /* Dark green border */
+  border: 2px solid #1d9a6c; /* Dark green border */
   border-radius: 8px;
   background: white;
   font-size: 0.9rem;
-  color: #1D9A6C; /* Dark green color */
+  color: #1d9a6c; /* Dark green color */
   cursor: pointer;
   transition: all 0.2s ease;
   width: 100%;
@@ -246,7 +246,7 @@
 
 .status-select:focus {
   outline: none;
-  border-color: #1D9A6C; /* Dark green border */
+  border-color: #1d9a6c; /* Dark green border */
   box-shadow: 0 0 0 3px rgba(29, 154, 108, 0.1);
 }
 
@@ -258,11 +258,11 @@
 
 .assign-select {
   padding: 8px 12px;
-  border: 2px solid #1D9A6C; /* Dark green border */
+  border: 2px solid #1d9a6c; /* Dark green border */
   border-radius: 8px;
   background: white;
   font-size: 0.9rem;
-  color: #1D9A6C; /* Dark green color */
+  color: #1d9a6c; /* Dark green color */
   cursor: pointer;
   transition: all 0.2s ease;
   width: 100%;
@@ -271,7 +271,7 @@
 
 .assign-select:focus {
   outline: none;
-  border-color: #1D9A6C; /* Dark green border */
+  border-color: #1d9a6c; /* Dark green border */
   box-shadow: 0 0 0 3px rgba(29, 154, 108, 0.1);
 }
 
@@ -361,7 +361,7 @@
 /* Contextual Action Bar */
 .contextual-action-bar {
   background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  border: 2px solid #1D9A6C;
+  border: 2px solid #1d9a6c;
   border-radius: 16px;
   padding: 20px 24px;
   margin-bottom: 24px;
@@ -394,7 +394,7 @@
 .selection-count {
   font-size: 1rem;
   font-weight: 700;
-  color: #1D9A6C;
+  color: #1d9a6c;
   background: rgba(29, 154, 108, 0.1);
   padding: 8px 16px;
   border-radius: 20px;
@@ -467,7 +467,7 @@
 
 /* Modern Action Button Styles */
 .btn-primary-action {
-  background: linear-gradient(135deg, #1D9A6C 0%, #157A54 100%);
+  background: linear-gradient(135deg, #1d9a6c 0%, #157a54 100%);
   color: white;
   border: none;
   padding: 12px 24px;
@@ -484,11 +484,11 @@
 .btn-primary-action:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(29, 154, 108, 0.3);
-  background: linear-gradient(135deg, #157A54 0%, #0F5D40 100%);
+  background: linear-gradient(135deg, #157a54 0%, #0f5d40 100%);
 }
 
 .btn-secondary-action {
-  background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   color: white;
   border: none;
   padding: 12px 24px;
@@ -505,18 +505,18 @@
 .btn-secondary-action:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
 }
 
 .btn-secondary-action:disabled {
-  background: linear-gradient(135deg, #9CA3AF 0%, #6B7280 100%);
+  background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
 }
 
 .btn-neutral-action {
-  background: linear-gradient(135deg, #6B7280 0%, #4B5563 100%);
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
   color: white;
   border: none;
   padding: 12px 24px;
@@ -533,7 +533,7 @@
 .btn-neutral-action:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
-  background: linear-gradient(135deg, #4B5563 0%, #374151 100%);
+  background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
 }
 
 /* Bulk section */
@@ -700,29 +700,29 @@
   letter-spacing: 0.5px;
   text-align: center;
   background: #dbeafe;
-  color: #1D9A6C; /* Dark green color */
-  border: 1px solid #1D9A6C; /* Dark green border */
+  color: #1d9a6c; /* Dark green color */
+  border: 1px solid #1d9a6c; /* Dark green border */
   margin: 0 auto; /* Center the badge */
   display: inline-block;
 }
 
 .status-studying {
   background: #dbeafe;
-  color: #1D9A6C; /* Dark green color */
-  border: 1px solid #1D9A6C; /* Dark green border */
+  color: #1d9a6c; /* Dark green color */
+  border: 1px solid #1d9a6c; /* Dark green border */
 }
 
 .status-postponed {
   background: #fef3c7;
-  color: #1D9A6C; /* Dark green color */
-  border: 1px solid #1D9A6C; /* Dark green border */
+  color: #1d9a6c; /* Dark green color */
+  border: 1px solid #1d9a6c; /* Dark green border */
 }
 
 .status-off,
 .status-alumni {
   background: #fed7d7;
-  color: #1D9A6C; /* Dark green color */
-  border: 1px solid #1D9A6C; /* Dark green border */
+  color: #1d9a6c; /* Dark green color */
+  border: 1px solid #1d9a6c; /* Dark green border */
 }
 
 /* Student ID badges with gender-based colors */
@@ -742,8 +742,8 @@
 .student-id-badge.female,
 .student-id-badge.other {
   background: #e6f7e6; /* Light green background for all */
-  color: #1D9A6C; /* Dark green color */
-  border: 1px solid #1D9A6C; /* Dark green border */
+  color: #1d9a6c; /* Dark green color */
+  border: 1px solid #1d9a6c; /* Dark green border */
 }
 
 /* Responsive design */
@@ -792,7 +792,7 @@
     max-width: 500px;
     min-width: 250px;
   }
-  
+
   .search-bar-input {
     min-width: 250px;
     font-size: 0.9rem;
@@ -805,13 +805,13 @@
     max-width: 100%;
     min-width: 200px;
   }
-  
+
   .search-bar-input {
     min-width: 200px;
     font-size: 0.85rem;
     padding: 0.6rem 2.5rem 0.6rem 0.7rem;
   }
-  
+
   .search-controls {
     flex-direction: column;
     gap: 1rem;
