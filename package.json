@@ -26,7 +26,10 @@
     "lint:apply": "biome check . --write",
     "lint:apply-unsafe": "biome check . --write --unsafe",
     "format": "biome format . --write",
-    "eslint": "eslint . --ext .ts,.tsx"
+    "eslint": "eslint . --ext .ts,.tsx",
+    "biome:changed": "node scripts",
+    "biome:full": "npx biome check --max-diagnostics=500 --reporter=json . > biome-full.json && node scripts/biomeThreshold.cjs biome-full.json 50",
+    "biome:pr": "set BIOME_ERROR_THRESHOLD=20 && npm run biome:full"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.864.0",

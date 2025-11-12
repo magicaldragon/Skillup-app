@@ -54,3 +54,56 @@ jobs:
     # Deploy to Firebase using service account for production deployment
     - name: Deploy to Firebase
       run: firebase deploy --project skillup-3beaf --non-interactive
+
+  lint_changed:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Ensure full history for diffing against remote branches
+          fetch-depth: 0
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install deps
+        run: npm ci
+      - name: Fetch origin
+        run: git fetch origin +refs/heads/*:refs/remotes/origin/*
+      - name: Biome check (changed or skip)
+        # Avoid dynamic context references; drive logic in shell
+        run: |
+          set -euo pipefail
+          # Best-effort diff base: prefer merge-base with origin/main; fallback to previous commit; final fallback HEAD
+          BASE="$(git merge-base HEAD origin/main || git rev-parse HEAD~1 || echo HEAD)"
+          # Collect changed source files; handle no matches gracefully
+          CHANGED="$(git diff --name-only --diff-filter=ACMRT "$BASE" HEAD | grep -E '\.(ts|tsx|js|jsx)$' || true)"
+          if [ -z "$CHANGED" ]; then
+            echo "No changed source files detected for Biome."
+          else
+            echo "Running Biome on changed files:"
+            printf "%s\n" "$CHANGED"
+            # Safe passing of file list (handles spaces/newlines)
+            printf "%s\n" "$CHANGED" | tr -d '\r' | xargs -d '\n' npx biome check --max-diagnostics=200
+          fi
+
+  lint_full:
+    if: github.event_name == 'pull_request' || github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install deps
+        run: npm ci
+      - name: Run full Biome analysis (JSON report)
+        run: npx biome check --max-diagnostics=500 --reporter=json . > biome-full.json
+      - name: Enforce error threshold
+        env:
+          BIOME_ERROR_THRESHOLD: '30'
+        run: node scripts/biomeThreshold.cjs biome-full.json "$BIOME_ERROR_THRESHOLD"
