@@ -1,6 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { Student, StudentClass } from './types';
+import type { Student, StudentClass, AttendanceStatus } from './types';
 import './ManagementTableStyles.css';
+import {
+  buildDayStatusMap,
+  getDaysOfMonth,
+  loadClassMonth,
+  setDayStatus,
+} from './services/attendanceService';
 
 export default function AttendancePanel({
   students,
@@ -13,9 +19,11 @@ export default function AttendancePanel({
 }) {
   const [selectedClassId, setSelectedClassId] = useState<string>('');
   const [selectedDate, setSelectedDate] = useState<string>('');
+  const [selectedMonth, setSelectedMonth] = useState<string>('');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [statusMessage, setStatusMessage] = useState<string>('');
   const [statusType, setStatusType] = useState<'success' | 'error' | ''>('');
+  const [dayMap, setDayMap] = useState<Record<string, AttendanceStatus | undefined>>({});
 
   // Resolve selected class for exports
   const selectedClass = useMemo(
@@ -27,8 +35,10 @@ export default function AttendancePanel({
   useEffect(() => {
     const lastClass = localStorage.getItem('attendance:lastClassId');
     const lastDate = localStorage.getItem('attendance:lastDate');
+    const date = lastDate || new Date().toISOString().slice(0, 10);
     setSelectedClassId(lastClass || '');
-    setSelectedDate(lastDate || new Date().toISOString().slice(0, 10)); // default today
+    setSelectedDate(date);
+    setSelectedMonth(date.slice(0, 7));
   }, []);
 
   useEffect(() => {
@@ -36,20 +46,70 @@ export default function AttendancePanel({
   }, [selectedClassId]);
 
   useEffect(() => {
-    if (selectedDate) localStorage.setItem('attendance:lastDate', selectedDate);
+    if (selectedDate) {
+      localStorage.setItem('attendance:lastDate', selectedDate);
+      setSelectedMonth(selectedDate.slice(0, 7));
+    }
   }, [selectedDate]);
 
+  // Load monthly snapshot and derive day status map
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      if (!selectedClassId || !selectedMonth) return;
+      try {
+        const snapshot = await loadClassMonth(selectedClassId, selectedMonth);
+        const map = buildDayStatusMap(snapshot, selectedDate);
+        if (!cancelled) setDayMap(map);
+      } catch (err) {
+        console.error('AttendancePanel: failed to load month', err);
+      }
+    }
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedClassId, selectedMonth, selectedDate]);
+
   // Selection helpers
-  const toggleSelect = (id: string) => {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
   const selectAll = (ids: string[]) => setSelectedIds(new Set(ids));
   const clearAll = () => setSelectedIds(new Set());
+
+  // Save helper with access control
+  async function applyStatusFor(ids: string[], status: AttendanceStatus) {
+    const userStr = localStorage.getItem('skillup_user');
+    const editorId = userStr ? (JSON.parse(userStr).id || JSON.parse(userStr)._id || '') : '';
+    const userRole = userStr ? (JSON.parse(userStr).role || '') : '';
+    if (!['admin', 'teacher'].includes(userRole)) {
+      setStatusMessage('Access denied: only teacher/admin can edit attendance.');
+      setStatusType('error');
+      return;
+    }
+    try {
+      await Promise.all(
+        ids.map((id) =>
+          setDayStatus(
+            {
+              classId: selectedClassId,
+              studentId: id,
+              dateISO: selectedDate,
+              status,
+            },
+            editorId
+          )
+        )
+      );
+      const snapshot = await loadClassMonth(selectedClassId, selectedMonth);
+      setDayMap(buildDayStatusMap(snapshot, selectedDate));
+      setStatusMessage(`Updated ${ids.length} students to "${status}" on ${selectedDate}.`);
+      setStatusType('success');
+      onDataRefresh?.();
+    } catch (err) {
+      console.error('AttendancePanel: applyStatusFor error', err);
+      setStatusMessage('Failed to update attendance. Please try again.');
+      setStatusType('error');
+    }
+  }
 
   const markSelectedPresent = () => {
     const ids = Array.from(selectedIds);
@@ -58,44 +118,47 @@ export default function AttendancePanel({
       setStatusType('error');
       return;
     }
-    try {
-      setAttendance((prev) => {
-        const next = { ...prev };
-        ids.forEach((id) => {
-          next[id] = 'present';
-        });
-        return next;
-      });
-      setStatusMessage(`Marked ${ids.length} students present for ${selectedDate}.`);
-      setStatusType('success');
-      onDataRefresh?.();
-    } catch {
-      setStatusMessage('Failed to mark selected students present.');
-      setStatusType('error');
-    }
+    applyStatusFor(ids, 'present');
   };
+  const markSelectedAbsent = () => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) {
+      setStatusMessage('No students selected.');
+      setStatusType('error');
+      return;
+    }
+    applyStatusFor(ids, 'absent');
+  };
+  const markSelectedLate = () => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) {
+      setStatusMessage('No students selected.');
+      setStatusType('error');
+      return;
+    }
+    applyStatusFor(ids, 'late');
+  };
+
   // Export CSV (Phase 1)
   const classStudents = useMemo(
-    () => students.filter((s) => (s.classIds || []).includes(selectedClassId)),
+    (): Student[] => students.filter((s: Student) => (s.classIds || []).includes(selectedClassId)),
     [students, selectedClassId]
   );
-  const [attendance, setAttendance] = useState<Record<string, 'present' | 'absent'>>({});
-
-  // Removed unused toggle to comply with linting rules
-
   const exportCSV = () => {
     const cls = selectedClass;
     const classCode = cls?.classCode || cls?.name || '';
-    const rows = classStudents.map((s) => [
+    const rows = classStudents.map((s: Student) => [
       s.studentCode || s.id,
       s.name || '',
-      attendance[s.id] || 'present',
+      dayMap[s.id] ?? 'present',
       selectedDate,
       classCode,
     ]);
     const header = ['Student ID', 'Name', 'Status', 'Date', 'Class'];
     const csv = [header, ...rows]
-      .map((r) => r.map((v) => `"${String(v || '').replace(/"/g, '""')}"`).join(','))
+      .map((r: (string | number | undefined)[]) =>
+        r.map((v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')
+      )
       .join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -113,7 +176,7 @@ export default function AttendancePanel({
       <div className="filters">
         <select value={selectedClassId} onChange={(e) => setSelectedClassId(e.target.value)}>
           <option value="">Select Class</option>
-          {classes.map((c) => {
+          {classes.map((c: StudentClass) => {
             const id = c._id || c.id;
             return id ? (
               <option key={id} value={id}>
@@ -122,11 +185,54 @@ export default function AttendancePanel({
             ) : null;
           })}
         </select>
-        <input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} />
-        <button className="btn-export" onClick={exportCSV}>
-          Export CSV
-        </button>
-        {/* XLSX export button removed */}
+        <div className="controls">
+          <input
+            type="date"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+          />
+          <input
+            type="month"
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(e.target.value)}
+            aria-label="Filter by month"
+          />
+          <button className="btn-export" type="button" onClick={exportCSV}>
+            Export CSV
+          </button>
+          <button
+            className="btn-save"
+            type="button"
+            onClick={() => {
+              window.print();
+            }}
+          >
+            Print Monthly Report
+          </button>
+        </div>
+
+        {/* Removed duplicate action-buttons here to keep single source */}
+        {/* <div className="action-buttons" style={{ marginTop: 8 }}>
+          <button
+            className="btn-edit"
+            type="button"
+            onClick={() => selectAll(classStudents.map((s: Student) => s.id))}
+          >
+            Select All
+          </button>
+          <button className="btn-edit" type="button" onClick={clearAll}>
+            Clear All
+          </button>
+          <button className="btn-save" type="button" onClick={markSelectedPresent}>
+            Mark all present
+          </button>
+          <button className="btn-delete" type="button" onClick={markSelectedAbsent}>
+            Mark all absent
+          </button>
+          <button className="btn-edit" type="button" onClick={markSelectedLate}>
+            Mark all late
+          </button>
+        </div> */}
       </div>
 
       {statusMessage && (
@@ -144,21 +250,31 @@ export default function AttendancePanel({
       )}
 
       <div className="action-buttons" style={{ marginTop: 8 }}>
-        <button className="btn-edit" onClick={() => selectAll(classStudents.map((s) => s.id))}>
+        <button
+          className="btn-edit"
+          type="button"
+          onClick={() => selectAll(classStudents.map((s) => s.id))}
+        >
           Select All
         </button>
-        <button className="btn-edit" onClick={clearAll}>
+        <button className="btn-edit" type="button" onClick={clearAll}>
           Clear All
         </button>
-        <button className="btn-save" onClick={markSelectedPresent}>
+        <button className="btn-save" type="button" onClick={markSelectedPresent}>
           Mark all present
+        </button>
+        <button className="btn-delete" type="button" onClick={markSelectedAbsent}>
+          Mark all absent
+        </button>
+        <button className="btn-edit" type="button" onClick={markSelectedLate}>
+          Mark all late
         </button>
       </div>
 
-      <table className="attendance-table">
+      <table className="attendance-table print-monthly-report">
         <thead>
           <tr>
-            <th>{/* selection header is handled by buttons above */}#</th>
+            <th>#</th>
             <th>Student ID</th>
             <th>Name</th>
             <th>Status</th>
@@ -166,47 +282,78 @@ export default function AttendancePanel({
           </tr>
         </thead>
         <tbody>
-          {classStudents.map((s) => (
+          {classStudents.map((s: Student, idx: number) => (
             <tr key={s.id}>
-              <td>
-                <input
-                  type="checkbox"
-                  checked={selectedIds.has(s.id)}
-                  onChange={() => toggleSelect(s.id)}
-                  aria-label={`select ${s.name}`}
-                />
-              </td>
+              <td>{idx + 1}</td>
               <td>{s.studentCode || s.id}</td>
               <td>{s.name}</td>
-              <td>{attendance[s.id] || 'present'}</td>
+              <td>{dayMap[s.id] || 'present'}</td>
               <td>
                 <button
                   className="btn-edit"
-                  onClick={() =>
-                    setAttendance((prev: Record<string, 'present' | 'absent'>) => ({
-                      ...prev,
-                      [s.id]: 'present',
-                    }))
-                  }
+                  type="button"
+                  onClick={() => applyStatusFor([s.id], 'present')}
                 >
                   Present
                 </button>
                 <button
                   className="btn-delete"
-                  onClick={() =>
-                    setAttendance((prev: Record<string, 'present' | 'absent'>) => ({
-                      ...prev,
-                      [s.id]: 'absent',
-                    }))
-                  }
+                  type="button"
+                  onClick={() => applyStatusFor([s.id], 'absent')}
                 >
                   Absent
+                </button>
+                <button
+                  className="btn-edit"
+                  type="button"
+                  onClick={() => applyStatusFor([s.id], 'late')}
+                >
+                  Late
                 </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      {/* Printable monthly grid with summary */}
+      <div className="print-only a4-landscape">
+        <h2 className="report-title">
+          School SKILLUP — Attendance Report — {selectedMonth}
+        </h2>
+        <p className="report-subtitle">
+          Class: {selectedClass?.classCode || selectedClass?.name || selectedClassId}
+        </p>
+        <table className="report-grid">
+          <thead>
+            <tr>
+              <th>Student</th>
+              {getDaysOfMonth(selectedMonth).map((d: string) => (
+                <th key={d}>{d.slice(-2)}</th>
+              ))}
+              <th>Present</th>
+              <th>Absent</th>
+              <th>Late</th>
+            </tr>
+          </thead>
+          <tbody>
+            {classStudents.map((s: Student) => {
+              const id = s.id;
+              return (
+                <tr key={`report-${id}`}>
+                  <td>{s.name}</td>
+                  {getDaysOfMonth(selectedMonth).map((d: string) => (
+                    <td key={`${id}-${d}`}>{dayMap[id] && d === selectedDate ? dayMap[id] : ''}</td>
+                  ))}
+                  <td>-</td>
+                  <td>-</td>
+                  <td>-</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

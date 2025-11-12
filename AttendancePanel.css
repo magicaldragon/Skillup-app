@@ -1,0 +1,54 @@
+/* Print-only styles */
+@media print {
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .attendance-panel .filters,
+  .attendance-panel .action-buttons,
+  .attendance-panel .attendance-table:not(.print-monthly-report),
+  .status-banner,
+  .sidebar,
+  .navbar {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+}
+
+.print-only {
+  display: none;
+}
+
+.a4-landscape {
+  width: 100%;
+  page: A4;
+  size: A4 landscape;
+  margin: 10mm;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;
+}
+
+.report-title {
+  text-align: center;
+  font-weight: 800;
+  margin: 0 0 4mm 0;
+}
+
+.report-subtitle {
+  text-align: center;
+  margin: 0 0 6mm 0;
+}
+
+.report-grid {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.report-grid th,
+.report-grid td {
+  border: 1px solid #333;
+  padding: 2mm 3mm;
+  font-size: 11px;
+  text-align: center;
+}

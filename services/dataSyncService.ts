@@ -1,5 +1,15 @@
 // dataSyncService.ts - Comprehensive data synchronization service for Firebase/Firestore
-import type { CreateMethod, DeleteMethod, UpdateMethod } from '../types';
+import type {
+  CreateMethod,
+  DeleteMethod,
+  UpdateMethod,
+  UserCreateData,
+  UserUpdateData,
+  ClassCreateData,
+  ClassUpdateData,
+  AssignmentCreateData,
+  AssignmentUpdateData,
+} from '../types';
 import { assignmentsAPI, classesAPI, levelsAPI, usersAPI } from './apiService';
 
 // Data synchronization configuration - removed unused constants
@@ -537,42 +547,50 @@ export const dataSyncService = DataSyncService.getInstance();
 
 // Convenience functions for common operations
 export const syncUsers = {
-  create: (data: any) => dataSyncService.createEntity('user', data, usersAPI.createUser),
-  update: (id: string, data: any) =>
+  create: (data: UserCreateData) => dataSyncService.createEntity('user', data, usersAPI.createUser),
+  update: (id: string, data: UserUpdateData) =>
     dataSyncService.updateEntity('user', id, data, usersAPI.updateUser),
   delete: (id: string) => dataSyncService.deleteEntity('user', id, usersAPI.deleteUser),
-  bulk: (operations: Array<{ type: 'create' | 'update' | 'delete'; data: any; id?: string }>) =>
+  bulk: (
+    operations: Array<{ type: 'create' | 'update' | 'delete'; data: unknown; id?: string }>
+  ) =>
     dataSyncService.bulkOperation('user', operations, {
-      create: usersAPI.createUser,
-      update: (id: string, data: any) => usersAPI.updateUser(id, data),
+      create: (data: unknown) => usersAPI.createUser(data as UserCreateData),
+      update: (id: string, data: unknown) => usersAPI.updateUser(id, data as UserUpdateData),
       delete: (id: string) => usersAPI.deleteUser(id),
     }),
 };
 
 export const syncClasses = {
-  create: (data: any) => dataSyncService.createEntity('class', data, classesAPI.createClass),
-  update: (id: string, data: any) =>
+  create: (data: ClassCreateData) =>
+    dataSyncService.createEntity('class', data, classesAPI.createClass),
+  update: (id: string, data: ClassUpdateData) =>
     dataSyncService.updateEntity('class', id, data, classesAPI.updateClass),
   delete: (id: string) => dataSyncService.deleteEntity('class', id, classesAPI.deleteClass),
-  bulk: (operations: Array<{ type: 'create' | 'update' | 'delete'; data: any; id?: string }>) =>
+  bulk: (
+    operations: Array<{ type: 'create' | 'update' | 'delete'; data: unknown; id?: string }>
+  ) =>
     dataSyncService.bulkOperation('class', operations, {
-      create: classesAPI.createClass,
-      update: (id: string, data: any) => classesAPI.updateClass(id, data),
+      create: (data: unknown) => classesAPI.createClass(data as ClassCreateData),
+      update: (id: string, data: unknown) => classesAPI.updateClass(id, data as ClassUpdateData),
       delete: (id: string) => classesAPI.deleteClass(id),
     }),
 };
 
 export const syncAssignments = {
-  create: (data: any) =>
+  create: (data: AssignmentCreateData) =>
     dataSyncService.createEntity('assignment', data, assignmentsAPI.createAssignment),
-  update: (id: string, data: any) =>
+  update: (id: string, data: AssignmentUpdateData) =>
     dataSyncService.updateEntity('assignment', id, data, assignmentsAPI.updateAssignment),
   delete: (id: string) =>
     dataSyncService.deleteEntity('assignment', id, assignmentsAPI.deleteAssignment),
-  bulk: (operations: Array<{ type: 'create' | 'update' | 'delete'; data: any; id?: string }>) =>
+  bulk: (
+    operations: Array<{ type: 'create' | 'update' | 'delete'; data: unknown; id?: string }>
+  ) =>
     dataSyncService.bulkOperation('assignment', operations, {
-      create: assignmentsAPI.createAssignment,
-      update: (id: string, data: any) => assignmentsAPI.updateAssignment(id, data),
+      create: (data: unknown) => assignmentsAPI.createAssignment(data as AssignmentCreateData),
+      update: (id: string, data: unknown) =>
+        assignmentsAPI.updateAssignment(id, data as AssignmentUpdateData),
       delete: (id: string) => assignmentsAPI.deleteAssignment(id),
     }),
 };

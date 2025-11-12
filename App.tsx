@@ -185,6 +185,7 @@ const App: React.FC = () => {
     }
   }, [user, apiUrl]);
 
+  // Inside fetchAssignments useCallback
   const fetchAssignments = useCallback(async () => {
     if (!user) return;
     try {
@@ -215,9 +216,7 @@ const App: React.FC = () => {
           (assignment: Partial<Assignment> & { _id?: string }) => ({
             id: assignment.id || assignment._id || '',
             title: (assignment.title || '').toString(),
-            level: (assignment.level && typeof assignment.level === 'string'
-              ? assignment.level
-              : (assignment.level as any)?.name || 'IELTS') as ExamLevel,
+            level: resolveLevel(assignment.level),
             skill: assignment.skill || 'Reading',
             description: (assignment.description || '').toString(),
             questions: Array.isArray(assignment.questions) ? assignment.questions : [],
@@ -240,9 +239,7 @@ const App: React.FC = () => {
           (assignment: Partial<Assignment> & { _id?: string }) => ({
             id: assignment.id || assignment._id || '',
             title: (assignment.title || '').toString(),
-            level: (assignment.level && typeof assignment.level === 'string'
-              ? assignment.level
-              : (assignment.level as any)?.name || 'IELTS') as ExamLevel,
+            level: resolveLevel(assignment.level),
             skill: assignment.skill || 'Reading',
             description: (assignment.description || '').toString(),
             questions: Array.isArray(assignment.questions) ? assignment.questions : [],
@@ -555,3 +552,12 @@ const App: React.FC = () => {
 };
 
 export default App;
+
+// Helper to resolve level from mixed API shapes without using any
+const resolveLevel = (lvl: unknown): ExamLevel => {
+  if (typeof lvl === 'string') return lvl as ExamLevel;
+  if (lvl && typeof (lvl as { name?: unknown }).name === 'string') {
+    return (lvl as { name: string }).name as ExamLevel;
+  }
+  return 'IELTS';
+};
