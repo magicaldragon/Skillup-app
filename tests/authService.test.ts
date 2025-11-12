@@ -117,14 +117,14 @@ describe('authService.login', () => {
     mockSignIn.mockResolvedValueOnce({ user: { getIdToken: mockGetIdToken } });
 
     // First call: /health ok, second call: exchange rejects
-    global.fetch = (vi
+    global.fetch = vi
       .fn()
       .mockResolvedValueOnce({
         ok: true,
         headers: { get: () => 'application/json' },
         json: async () => ({ ok: true }),
       } as unknown as Response)
-      .mockRejectedValueOnce(new Error('Network failed'))) as unknown as typeof fetch;
+      .mockRejectedValueOnce(new Error('Network failed')) as unknown as typeof fetch;
 
     const res = await authService.login('user@admin.skillup', 'Valid123!');
     expect(res.success).toBe(false);
@@ -219,14 +219,14 @@ describe('authService.login network behavior', () => {
     const mockGetIdToken = vi.fn().mockResolvedValue('FAKE_ID_TOKEN');
     mockSignIn.mockResolvedValueOnce({ user: { getIdToken: mockGetIdToken } });
 
-    global.fetch = (vi
+    global.fetch = vi
       .fn()
       .mockResolvedValueOnce({
         ok: true,
         headers: { get: () => 'application/json' },
         json: async () => ({ ok: true }),
       } as unknown as Response)
-      .mockRejectedValueOnce(new Error('Network failed'))) as unknown as typeof fetch;
+      .mockRejectedValueOnce(new Error('Network failed')) as unknown as typeof fetch;
 
     const res = await authService.login('admin@admin.skillup', 'Valid123!');
     expect(res.success).toBe(false);

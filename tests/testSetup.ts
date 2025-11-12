@@ -1,3 +1,13 @@
+import { beforeAll, vi } from 'vitest';
+
+beforeAll(() => {
+  vi.mock('../services/vstorage', () => ({
+    uploadFile: vi.fn(),
+    getFileURL: vi.fn(),
+    deleteFile: vi.fn(),
+    listFiles: vi.fn().mockResolvedValue([]),
+  }));
+});
 // Provide a minimal localStorage polyfill if not available (e.g., Node env)
 (function ensureLocalStorage() {
   if (typeof globalThis.localStorage === 'undefined') {
