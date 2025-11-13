@@ -81,18 +81,16 @@ app.use(express.urlencoded({ extended: true }));
 // Health check endpoint
 app.get("/health", async (_req, res) => {
   try {
-    // Test Firestore connection by checking if we can access the database
     const db = admin.firestore();
-    // Use a simple query to test connection instead of accessing a specific collection
     await db.collection("users").limit(1).get();
-
-    // Test Auth connection
     admin.auth();
 
     res.json({
       status: "healthy",
       timestamp: new Date().toISOString(),
       environment: process.env.NODE_ENV || "development",
+      version: process.env.APP_VERSION || "unknown",
+      commit: process.env.COMMIT_SHA || "unknown",
       firebase: {
         projectId: admin.app().options.projectId,
         database: "firestore",
@@ -162,6 +160,8 @@ app.use(
         status: "healthy",
         timestamp: new Date().toISOString(),
         environment: process.env.NODE_ENV || "development",
+        version: process.env.APP_VERSION || "unknown",
+        commit: process.env.COMMIT_SHA || "unknown",
         firebase: {
           projectId: admin.app().options.projectId,
           database: "firestore",

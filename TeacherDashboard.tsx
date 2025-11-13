@@ -21,7 +21,7 @@ import type {
 import type { UserProfile } from "./types";
 import WaitingListPanel from "./WaitingListPanel";
 
-const TeacherDashboard = ({
+function TeacherDashboard({
   user,
   students,
   assignments,
@@ -35,7 +35,7 @@ const TeacherDashboard = ({
   classes: FirestoreClass[];
   activeKey: string;
   onDataRefresh?: () => void;
-}) => {
+}) {
   const totalStudents = students.filter((s) => s.role === "student").length;
   const activeAssignments = assignments.filter((a) => a.isActive === true).length;
   const totalClasses = classes.length;
@@ -62,13 +62,10 @@ const TeacherDashboard = ({
       ) : activeKey === "potential-students" ? (
         <>
           {/* TODO: Fix type compatibility between FirestoreUser/FirestoreClass and Student/StudentClass */}
-          /* biome-ignore lint/suspicious/noExplicitAny: Temporary cast until types are unified
-          across panels */
+          {/* biome-ignore lint/suspicious/noExplicitAny: Temporary cast until types are unified across panels */}
           <PotentialStudentsPanel
             classes={classes as any}
-            /* biome-ignore lint/suspicious/noExplicitAny: Temporary cast until types are unified across panels */
             currentUser={user as any}
-            onDataRefresh={onDataRefresh}
           />
         </>
       ) : activeKey === "waiting-list" ? (
@@ -200,6 +197,6 @@ const TeacherDashboard = ({
       )}
     </div>
   );
-};
+}
 
 export default TeacherDashboard;

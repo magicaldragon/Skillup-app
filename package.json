@@ -22,6 +22,8 @@
     "deploy:all": "npm run build && npm run firebase:deploy",
     "setup:firebase": "npm install -g firebase-tools && firebase login",
     "test": "vitest run",
+    "notify:on-failure": "node scripts/notifyOnFailure.js",
+    "test:ci": "vitest run",
     "lint": "biome check .",
     "lint:apply": "biome check . --write",
     "lint:apply-unsafe": "biome check . --write --unsafe",

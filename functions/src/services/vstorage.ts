@@ -15,16 +15,16 @@ export const vstorageConfig = {
   accessKeyId:
     process.env.VSTORAGE_ACCESS_KEY ||
     process.env.VITE_VSTORAGE_ACCESS_KEY ||
-    "cb1d2453d51a5936b5eee3be7685d1dc",
+    "",
   secretAccessKey:
     process.env.VSTORAGE_SECRET_KEY ||
     process.env.VITE_VSTORAGE_SECRET_KEY ||
-    "7LbA3yNlG8yIASrTB29HFHs5fhbiCUgARGsiOu0B",
+    "",
   endpoint:
     process.env.VSTORAGE_ENDPOINT || process.env.VITE_VSTORAGE_ENDPOINT || "https://s3.vngcloud.vn",
   region: process.env.VSTORAGE_REGION || process.env.VITE_VSTORAGE_REGION || "sgn",
   bucket: process.env.VSTORAGE_BUCKET || process.env.VITE_VSTORAGE_BUCKET || "skillup",
-  maxFileSize: 10 * 1024 * 1024, // 10MB max file size
+  maxFileSize: 10 * 1024 * 1024,
   allowedTypes: [
     "image/jpeg",
     "image/png",

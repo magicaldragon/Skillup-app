@@ -1,11 +1,11 @@
-import { getApps, initializeApp } from "firebase/app";
+import { getApps, initializeApp, type FirebaseApp, type FirebaseOptions } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
 // Version timestamp for cache busting
-const VERSION = Date.now();
+const VERSION: number = Date.now();
 
 // Firebase configuration with fallback values - Analytics disabled for cost optimization
-const firebaseConfig = {
+const firebaseConfig: FirebaseOptions = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyDexK-T8wuuZS13DZbO5tgAagqpMgHZzgc",
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "skillup-3beaf.firebaseapp.com",
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "skillup-3beaf",
@@ -27,9 +27,9 @@ console.log(`Firebase configuration loaded (v${VERSION}):`, {
 });
 
 // Initialize Firebase with error handling
-let app;
+let app: FirebaseApp;
 try {
-  app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+  app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]!;
   console.log("Firebase initialized successfully");
 } catch (error) {
   console.error("Firebase initialization failed:", error);

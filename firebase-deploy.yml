@@ -1,0 +1,12 @@
+# Notify on Failure step (replace the prior curl-based one)
+      - name: Notify on Failure
+        if: ${{ failure() && secrets.ALERT_WEBHOOK_URL != '' }}
+        env:
+          ALERT_WEBHOOK_URL: ${{ secrets.ALERT_WEBHOOK_URL }}
+          ALERT_WEBHOOK_SIGNATURE_KEY: ${{ secrets.ALERT_WEBHOOK_SIGNATURE_KEY }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_WORKFLOW: ${{ github.workflow }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_SHA: ${{ github.sha }}
+          NODE_ENV: production
+        run: node scripts/notifyOnFailure.js

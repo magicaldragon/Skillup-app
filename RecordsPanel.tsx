@@ -72,35 +72,26 @@ function RecordsPanel() {
   const fetchRecords = useCallback(async () => {
     setLoading(true);
     setError(null);
-
     const token = localStorage.getItem("skillup_token");
     if (!token) {
       setError("No authentication token found");
       setLoading(false);
       return;
     }
-
     try {
       const params = new URLSearchParams({
         page: pagination.page.toString(),
         limit: pagination.limit.toString(),
       });
-
-      // Only append category for real record categories (not "all" or "students")
       if (filter !== "all" && filter !== "students") {
         params.append("category", filter);
       }
-
       const response = await fetch(`${API_BASE_URL}/student-records?${params}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
-
       if (!response.ok) {
         throw new Error("Failed to fetch records");
       }
-
       const data = await response.json();
       if (data.success) {
         setRecords(data.records || []);
@@ -112,8 +103,8 @@ function RecordsPanel() {
       } else {
         throw new Error(data.message || "Failed to fetch records");
       }
-    } catch (error) {
-      console.error("Fetch records error:", error);
+    } catch (err) {
+      console.error("Fetch records error:", err);
       setError("Failed to load records. Please try again.");
     } finally {
       setLoading(false);
@@ -123,25 +114,68 @@ function RecordsPanel() {
   const fetchStudents = useCallback(async () => {
     const token = localStorage.getItem("skillup_token");
     if (!token) return;
-
     try {
-      // Fetch students with 'off' or 'alumni' status
       const response = await fetch(`${API_BASE_URL}/users?status=off,alumni`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
-
       if (response.ok) {
         const data = await response.json();
         setStudents(data || []);
       }
-    } catch (error) {
-      console.error("Fetch students error:", error);
+    } catch (err) {
+      console.error("Fetch students error:", err);
     }
   }, []);
 
-  // Helper functions for records display
+  useEffect(() => {
+    fetchRecords();
+    fetchStudents();
+  }, [fetchRecords, fetchStudents]);
+
+  // Reset invalid student status filter when not in "students" category
+  useEffect(() => {
+    if (filter !== "students" && statusFilter !== "all") {
+      setStatusFilter("all");
+    }
+  }, [filter, statusFilter]);
+
+  const filteredRecords = useMemo(() => {
+    return records.filter((record) => {
+      const searchLower = searchTerm.toLowerCase();
+      const detailsText =
+        typeof record.details === "string"
+          ? record.details
+          : JSON.stringify(record.details || "");
+      const matchesSearch =
+        !searchTerm ||
+        record.studentName.toLowerCase().includes(searchLower) ||
+        record.action.toLowerCase().includes(searchLower) ||
+        record.category.toLowerCase().includes(searchLower) ||
+        detailsText.toLowerCase().includes(searchLower);
+
+      const matchesCategory =
+        filter === "all" || filter === "students" || record.category === filter;
+
+      return matchesSearch && matchesCategory;
+    });
+  }, [records, searchTerm, filter]);
+
+  const filteredStudents = useMemo(() => {
+    return students.filter((student) => {
+      const searchLower = searchTerm.toLowerCase();
+      const matchesSearch =
+        !searchTerm ||
+        student.name.toLowerCase().includes(searchLower) ||
+        student.englishName?.toLowerCase().includes(searchLower) ||
+        student.email.toLowerCase().includes(searchLower) ||
+        student.studentCode?.toLowerCase().includes(searchLower);
+
+      const matchesStatus = statusFilter === "all" || student.status === statusFilter;
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [students, searchTerm, statusFilter]);
+
   const getActionColor = (action: string): string => {
     const actionColors: { [key: string]: string } = {
       user_created: "success",
@@ -183,50 +217,7 @@ function RecordsPanel() {
     return categoryNames[category] || category;
   };
 
-  useEffect(() => {
-    fetchRecords();
-    fetchStudents();
-  }, [fetchRecords, fetchStudents]);
-
-  // Reset invalid student status filter when not in "students" category
-  useEffect(() => {
-    if (filter !== "students" && statusFilter !== "all") {
-      setStatusFilter("all");
-    }
-  }, [filter, statusFilter]);
-
-  const filteredRecords = useMemo(() => {
-    return records.filter((record) => {
-      const searchLower = searchTerm.toLowerCase();
-      const matchesSearch =
-        !searchTerm ||
-        record.studentName.toLowerCase().includes(searchLower) ||
-        record.action.toLowerCase().includes(searchLower) ||
-        record.category.toLowerCase().includes(searchLower) ||
-        record.details.toString().toLowerCase().includes(searchLower);
-
-      const matchesCategory =
-        filter === "all" || filter === "students" || record.category === filter;
-
-      return matchesSearch && matchesCategory;
-    });
-  }, [records, searchTerm, filter]);
-
-  const filteredStudents = useMemo(() => {
-    return students.filter((student) => {
-      const searchLower = searchTerm.toLowerCase();
-      const matchesSearch =
-        !searchTerm ||
-        student.name.toLowerCase().includes(searchLower) ||
-        student.englishName?.toLowerCase().includes(searchLower) ||
-        student.email.toLowerCase().includes(searchLower) ||
-        student.studentCode?.toLowerCase().includes(searchLower);
-
-      const matchesStatus = statusFilter === "all" || student.status === statusFilter;
-
-      return matchesSearch && matchesStatus;
-    });
-  }, [students, searchTerm, statusFilter]);
+  
 
   const handlePageChange = (newPage: number) => {
     setPagination((prev) => ({ ...prev, page: newPage }));
@@ -276,7 +267,6 @@ function RecordsPanel() {
               onKeyPress={(e) => {
                 if (e.key === "Enter") {
                   e.preventDefault();
-                  // Search is already live, just focus the input
                   (e.target as HTMLInputElement).focus();
                 }
               }}
@@ -298,7 +288,6 @@ function RecordsPanel() {
         </div>
 
         <div className="filter-controls">
-          {/* Filter category */}
           <select
             value={filter}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -316,7 +305,6 @@ function RecordsPanel() {
             <option value="students">Students</option>
           </select>
 
-          {/* Show status filter only when students category is selected */}
           {filter === "students" && (
             <select
               value={statusFilter}
@@ -349,7 +337,6 @@ function RecordsPanel() {
       </div>
 
       {filter === "students" ? (
-        // Students Table
         <div className="table-wrapper">
           <table className="management-table">
             <thead>
@@ -396,7 +383,6 @@ function RecordsPanel() {
           </table>
         </div>
       ) : (
-        // Records Table
         <div className="table-wrapper">
           <table className="management-table">
             <thead>
