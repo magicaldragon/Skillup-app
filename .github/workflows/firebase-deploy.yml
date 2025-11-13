@@ -29,7 +29,30 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Test (Vitest)
+        run: npm run test
+
       - name: Deploy (Firebase)
-        run: npm run deploy:firebase
+        run: |
+          npm run firebase:deploy | tee deploy.log
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+      - name: Smoke - Functions Health
+        run: curl -sSf "https://us-central1-skillup-3beaf.cloudfunctions.net/api/health" | jq .
+
+      - name: Smoke - Functions Test
+        run: curl -sSf "https://us-central1-skillup-3beaf.cloudfunctions.net/api/test" | jq .
+
+      - name: Smoke - Hosting Homepage
+        run: curl -sSf -I "https://skillup-3beaf.web.app"
+
+      - name: Smoke - VStorage Connectivity (optional)
+        run: node scripts/testVStorage.cjs
+        continue-on-error: true
+
+      - name: Upload Deploy Logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: firebase-deploy-logs
+          path: deploy.log
