@@ -1,44 +1,30 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-// Hoisted mocks: stub Firebase modules before importing the service
 type FirebaseUserCredential = { user: { getIdToken: () => Promise<string> } };
 type SignInFn = (auth: unknown, email: string, password: string) => Promise<FirebaseUserCredential>;
-// Avoid nested generics that can confuse the parser: define a clear alias
-type SignInMock = ReturnType<
-  typeof vi.fn<[unknown, string, string], Promise<FirebaseUserCredential>>
->;
-let mockSignIn: SignInMock;
 
-vi.mock("firebase/auth", () => {
-  // Initialize a typed Vitest mock so we have .mockResolvedValueOnce/.mockRejectedValueOnce
-  mockSignIn = vi.fn<[unknown, string, string], Promise<FirebaseUserCredential>>();
-  return {
-    signInWithEmailAndPassword: (...args: [unknown, string, string]) => mockSignIn(...args),
-  };
-});
-
-vi.mock("../frontend/services/firebase", () => ({
-  auth: {},
+const mocks = vi.hoisted(() => ({
+  signIn: vi.fn<[unknown, string, string], Promise<FirebaseUserCredential>>(),
 }));
 
-// Import service after mocks to prevent SSR transforms of real Firebase modules
+vi.mock("firebase/auth", () => ({
+  signInWithEmailAndPassword: (...args: [unknown, string, string]) => mocks.signIn(...args),
+}));
+
+vi.mock("../frontend/services/firebase", () => ({ auth: {} }));
+
 import { authService } from "../frontend/services/authService";
 
-// Removed unused mockGetIdToken
 const originalFetch = global.fetch;
 
 describe("authService.login", () => {
   beforeEach(() => {
-    // Reset mock state but keep module mocks intact
     vi.clearAllMocks();
-    // Reinitialize mockSignIn for each test to avoid stale references
-    mockSignIn = vi.fn();
-    // Ensure AuthService uses the test seam for sign-in (typed injection, no any)
+    mocks.signIn.mockReset();
     (authService as unknown as { signInFn: SignInFn }).signInFn = (auth, email, password) =>
-      mockSignIn(auth, email, password) as unknown as Promise<FirebaseUserCredential>;
+      mocks.signIn(auth, email, password) as unknown as Promise<FirebaseUserCredential>;
     localStorage.clear();
 
-    // Default fetch: make backend health check pass in Node
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const url =
         typeof input === "string" || input instanceof URL ? String(input) : (input as Request).url;
@@ -72,14 +58,14 @@ describe("authService.login", () => {
   });
 
   it("handles invalid credentials", async () => {
-    mockSignIn.mockRejectedValueOnce(new Error("auth/invalid-credential"));
+    mocks.signIn.mockRejectedValueOnce(new Error("auth/invalid-credential"));
     const res = await authService.login("user@admin.skillup", "Valid123!");
     expect(res.success).toBe(false);
     expect(res.message).toMatch(/login|error/i);
   });
 
   it("locks out after 5 failures within 15 minutes", async () => {
-    mockSignIn.mockRejectedValue(new Error("auth/invalid-credential"));
+    mocks.signIn.mockRejectedValue(new Error("auth/invalid-credential"));
     for (let i = 0; i < 5; i++) {
       await authService.login("user@admin.skillup", "Valid123!");
     }
@@ -90,7 +76,7 @@ describe("authService.login", () => {
 
   it("succeeds with valid credentials and backend exchange", async () => {
     const mockGetIdToken = vi.fn().mockResolvedValue("FAKE_ID_TOKEN");
-    mockSignIn.mockResolvedValueOnce({ user: { getIdToken: mockGetIdToken } });
+    mocks.signIn.mockResolvedValueOnce({ user: { getIdToken: mockGetIdToken } });
 
     // First call: /health ok, second call: /auth/firebase-login success
     global.fetch = vi
@@ -117,7 +103,7 @@ describe("authService.login", () => {
 
   it("reports network error on fetch failure", async () => {
     const mockGetIdToken = vi.fn().mockResolvedValue("FAKE_ID_TOKEN");
-    mockSignIn.mockResolvedValueOnce({ user: { getIdToken: mockGetIdToken } });
+    mocks.signIn.mockResolvedValueOnce({ user: { getIdToken: mockGetIdToken } });
 
     // First call: /health ok, second call: exchange rejects
     global.fetch = vi
@@ -138,10 +124,9 @@ describe("authService.login", () => {
 describe("authService.login network behavior", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // Reinitialize mock each test
-    mockSignIn = vi.fn<[unknown, string, string], Promise<FirebaseUserCredential>>();
+    mocks.signIn.mockReset();
     (authService as unknown as { signInFn: SignInFn }).signInFn = (auth, email, password) =>
-      mockSignIn(auth, email, password);
+      mocks.signIn(auth, email, password);
     localStorage.clear();
 
     // Default fetch: make backend health check pass in Node
@@ -178,14 +163,14 @@ describe("authService.login network behavior", () => {
   });
 
   it("handles invalid credentials", async () => {
-    mockSignIn.mockRejectedValueOnce(new Error("auth/invalid-credential"));
+    mocks.signIn.mockRejectedValueOnce(new Error("auth/invalid-credential"));
     const res = await authService.login("user@admin.skillup", "Valid123!");
     expect(res.success).toBe(false);
     expect(res.message).toMatch(/login|error/i);
   });
 
   it("locks out after 5 failures within 15 minutes", async () => {
-    mockSignIn.mockRejectedValue(new Error("auth/invalid-credential"));
+    mocks.signIn.mockRejectedValue(new Error("auth/invalid-credential"));
     for (let i = 0; i < 5; i++) {
       await authService.login("user@admin.skillup", "Valid123!");
     }
@@ -196,7 +181,7 @@ describe("authService.login network behavior", () => {
 
   it("succeeds with valid credentials and backend exchange", async () => {
     const mockGetIdToken = vi.fn().mockResolvedValue("FAKE_ID_TOKEN");
-    mockSignIn.mockResolvedValueOnce({ user: { getIdToken: mockGetIdToken } });
+    mocks.signIn.mockResolvedValueOnce({ user: { getIdToken: mockGetIdToken } });
 
     global.fetch = vi
       .fn()
@@ -222,7 +207,7 @@ describe("authService.login network behavior", () => {
 
   it("reports network error on fetch failure", async () => {
     const mockGetIdToken = vi.fn().mockResolvedValue("FAKE_ID_TOKEN");
-    mockSignIn.mockResolvedValueOnce({ user: { getIdToken: mockGetIdToken } });
+    mocks.signIn.mockResolvedValueOnce({ user: { getIdToken: mockGetIdToken } });
 
     global.fetch = vi
       .fn()
@@ -242,7 +227,7 @@ describe("authService.login network behavior", () => {
     const userCredential: FirebaseUserCredential = {
       user: { getIdToken: vi.fn().mockResolvedValue("FAKE_ID_TOKEN") },
     };
-    mockSignIn.mockResolvedValueOnce(userCredential);
+    mocks.signIn.mockResolvedValueOnce(userCredential);
 
     global.fetch = vi
       .fn()
@@ -267,7 +252,7 @@ describe("authService.login network behavior", () => {
     const userCredential: FirebaseUserCredential = {
       user: { getIdToken: vi.fn().mockResolvedValue("FAKE_ID_TOKEN") },
     };
-    mockSignIn.mockResolvedValueOnce(userCredential);
+    mocks.signIn.mockResolvedValueOnce(userCredential);
 
     global.fetch = vi
       .fn()
