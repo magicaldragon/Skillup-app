@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useState } from 'react';
-import type { Student, StudentClass } from './types';
-import { formatDateMMDDYYYY } from './utils/stringUtils';
-import './PotentialStudentsPanel.css';
-import './ManagementTableStyles.css';
+import { useCallback, useEffect, useState } from "react";
+import type { Student, StudentClass } from "./types";
+import { formatDateMMDDYYYY } from "./utils/stringUtils";
+import "./PotentialStudentsPanel.css";
+import "./ManagementTableStyles.css";
 
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
+  import.meta.env.VITE_API_BASE_URL || "https://us-central1-skillup-3beaf.cloudfunctions.net/api";
 
 interface User {
   _id: string;
@@ -41,12 +41,12 @@ const PotentialStudentsPanel = ({
 
   // Bulk selection state
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [bulkStatus, setBulkStatus] = useState<string>('');
+  const [bulkStatus, setBulkStatus] = useState<string>("");
   const [showBulkUpdate, setShowBulkUpdate] = useState(false);
 
   // Add search state
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'potential' | 'contacted'>('all');
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "potential" | "contacted">("all");
   const [selectedStudent, setSelectedStudent] = useState<User | null>(null);
   const [editForm, setEditForm] = useState<Partial<User>>({});
   const [isEditing, setIsEditing] = useState(false);
@@ -55,42 +55,42 @@ const PotentialStudentsPanel = ({
     setLoading(true);
     setError(null);
 
-    const token = localStorage.getItem('skillup_token');
+    const token = localStorage.getItem("skillup_token");
     if (!token) {
-      setError('No authentication token found. Please log in again.');
+      setError("No authentication token found. Please log in again.");
       setLoading(false);
       return;
     }
 
     // Validate token format - support both JWT tokens (with dots) and base64 session tokens
     if (token.length < 50) {
-      setError('Invalid authentication token. Please log in again.');
+      setError("Invalid authentication token. Please log in again.");
       setLoading(false);
       return;
     }
 
     const apiUrl = `${API_BASE_URL}/users?status=potential,contacted`;
-    console.log('🔍 [PotentialStudents] API Call Details:', {
+    console.log("🔍 [PotentialStudents] API Call Details:", {
       url: apiUrl,
       baseUrl: API_BASE_URL,
       hasToken: !!token,
-      tokenPrefix: token ? token.substring(0, 10) + '...' : 'none',
+      tokenPrefix: token ? `${token.substring(0, 10)}...` : "none",
       fullToken: token
         ? `${token.substring(0, 10)}...${token.substring(token.length - 10)}`
-        : 'none',
+        : "none",
     });
 
     try {
       // Fetch users with status 'potential' or 'contacted'
       const response = await fetch(apiUrl, {
-        method: 'GET',
+        method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
-      console.log('📡 [PotentialStudents] Response Status:', {
+      console.log("📡 [PotentialStudents] Response Status:", {
         status: response.status,
         statusText: response.statusText,
         headers: Object.fromEntries(response.headers.entries()),
@@ -99,18 +99,18 @@ const PotentialStudentsPanel = ({
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('❌ [PotentialStudents] Error Response:', {
+        console.error("❌ [PotentialStudents] Error Response:", {
           status: response.status,
           statusText: response.statusText,
           body: errorText,
         });
 
         if (response.status === 401) {
-          setError('Authentication failed. Please log in again.');
+          setError("Authentication failed. Please log in again.");
           // Optionally clear the invalid token
-          localStorage.removeItem('skillup_token');
+          localStorage.removeItem("skillup_token");
         } else if (response.status === 403) {
-          setError('Access denied. You do not have permission to view potential students.');
+          setError("Access denied. You do not have permission to view potential students.");
         } else {
           throw new Error(`HTTP ${response.status}: ${response.statusText} - ${errorText}`);
         }
@@ -118,28 +118,28 @@ const PotentialStudentsPanel = ({
       }
 
       const data = await response.json();
-      console.log('✅ [PotentialStudents] Success Response:', {
+      console.log("✅ [PotentialStudents] Success Response:", {
         dataType: typeof data,
         isArray: Array.isArray(data),
-        length: Array.isArray(data) ? data.length : 'N/A',
-        firstItem: Array.isArray(data) && data.length > 0 ? data[0] : 'none',
+        length: Array.isArray(data) ? data.length : "N/A",
+        firstItem: Array.isArray(data) && data.length > 0 ? data[0] : "none",
       });
 
       if (!Array.isArray(data)) {
-        console.warn('Received non-array data:', data);
+        console.warn("Received non-array data:", data);
         setPotentialStudents([]);
       } else {
         setPotentialStudents(data);
       }
     } catch (error) {
-      console.error('💥 [PotentialStudents] Fetch Error:', {
-        name: error instanceof Error ? error.name : 'Unknown',
-        message: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : 'No stack',
+      console.error("💥 [PotentialStudents] Fetch Error:", {
+        name: error instanceof Error ? error.name : "Unknown",
+        message: error instanceof Error ? error.message : "Unknown error",
+        stack: error instanceof Error ? error.stack : "No stack",
         apiUrl,
       });
       setError(
-        `Failed to load potential students: ${error instanceof Error ? error.message : 'Unknown error'}`
+        `Failed to load potential students: ${error instanceof Error ? error.message : "Unknown error"}`,
       );
     } finally {
       setLoading(false);
@@ -152,18 +152,18 @@ const PotentialStudentsPanel = ({
 
   // Bulk update status
   const handleBulkUpdateStatus = async () => {
-    const token = localStorage.getItem('skillup_token');
+    const token = localStorage.getItem("skillup_token");
     if (!token) {
-      alert('No authentication token found');
+      alert("No authentication token found");
       return;
     }
 
     try {
       for (const id of selectedIds) {
         const response = await fetch(`${API_BASE_URL}/users/${id}`, {
-          method: 'PUT',
+          method: "PUT",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ status: bulkStatus }),
@@ -174,13 +174,13 @@ const PotentialStudentsPanel = ({
         }
       }
       setSelectedIds([]);
-      setBulkStatus('');
+      setBulkStatus("");
       setShowBulkUpdate(false);
       fetchPotentialStudents();
       onDataRefresh?.();
     } catch (error) {
-      console.error('Bulk status update error:', error);
-      alert('Failed to update potential students status. Please try again.');
+      console.error("Bulk status update error:", error);
+      alert("Failed to update potential students status. Please try again.");
     }
   };
 
@@ -198,23 +198,23 @@ const PotentialStudentsPanel = ({
 
   // Sync existing students with PotentialStudent records
   const handleSyncExistingStudents = async () => {
-    const token = localStorage.getItem('skillup_token');
+    const token = localStorage.getItem("skillup_token");
     if (!token) {
-      alert('No authentication token found');
+      alert("No authentication token found");
       return;
     }
 
     try {
       const response = await fetch(`${API_BASE_URL}/users/sync-potential-students`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });
 
       if (!response.ok) {
-        throw new Error('Failed to sync existing students');
+        throw new Error("Failed to sync existing students");
       }
 
       const result = await response.json();
@@ -223,8 +223,8 @@ const PotentialStudentsPanel = ({
       // Refresh the potential students list
       fetchPotentialStudents();
     } catch (error) {
-      console.error('Sync error:', error);
-      alert('Failed to sync existing students. Please try again.');
+      console.error("Sync error:", error);
+      alert("Failed to sync existing students. Please try again.");
     }
   };
 
@@ -236,7 +236,7 @@ const PotentialStudentsPanel = ({
       s.phone?.includes(search) ||
       s.studentCode?.toLowerCase().includes(search.toLowerCase());
 
-    const matchesStatus = statusFilter === 'all' || s.status === statusFilter;
+    const matchesStatus = statusFilter === "all" || s.status === statusFilter;
 
     return matchesSearch && matchesStatus;
   });
@@ -286,7 +286,7 @@ const PotentialStudentsPanel = ({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onKeyPress={(e) => {
-                if (e.key === 'Enter') {
+                if (e.key === "Enter") {
                   e.preventDefault();
                   // Search is already live, just focus the input
                   (e.target as HTMLInputElement).focus();
@@ -300,7 +300,7 @@ const PotentialStudentsPanel = ({
               className="search-bar-button"
               onClick={() => {
                 // Search is already live, just focus the input for better UX
-                const searchInput = document.querySelector('.search-bar-input') as HTMLInputElement;
+                const searchInput = document.querySelector(".search-bar-input") as HTMLInputElement;
                 if (searchInput) {
                   searchInput.focus();
                 }
@@ -321,7 +321,7 @@ const PotentialStudentsPanel = ({
           </div>
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as 'all' | 'potential' | 'contacted')}
+            onChange={(e) => setStatusFilter(e.target.value as "all" | "potential" | "contacted")}
             className="status-filter-select"
           >
             <option value="all">All Status</option>
@@ -366,7 +366,7 @@ const PotentialStudentsPanel = ({
                       Students with "potential" or "contacted" status will appear here.
                       {potentialStudents.length === 0 && (
                         <span>
-                          {' '}
+                          {" "}
                           If you have existing students with "potential" status, click "Sync
                           Existing Students" below.
                         </span>
@@ -385,7 +385,7 @@ const PotentialStudentsPanel = ({
                 <td
                   onClick={(e) => e.stopPropagation()}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
                       e.stopPropagation();
                     }
@@ -402,27 +402,27 @@ const PotentialStudentsPanel = ({
                 <td className="student-id-cell">
                   {student.studentCode ? (
                     <span
-                      className={`student-id-badge ${student.gender?.toLowerCase() || 'other'}`}
+                      className={`student-id-badge ${student.gender?.toLowerCase() || "other"}`}
                     >
                       {student.studentCode}
                     </span>
                   ) : (
-                    'N/A'
+                    "N/A"
                   )}
                 </td>
                 <td className="name-cell">
                   <div className="student-name">{student.name}</div>
                 </td>
-                <td className="english-name-cell">{student.englishName || 'N/A'}</td>
-                <td className="gender-cell">{student.gender || 'N/A'}</td>
+                <td className="english-name-cell">{student.englishName || "N/A"}</td>
+                <td className="gender-cell">{student.gender || "N/A"}</td>
                 <td className="dob-cell">
-                  {student.dob ? formatDateMMDDYYYY(student.dob) : 'N/A'}
+                  {student.dob ? formatDateMMDDYYYY(student.dob) : "N/A"}
                 </td>
                 <td className="status-cell">
                   <span className={`status-badge status-${student.status}`}>{student.status}</span>
                 </td>
-                <td className="parent-name-cell">{student.parentName || 'N/A'}</td>
-                <td className="parent-phone-cell">{student.parentPhone || 'N/A'}</td>
+                <td className="parent-name-cell">{student.parentName || "N/A"}</td>
+                <td className="parent-phone-cell">{student.parentPhone || "N/A"}</td>
               </tr>
             ))}
           </tbody>
@@ -464,14 +464,14 @@ const PotentialStudentsPanel = ({
                 {isEditing ? (
                   <input
                     type="text"
-                    value={editForm.englishName || selectedStudent.englishName || ''}
+                    value={editForm.englishName || selectedStudent.englishName || ""}
                     onChange={(e) =>
                       setEditForm((prev) => ({ ...prev, englishName: e.target.value }))
                     }
                     className="edit-input"
                   />
                 ) : (
-                  <span>{selectedStudent.englishName || 'N/A'}</span>
+                  <span>{selectedStudent.englishName || "N/A"}</span>
                 )}
               </div>
               <div className="detail-item">
@@ -492,19 +492,19 @@ const PotentialStudentsPanel = ({
                 {isEditing ? (
                   <input
                     type="tel"
-                    value={editForm.phone || selectedStudent.phone || ''}
+                    value={editForm.phone || selectedStudent.phone || ""}
                     onChange={(e) => setEditForm((prev) => ({ ...prev, phone: e.target.value }))}
                     className="edit-input"
                   />
                 ) : (
-                  <span>{selectedStudent.phone || 'N/A'}</span>
+                  <span>{selectedStudent.phone || "N/A"}</span>
                 )}
               </div>
               <div className="detail-item">
                 <strong>Gender:</strong>
                 {isEditing ? (
                   <select
-                    value={editForm.gender || selectedStudent.gender || ''}
+                    value={editForm.gender || selectedStudent.gender || ""}
                     onChange={(e) => setEditForm((prev) => ({ ...prev, gender: e.target.value }))}
                     className="edit-select"
                   >
@@ -514,7 +514,7 @@ const PotentialStudentsPanel = ({
                     <option value="other">Other</option>
                   </select>
                 ) : (
-                  <span>{selectedStudent.gender || 'N/A'}</span>
+                  <span>{selectedStudent.gender || "N/A"}</span>
                 )}
               </div>
               <div className="detail-item">
@@ -543,14 +543,14 @@ const PotentialStudentsPanel = ({
                 {isEditing ? (
                   <input
                     type="text"
-                    value={editForm.parentName || selectedStudent.parentName || ''}
+                    value={editForm.parentName || selectedStudent.parentName || ""}
                     onChange={(e) =>
                       setEditForm((prev) => ({ ...prev, parentName: e.target.value }))
                     }
                     className="edit-input"
                   />
                 ) : (
-                  <span>{selectedStudent.parentName || 'N/A'}</span>
+                  <span>{selectedStudent.parentName || "N/A"}</span>
                 )}
               </div>
               <div className="detail-item">
@@ -558,31 +558,31 @@ const PotentialStudentsPanel = ({
                 {isEditing ? (
                   <input
                     type="tel"
-                    value={editForm.parentPhone || selectedStudent.parentPhone || ''}
+                    value={editForm.parentPhone || selectedStudent.parentPhone || ""}
                     onChange={(e) =>
                       setEditForm((prev) => ({ ...prev, parentPhone: e.target.value }))
                     }
                     className="edit-input"
                   />
                 ) : (
-                  <span>{selectedStudent.parentPhone || 'N/A'}</span>
+                  <span>{selectedStudent.parentPhone || "N/A"}</span>
                 )}
               </div>
               <div className="detail-item">
                 <strong>Student ID:</strong>
-                <span className="locked-field">{selectedStudent.studentCode || 'N/A'}</span>
+                <span className="locked-field">{selectedStudent.studentCode || "N/A"}</span>
               </div>
               <div className="detail-item full-width">
                 <strong>Notes:</strong>
                 {isEditing ? (
                   <textarea
-                    value={editForm.notes || selectedStudent.notes || ''}
+                    value={editForm.notes || selectedStudent.notes || ""}
                     onChange={(e) => setEditForm((prev) => ({ ...prev, notes: e.target.value }))}
                     className="edit-textarea"
                     rows={3}
                   />
                 ) : (
-                  <span>{selectedStudent.notes || 'No notes'}</span>
+                  <span>{selectedStudent.notes || "No notes"}</span>
                 )}
               </div>
             </div>
@@ -593,31 +593,31 @@ const PotentialStudentsPanel = ({
                     type="button"
                     onClick={async () => {
                       try {
-                        const token = localStorage.getItem('skillup_token');
+                        const token = localStorage.getItem("skillup_token");
                         const response = await fetch(
                           `${API_BASE_URL}/users/${selectedStudent._id}`,
                           {
-                            method: 'PUT',
+                            method: "PUT",
                             headers: {
-                              'Content-Type': 'application/json',
+                              "Content-Type": "application/json",
                               Authorization: `Bearer ${token}`,
                             },
                             body: JSON.stringify(editForm),
-                          }
+                          },
                         );
 
                         if (response.ok) {
-                          alert('Student details updated successfully!');
+                          alert("Student details updated successfully!");
                           setIsEditing(false);
                           setEditForm({});
                           onDataRefresh?.();
                           setSelectedStudent(null);
                         } else {
-                          alert('Failed to update student details.');
+                          alert("Failed to update student details.");
                         }
                       } catch (error) {
-                        console.error('Error updating student:', error);
-                        alert('Error updating student details.');
+                        console.error("Error updating student:", error);
+                        alert("Error updating student details.");
                       }
                     }}
                     className="btn-save"
@@ -703,7 +703,7 @@ const PotentialStudentsPanel = ({
               className="potential-students-confirm-btn potential-students-confirm-btn-cancel"
               onClick={() => {
                 setShowBulkUpdate(false);
-                setBulkStatus('');
+                setBulkStatus("");
               }}
               type="button"
             >

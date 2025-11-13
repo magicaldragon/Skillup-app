@@ -1,5 +1,5 @@
-import type React from 'react';
-import { useState } from 'react';
+import type React from "react";
+import { useState } from "react";
 import type {
   Assignment,
   AssignmentQuestion,
@@ -8,11 +8,11 @@ import type {
   QuestionType,
   Student,
   StudentClass,
-} from './types';
+} from "./types";
 
-const EXAM_LEVELS: ExamLevel[] = ['IELTS', 'KEY', 'PET'];
-const SKILLS: IELTS_Skill[] = ['Listening', 'Reading', 'Writing', 'Speaking'];
-const QUESTION_TYPES: QuestionType[] = ['mcq', 'fill', 'match', 'essay'];
+const EXAM_LEVELS: ExamLevel[] = ["IELTS", "KEY", "PET"];
+const SKILLS: IELTS_Skill[] = ["Listening", "Reading", "Writing", "Speaking"];
+const QUESTION_TYPES: QuestionType[] = ["mcq", "fill", "match", "essay"];
 
 interface AssignmentCreationFormProps {
   classes: StudentClass[];
@@ -22,10 +22,10 @@ interface AssignmentCreationFormProps {
 }
 
 const initialQuestion: Partial<AssignmentQuestion> = {
-  type: 'mcq',
-  question: '',
-  options: [''],
-  answer: '',
+  type: "mcq",
+  question: "",
+  options: [""],
+  answer: "",
   matchPairs: [],
 };
 
@@ -35,18 +35,18 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({
   onCreated,
   onDataRefresh,
 }) => {
-  const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+  const apiUrl = import.meta.env.VITE_API_BASE_URL || "/api";
 
   const [form, setForm] = useState<Partial<Assignment>>({
-    title: '',
-    level: 'IELTS',
-    skill: 'Listening',
-    description: '',
+    title: "",
+    level: "IELTS",
+    skill: "Listening",
+    description: "",
     questions: [],
     answerKey: {},
     classIds: [],
-    publishDate: '',
-    dueDate: '',
+    publishDate: "",
+    dueDate: "",
   });
   const [question, setQuestion] = useState<Partial<AssignmentQuestion>>(initialQuestion);
   const [editingQ, setEditingQ] = useState<number | null>(null);
@@ -55,8 +55,8 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [fileUrl, setFileUrl] = useState('');
-  const [uploadError, setUploadError] = useState('');
+  const [fileUrl, setFileUrl] = useState("");
+  const [uploadError, setUploadError] = useState("");
 
   // --- Question Handlers ---
   const addOrUpdateQuestion = (e: React.FormEvent) => {
@@ -69,9 +69,9 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({
       id: qId,
       type: question.type,
       question: question.question,
-      options: question.type === 'mcq' ? (question.options || []).filter(Boolean) : undefined,
-      answer: question.type === 'mcq' || question.type === 'fill' ? question.answer : undefined,
-      matchPairs: question.type === 'match' ? question.matchPairs || [] : undefined,
+      options: question.type === "mcq" ? (question.options || []).filter(Boolean) : undefined,
+      answer: question.type === "mcq" || question.type === "fill" ? question.answer : undefined,
+      matchPairs: question.type === "match" ? question.matchPairs || [] : undefined,
     };
     if (editingQ !== null) {
       newQuestions[editingQ] = q;
@@ -97,28 +97,28 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFile(e.target.files?.[0] ? e.target.files[0] : null);
-    setUploadError('');
+    setUploadError("");
   };
 
   const handleFileUpload = async () => {
     if (!file) return;
     setUploading(true);
-    setUploadError('');
+    setUploadError("");
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append("file", file);
     try {
       const res = await fetch(`${apiUrl}/upload`, {
-        method: 'POST',
+        method: "POST",
         body: formData,
       });
       const data = await res.json();
       if (res.ok && data.url) {
         setFileUrl(data.url);
       } else {
-        setUploadError(data.error || 'Upload failed');
+        setUploadError(data.error || "Upload failed");
       }
     } catch (_err) {
-      setUploadError('Upload failed');
+      setUploadError("Upload failed");
     } finally {
       setUploading(false);
     }
@@ -131,51 +131,51 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({
     setError(null);
     try {
       if (!form.title || !form.skill || !form.level || !form.questions?.length) {
-        setError('Please fill all required fields and add at least one question.');
+        setError("Please fill all required fields and add at least one question.");
         setSaving(false);
         return;
       }
       // Build answerKey
       const answerKey: Record<string, string | string[]> = {};
       form.questions.forEach((q) => {
-        if (q.type === 'mcq' || q.type === 'fill') answerKey[q.id] = q.answer as string;
-        if (q.type === 'match' && q.matchPairs) answerKey[q.id] = q.matchPairs.map((p) => p.right);
+        if (q.type === "mcq" || q.type === "fill") answerKey[q.id] = q.answer as string;
+        if (q.type === "match" && q.matchPairs) answerKey[q.id] = q.matchPairs.map((p) => p.right);
       });
-      const assignment: Omit<Assignment, 'id'> = {
+      const assignment: Omit<Assignment, "id"> = {
         ...form,
-        title: form.title ?? '',
+        title: form.title ?? "",
         questions: form.questions,
         answerKey,
         createdBy: currentUser.id,
         createdAt: new Date().toISOString(),
-        publishDate: form.publishDate || '',
-        dueDate: form.dueDate || '',
+        publishDate: form.publishDate || "",
+        dueDate: form.dueDate || "",
         classIds: form.classIds || [],
-        description: form.description || '',
-        level: form.level ?? 'IELTS',
-        skill: form.skill ?? 'Listening',
+        description: form.description || "",
+        level: form.level ?? "IELTS",
+        skill: form.skill ?? "Listening",
       };
-      await fetch('/api/assignments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      await fetch("/api/assignments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(assignment),
       });
       setForm({
-        title: '',
-        level: 'IELTS',
-        skill: 'Listening',
-        description: '',
+        title: "",
+        level: "IELTS",
+        skill: "Listening",
+        description: "",
         questions: [],
         answerKey: {},
         classIds: [],
-        publishDate: '',
-        dueDate: '',
+        publishDate: "",
+        dueDate: "",
       });
       setShowForm(false);
       if (onCreated) onCreated();
       onDataRefresh?.();
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+      const errorMessage = err instanceof Error ? err.message : "Unknown error occurred";
       setError(`Failed to save assignment: ${errorMessage}`);
     } finally {
       setSaving(false);
@@ -190,7 +190,7 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({
         onClick={() => setShowForm((f) => !f)}
         className="form-btn-vivid mb-4 mt-6 ml-6"
       >
-        {showForm ? 'Hide' : 'Create New Assignment'}
+        {showForm ? "Hide" : "Create New Assignment"}
       </button>
       {showForm && (
         <form onSubmit={saveAssignment} className="space-y-6 mb-6 px-8 py-6">
@@ -203,8 +203,8 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({
                 id="assignment-title"
                 name="title"
                 type="text"
-                value={form.title ?? ''}
-                onChange={(e) => setForm((f) => ({ ...f, title: e.target.value ?? '' }))}
+                value={form.title ?? ""}
+                onChange={(e) => setForm((f) => ({ ...f, title: e.target.value ?? "" }))}
                 className="form-input"
                 required
               />
@@ -215,7 +215,7 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({
               </label>
               <select
                 id="assignment-level"
-                value={form.level || 'IELTS'}
+                value={form.level || "IELTS"}
                 onChange={(e) => setForm((f) => ({ ...f, level: e.target.value as ExamLevel }))}
                 className="form-select"
               >
@@ -232,7 +232,7 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({
               </label>
               <select
                 id="assignment-skill"
-                value={form.skill || 'Listening'}
+                value={form.skill || "Listening"}
                 onChange={(e) => setForm((f) => ({ ...f, skill: e.target.value as IELTS_Skill }))}
                 className="form-select"
               >
@@ -272,7 +272,7 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({
               </label>
               <textarea
                 id="assignment-description"
-                value={form.description || ''}
+                value={form.description || ""}
                 onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                 className="form-textarea"
               />
@@ -284,7 +284,7 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({
               <input
                 id="assignment-publish-date"
                 type="date"
-                value={form.publishDate || ''}
+                value={form.publishDate || ""}
                 onChange={(e) => setForm((f) => ({ ...f, publishDate: e.target.value }))}
                 className="form-input"
               />
@@ -296,7 +296,7 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({
               <input
                 id="assignment-due-date"
                 type="date"
-                value={form.dueDate || ''}
+                value={form.dueDate || ""}
                 onChange={(e) => setForm((f) => ({ ...f, dueDate: e.target.value }))}
                 className="form-input"
               />
@@ -322,18 +322,18 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({
                 </select>
                 <input
                   type="text"
-                  value={question.question || ''}
+                  value={question.question || ""}
                   onChange={(e) => setQuestion((q) => ({ ...q, question: e.target.value }))}
                   placeholder="Question"
                   className="form-input flex-1"
                   required
                 />
                 {/* MCQ Options */}
-                {question.type === 'mcq' && (
+                {question.type === "mcq" && (
                   <>
                     <input
                       type="text"
-                      value={question.options?.[0] || ''}
+                      value={question.options?.[0] || ""}
                       onChange={(e) =>
                         setQuestion((q) => ({
                           ...q,
@@ -346,12 +346,12 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({
                     />
                     <input
                       type="text"
-                      value={question.options?.[1] || ''}
+                      value={question.options?.[1] || ""}
                       onChange={(e) =>
                         setQuestion((q) => ({
                           ...q,
                           options: [
-                            q.options?.[0] || '',
+                            q.options?.[0] || "",
                             e.target.value,
                             ...(q.options?.slice(2) || []),
                           ],
@@ -363,13 +363,13 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({
                     />
                     <input
                       type="text"
-                      value={question.options?.[2] || ''}
+                      value={question.options?.[2] || ""}
                       onChange={(e) =>
                         setQuestion((q) => ({
                           ...q,
                           options: [
-                            q.options?.[0] || '',
-                            q.options?.[1] || '',
+                            q.options?.[0] || "",
+                            q.options?.[1] || "",
                             e.target.value,
                             ...(q.options?.slice(3) || []),
                           ],
@@ -380,14 +380,14 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({
                     />
                     <input
                       type="text"
-                      value={question.options?.[3] || ''}
+                      value={question.options?.[3] || ""}
                       onChange={(e) =>
                         setQuestion((q) => ({
                           ...q,
                           options: [
-                            q.options?.[0] || '',
-                            q.options?.[1] || '',
-                            q.options?.[2] || '',
+                            q.options?.[0] || "",
+                            q.options?.[1] || "",
+                            q.options?.[2] || "",
                             e.target.value,
                           ],
                         }))
@@ -397,7 +397,7 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({
                     />
                     <input
                       type="text"
-                      value={(question.answer as string) || ''}
+                      value={(question.answer as string) || ""}
                       onChange={(e) => setQuestion((q) => ({ ...q, answer: e.target.value }))}
                       placeholder="Correct Answer"
                       className="form-input"
@@ -406,10 +406,10 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({
                   </>
                 )}
                 {/* Fill-in-the-blank */}
-                {question.type === 'fill' && (
+                {question.type === "fill" && (
                   <input
                     type="text"
-                    value={(question.answer as string) || ''}
+                    value={(question.answer as string) || ""}
                     onChange={(e) => setQuestion((q) => ({ ...q, answer: e.target.value }))}
                     placeholder="Correct Answer"
                     className="form-input"
@@ -417,7 +417,7 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({
                   />
                 )}
                 {/* Match Pairs */}
-                {question.type === 'match' && (
+                {question.type === "match" && (
                   <div className="flex flex-col gap-1">
                     {(question.matchPairs || []).map((pair, idx) => (
                       <div
@@ -464,7 +464,7 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({
                       onClick={() =>
                         setQuestion((q) => ({
                           ...q,
-                          matchPairs: [...(q.matchPairs || []), { left: '', right: '' }],
+                          matchPairs: [...(q.matchPairs || []), { left: "", right: "" }],
                         }))
                       }
                       className="form-btn bg-blue-600 text-white"
@@ -474,9 +474,9 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({
                   </div>
                 )}
                 {/* Essay */}
-                {question.type === 'essay' && (
+                {question.type === "essay" && (
                   <textarea
-                    value={question.question || ''}
+                    value={question.question || ""}
                     onChange={(e) => setQuestion((q) => ({ ...q, question: e.target.value }))}
                     placeholder="Essay Prompt"
                     className="form-textarea"
@@ -484,7 +484,7 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({
                   />
                 )}
                 <button type="submit" className="form-btn bg-[#307637] text-white">
-                  {editingQ !== null ? 'Update' : 'Add'}
+                  {editingQ !== null ? "Update" : "Add"}
                 </button>
                 {editingQ !== null && (
                   <button
@@ -505,17 +505,17 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({
                 <li key={q.id} className="flex items-center gap-2">
                   <span className="font-semibold">{q.type.toUpperCase()}</span>
                   <span>{q.question}</span>
-                  {q.type === 'mcq' && (
+                  {q.type === "mcq" && (
                     <span className="text-xs text-slate-500">
-                      Options: {(q.options || []).join(', ')}
+                      Options: {(q.options || []).join(", ")}
                     </span>
                   )}
-                  {q.type === 'match' && (
+                  {q.type === "match" && (
                     <span className="text-xs text-slate-500">
-                      Pairs: {(q.matchPairs || []).map((p) => `${p.left}→${p.right}`).join(', ')}
+                      Pairs: {(q.matchPairs || []).map((p) => `${p.left}→${p.right}`).join(", ")}
                     </span>
                   )}
-                  {q.type === 'fill' && (
+                  {q.type === "fill" && (
                     <span className="text-xs text-slate-500">Answer: {q.answer as string}</span>
                   )}
                   <button
@@ -545,7 +545,7 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({
               Cancel
             </button>
           </div>
-          {currentUser?.role === 'teacher' && (
+          {currentUser?.role === "teacher" && (
             <div className="mt-4">
               <label htmlFor="assignment-file" className="form-label">
                 Assignment File (PDF/Audio)
@@ -563,12 +563,12 @@ export const AssignmentCreationForm: React.FC<AssignmentCreationFormProps> = ({
                 disabled={!file || uploading}
                 className="form-btn bg-blue-600 text-white ml-2"
               >
-                {uploading ? 'Uploading...' : 'Upload'}
+                {uploading ? "Uploading..." : "Upload"}
               </button>
               {uploadError && <div className="text-red-600 text-xs mt-1">{uploadError}</div>}
               {fileUrl && (
                 <div className="mt-2 text-xs text-green-700">
-                  Uploaded:{' '}
+                  Uploaded:{" "}
                   <a href={fileUrl} target="_blank" rel="noopener noreferrer" className="underline">
                     {fileUrl}
                   </a>

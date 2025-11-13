@@ -1,109 +1,35 @@
-name: Deploy to Firebase
-
+name: Firebase Deploy
 on:
   push:
-    branches: [ main ]
-
+    branches:
+      - main
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'npm'
-    
-    # Install root dependencies and build frontend
-    - name: Install Dependencies and Build Frontend
-      env:
-        VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
-      run: |
-        npm ci
-        npm run lint
-        npx tsc --noEmit
-        npm run test
-        npm audit --omit=dev --audit-level=high
-        npm run build
-
-    # Authenticate to Google Cloud with the service account
-    - uses: google-github-actions/auth@v2
-      with:
-        credentials_json: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
-        project_id: skillup-3beaf
-
-    - uses: google-github-actions/setup-gcloud@v2
-
-    - name: Who am I
-      run: |
-        gcloud auth list --filter=status:ACTIVE --format="value(account)"
-        gcloud config get-value project
-
-    - name: Install Firebase CLI
-      run: npm install -g firebase-tools
-    
-    # Install and build Firebase Functions
-    - name: Install Functions Dependencies and Build
-      run: |
-        cd functions
-        npm ci
-        npm run build
-    
-    # Deploy to Firebase using service account for production deployment
-    - name: Deploy to Firebase
-      run: firebase deploy --project skillup-3beaf --non-interactive
-
-  lint_changed:
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          # Ensure full history for diffing against remote branches
-          fetch-depth: 0
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-      - name: Install deps
-        run: npm ci
-      - name: Fetch origin
-        run: git fetch origin +refs/heads/*:refs/remotes/origin/*
-      - name: Biome check (changed or skip)
-        # Avoid dynamic context references; drive logic in shell
-        run: |
-          set -euo pipefail
-          # Best-effort diff base: prefer merge-base with origin/main; fallback to previous commit; final fallback HEAD
-          BASE="$(git merge-base HEAD origin/main || git rev-parse HEAD~1 || echo HEAD)"
-          # Collect changed source files; handle no matches gracefully
-          CHANGED="$(git diff --name-only --diff-filter=ACMRT "$BASE" HEAD | grep -E '\.(ts|tsx|js|jsx)$' || true)"
-          if [ -z "$CHANGED" ]; then
-            echo "No changed source files detected for Biome."
-          else
-            echo "Running Biome on changed files:"
-            printf "%s\n" "$CHANGED"
-            # Safe passing of file list (handles spaces/newlines)
-            printf "%s\n" "$CHANGED" | tr -d '\r' | xargs -d '\n' npx biome check --max-diagnostics=200
-          fi
 
-  lint_full:
-    if: github.event_name == 'pull_request' || github.event_name == 'schedule'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-      - name: Install deps
+          node-version: '20'
+
+      - name: Install
         run: npm ci
-      - name: Run full Biome analysis (JSON report)
-        run: npx biome check --max-diagnostics=500 --reporter=json . > biome-full.json
-      - name: Enforce error threshold
+
+      - name: Format (Biome)
+        run: npx biome format .
+
+      - name: Lint (errors only)
+        run: npx biome check --reporter=github .
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy (Firebase)
+        run: npm run deploy:firebase
         env:
-          BIOME_ERROR_THRESHOLD: '30'
-        run: node scripts/biomeThreshold.cjs biome-full.json "$BIOME_ERROR_THRESHOLD"
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}

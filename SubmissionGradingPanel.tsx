@@ -4,8 +4,8 @@
 // - submission: Submission
 // - student: Student
 // - onGraded?: (updated: Submission) => void
-import React, { useState } from 'react';
-import type { Assignment, Student, Submission } from './types';
+import React, { useState } from "react";
+import type { Assignment, Student, Submission } from "./types";
 
 interface SubmissionGradingPanelProps {
   assignment: Assignment;
@@ -30,7 +30,7 @@ const SubmissionGradingPanel: React.FC<SubmissionGradingPanelProps> = ({
     }
   }, [submission.content]);
   const [score, setScore] = useState<number | null>(submission.score ?? null);
-  const [feedback, setFeedback] = useState<string>(submission.feedback || '');
+  const [feedback, setFeedback] = useState<string>(submission.feedback || "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -44,17 +44,17 @@ const SubmissionGradingPanel: React.FC<SubmissionGradingPanelProps> = ({
     setShowToast(false);
     try {
       await fetch(`/api/submissions/${submission.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ score, feedback }),
       });
-      setSuccess('Grading saved!');
+      setSuccess("Grading saved!");
       setShowToast(true);
       if (onGraded) onGraded({ ...submission, score, feedback });
       onDataRefresh?.();
       setTimeout(() => setShowToast(false), 2500);
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+      const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred";
       setError(`Failed to save: ${errorMessage}`);
     } finally {
       setSaving(false);
@@ -76,26 +76,26 @@ const SubmissionGradingPanel: React.FC<SubmissionGradingPanelProps> = ({
             {idx + 1}. {q.question}
           </div>
           <div className="mb-1">
-            <b>Student Answer:</b>{' '}
-            {q.type === 'mcq' || q.type === 'fill' ? (
+            <b>Student Answer:</b>{" "}
+            {q.type === "mcq" || q.type === "fill" ? (
               <span>{answers[q.id] || <i className="text-slate-400">No answer</i>}</span>
-            ) : q.type === 'match' && q.matchPairs ? (
+            ) : q.type === "match" && q.matchPairs ? (
               <ul className="ml-4 list-disc">
                 {q.matchPairs.map((pair, i) => (
                   <li key={`${q.id}_${pair.left}_${i}`}>
-                    {pair.left} →{' '}
-                    <b>{answers[`${q.id}_${i}`] || <i className="text-slate-400">No answer</i>}</b>{' '}
+                    {pair.left} →{" "}
+                    <b>{answers[`${q.id}_${i}`] || <i className="text-slate-400">No answer</i>}</b>{" "}
                     (Correct: {pair.right})
                   </li>
                 ))}
               </ul>
-            ) : q.type === 'essay' ? (
+            ) : q.type === "essay" ? (
               <div className="border p-2 rounded bg-slate-50 whitespace-pre-wrap">
                 {answers[q.id] || <i className="text-slate-400">No answer</i>}
               </div>
             ) : null}
           </div>
-          {q.type === 'essay' && (
+          {q.type === "essay" && (
             <div className="mt-2">
               <label htmlFor={`feedback-${q.id}`} className="block text-sm font-medium mb-1">
                 Feedback for Essay
@@ -119,8 +119,8 @@ const SubmissionGradingPanel: React.FC<SubmissionGradingPanelProps> = ({
         <input
           id="score-input"
           type="number"
-          value={score ?? ''}
-          onChange={(e) => setScore(e.target.value === '' ? null : Number(e.target.value))}
+          value={score ?? ""}
+          onChange={(e) => setScore(e.target.value === "" ? null : Number(e.target.value))}
           className="p-2 border rounded w-24"
           min={0}
           max={100}

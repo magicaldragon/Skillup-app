@@ -2,7 +2,7 @@
 
 // --- IMPORTANT CONFIGURATION ---
 // Please replace this with your actual VNG vStorage bucket name.
-const VNG_STORAGE_BUCKET_NAME: string = 'skillup-prod-data'; // <-- REPLACE THIS with your bucket name
+const VNG_STORAGE_BUCKET_NAME: string = "skillup-prod-data"; // <-- REPLACE THIS with your bucket name
 // ---
 
 const VNG_BUCKET_URL = `https://${VNG_STORAGE_BUCKET_NAME}.vstorage.vngcloud.vn`;
@@ -28,10 +28,10 @@ const VNG_BUCKET_URL = `https://${VNG_STORAGE_BUCKET_NAME}.vstorage.vngcloud.vn`
  * @returns The full public URL to the file.
  */
 export const getVngFileUrl = (fileName: string): string => {
-  if (!VNG_STORAGE_BUCKET_NAME || VNG_STORAGE_BUCKET_NAME === 'your-bucket-name-here') {
+  if (!VNG_STORAGE_BUCKET_NAME || VNG_STORAGE_BUCKET_NAME === "your-bucket-name-here") {
     // Return a placeholder or show an error to remind the user to configure the bucket name.
     console.error(
-      'VNG vStorage bucket name is not configured in services/vngConfig.ts. Please update the VNG_STORAGE_BUCKET_NAME constant.'
+      "VNG vStorage bucket name is not configured in services/vngConfig.ts. Please update the VNG_STORAGE_BUCKET_NAME constant.",
     );
     return ``;
   }

@@ -1,16 +1,16 @@
-import type React from 'react';
-import { useMemo, useState } from 'react';
-import DiceBearAvatar from './DiceBearAvatar';
-import type { Student, StudentClass } from './types';
-import './SettingsPanel.css';
+import type React from "react";
+import { useMemo, useState } from "react";
+import DiceBearAvatar from "./DiceBearAvatar";
+import type { Student, StudentClass } from "./types";
+import "./SettingsPanel.css";
 
 const DICEBEAR_STYLES = [
-  { label: 'Cartoon', value: 'avataaars' },
-  { label: 'Initials', value: 'initials' },
-  { label: 'Bottts', value: 'bottts' },
-  { label: 'Identicon', value: 'identicon' },
-  { label: 'Pixel Art', value: 'pixel-art' },
-  { label: 'Fun Emoji', value: 'fun-emoji' },
+  { label: "Cartoon", value: "avataaars" },
+  { label: "Initials", value: "initials" },
+  { label: "Bottts", value: "bottts" },
+  { label: "Identicon", value: "identicon" },
+  { label: "Pixel Art", value: "pixel-art" },
+  { label: "Fun Emoji", value: "fun-emoji" },
 ];
 
 type SettingsPanelProps = {
@@ -21,25 +21,25 @@ type SettingsPanelProps = {
 
 const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelProps) => {
   const [form, setForm] = useState({
-    name: currentUser.name || '',
-    englishName: currentUser.englishName || '',
-    username: currentUser.username || '',
-    email: currentUser.email || '',
-    gender: currentUser.gender || '',
-    dob: currentUser.dob || '',
-    phone: currentUser.phone || '',
-    parentName: currentUser.parentName || '',
-    parentPhone: currentUser.parentPhone || '',
-    notes: currentUser.notes || '',
+    name: currentUser.name || "",
+    englishName: currentUser.englishName || "",
+    username: currentUser.username || "",
+    email: currentUser.email || "",
+    gender: currentUser.gender || "",
+    dob: currentUser.dob || "",
+    phone: currentUser.phone || "",
+    parentName: currentUser.parentName || "",
+    parentPhone: currentUser.parentPhone || "",
+    notes: currentUser.notes || "",
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [avatarStyle, setAvatarStyle] = useState(currentUser.diceBearStyle || 'avataaars');
+  const [avatarStyle, setAvatarStyle] = useState(currentUser.diceBearStyle || "avataaars");
   const [avatarSeed, setAvatarSeed] = useState(
-    currentUser.diceBearSeed || currentUser.name || currentUser.email || currentUser.id || 'User'
+    currentUser.diceBearSeed || currentUser.name || currentUser.email || currentUser.id || "User",
   );
-  const [avatarUrl, setAvatarUrl] = useState(currentUser.avatarUrl || '');
+  const [avatarUrl, setAvatarUrl] = useState(currentUser.avatarUrl || "");
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarError, setAvatarError] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
@@ -51,7 +51,7 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
         const classId = c._id || c.id;
         return classId && currentUser.classIds?.includes(classId);
       })
-      .map((c) => c.classCode || c.name || 'Unnamed Class');
+      .map((c) => c.classCode || c.name || "Unnamed Class");
   }, [currentUser.classIds, classes]);
 
   // Check if user can edit their information - allow all users to edit their own profile
@@ -62,7 +62,7 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
   ) => {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
   };
@@ -83,21 +83,21 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
         try {
           const apiUrl =
             import.meta.env.VITE_API_BASE_URL ||
-            'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
+            "https://us-central1-skillup-3beaf.cloudfunctions.net/api";
           const res = await fetch(`${apiUrl}/users/${currentUser.id || currentUser._id}/avatar`, {
-            method: 'POST',
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${localStorage.getItem('skillup_token')}`,
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("skillup_token")}`,
             },
             body: JSON.stringify({ avatarUrl: dataUrl }),
           });
 
           const data = await res.json();
-          if (!res.ok || !data.avatarUrl) throw new Error(data.message || 'Upload failed');
+          if (!res.ok || !data.avatarUrl) throw new Error(data.message || "Upload failed");
 
           setAvatarUrl(data.avatarUrl);
-          setSuccess('Avatar updated!');
+          setSuccess("Avatar updated!");
 
           // Trigger data refresh to update the sidebar avatar
           onDataRefresh?.();
@@ -107,7 +107,7 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
             window.location.reload();
           }, 1000);
         } catch (err: unknown) {
-          setAvatarError(err instanceof Error ? err.message : 'Failed to upload avatar');
+          setAvatarError(err instanceof Error ? err.message : "Failed to upload avatar");
         } finally {
           setAvatarUploading(false);
         }
@@ -115,7 +115,7 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
 
       reader.readAsDataURL(file);
     } catch (err: unknown) {
-      setAvatarError(err instanceof Error ? err.message : 'Failed to process file');
+      setAvatarError(err instanceof Error ? err.message : "Failed to process file");
       setAvatarUploading(false);
     }
   };
@@ -128,12 +128,12 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
     try {
       const apiUrl =
         import.meta.env.VITE_API_BASE_URL ||
-        'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
+        "https://us-central1-skillup-3beaf.cloudfunctions.net/api";
       const res = await fetch(`${apiUrl}/users/${currentUser.id || currentUser._id}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('skillup_token')}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("skillup_token")}`,
         },
         body: JSON.stringify({
           name: form.name,
@@ -150,13 +150,13 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
       });
       if (!res.ok) {
         const errorData = await res.text();
-        console.error('Update failed:', res.status, errorData);
+        console.error("Update failed:", res.status, errorData);
         throw new Error(`Failed to update user: ${res.status} - ${errorData}`);
       }
 
       const result = await res.json();
-      console.log('Update successful:', result);
-      setSuccess('Profile updated successfully!');
+      console.log("Update successful:", result);
+      setSuccess("Profile updated successfully!");
       setEditMode(false);
 
       // Trigger data refresh to update the sidebar avatar
@@ -167,8 +167,8 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
         window.location.reload();
       }, 1000);
     } catch (err: unknown) {
-      console.error('Update error:', err);
-      setError(`Failed to update profile: ${err instanceof Error ? err.message : ''}`);
+      console.error("Update error:", err);
+      setError(`Failed to update profile: ${err instanceof Error ? err.message : ""}`);
     } finally {
       setLoading(false);
     }
@@ -215,36 +215,36 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
             </div>
             <div className="info-row">
               <span className="info-label">Gender:</span>
-              <span className="info-value">{currentUser.gender || '—'}</span>
+              <span className="info-value">{currentUser.gender || "—"}</span>
             </div>
             <div className="info-row">
               <span className="info-label">Phone:</span>
-              <span className="info-value">{form.phone || '—'}</span>
+              <span className="info-value">{form.phone || "—"}</span>
             </div>
             <div className="info-row">
               <span className="info-label">Date of Birth:</span>
-              <span className="info-value">{form.dob || '—'}</span>
+              <span className="info-value">{form.dob || "—"}</span>
             </div>
-            {currentUser.role === 'student' && (
+            {currentUser.role === "student" && (
               <>
                 <div className="info-row">
                   <span className="info-label">Parent's Name:</span>
-                  <span className="info-value">{form.parentName || '—'}</span>
+                  <span className="info-value">{form.parentName || "—"}</span>
                 </div>
                 <div className="info-row">
                   <span className="info-label">Parent's Phone:</span>
-                  <span className="info-value">{form.parentPhone || '—'}</span>
+                  <span className="info-value">{form.parentPhone || "—"}</span>
                 </div>
                 <div className="info-row">
                   <span className="info-label">Status:</span>
-                  <span className="info-value">{currentUser.status || '—'}</span>
+                  <span className="info-value">{currentUser.status || "—"}</span>
                 </div>
               </>
             )}
             {currentClasses.length > 0 && (
               <div className="info-row">
                 <span className="info-label">Current Classes:</span>
-                <span className="info-value">{currentClasses.join(', ')}</span>
+                <span className="info-value">{currentClasses.join(", ")}</span>
               </div>
             )}
             {form.notes && (
@@ -269,11 +269,11 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
             <div
               className="debug-info"
               style={{
-                marginTop: '20px',
-                padding: '10px',
-                backgroundColor: '#f5f5f5',
-                borderRadius: '5px',
-                fontSize: '12px',
+                marginTop: "20px",
+                padding: "10px",
+                backgroundColor: "#f5f5f5",
+                borderRadius: "5px",
+                fontSize: "12px",
               }}
             >
               <h4>Debug Info:</h4>
@@ -284,31 +284,31 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
                 <strong>Role:</strong> {currentUser.role}
               </p>
               <p>
-                <strong>Can Edit:</strong> {canEdit ? 'Yes' : 'No'}
+                <strong>Can Edit:</strong> {canEdit ? "Yes" : "No"}
               </p>
               <p>
-                <strong>API URL:</strong> {import.meta.env.VITE_API_BASE_URL || ''}
+                <strong>API URL:</strong> {import.meta.env.VITE_API_BASE_URL || ""}
               </p>
             </div>
           )}
 
           {/* Admin Email Change Notice */}
-          {currentUser.role === 'admin' && currentUser.email?.includes('@teacher.skillup') && (
+          {currentUser.role === "admin" && currentUser.email?.includes("@teacher.skillup") && (
             <div
               className="admin-notice"
               style={{
-                marginTop: '20px',
-                padding: '15px',
-                backgroundColor: '#fff3cd',
-                border: '1px solid #ffeaa7',
-                borderRadius: '5px',
-                color: '#856404',
+                marginTop: "20px",
+                padding: "15px",
+                backgroundColor: "#fff3cd",
+                border: "1px solid #ffeaa7",
+                borderRadius: "5px",
+                color: "#856404",
               }}
             >
               <h4>⚠️ Important: Admin Email Update Needed</h4>
               <p>
                 Your admin account is currently using <code>@teacher.skillup</code> domain, which
-                may cause role confusion. To fix this, please change your email to{' '}
+                may cause role confusion. To fix this, please change your email to{" "}
                 <code>admin@admin.skillup</code> in the edit form above.
               </p>
               <p>
@@ -479,7 +479,7 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
               />
             </div>
 
-            {currentUser.role === 'student' && (
+            {currentUser.role === "student" && (
               <>
                 <div className="form-group">
                   <label htmlFor="parentName" className="form-label">
@@ -533,7 +533,7 @@ const SettingsPanel = ({ currentUser, classes, onDataRefresh }: SettingsPanelPro
           {/* Action Buttons */}
           <div className="action-buttons">
             <button type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? 'Saving...' : 'Save Changes'}
+              {loading ? "Saving..." : "Save Changes"}
             </button>
             <button
               type="button"

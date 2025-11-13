@@ -1,9 +1,9 @@
 // scripts/generateTestSetup.cjs
-const fs = require('node:fs');
-const path = require('node:path');
+const fs = require("node:fs");
+const path = require("node:path");
 
-const outDir = path.join(process.cwd(), 'tests', '.generated');
-const outFile = path.join(outDir, 'testSetup.ts');
+const outDir = path.join(process.cwd(), "tests", ".generated");
+const outFile = path.join(outDir, "testSetup.ts");
 
 const content = `
 // Auto-generated test setup. Do not edit manually.
@@ -44,5 +44,5 @@ const content = `
 `;
 
 fs.mkdirSync(outDir, { recursive: true });
-fs.writeFileSync(outFile, content, 'utf8');
-console.log('✅ Generated test setup at:', outFile);
+fs.writeFileSync(outFile, content, "utf8");
+console.log("✅ Generated test setup at:", outFile);

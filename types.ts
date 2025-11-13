@@ -48,16 +48,16 @@ export interface StudentClass {
 }
 
 export type AssignmentCategory =
-  | 'Reading'
-  | 'Listening'
-  | 'Writing'
-  | 'Speaking'
-  | 'Full Practice Tests'
-  | 'Mini Tests';
+  | "Reading"
+  | "Listening"
+  | "Writing"
+  | "Speaking"
+  | "Full Practice Tests"
+  | "Mini Tests";
 
-export type IELTS_Skill = 'Listening' | 'Reading' | 'Writing' | 'Speaking';
+export type IELTS_Skill = "Listening" | "Reading" | "Writing" | "Speaking";
 
-export type QuestionType = 'mcq' | 'fill' | 'match' | 'essay';
+export type QuestionType = "mcq" | "fill" | "match" | "essay";
 
 export interface AssignmentQuestion {
   id: string;
@@ -134,21 +134,21 @@ export interface AuditLogEntry {
 }
 
 export type View =
-  | 'dashboard'
-  | 'management-classes'
-  | 'management-waiting-list'
-  | 'management-levels'
-  | 'management-status'
-  | 'management-scores'
-  | 'assignments'
-  | 'assignment-detail'
-  | 'student-assignments'
-  | 'profile'
-  | 'user-management'
-  | 'management-add'
-  | 'accounts';
+  | "dashboard"
+  | "management-classes"
+  | "management-waiting-list"
+  | "management-levels"
+  | "management-status"
+  | "management-scores"
+  | "assignments"
+  | "assignment-detail"
+  | "student-assignments"
+  | "profile"
+  | "user-management"
+  | "management-add"
+  | "accounts";
 
-export type ExamLevel = 'IELTS' | 'KEY' | 'PET';
+export type ExamLevel = "IELTS" | "KEY" | "PET";
 
 // Login and authentication types
 export interface LoginCredentials {
@@ -197,7 +197,7 @@ export interface ProfileUpdateData {
 export interface UserCreateData {
   name: string;
   email: string;
-  role: 'admin' | 'teacher' | 'staff' | 'student';
+  role: "admin" | "teacher" | "staff" | "student";
   password?: string;
   phone?: string;
   englishName?: string;
@@ -275,7 +275,7 @@ export interface SubmissionUpdateData extends Partial<SubmissionCreateData> {
   id: string;
   score?: number;
   feedback?: string;
-  status?: 'submitted' | 'graded' | 'late';
+  status?: "submitted" | "graded" | "late";
 }
 
 export interface PotentialStudentCreateData {
@@ -283,12 +283,12 @@ export interface PotentialStudentCreateData {
   englishName?: string;
   email: string;
   phone?: string;
-  gender?: 'male' | 'female' | 'other';
+  gender?: "male" | "female" | "other";
   dob?: string;
   parentName?: string;
   parentPhone?: string;
-  source: 'admin_registration' | 'website' | 'referral' | 'other';
-  status?: 'pending' | 'contacted' | 'enrolled' | 'not_interested';
+  source: "admin_registration" | "website" | "referral" | "other";
+  status?: "pending" | "contacted" | "enrolled" | "not_interested";
   notes?: string;
   currentSchool?: string;
   currentGrade?: string;
@@ -305,7 +305,7 @@ export interface PotentialStudentUpdateData extends Partial<PotentialStudentCrea
 export interface ConversionData {
   classId: string;
   levelId?: string;
-  status: 'active' | 'studying';
+  status: "active" | "studying";
   notes?: string;
 }
 
@@ -337,7 +337,7 @@ export interface StudentRecordUpdateData extends Partial<StudentRecordCreateData
 
 // Change log types
 export interface ChangeLogCreateData {
-  action: 'create' | 'update' | 'delete';
+  action: "create" | "update" | "delete";
   collection: string;
   documentId: string;
   userId: string;
@@ -346,7 +346,7 @@ export interface ChangeLogCreateData {
 }
 
 // Attendance types
-export type AttendanceStatus = 'present' | 'absent' | 'late';
+export type AttendanceStatus = "present" | "absent" | "late";
 
 export interface AttendanceEditMeta {
   editedAt: string; // ISO timestamp
@@ -427,7 +427,7 @@ export interface ProfileUpdateData {
 export interface UserCreateData {
   name: string;
   email: string;
-  role: 'admin' | 'teacher' | 'staff' | 'student';
+  role: "admin" | "teacher" | "staff" | "student";
   password?: string;
   phone?: string;
   englishName?: string;
@@ -505,7 +505,7 @@ export interface SubmissionUpdateData extends Partial<SubmissionCreateData> {
   id: string;
   score?: number;
   feedback?: string;
-  status?: 'submitted' | 'graded' | 'late';
+  status?: "submitted" | "graded" | "late";
 }
 
 export interface PotentialStudentCreateData {
@@ -513,12 +513,12 @@ export interface PotentialStudentCreateData {
   englishName?: string;
   email: string;
   phone?: string;
-  gender?: 'male' | 'female' | 'other';
+  gender?: "male" | "female" | "other";
   dob?: string;
   parentName?: string;
   parentPhone?: string;
-  source: 'admin_registration' | 'website' | 'referral' | 'other';
-  status?: 'pending' | 'contacted' | 'enrolled' | 'not_interested';
+  source: "admin_registration" | "website" | "referral" | "other";
+  status?: "pending" | "contacted" | "enrolled" | "not_interested";
   notes?: string;
   currentSchool?: string;
   currentGrade?: string;
@@ -535,7 +535,7 @@ export interface PotentialStudentUpdateData extends Partial<PotentialStudentCrea
 export interface ConversionData {
   classId: string;
   levelId?: string;
-  status: 'active' | 'studying';
+  status: "active" | "studying";
   notes?: string;
 }
 

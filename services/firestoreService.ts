@@ -16,8 +16,8 @@ import {
   updateDoc,
   where,
   writeBatch,
-} from 'firebase/firestore';
-import { db } from './firebase';
+} from "firebase/firestore";
+import { db } from "./firebase";
 
 // TypeScript interfaces for Firestore documents
 export interface FirestoreUser {
@@ -27,15 +27,15 @@ export interface FirestoreUser {
   name: string;
   displayName?: string;
   email: string;
-  role: 'student' | 'teacher' | 'admin' | 'staff';
-  gender?: 'male' | 'female' | 'other';
+  role: "student" | "teacher" | "admin" | "staff";
+  gender?: "male" | "female" | "other";
   englishName?: string;
   dob?: string;
   phone?: string;
   parentName?: string;
   parentPhone?: string;
   notes?: string;
-  status: 'active' | 'potential' | 'contacted' | 'studying' | 'postponed' | 'off' | 'alumni';
+  status: "active" | "potential" | "contacted" | "studying" | "postponed" | "off" | "alumni";
   studentCode?: string;
   avatarUrl?: string;
   diceBearStyle?: string;
@@ -93,7 +93,7 @@ export interface FirestoreSubmission {
   feedback?: string;
   submittedAt?: Timestamp;
   gradedAt?: Timestamp;
-  status: 'submitted' | 'graded' | 'late';
+  status: "submitted" | "graded" | "late";
 }
 
 export interface FirestorePotentialStudent {
@@ -102,12 +102,12 @@ export interface FirestorePotentialStudent {
   englishName?: string;
   email: string;
   phone?: string;
-  gender?: 'male' | 'female' | 'other';
+  gender?: "male" | "female" | "other";
   dob?: string;
   parentName?: string;
   parentPhone?: string;
-  source: 'admin_registration' | 'website' | 'referral' | 'other';
-  status: 'pending' | 'contacted' | 'enrolled' | 'not_interested';
+  source: "admin_registration" | "website" | "referral" | "other";
+  status: "pending" | "contacted" | "enrolled" | "not_interested";
   notes?: string;
   currentSchool?: string;
   currentGrade?: string;
@@ -138,7 +138,7 @@ export interface FirestoreStudentRecord {
 
 export interface FirestoreChangeLog {
   id?: string;
-  action: 'create' | 'update' | 'delete';
+  action: "create" | "update" | "delete";
   collection: string;
   documentId: string;
   userId: string;
@@ -150,14 +150,14 @@ export interface FirestoreChangeLog {
 // Generic Firestore service class
 class FirestoreService {
   private collections = {
-    users: 'users',
-    classes: 'classes',
-    levels: 'levels',
-    assignments: 'assignments',
-    submissions: 'submissions',
-    potentialStudents: 'potentialStudents',
-    studentRecords: 'studentRecords',
-    changeLogs: 'changeLogs',
+    users: "users",
+    classes: "classes",
+    levels: "levels",
+    assignments: "assignments",
+    submissions: "submissions",
+    potentialStudents: "potentialStudents",
+    studentRecords: "studentRecords",
+    changeLogs: "changeLogs",
   };
 
   // Generic CRUD operations
@@ -193,7 +193,7 @@ class FirestoreService {
   async update<T extends DocumentData>(
     collectionName: string,
     id: string,
-    data: Partial<T>
+    data: Partial<T>,
   ): Promise<void> {
     try {
       const docRef = doc(db, collectionName, id);
@@ -234,7 +234,7 @@ class FirestoreService {
 
   // User-specific operations
   async createUser(
-    userData: Omit<FirestoreUser, 'id' | 'createdAt' | 'updatedAt'>
+    userData: Omit<FirestoreUser, "id" | "createdAt" | "updatedAt">,
   ): Promise<string> {
     return this.create(this.collections.users, userData);
   }
@@ -245,21 +245,21 @@ class FirestoreService {
 
   async getUserByFirebaseUid(firebaseUid: string): Promise<FirestoreUser | null> {
     const users = await this.query<FirestoreUser>(this.collections.users, [
-      where('firebaseUid', '==', firebaseUid),
+      where("firebaseUid", "==", firebaseUid),
     ]);
     return users[0] || null;
   }
 
   async getUserByEmail(email: string): Promise<FirestoreUser | null> {
     const users = await this.query<FirestoreUser>(this.collections.users, [
-      where('email', '==', email),
+      where("email", "==", email),
     ]);
     return users[0] || null;
   }
 
   async getUserByUsername(username: string): Promise<FirestoreUser | null> {
     const users = await this.query<FirestoreUser>(this.collections.users, [
-      where('username', '==', username),
+      where("username", "==", username),
     ]);
     return users[0] || null;
   }
@@ -267,7 +267,7 @@ class FirestoreService {
   async updateUser(
     userId: string,
     _userName: string,
-    changes?: Partial<FirestoreUser>
+    changes?: Partial<FirestoreUser>,
   ): Promise<void> {
     return this.update(this.collections.users, userId, changes || {});
   }
@@ -277,14 +277,14 @@ class FirestoreService {
   }
 
   async getAllUsers(role?: string, status?: string): Promise<FirestoreUser[]> {
-    const constraints: QueryConstraint[] = [orderBy('createdAt', 'desc')];
+    const constraints: QueryConstraint[] = [orderBy("createdAt", "desc")];
 
     if (role) {
-      constraints.unshift(where('role', '==', role));
+      constraints.unshift(where("role", "==", role));
     }
 
     if (status) {
-      constraints.unshift(where('status', '==', status));
+      constraints.unshift(where("status", "==", status));
     }
 
     return this.query<FirestoreUser>(this.collections.users, constraints);
@@ -292,7 +292,7 @@ class FirestoreService {
 
   // Class-specific operations
   async createClass(
-    classData: Omit<FirestoreClass, 'id' | 'createdAt' | 'updatedAt'>
+    classData: Omit<FirestoreClass, "id" | "createdAt" | "updatedAt">,
   ): Promise<string> {
     return this.create(this.collections.classes, classData);
   }
@@ -303,7 +303,7 @@ class FirestoreService {
 
   async getClassByCode(classCode: string): Promise<FirestoreClass | null> {
     const classes = await this.query<FirestoreClass>(this.collections.classes, [
-      where('classCode', '==', classCode),
+      where("classCode", "==", classCode),
     ]);
     return classes[0] || null;
   }
@@ -317,14 +317,14 @@ class FirestoreService {
   }
 
   async getAllClasses(teacherId?: string, isActive?: boolean): Promise<FirestoreClass[]> {
-    const constraints: QueryConstraint[] = [orderBy('createdAt', 'desc')];
+    const constraints: QueryConstraint[] = [orderBy("createdAt", "desc")];
 
     if (teacherId) {
-      constraints.unshift(where('teacherId', '==', teacherId));
+      constraints.unshift(where("teacherId", "==", teacherId));
     }
 
     if (isActive !== undefined) {
-      constraints.unshift(where('isActive', '==', isActive));
+      constraints.unshift(where("isActive", "==", isActive));
     }
 
     return this.query<FirestoreClass>(this.collections.classes, constraints);
@@ -332,7 +332,7 @@ class FirestoreService {
 
   // Level-specific operations
   async createLevel(
-    levelData: Omit<FirestoreLevel, 'id' | 'createdAt' | 'updatedAt'>
+    levelData: Omit<FirestoreLevel, "id" | "createdAt" | "updatedAt">,
   ): Promise<string> {
     return this.create(this.collections.levels, levelData);
   }
@@ -350,10 +350,10 @@ class FirestoreService {
   }
 
   async getAllLevels(isActive?: boolean): Promise<FirestoreLevel[]> {
-    const constraints: QueryConstraint[] = [orderBy('order', 'asc')];
+    const constraints: QueryConstraint[] = [orderBy("order", "asc")];
 
     if (isActive !== undefined) {
-      constraints.unshift(where('isActive', '==', isActive));
+      constraints.unshift(where("isActive", "==", isActive));
     }
 
     return this.query<FirestoreLevel>(this.collections.levels, constraints);
@@ -361,7 +361,7 @@ class FirestoreService {
 
   // Assignment-specific operations
   async createAssignment(
-    assignmentData: Omit<FirestoreAssignment, 'id' | 'createdAt' | 'updatedAt'>
+    assignmentData: Omit<FirestoreAssignment, "id" | "createdAt" | "updatedAt">,
   ): Promise<string> {
     return this.create(this.collections.assignments, assignmentData);
   }
@@ -380,14 +380,14 @@ class FirestoreService {
 
   async getAssignmentsByClass(classId: string): Promise<FirestoreAssignment[]> {
     return this.query<FirestoreAssignment>(this.collections.assignments, [
-      where('classId', '==', classId),
-      where('isActive', '==', true),
-      orderBy('createdAt', 'desc'),
+      where("classId", "==", classId),
+      where("isActive", "==", true),
+      orderBy("createdAt", "desc"),
     ]);
   }
 
   // Submission-specific operations
-  async createSubmission(submissionData: Omit<FirestoreSubmission, 'id'>): Promise<string> {
+  async createSubmission(submissionData: Omit<FirestoreSubmission, "id">): Promise<string> {
     return this.create(this.collections.submissions, submissionData);
   }
 
@@ -405,21 +405,21 @@ class FirestoreService {
 
   async getSubmissionsByAssignment(assignmentId: string): Promise<FirestoreSubmission[]> {
     return this.query<FirestoreSubmission>(this.collections.submissions, [
-      where('assignmentId', '==', assignmentId),
-      orderBy('submittedAt', 'desc'),
+      where("assignmentId", "==", assignmentId),
+      orderBy("submittedAt", "desc"),
     ]);
   }
 
   async getSubmissionsByStudent(studentId: string): Promise<FirestoreSubmission[]> {
     return this.query<FirestoreSubmission>(this.collections.submissions, [
-      where('studentId', '==', studentId),
-      orderBy('submittedAt', 'desc'),
+      where("studentId", "==", studentId),
+      orderBy("submittedAt", "desc"),
     ]);
   }
 
   // Potential Student operations
   async createPotentialStudent(
-    potentialStudentData: Omit<FirestorePotentialStudent, 'id' | 'createdAt' | 'updatedAt'>
+    potentialStudentData: Omit<FirestorePotentialStudent, "id" | "createdAt" | "updatedAt">,
   ): Promise<string> {
     return this.create(this.collections.potentialStudents, potentialStudentData);
   }
@@ -430,7 +430,7 @@ class FirestoreService {
 
   async updatePotentialStudent(
     id: string,
-    potentialStudentData: Partial<FirestorePotentialStudent>
+    potentialStudentData: Partial<FirestorePotentialStudent>,
   ): Promise<void> {
     return this.update(this.collections.potentialStudents, id, potentialStudentData);
   }
@@ -440,10 +440,10 @@ class FirestoreService {
   }
 
   async getAllPotentialStudents(status?: string): Promise<FirestorePotentialStudent[]> {
-    const constraints: QueryConstraint[] = [orderBy('createdAt', 'desc')];
+    const constraints: QueryConstraint[] = [orderBy("createdAt", "desc")];
 
     if (status) {
-      constraints.unshift(where('status', '==', status));
+      constraints.unshift(where("status", "==", status));
     }
 
     return this.query<FirestorePotentialStudent>(this.collections.potentialStudents, constraints);
@@ -451,7 +451,7 @@ class FirestoreService {
 
   // Student Record operations
   async createStudentRecord(
-    studentRecordData: Omit<FirestoreStudentRecord, 'id' | 'createdAt' | 'updatedAt'>
+    studentRecordData: Omit<FirestoreStudentRecord, "id" | "createdAt" | "updatedAt">,
   ): Promise<string> {
     return this.create(this.collections.studentRecords, studentRecordData);
   }
@@ -462,7 +462,7 @@ class FirestoreService {
 
   async updateStudentRecord(
     id: string,
-    studentRecordData: Partial<FirestoreStudentRecord>
+    studentRecordData: Partial<FirestoreStudentRecord>,
   ): Promise<void> {
     return this.update(this.collections.studentRecords, id, studentRecordData);
   }
@@ -473,27 +473,27 @@ class FirestoreService {
 
   async getStudentRecordsByStudent(studentId: string): Promise<FirestoreStudentRecord[]> {
     return this.query<FirestoreStudentRecord>(this.collections.studentRecords, [
-      where('studentId', '==', studentId),
-      orderBy('createdAt', 'desc'),
+      where("studentId", "==", studentId),
+      orderBy("createdAt", "desc"),
     ]);
   }
 
   // Change Log operations
   async createChangeLog(
-    changeLogData: Omit<FirestoreChangeLog, 'id' | 'timestamp'>
+    changeLogData: Omit<FirestoreChangeLog, "id" | "timestamp">,
   ): Promise<string> {
     return this.create(this.collections.changeLogs, changeLogData);
   }
 
   async getChangeLogs(collection?: string, documentId?: string): Promise<FirestoreChangeLog[]> {
-    const constraints: QueryConstraint[] = [orderBy('timestamp', 'desc')];
+    const constraints: QueryConstraint[] = [orderBy("timestamp", "desc")];
 
     if (collection) {
-      constraints.unshift(where('collection', '==', collection));
+      constraints.unshift(where("collection", "==", collection));
     }
 
     if (documentId) {
-      constraints.unshift(where('documentId', '==', documentId));
+      constraints.unshift(where("documentId", "==", documentId));
     }
 
     return this.query<FirestoreChangeLog>(this.collections.changeLogs, constraints);
@@ -502,7 +502,7 @@ class FirestoreService {
   // Batch operations for better performance
   async batchCreate<T extends DocumentData>(
     collectionName: string,
-    documents: T[]
+    documents: T[],
   ): Promise<string[]> {
     const batch = writeBatch(db);
     const docRefs: DocumentReference[] = [];
@@ -523,7 +523,7 @@ class FirestoreService {
 
   async batchUpdate<T extends DocumentData>(
     collectionName: string,
-    updates: { id: string; data: Partial<T> }[]
+    updates: { id: string; data: Partial<T> }[],
   ): Promise<void> {
     const batch = writeBatch(db);
 

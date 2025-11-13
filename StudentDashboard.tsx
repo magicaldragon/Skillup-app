@@ -2,11 +2,11 @@
 // Professional dashboard layout for students with sidebar, summary cards, and IELTS focus
 // [NOTE] Created as part of 2024-05-XX dashboard refactor
 
-import SettingsPanel from './SettingsPanel';
-import StudentMyClassesPanel from './StudentMyClassesPanel';
-import StudentMyProgressPanel from './StudentMyProgressPanel';
-import StudentScoresFeedbackPanel from './StudentScoresFeedbackPanel';
-import type { Student, StudentClass } from './types';
+import SettingsPanel from "./SettingsPanel";
+import StudentMyClassesPanel from "./StudentMyClassesPanel";
+import StudentMyProgressPanel from "./StudentMyProgressPanel";
+import StudentScoresFeedbackPanel from "./StudentScoresFeedbackPanel";
+import type { Student, StudentClass } from "./types";
 
 const StudentDashboard = ({
   user,
@@ -19,13 +19,13 @@ const StudentDashboard = ({
 }) => {
   return (
     <div className="teacher-dashboard">
-      {activeKey === 'settings' ? (
+      {activeKey === "settings" ? (
         <SettingsPanel currentUser={user} classes={classes || []} onDataRefresh={() => {}} />
-      ) : activeKey === 'my-classes' ? (
+      ) : activeKey === "my-classes" ? (
         <StudentMyClassesPanel />
-      ) : activeKey === 'my-progress' ? (
+      ) : activeKey === "my-progress" ? (
         <StudentMyProgressPanel />
-      ) : activeKey === 'my-scores' ? (
+      ) : activeKey === "my-scores" ? (
         <StudentScoresFeedbackPanel user={user} />
       ) : (
         <>

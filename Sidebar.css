@@ -134,12 +134,13 @@
 /* Dark mode support */
 @media (prefers-color-scheme: dark) {
   .sidebar {
-    background: #295b37 !important; /* Dark green background in dark mode */
-    border-right: 0.25rem solid #ffe9c2 !important; /* Light orange border in dark mode */
+    background: #295b37 !important;
+    border-right: 0.25rem solid #ffe9c2 !important;
   }
 }
 
-/* ===== SIDEBAR NOTIFICATIONS ===== */
+/* Sidebar styles */
+/* Removed .sidebar-notifications and related descendants */
 .sidebar-notifications {
   display: flex;
   justify-content: center;

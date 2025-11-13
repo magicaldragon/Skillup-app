@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useState } from 'react';
-import type { Student, StudentClass, AttendanceStatus } from './types';
-import './ManagementTableStyles.css';
+import { useEffect, useMemo, useState } from "react";
+import type { AttendanceStatus, Student, StudentClass } from "./types";
+import "./ManagementTableStyles.css";
 import {
   buildDayStatusMap,
   getDaysOfMonth,
   loadClassMonth,
   setDayStatus,
-} from './services/attendanceService';
+} from "./services/attendanceService";
 
 export default function AttendancePanel({
   students,
@@ -17,37 +17,37 @@ export default function AttendancePanel({
   classes: StudentClass[];
   onDataRefresh?: () => void;
 }) {
-  const [selectedClassId, setSelectedClassId] = useState<string>('');
-  const [selectedDate, setSelectedDate] = useState<string>('');
-  const [selectedMonth, setSelectedMonth] = useState<string>('');
+  const [selectedClassId, setSelectedClassId] = useState<string>("");
+  const [selectedDate, setSelectedDate] = useState<string>("");
+  const [selectedMonth, setSelectedMonth] = useState<string>("");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [statusMessage, setStatusMessage] = useState<string>('');
-  const [statusType, setStatusType] = useState<'success' | 'error' | ''>('');
+  const [statusMessage, setStatusMessage] = useState<string>("");
+  const [statusType, setStatusType] = useState<"success" | "error" | "">("");
   const [dayMap, setDayMap] = useState<Record<string, AttendanceStatus | undefined>>({});
 
   // Resolve selected class for exports
   const selectedClass = useMemo(
     () => classes.find((c) => (c._id || c.id) === selectedClassId),
-    [classes, selectedClassId]
+    [classes, selectedClassId],
   );
 
   // Initialize defaults and persist across sessions
   useEffect(() => {
-    const lastClass = localStorage.getItem('attendance:lastClassId');
-    const lastDate = localStorage.getItem('attendance:lastDate');
+    const lastClass = localStorage.getItem("attendance:lastClassId");
+    const lastDate = localStorage.getItem("attendance:lastDate");
     const date = lastDate || new Date().toISOString().slice(0, 10);
-    setSelectedClassId(lastClass || '');
+    setSelectedClassId(lastClass || "");
     setSelectedDate(date);
     setSelectedMonth(date.slice(0, 7));
   }, []);
 
   useEffect(() => {
-    if (selectedClassId) localStorage.setItem('attendance:lastClassId', selectedClassId);
+    if (selectedClassId) localStorage.setItem("attendance:lastClassId", selectedClassId);
   }, [selectedClassId]);
 
   useEffect(() => {
     if (selectedDate) {
-      localStorage.setItem('attendance:lastDate', selectedDate);
+      localStorage.setItem("attendance:lastDate", selectedDate);
       setSelectedMonth(selectedDate.slice(0, 7));
     }
   }, [selectedDate]);
@@ -62,7 +62,7 @@ export default function AttendancePanel({
         const map = buildDayStatusMap(snapshot, selectedDate);
         if (!cancelled) setDayMap(map);
       } catch (err) {
-        console.error('AttendancePanel: failed to load month', err);
+        console.error("AttendancePanel: failed to load month", err);
       }
     }
     load();
@@ -77,12 +77,12 @@ export default function AttendancePanel({
 
   // Save helper with access control
   async function applyStatusFor(ids: string[], status: AttendanceStatus) {
-    const userStr = localStorage.getItem('skillup_user');
-    const editorId = userStr ? (JSON.parse(userStr).id || JSON.parse(userStr)._id || '') : '';
-    const userRole = userStr ? (JSON.parse(userStr).role || '') : '';
-    if (!['admin', 'teacher'].includes(userRole)) {
-      setStatusMessage('Access denied: only teacher/admin can edit attendance.');
-      setStatusType('error');
+    const userStr = localStorage.getItem("skillup_user");
+    const editorId = userStr ? JSON.parse(userStr).id || JSON.parse(userStr)._id || "" : "";
+    const userRole = userStr ? JSON.parse(userStr).role || "" : "";
+    if (!["admin", "teacher"].includes(userRole)) {
+      setStatusMessage("Access denied: only teacher/admin can edit attendance.");
+      setStatusType("error");
       return;
     }
     try {
@@ -95,74 +95,74 @@ export default function AttendancePanel({
               dateISO: selectedDate,
               status,
             },
-            editorId
-          )
-        )
+            editorId,
+          ),
+        ),
       );
       const snapshot = await loadClassMonth(selectedClassId, selectedMonth);
       setDayMap(buildDayStatusMap(snapshot, selectedDate));
       setStatusMessage(`Updated ${ids.length} students to "${status}" on ${selectedDate}.`);
-      setStatusType('success');
+      setStatusType("success");
       onDataRefresh?.();
     } catch (err) {
-      console.error('AttendancePanel: applyStatusFor error', err);
-      setStatusMessage('Failed to update attendance. Please try again.');
-      setStatusType('error');
+      console.error("AttendancePanel: applyStatusFor error", err);
+      setStatusMessage("Failed to update attendance. Please try again.");
+      setStatusType("error");
     }
   }
 
   const markSelectedPresent = () => {
     const ids = Array.from(selectedIds);
     if (ids.length === 0) {
-      setStatusMessage('No students selected.');
-      setStatusType('error');
+      setStatusMessage("No students selected.");
+      setStatusType("error");
       return;
     }
-    applyStatusFor(ids, 'present');
+    applyStatusFor(ids, "present");
   };
   const markSelectedAbsent = () => {
     const ids = Array.from(selectedIds);
     if (ids.length === 0) {
-      setStatusMessage('No students selected.');
-      setStatusType('error');
+      setStatusMessage("No students selected.");
+      setStatusType("error");
       return;
     }
-    applyStatusFor(ids, 'absent');
+    applyStatusFor(ids, "absent");
   };
   const markSelectedLate = () => {
     const ids = Array.from(selectedIds);
     if (ids.length === 0) {
-      setStatusMessage('No students selected.');
-      setStatusType('error');
+      setStatusMessage("No students selected.");
+      setStatusType("error");
       return;
     }
-    applyStatusFor(ids, 'late');
+    applyStatusFor(ids, "late");
   };
 
   // Export CSV (Phase 1)
   const classStudents = useMemo(
     (): Student[] => students.filter((s: Student) => (s.classIds || []).includes(selectedClassId)),
-    [students, selectedClassId]
+    [students, selectedClassId],
   );
   const exportCSV = () => {
     const cls = selectedClass;
-    const classCode = cls?.classCode || cls?.name || '';
+    const classCode = cls?.classCode || cls?.name || "";
     const rows = classStudents.map((s: Student) => [
       s.studentCode || s.id,
-      s.name || '',
-      dayMap[s.id] ?? 'present',
+      s.name || "",
+      dayMap[s.id] ?? "present",
       selectedDate,
       classCode,
     ]);
-    const header = ['Student ID', 'Name', 'Status', 'Date', 'Class'];
+    const header = ["Student ID", "Name", "Status", "Date", "Class"];
     const csv = [header, ...rows]
       .map((r: (string | number | undefined)[]) =>
-        r.map((v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')
+        r.map((v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`).join(","),
       )
-      .join('\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      .join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = `attendance_${classCode}_${selectedDate}.csv`;
     a.click();
@@ -239,10 +239,10 @@ export default function AttendancePanel({
         <div
           style={{
             marginTop: 8,
-            padding: '8px 12px',
+            padding: "8px 12px",
             borderRadius: 6,
-            background: statusType === 'success' ? '#e7f7e7' : '#fdeaea',
-            color: statusType === 'success' ? '#095f09' : '#7a0b0b',
+            background: statusType === "success" ? "#e7f7e7" : "#fdeaea",
+            color: statusType === "success" ? "#095f09" : "#7a0b0b",
           }}
         >
           {statusMessage}
@@ -287,26 +287,26 @@ export default function AttendancePanel({
               <td>{idx + 1}</td>
               <td>{s.studentCode || s.id}</td>
               <td>{s.name}</td>
-              <td>{dayMap[s.id] || 'present'}</td>
+              <td>{dayMap[s.id] || "present"}</td>
               <td>
                 <button
                   className="btn-edit"
                   type="button"
-                  onClick={() => applyStatusFor([s.id], 'present')}
+                  onClick={() => applyStatusFor([s.id], "present")}
                 >
                   Present
                 </button>
                 <button
                   className="btn-delete"
                   type="button"
-                  onClick={() => applyStatusFor([s.id], 'absent')}
+                  onClick={() => applyStatusFor([s.id], "absent")}
                 >
                   Absent
                 </button>
                 <button
                   className="btn-edit"
                   type="button"
-                  onClick={() => applyStatusFor([s.id], 'late')}
+                  onClick={() => applyStatusFor([s.id], "late")}
                 >
                   Late
                 </button>
@@ -318,9 +318,7 @@ export default function AttendancePanel({
 
       {/* Printable monthly grid with summary */}
       <div className="print-only a4-landscape">
-        <h2 className="report-title">
-          School SKILLUP — Attendance Report — {selectedMonth}
-        </h2>
+        <h2 className="report-title">School SKILLUP — Attendance Report — {selectedMonth}</h2>
         <p className="report-subtitle">
           Class: {selectedClass?.classCode || selectedClass?.name || selectedClassId}
         </p>
@@ -343,7 +341,7 @@ export default function AttendancePanel({
                 <tr key={`report-${id}`}>
                   <td>{s.name}</td>
                   {getDaysOfMonth(selectedMonth).map((d: string) => (
-                    <td key={`${id}-${d}`}>{dayMap[id] && d === selectedDate ? dayMap[id] : ''}</td>
+                    <td key={`${id}-${d}`}>{dayMap[id] && d === selectedDate ? dayMap[id] : ""}</td>
                   ))}
                   <td>-</td>
                   <td>-</td>

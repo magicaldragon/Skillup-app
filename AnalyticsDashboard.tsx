@@ -1,5 +1,5 @@
-import type React from 'react';
-import type { Assignment, Student, Submission } from './types';
+import type React from "react";
+import type { Assignment, Student, Submission } from "./types";
 
 interface AnalyticsDashboardProps {
   assignments: Assignment[];
@@ -15,29 +15,29 @@ const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
   // Average score per assignment
   const avgScore = (aid: string) => {
     const subs = submissions.filter(
-      (s) => s.assignmentId === aid && s.score !== null && s.score !== undefined
+      (s) => s.assignmentId === aid && s.score !== null && s.score !== undefined,
     );
-    if (!subs.length) return '-';
+    if (!subs.length) return "-";
     return (subs.reduce((sum, s) => sum + (s.score || 0), 0) / subs.length).toFixed(1);
   };
   // Completion rate per assignment
   const completionRate = (aid: string) => {
     const total = students.length;
     const completed = submissions.filter((s) => s.assignmentId === aid).length;
-    return total ? `${((completed / total) * 100).toFixed(0)}%` : '-';
+    return total ? `${((completed / total) * 100).toFixed(0)}%` : "-";
   };
   // Overdue assignments
   const now = new Date();
   const overdue = assignments.filter(
     (a) =>
       new Date(a.dueDate) < now &&
-      submissions.filter((s) => s.assignmentId === a.id).length < students.length
+      submissions.filter((s) => s.assignmentId === a.id).length < students.length,
   );
   // Top/bottom performers
   const studentScores = students
     .map((stu) => {
       const stuSubs = submissions.filter(
-        (s) => s.studentId === stu.id && s.score !== null && s.score !== undefined
+        (s) => s.studentId === stu.id && s.score !== null && s.score !== undefined,
       );
       const avg = stuSubs.length
         ? stuSubs.reduce((sum, s) => sum + (s.score || 0), 0) / stuSubs.length

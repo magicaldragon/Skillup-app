@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useState } from 'react';
-import { authService } from './frontend/services/authService';
-import { usersAPI } from './services/apiService';
-import type { UserUpdateData } from './types';
-import './AccountsPanel.css';
-import './ManagementTableStyles.css';
+import { useCallback, useEffect, useState } from "react";
+import { authService } from "./frontend/services/authService";
+import { usersAPI } from "./services/apiService";
+import type { UserUpdateData } from "./types";
+import "./AccountsPanel.css";
+import "./ManagementTableStyles.css";
 
 interface User {
   _id: string;
@@ -28,30 +28,30 @@ const AccountsPanel = () => {
   const [accounts, setAccounts] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterRole, setFilterRole] = useState('all');
-  const [filterStatus, setFilterStatus] = useState('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterRole, setFilterRole] = useState("all");
+  const [filterStatus, setFilterStatus] = useState("all");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<User>>({});
   const [passwordChangeId, setPasswordChangeId] = useState<string | null>(null);
-  const [newPassword, setNewPassword] = useState('');
+  const [newPassword, setNewPassword] = useState("");
   const [passwordChanging, setPasswordChanging] = useState(false);
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
-  const [syncStatus, setSyncStatus] = useState<string>('');
+  const [syncStatus, setSyncStatus] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
 
   // Get current user for permission checks
   useEffect(() => {
     // Prefer localStorage first
-    const localUser = localStorage.getItem('skillup_user');
+    const localUser = localStorage.getItem("skillup_user");
     if (localUser) {
       try {
         const parsedUser: CurrentUser = JSON.parse(localUser);
         setCurrentUser(parsedUser);
         return;
       } catch (e) {
-        console.error('Failed to parse user from localStorage:', e);
+        console.error("Failed to parse user from localStorage:", e);
       }
     }
 
@@ -61,20 +61,20 @@ const AccountsPanel = () => {
         const user = await authService.getCurrentUser();
         if (user) {
           const normalized: CurrentUser = {
-            _id: user._id ?? user.id ?? '',
-            id: user.id ?? user._id ?? '',
-            name: user.name ?? user.fullname ?? '',
-            fullname: user.fullname ?? user.name ?? '',
-            email: user.email ?? '',
-            role: user.role ?? 'student',
-            username: user.username ?? user.email ?? '',
+            _id: user._id ?? user.id ?? "",
+            id: user.id ?? user._id ?? "",
+            name: user.name ?? user.fullname ?? "",
+            fullname: user.fullname ?? user.name ?? "",
+            email: user.email ?? "",
+            role: user.role ?? "student",
+            username: user.username ?? user.email ?? "",
           };
           setCurrentUser(normalized);
         } else {
           setCurrentUser(null);
         }
       } catch (err) {
-        console.error('Error loading current user:', err);
+        console.error("Error loading current user:", err);
         setCurrentUser(null);
       }
     })();
@@ -83,29 +83,29 @@ const AccountsPanel = () => {
   // Permission checking functions - Enhanced for admin accounts
   const canManageUser = (targetUser: User): boolean => {
     if (!currentUser) {
-      console.log('🔍 No current user found for permission check');
+      console.log("🔍 No current user found for permission check");
       return false;
     }
 
     const currentUserRole = currentUser.role;
     const targetUserRole = targetUser.role;
 
-    console.log('🔍 Permission check:', { currentUserRole, targetUserRole });
+    console.log("🔍 Permission check:", { currentUserRole, targetUserRole });
 
     // Admin can manage all users
-    if (currentUserRole === 'admin') {
-      console.log('🔍 Admin user detected - allowing all permissions');
+    if (currentUserRole === "admin") {
+      console.log("🔍 Admin user detected - allowing all permissions");
       return true;
     }
 
     // Teacher can manage staff and students, but not admins or other teachers
-    if (currentUserRole === 'teacher') {
-      return targetUserRole === 'staff' || targetUserRole === 'student';
+    if (currentUserRole === "teacher") {
+      return targetUserRole === "staff" || targetUserRole === "student";
     }
 
     // Staff can only manage students
-    if (currentUserRole === 'staff') {
-      return targetUserRole === 'student';
+    if (currentUserRole === "staff") {
+      return targetUserRole === "student";
     }
 
     // Students cannot manage any users
@@ -119,19 +119,19 @@ const AccountsPanel = () => {
     const targetUserRole = targetUser.role;
 
     // Admin can change any role
-    if (currentUserRole === 'admin') return true;
+    if (currentUserRole === "admin") return true;
 
     // Teacher can only change staff and student roles
-    if (currentUserRole === 'teacher') {
+    if (currentUserRole === "teacher") {
       return (
-        (targetUserRole === 'staff' || targetUserRole === 'student') &&
-        (newRole === 'staff' || newRole === 'student')
+        (targetUserRole === "staff" || targetUserRole === "student") &&
+        (newRole === "staff" || newRole === "student")
       );
     }
 
     // Staff can only change student roles
-    if (currentUserRole === 'staff') {
-      return targetUserRole === 'student' && newRole === 'student';
+    if (currentUserRole === "staff") {
+      return targetUserRole === "student" && newRole === "student";
     }
 
     return false;
@@ -144,16 +144,16 @@ const AccountsPanel = () => {
     const targetUserRole = targetUser.role;
 
     // Admin can delete any user
-    if (currentUserRole === 'admin') return true;
+    if (currentUserRole === "admin") return true;
 
     // Teacher can delete staff and students
-    if (currentUserRole === 'teacher') {
-      return targetUserRole === 'staff' || targetUserRole === 'student';
+    if (currentUserRole === "teacher") {
+      return targetUserRole === "staff" || targetUserRole === "student";
     }
 
     // Staff can only delete students
-    if (currentUserRole === 'staff') {
-      return targetUserRole === 'student';
+    if (currentUserRole === "staff") {
+      return targetUserRole === "student";
     }
 
     return false;
@@ -171,23 +171,23 @@ const AccountsPanel = () => {
     try {
       setLoading(true);
       setError(null);
-      setSyncStatus('Fetching accounts...');
+      setSyncStatus("Fetching accounts...");
 
       const data = await usersAPI.getUsers();
       const normalizedAccounts = Array.isArray(data) ? data : [];
       const accountsWithConsistentIds = normalizedAccounts.map((account) => ({
         ...account,
-        _id: account._id || account.id || '',
-        id: account.id || account._id || '',
+        _id: account._id || account.id || "",
+        id: account.id || account._id || "",
       }));
 
       setAccounts(accountsWithConsistentIds);
-      setSyncStatus('Accounts fetched successfully');
+      setSyncStatus("Accounts fetched successfully");
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch accounts';
+      const errorMessage = err instanceof Error ? err.message : "Failed to fetch accounts";
       setError(errorMessage);
       setAccounts([]);
-      setSyncStatus('Failed to fetch accounts');
+      setSyncStatus("Failed to fetch accounts");
     } finally {
       setLoading(false);
     }
@@ -199,7 +199,7 @@ const AccountsPanel = () => {
 
   const handleEdit = (user: User) => {
     if (!canEditUser(user)) {
-      alert('You do not have permission to edit this user.');
+      alert("You do not have permission to edit this user.");
       return;
     }
 
@@ -224,13 +224,13 @@ const AccountsPanel = () => {
     if (!editingId) return;
 
     try {
-      setSyncStatus('Updating user...');
+      setSyncStatus("Updating user...");
 
       const updateData: UserUpdateData = {
         id: editingId,
         ...(editForm.name && { name: editForm.name }),
         ...(editForm.email && { email: editForm.email }),
-        ...(editForm.role && { role: editForm.role as 'admin' | 'teacher' | 'staff' | 'student' }),
+        ...(editForm.role && { role: editForm.role as "admin" | "teacher" | "staff" | "student" }),
         ...(editForm.gender && { gender: editForm.gender }),
         ...(editForm.englishName && { englishName: editForm.englishName }),
         ...(editForm.dob && { dob: editForm.dob }),
@@ -244,7 +244,7 @@ const AccountsPanel = () => {
 
       const targetUser = accounts.find((acc) => acc._id === editingId);
       if (!targetUser) {
-        throw new Error('User not found');
+        throw new Error("User not found");
       }
 
       if (editForm.role && !canChangeRole(targetUser, editForm.role)) {
@@ -262,17 +262,17 @@ const AccountsPanel = () => {
                 ...editForm,
                 updatedAt: new Date().toISOString(),
               }
-            : acc
-        )
+            : acc,
+        ),
       );
 
       setEditingId(null);
       setEditForm({});
-      setSyncStatus('User updated successfully');
+      setSyncStatus("User updated successfully");
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to update user';
+      const errorMessage = err instanceof Error ? err.message : "Failed to update user";
       setError(errorMessage);
-      setSyncStatus('Failed to update user');
+      setSyncStatus("Failed to update user");
     }
   };
 
@@ -281,23 +281,23 @@ const AccountsPanel = () => {
     if (!userToDelete) return;
 
     if (!canDeleteUser(userToDelete)) {
-      alert('You do not have permission to delete this user.');
+      alert("You do not have permission to delete this user.");
       return;
     }
 
-    if (!confirm('Are you sure you want to delete this user?')) return;
+    if (!confirm("Are you sure you want to delete this user?")) return;
 
     try {
-      setSyncStatus('Deleting user...');
+      setSyncStatus("Deleting user...");
 
       await usersAPI.deleteUser(id);
 
       setAccounts((prev) => prev.filter((acc) => acc._id !== id));
-      setSyncStatus('User deleted successfully');
+      setSyncStatus("User deleted successfully");
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to delete user';
+      const errorMessage = err instanceof Error ? err.message : "Failed to delete user";
       setError(errorMessage);
-      setSyncStatus('Failed to delete user');
+      setSyncStatus("Failed to delete user");
     }
   };
 
@@ -314,20 +314,20 @@ const AccountsPanel = () => {
 
     try {
       setPasswordChanging(true);
-      setSyncStatus('Changing password...');
+      setSyncStatus("Changing password...");
 
       await usersAPI.changePassword(passwordChangeId, newPassword);
 
       setPasswordChangeId(null);
-      setNewPassword('');
+      setNewPassword("");
       setError(null);
-      setSyncStatus('Password changed successfully');
+      setSyncStatus("Password changed successfully");
 
-      alert('Password changed successfully!');
+      alert("Password changed successfully!");
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to change password';
+      const errorMessage = err instanceof Error ? err.message : "Failed to change password";
       setError(errorMessage);
-      setSyncStatus('Failed to change password');
+      setSyncStatus("Failed to change password");
     } finally {
       setPasswordChanging(false);
     }
@@ -340,11 +340,11 @@ const AccountsPanel = () => {
       account.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       account.studentCode?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesRole = filterRole === 'all' || account.role === filterRole;
+    const matchesRole = filterRole === "all" || account.role === filterRole;
 
     // Only apply status filtering when "Students" role is selected
     const matchesStatus =
-      filterRole === 'student' ? filterStatus === 'all' || account.status === filterStatus : true;
+      filterRole === "student" ? filterStatus === "all" || account.status === filterStatus : true;
 
     return matchesSearch && matchesRole && matchesStatus;
   });
@@ -364,13 +364,13 @@ const AccountsPanel = () => {
   useEffect(() => {
     if (
       syncStatus &&
-      !syncStatus.includes('Fetching') &&
-      !syncStatus.includes('Updating') &&
-      !syncStatus.includes('Deleting') &&
-      !syncStatus.includes('Changing')
+      !syncStatus.includes("Fetching") &&
+      !syncStatus.includes("Updating") &&
+      !syncStatus.includes("Deleting") &&
+      !syncStatus.includes("Changing")
     ) {
       const timer = setTimeout(() => {
-        setSyncStatus('');
+        setSyncStatus("");
       }, 3000);
       return () => clearTimeout(timer);
     }
@@ -444,7 +444,7 @@ const AccountsPanel = () => {
                   title="Filter by role"
                 >
                   <option value="all">All Roles</option>
-                  {currentUser?.role === 'admin' && (
+                  {currentUser?.role === "admin" && (
                     <>
                       <option value="admin">Admin</option>
                       <option value="teacher">Teacher</option>
@@ -452,24 +452,24 @@ const AccountsPanel = () => {
                       <option value="student">Student</option>
                     </>
                   )}
-                  {currentUser?.role === 'teacher' && (
+                  {currentUser?.role === "teacher" && (
                     <>
                       <option value="teacher">Teacher</option>
                       <option value="staff">Staff</option>
                       <option value="student">Student</option>
                     </>
                   )}
-                  {currentUser?.role === 'staff' && (
+                  {currentUser?.role === "staff" && (
                     <>
                       <option value="staff">Staff</option>
                       <option value="student">Student</option>
                     </>
                   )}
-                  {currentUser?.role === 'student' && <option value="student">Student</option>}
+                  {currentUser?.role === "student" && <option value="student">Student</option>}
                 </select>
 
                 {/* Only show status filter when "Students" role is selected */}
-                {filterRole === 'student' && (
+                {filterRole === "student" && (
                   <select
                     value={filterStatus}
                     onChange={(e) => {
@@ -502,19 +502,19 @@ const AccountsPanel = () => {
                   <div className="summary-item">
                     <span className="summary-label">Can Manage:</span>
                     <span className="summary-value">
-                      {currentUser.role === 'admin' && 'All users (Admin, Teacher, Staff, Student)'}
-                      {currentUser.role === 'teacher' && 'Staff and Students only'}
-                      {currentUser.role === 'staff' && 'Students only'}
-                      {currentUser.role === 'student' && 'No users (Read-only)'}
+                      {currentUser.role === "admin" && "All users (Admin, Teacher, Staff, Student)"}
+                      {currentUser.role === "teacher" && "Staff and Students only"}
+                      {currentUser.role === "staff" && "Students only"}
+                      {currentUser.role === "student" && "No users (Read-only)"}
                     </span>
                   </div>
                   <div className="summary-item">
                     <span className="summary-label">Can Delete:</span>
                     <span className="summary-value">
-                      {currentUser.role === 'admin' && 'All users'}
-                      {currentUser.role === 'teacher' && 'Staff and Students'}
-                      {currentUser.role === 'staff' && 'Students only'}
-                      {currentUser.role === 'student' && 'No users'}
+                      {currentUser.role === "admin" && "All users"}
+                      {currentUser.role === "teacher" && "Staff and Students"}
+                      {currentUser.role === "staff" && "Students only"}
+                      {currentUser.role === "student" && "No users"}
                     </span>
                   </div>
                 </div>
@@ -528,14 +528,14 @@ const AccountsPanel = () => {
                     <th>Role</th>
                     <th>Gender</th>
                     {/* Only show status column when filtering by students */}
-                    {filterRole === 'student' && <th>Status</th>}
+                    {filterRole === "student" && <th>Status</th>}
                     {/* Only show student code column when filtering by students */}
-                    {filterRole === 'student' && <th>Student Code</th>}
+                    {filterRole === "student" && <th>Student Code</th>}
                     <th>Phone</th>
                     {/* Only show parent's name column when filtering by students */}
-                    {filterRole === 'student' && <th>Parent's Name</th>}
+                    {filterRole === "student" && <th>Parent's Name</th>}
                     {/* Only show parent's phone column when filtering by students */}
-                    {filterRole === 'student' && <th>Parent's Phone</th>}
+                    {filterRole === "student" && <th>Parent's Phone</th>}
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -543,24 +543,24 @@ const AccountsPanel = () => {
                   {visibleAccounts.map((account) => (
                     <tr
                       key={account._id}
-                      className={!canManageUser(account) ? 'no-permission-row' : ''}
+                      className={!canManageUser(account) ? "no-permission-row" : ""}
                     >
                       <td>
                         {editingId === account._id ? (
                           <div>
                             <input
                               type="text"
-                              value={editForm.name || ''}
+                              value={editForm.name || ""}
                               onChange={(e) =>
                                 setEditForm((prev) => ({ ...prev, name: e.target.value }))
                               }
                               className="edit-input"
                               placeholder="Full Name"
-                              style={{ marginBottom: '0.25rem' }}
+                              style={{ marginBottom: "0.25rem" }}
                             />
                             <input
                               type="text"
-                              value={editForm.englishName || ''}
+                              value={editForm.englishName || ""}
                               onChange={(e) =>
                                 setEditForm((prev) => ({ ...prev, englishName: e.target.value }))
                               }
@@ -579,7 +579,7 @@ const AccountsPanel = () => {
                         {editingId === account._id ? (
                           <input
                             type="email"
-                            value={editForm.email || ''}
+                            value={editForm.email || ""}
                             onChange={(e) =>
                               setEditForm((prev) => ({ ...prev, email: e.target.value }))
                             }
@@ -592,14 +592,14 @@ const AccountsPanel = () => {
                       <td>
                         {editingId === account._id ? (
                           <select
-                            value={editForm.role || ''}
+                            value={editForm.role || ""}
                             onChange={(e) =>
                               setEditForm((prev) => ({ ...prev, role: e.target.value }))
                             }
                             className="edit-select"
-                            disabled={!canChangeRole(account, editForm.role || '')}
+                            disabled={!canChangeRole(account, editForm.role || "")}
                           >
-                            {currentUser?.role === 'admin' && (
+                            {currentUser?.role === "admin" && (
                               <>
                                 <option value="admin">Admin</option>
                                 <option value="teacher">Teacher</option>
@@ -607,16 +607,16 @@ const AccountsPanel = () => {
                                 <option value="student">Student</option>
                               </>
                             )}
-                            {currentUser?.role === 'teacher' && (
+                            {currentUser?.role === "teacher" && (
                               <>
                                 <option value="staff">Staff</option>
                                 <option value="student">Student</option>
                               </>
                             )}
-                            {currentUser?.role === 'staff' && (
+                            {currentUser?.role === "staff" && (
                               <option value="student">Student</option>
                             )}
-                            {currentUser?.role === 'student' && (
+                            {currentUser?.role === "student" && (
                               <option value="student">Student</option>
                             )}
                           </select>
@@ -627,7 +627,7 @@ const AccountsPanel = () => {
                       <td>
                         {editingId === account._id ? (
                           <select
-                            value={editForm.gender || ''}
+                            value={editForm.gender || ""}
                             onChange={(e) =>
                               setEditForm((prev) => ({ ...prev, gender: e.target.value }))
                             }
@@ -638,17 +638,17 @@ const AccountsPanel = () => {
                             <option value="other">Other</option>
                           </select>
                         ) : (
-                          account.gender || '—'
+                          account.gender || "—"
                         )}
                       </td>
                       {/* Only show status cell when filtering by students */}
-                      {filterRole === 'student' && (
+                      {filterRole === "student" && (
                         <td>
                           {/* Only show status field for students */}
-                          {account.role === 'student' ? (
+                          {account.role === "student" ? (
                             editingId === account._id ? (
                               <select
-                                value={editForm.status || ''}
+                                value={editForm.status || ""}
                                 onChange={(e) =>
                                   setEditForm((prev) => ({ ...prev, status: e.target.value }))
                                 }
@@ -662,22 +662,22 @@ const AccountsPanel = () => {
                                 <option value="alumni">Alumni</option>
                               </select>
                             ) : (
-                              account.status || '—'
+                              account.status || "—"
                             )
                           ) : (
-                            '—'
+                            "—"
                           )}
                         </td>
                       )}
                       {/* Only show student code cell when filtering by students */}
-                      {filterRole === 'student' && (
+                      {filterRole === "student" && (
                         <td>
                           {/* Only show student code field for students */}
-                          {account.role === 'student' ? (
+                          {account.role === "student" ? (
                             editingId === account._id ? (
                               <input
                                 type="text"
-                                value={editForm.studentCode || ''}
+                                value={editForm.studentCode || ""}
                                 onChange={(e) =>
                                   setEditForm((prev) => ({ ...prev, studentCode: e.target.value }))
                                 }
@@ -685,10 +685,10 @@ const AccountsPanel = () => {
                                 placeholder="SU-001"
                               />
                             ) : (
-                              account.studentCode || '—'
+                              account.studentCode || "—"
                             )
                           ) : (
-                            '—'
+                            "—"
                           )}
                         </td>
                       )}
@@ -696,57 +696,57 @@ const AccountsPanel = () => {
                         {editingId === account._id ? (
                           <input
                             type="tel"
-                            value={editForm.phone || ''}
+                            value={editForm.phone || ""}
                             onChange={(e) =>
                               setEditForm((prev) => ({ ...prev, phone: e.target.value }))
                             }
                             className="edit-input"
                           />
                         ) : (
-                          account.phone || '—'
+                          account.phone || "—"
                         )}
                       </td>
                       {/* Only show parent's name cell when filtering by students */}
-                      {filterRole === 'student' && (
+                      {filterRole === "student" && (
                         <td>
                           {/* Only show parent's name field for students */}
-                          {account.role === 'student' ? (
+                          {account.role === "student" ? (
                             editingId === account._id ? (
                               <input
                                 type="text"
-                                value={editForm.parentName || ''}
+                                value={editForm.parentName || ""}
                                 onChange={(e) =>
                                   setEditForm((prev) => ({ ...prev, parentName: e.target.value }))
                                 }
                                 className="edit-input"
                               />
                             ) : (
-                              account.parentName || '—'
+                              account.parentName || "—"
                             )
                           ) : (
-                            '—'
+                            "—"
                           )}
                         </td>
                       )}
                       {/* Only show parent's phone cell when filtering by students */}
-                      {filterRole === 'student' && (
+                      {filterRole === "student" && (
                         <td>
                           {/* Only show parent's phone field for students */}
-                          {account.role === 'student' ? (
+                          {account.role === "student" ? (
                             editingId === account._id ? (
                               <input
                                 type="tel"
-                                value={editForm.parentPhone || ''}
+                                value={editForm.parentPhone || ""}
                                 onChange={(e) =>
                                   setEditForm((prev) => ({ ...prev, parentPhone: e.target.value }))
                                 }
                                 className="edit-input"
                               />
                             ) : (
-                              account.parentPhone || '—'
+                              account.parentPhone || "—"
                             )
                           ) : (
-                            '—'
+                            "—"
                           )}
                         </td>
                       )}
@@ -835,9 +835,9 @@ const AccountsPanel = () => {
 
             {filteredAccounts.length === 0 && (
               <div className="no-data">
-                {searchTerm || filterRole !== 'all' || filterStatus !== 'all'
-                  ? 'No accounts match your search criteria.'
-                  : 'No accounts found.'}
+                {searchTerm || filterRole !== "all" || filterStatus !== "all"
+                  ? "No accounts match your search criteria."
+                  : "No accounts found."}
               </div>
             )}
           </div>
@@ -867,13 +867,13 @@ const AccountsPanel = () => {
                 disabled={passwordChanging || !newPassword || !newPassword.trim()}
                 className="btn-primary-action save-btn"
               >
-                {passwordChanging ? 'Changing...' : 'Change Password'}
+                {passwordChanging ? "Changing..." : "Change Password"}
               </button>
               <button
                 type="button"
                 onClick={() => {
                   setPasswordChangeId(null);
-                  setNewPassword('');
+                  setNewPassword("");
                 }}
                 className="btn-secondary-action cancel-btn"
               >

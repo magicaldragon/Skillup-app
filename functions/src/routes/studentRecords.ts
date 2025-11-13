@@ -1,28 +1,28 @@
 // functions/src/routes/studentRecords.ts - Student Records API Routes
-import { type Response, Router } from 'express';
-import * as admin from 'firebase-admin';
-import { type AuthenticatedRequest, requireAdmin, verifyToken } from '../middleware/auth';
+import { type Response, Router } from "express";
+import * as admin from "firebase-admin";
+import { type AuthenticatedRequest, requireAdmin, verifyToken } from "../middleware/auth";
 
 const router = Router();
 
 // Get all student records (with role-based filtering)
-router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) => {
+router.get("/", verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { role } = req.user!;
     const { studentId, classId, levelId } = req.query;
 
-    let query: any = admin.firestore().collection('studentRecords');
+    let query: any = admin.firestore().collection("studentRecords");
 
     // Role-based filtering
-    if (role === 'student') {
+    if (role === "student") {
       // Students see only their own records
-      query = query.where('studentId', '==', req.user?.userId);
-    } else if (role === 'teacher') {
+      query = query.where("studentId", "==", req.user?.userId);
+    } else if (role === "teacher") {
       // Teachers see records for classes they teach
       const teacherClasses = await admin
         .firestore()
-        .collection('classes')
-        .where('teacherId', '==', req.user?.userId)
+        .collection("classes")
+        .where("teacherId", "==", req.user?.userId)
         .get();
 
       const classIds = teacherClasses.docs.map((doc) => doc.id);
@@ -31,24 +31,24 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
         return res.json([]);
       }
 
-      query = query.where('classId', 'in', classIds);
+      query = query.where("classId", "in", classIds);
     }
     // Admin and staff see all records
 
     // Add filters if provided
-    if (studentId && role !== 'student') {
-      query = query.where('studentId', '==', studentId);
+    if (studentId && role !== "student") {
+      query = query.where("studentId", "==", studentId);
     }
 
-    if (classId && role !== 'student') {
-      query = query.where('classId', '==', classId);
+    if (classId && role !== "student") {
+      query = query.where("classId", "==", classId);
     }
 
     if (levelId) {
-      query = query.where('levelId', '==', levelId);
+      query = query.where("levelId", "==", levelId);
     }
 
-    const snapshot = await query.orderBy('createdAt', 'desc').get();
+    const snapshot = await query.orderBy("createdAt", "desc").get();
     const studentRecords = snapshot.docs.map((doc: any) => ({
       id: doc.id,
       ...doc.data(),
@@ -57,13 +57,13 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
     console.log(`Fetched ${studentRecords.length} student records for role: ${role}`);
     return res.json(studentRecords);
   } catch (error) {
-    console.error('Error fetching student records:', error);
-    return res.status(500).json({ message: 'Failed to fetch student records' });
+    console.error("Error fetching student records:", error);
+    return res.status(500).json({ message: "Failed to fetch student records" });
   }
 });
 
 // Create new student record
-router.post('/', verifyToken, requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
+router.post("/", verifyToken, requireAdmin, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const {
       studentId,
@@ -71,43 +71,43 @@ router.post('/', verifyToken, requireAdmin, async (req: AuthenticatedRequest, re
       levelId,
       enrollmentDate,
       completionDate,
-      status = 'enrolled',
+      status = "enrolled",
       grade,
       attendance,
       notes,
     } = req.body;
 
     // Validate that student exists
-    const studentDoc = await admin.firestore().collection('users').doc(studentId).get();
-    if (!studentDoc.exists || studentDoc.data()?.role !== 'student') {
+    const studentDoc = await admin.firestore().collection("users").doc(studentId).get();
+    if (!studentDoc.exists || studentDoc.data()?.role !== "student") {
       return res.status(400).json({
         success: false,
-        message: 'Student not found',
+        message: "Student not found",
       });
     }
 
     // Validate that class exists
-    const classDoc = await admin.firestore().collection('classes').doc(classId).get();
+    const classDoc = await admin.firestore().collection("classes").doc(classId).get();
     if (!classDoc.exists) {
       return res.status(400).json({
         success: false,
-        message: 'Class not found',
+        message: "Class not found",
       });
     }
 
     // Check if record already exists for this student and class
     const existingRecord = await admin
       .firestore()
-      .collection('studentRecords')
-      .where('studentId', '==', studentId)
-      .where('classId', '==', classId)
+      .collection("studentRecords")
+      .where("studentId", "==", studentId)
+      .where("classId", "==", classId)
       .limit(1)
       .get();
 
     if (!existingRecord.empty) {
       return res.status(400).json({
         success: false,
-        message: 'Student record already exists for this class',
+        message: "Student record already exists for this class",
       });
     }
 
@@ -130,86 +130,86 @@ router.post('/', verifyToken, requireAdmin, async (req: AuthenticatedRequest, re
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     };
 
-    const docRef = await admin.firestore().collection('studentRecords').add(studentRecordData);
+    const docRef = await admin.firestore().collection("studentRecords").add(studentRecordData);
     const newStudentRecord = { id: docRef.id, ...studentRecordData };
 
     return res.status(201).json({
       success: true,
-      message: 'Student record created successfully',
+      message: "Student record created successfully",
       studentRecord: newStudentRecord,
     });
   } catch (error) {
-    console.error('Error creating student record:', error);
+    console.error("Error creating student record:", error);
     return res.status(500).json({
       success: false,
-      message: 'Failed to create student record',
+      message: "Failed to create student record",
     });
   }
 });
 
 // Get student record by ID
-router.get('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response) => {
+router.get("/:id", verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
     const { role } = req.user!;
 
-    const doc = await admin.firestore().collection('studentRecords').doc(id).get();
+    const doc = await admin.firestore().collection("studentRecords").doc(id).get();
 
     if (!doc.exists) {
-      return res.status(404).json({ message: 'Student record not found' });
+      return res.status(404).json({ message: "Student record not found" });
     }
 
     const studentRecordData = doc.data()!;
 
     // Check if user has access to this student record
-    if (role === 'student' && studentRecordData.studentId !== req.user?.userId) {
-      return res.status(403).json({ message: 'Access denied' });
-    } else if (role === 'teacher') {
+    if (role === "student" && studentRecordData.studentId !== req.user?.userId) {
+      return res.status(403).json({ message: "Access denied" });
+    } else if (role === "teacher") {
       const classDoc = await admin
         .firestore()
-        .collection('classes')
+        .collection("classes")
         .doc(studentRecordData.classId)
         .get();
       if (!classDoc.exists || classDoc.data()?.teacherId !== req.user?.userId) {
-        return res.status(403).json({ message: 'Access denied' });
+        return res.status(403).json({ message: "Access denied" });
       }
     }
 
     return res.json({ id: doc.id, ...studentRecordData });
   } catch (error) {
-    console.error('Error fetching student record:', error);
-    return res.status(500).json({ message: 'Failed to fetch student record' });
+    console.error("Error fetching student record:", error);
+    return res.status(500).json({ message: "Failed to fetch student record" });
   }
 });
 
 // Update student record
-router.put('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response) => {
+router.put("/:id", verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
     const { role } = req.user!;
     const updateData = req.body;
 
-    const doc = await admin.firestore().collection('studentRecords').doc(id).get();
+    const doc = await admin.firestore().collection("studentRecords").doc(id).get();
     if (!doc.exists) {
-      return res.status(404).json({ message: 'Student record not found' });
+      return res.status(404).json({ message: "Student record not found" });
     }
 
     const studentRecordData = doc.data()!;
 
     // Check if user has access to update this student record
-    if (role === 'student' && studentRecordData.studentId !== req.user?.userId) {
-      return res.status(403).json({ message: 'Access denied' });
-    } else if (role === 'teacher') {
+    if (role === "student" && studentRecordData.studentId !== req.user?.userId) {
+      return res.status(403).json({ message: "Access denied" });
+    } else if (role === "teacher") {
       const classDoc = await admin
         .firestore()
-        .collection('classes')
+        .collection("classes")
         .doc(studentRecordData.classId)
         .get();
       if (!classDoc.exists || classDoc.data()?.teacherId !== req.user?.userId) {
-        return res.status(403).json({ message: 'Access denied' });
+        return res.status(403).json({ message: "Access denied" });
       }
-    } else if (role !== 'admin' && role !== 'staff') {
-      return res.status(403).json({ message: 'Access denied' });
+    } else if (role !== "admin" && role !== "staff") {
+      return res.status(403).json({ message: "Access denied" });
     }
 
     // Remove fields that shouldn't be updated
@@ -219,57 +219,57 @@ router.put('/:id', verifyToken, async (req: AuthenticatedRequest, res: Response)
     // Convert dates to timestamps if provided
     if (updateData.enrollmentDate) {
       updateData.enrollmentDate = admin.firestore.Timestamp.fromDate(
-        new Date(updateData.enrollmentDate)
+        new Date(updateData.enrollmentDate),
       );
     }
     if (updateData.completionDate) {
       updateData.completionDate = admin.firestore.Timestamp.fromDate(
-        new Date(updateData.completionDate)
+        new Date(updateData.completionDate),
       );
     }
 
-    await admin.firestore().collection('studentRecords').doc(id).update(updateData);
+    await admin.firestore().collection("studentRecords").doc(id).update(updateData);
 
-    return res.json({ success: true, message: 'Student record updated successfully' });
+    return res.json({ success: true, message: "Student record updated successfully" });
   } catch (error) {
-    console.error('Error updating student record:', error);
-    return res.status(500).json({ message: 'Failed to update student record' });
+    console.error("Error updating student record:", error);
+    return res.status(500).json({ message: "Failed to update student record" });
   }
 });
 
 // Delete student record
 router.delete(
-  '/:id',
+  "/:id",
   verifyToken,
   requireAdmin,
   async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { id } = req.params;
 
-      await admin.firestore().collection('studentRecords').doc(id).delete();
+      await admin.firestore().collection("studentRecords").doc(id).delete();
 
-      return res.json({ success: true, message: 'Student record deleted successfully' });
+      return res.json({ success: true, message: "Student record deleted successfully" });
     } catch (error) {
-      console.error('Error deleting student record:', error);
-      return res.status(500).json({ message: 'Failed to delete student record' });
+      console.error("Error deleting student record:", error);
+      return res.status(500).json({ message: "Failed to delete student record" });
     }
-  }
+  },
 );
 
 // Get student records for a specific student
-router.get('/student/:studentId', verifyToken, async (req: AuthenticatedRequest, res: Response) => {
+router.get("/student/:studentId", verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { studentId } = req.params;
     const { role } = req.user!;
 
     // Check if user has access to this student's records
-    if (role === 'student' && studentId !== req.user?.userId) {
-      return res.status(403).json({ message: 'Access denied' });
-    } else if (role === 'teacher') {
+    if (role === "student" && studentId !== req.user?.userId) {
+      return res.status(403).json({ message: "Access denied" });
+    } else if (role === "teacher") {
       // Check if teacher has any classes with this student
-      const studentDoc = await admin.firestore().collection('users').doc(studentId).get();
+      const studentDoc = await admin.firestore().collection("users").doc(studentId).get();
       if (!studentDoc.exists) {
-        return res.status(404).json({ message: 'Student not found' });
+        return res.status(404).json({ message: "Student not found" });
       }
 
       const studentData = studentDoc.data()!;
@@ -281,21 +281,21 @@ router.get('/student/:studentId', verifyToken, async (req: AuthenticatedRequest,
 
       const teacherClasses = await admin
         .firestore()
-        .collection('classes')
-        .where('teacherId', '==', req.user?.userId)
-        .where(admin.firestore.FieldPath.documentId(), 'in', classIds)
+        .collection("classes")
+        .where("teacherId", "==", req.user?.userId)
+        .where(admin.firestore.FieldPath.documentId(), "in", classIds)
         .get();
 
       if (teacherClasses.empty) {
-        return res.status(403).json({ message: 'Access denied' });
+        return res.status(403).json({ message: "Access denied" });
       }
     }
 
     const snapshot = await admin
       .firestore()
-      .collection('studentRecords')
-      .where('studentId', '==', studentId)
-      .orderBy('createdAt', 'desc')
+      .collection("studentRecords")
+      .where("studentId", "==", studentId)
+      .orderBy("createdAt", "desc")
       .get();
 
     const studentRecords = snapshot.docs.map((doc: any) => ({
@@ -305,41 +305,41 @@ router.get('/student/:studentId', verifyToken, async (req: AuthenticatedRequest,
 
     return res.json(studentRecords);
   } catch (error) {
-    console.error('Error fetching student records:', error);
-    return res.status(500).json({ message: 'Failed to fetch student records' });
+    console.error("Error fetching student records:", error);
+    return res.status(500).json({ message: "Failed to fetch student records" });
   }
 });
 
 // Get student records for a specific class
-router.get('/class/:classId', verifyToken, async (req: AuthenticatedRequest, res: Response) => {
+router.get("/class/:classId", verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { classId } = req.params;
     const { role } = req.user!;
 
     // Check if user has access to this class
-    if (role === 'student') {
+    if (role === "student") {
       if (!req.user?.userId) {
-        return res.status(401).json({ message: 'User ID not found' });
+        return res.status(401).json({ message: "User ID not found" });
       }
-      const userDoc = await admin.firestore().collection('users').doc(req.user.userId).get();
+      const userDoc = await admin.firestore().collection("users").doc(req.user.userId).get();
       const userData = userDoc.data();
       const classIds = userData?.classIds || [];
 
       if (!classIds.includes(classId)) {
-        return res.status(403).json({ message: 'Access denied' });
+        return res.status(403).json({ message: "Access denied" });
       }
-    } else if (role === 'teacher') {
-      const classDoc = await admin.firestore().collection('classes').doc(classId).get();
+    } else if (role === "teacher") {
+      const classDoc = await admin.firestore().collection("classes").doc(classId).get();
       if (!classDoc.exists || classDoc.data()?.teacherId !== req.user?.userId) {
-        return res.status(403).json({ message: 'Access denied' });
+        return res.status(403).json({ message: "Access denied" });
       }
     }
 
     const snapshot = await admin
       .firestore()
-      .collection('studentRecords')
-      .where('classId', '==', classId)
-      .orderBy('createdAt', 'desc')
+      .collection("studentRecords")
+      .where("classId", "==", classId)
+      .orderBy("createdAt", "desc")
       .get();
 
     const studentRecords = snapshot.docs.map((doc: any) => ({
@@ -349,8 +349,8 @@ router.get('/class/:classId', verifyToken, async (req: AuthenticatedRequest, res
 
     return res.json(studentRecords);
   } catch (error) {
-    console.error('Error fetching class student records:', error);
-    return res.status(500).json({ message: 'Failed to fetch class student records' });
+    console.error("Error fetching class student records:", error);
+    return res.status(500).json({ message: "Failed to fetch class student records" });
   }
 });
 

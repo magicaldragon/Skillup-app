@@ -1,20 +1,20 @@
 // AdminDashboard.tsx
 // Professional admin dashboard with system overview, user management, and administrative controls
 
-import AccountsPanel from './AccountsPanel';
-import AddNewMembers from './AddNewMembers';
-import ChangeLogPanel from './ChangeLogPanel';
-import ClassesPanel from './ClassesPanel';
-import LevelsPanel from './LevelsPanel';
-import PotentialStudentsPanel from './PotentialStudentsPanel';
+import AccountsPanel from "./AccountsPanel";
+import AddNewMembers from "./AddNewMembers";
+import ChangeLogPanel from "./ChangeLogPanel";
+import ClassesPanel from "./ClassesPanel";
+import LevelsPanel from "./LevelsPanel";
+import PotentialStudentsPanel from "./PotentialStudentsPanel";
 
-import RecordsPanel from './RecordsPanel';
-import SettingsPanel from './SettingsPanel';
-import type { Assignment, Student, StudentClass } from './types';
-import WaitingListPanel from './WaitingListPanel';
-import './AdminDashboard.css';
-import AttendancePanel from './AttendancePanel';
-import SchoolFeePanel from './SchoolFeePanel';
+import RecordsPanel from "./RecordsPanel";
+import SettingsPanel from "./SettingsPanel";
+import type { Assignment, Student, StudentClass } from "./types";
+import WaitingListPanel from "./WaitingListPanel";
+import "./AdminDashboard.css";
+import AttendancePanel from "./AttendancePanel";
+import SchoolFeePanel from "./SchoolFeePanel";
 
 // Define proper props interface
 interface AdminDashboardProps {
@@ -38,9 +38,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
 }: AdminDashboardProps) => {
   // Use isAdmin to conditionally render admin-specific features
   // Use isAdmin to conditionally render admin-specific features
-  const totalStudents = students.filter((s) => s && s.role === 'student').length;
-  const totalTeachers = students.filter((s) => s && s.role === 'teacher').length;
-  const totalStaff = students.filter((s) => s && s.role === 'staff').length;
+  const totalStudents = students.filter((s) => s && s.role === "student").length;
+  const totalTeachers = students.filter((s) => s && s.role === "teacher").length;
+  const totalStaff = students.filter((s) => s && s.role === "staff").length;
   const totalAssignments = assignments.filter((a) => a?.id).length; // Count valid assignments
   const totalClasses = classes.filter((c) => c?.id).length; // Count valid classes
 
@@ -50,12 +50,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
   return (
     <div className="admin-dashboard">
       {/* Show avatar at the top of the dashboard */}
-      {activeKey === undefined || activeKey === '' ? (
+      {activeKey === undefined || activeKey === "" ? (
         <div className="admin-dashboard-header">
           <div className="admin-dashboard-user-info">
             <div className="admin-dashboard-avatar">
               <div className="w-24 h-24 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 text-2xl font-bold">
-                {user.name?.charAt(0) || user.email?.charAt(0) || 'A'}
+                {user.name?.charAt(0) || user.email?.charAt(0) || "A"}
               </div>
             </div>
           </div>
@@ -70,66 +70,66 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
       )}
 
       {/* Management Submenu Items */}
-      {activeKey === 'add-student' ? (
+      {activeKey === "add-student" ? (
         <AddNewMembers />
-      ) : activeKey === 'potential-students' ? (
+      ) : activeKey === "potential-students" ? (
         <PotentialStudentsPanel
           classes={classes}
           currentUser={user}
           onDataRefresh={onDataRefresh}
         />
-      ) : activeKey === 'waiting-list' ? (
+      ) : activeKey === "waiting-list" ? (
         <WaitingListPanel classes={classes} onDataRefresh={onDataRefresh} />
-      ) : activeKey === 'classes' ? (
+      ) : activeKey === "classes" ? (
         <ClassesPanel students={students} classes={classes} onDataRefresh={onDataRefresh} />
-      ) : activeKey === 'attendance' ? (
+      ) : activeKey === "attendance" ? (
         <AttendancePanel students={students} classes={classes} onDataRefresh={onDataRefresh} />
-      ) : activeKey === 'school-fee' ? (
+      ) : activeKey === "school-fee" ? (
         <SchoolFeePanel students={students} classes={classes} onDataRefresh={onDataRefresh} />
-      ) : activeKey === 'levels' ? (
+      ) : activeKey === "levels" ? (
         <LevelsPanel onDataRefresh={onDataRefresh} />
-      ) : activeKey === 'records' ? (
+      ) : activeKey === "records" ? (
         <RecordsPanel />
-      ) : activeKey === 'accounts' ? (
+      ) : activeKey === "accounts" ? (
         <AccountsPanel />
-      ) : activeKey === 'assignments' ? (
+      ) : activeKey === "assignments" ? (
         <div className="admin-dashboard-content">
           <div className="admin-dashboard-welcome">
             <h1 className="admin-dashboard-title">Assignments</h1>
             <p className="admin-dashboard-subtitle">This section will be rebuilt later</p>
           </div>
         </div>
-      ) : activeKey === 'assignment-create' ? (
+      ) : activeKey === "assignment-create" ? (
         <div className="admin-dashboard-content">
           <div className="admin-dashboard-welcome">
             <h1 className="admin-dashboard-title">Create Assignment</h1>
             <p className="admin-dashboard-subtitle">This section will be rebuilt later</p>
           </div>
         </div>
-      ) : activeKey === 'submission-grading' ? (
+      ) : activeKey === "submission-grading" ? (
         <div className="admin-dashboard-content">
           <div className="admin-dashboard-welcome">
             <h1 className="admin-dashboard-title">Submission Grading</h1>
             <p className="admin-dashboard-subtitle">This section will be rebuilt later</p>
           </div>
         </div>
-      ) : activeKey === 'submissions' ? (
+      ) : activeKey === "submissions" ? (
         <div className="admin-dashboard-content">
           <div className="admin-dashboard-welcome">
             <h1 className="admin-dashboard-title">Submissions</h1>
             <p className="admin-dashboard-subtitle">This section will be rebuilt later</p>
           </div>
         </div>
-      ) : activeKey === 'settings' ? (
+      ) : activeKey === "settings" ? (
         <SettingsPanel currentUser={user} classes={classes} onDataRefresh={onDataRefresh} />
-      ) : activeKey === 'changelog' ? (
+      ) : activeKey === "changelog" ? (
         <ChangeLogPanel />
       ) : (
         // Default admin dashboard view
         <div className="admin-dashboard-content">
           <div className="admin-dashboard-welcome">
             <h1 className="admin-dashboard-title">
-              Welcome back, {user.englishName || user.name || 'Admin'}!
+              Welcome back, {user.englishName || user.name || "Admin"}!
             </h1>
             <p className="admin-dashboard-subtitle">
               Here's your system administration dashboard overview

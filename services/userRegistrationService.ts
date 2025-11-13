@@ -1,21 +1,21 @@
 // services/userRegistrationService.ts - User Registration Service
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../frontend/services/firebase';
-import type { Student } from '../types';
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../frontend/services/firebase";
+import type { Student } from "../types";
 
-const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL || '/api';
+const API_BASE_URL = import.meta.env?.VITE_API_BASE_URL || "/api";
 
 // Ensure consistent URL format (remove trailing slash if present)
-const normalizeUrl = (url: string) => url.replace(/\/$/, '');
+const normalizeUrl = (url: string) => url.replace(/\/$/, "");
 
 export interface NewUserData {
   name: string;
-  role: 'admin' | 'teacher' | 'student';
+  role: "admin" | "teacher" | "student";
   email?: string;
   phone?: string;
   englishName?: string;
   dob?: string;
-  gender?: 'male' | 'female' | 'other';
+  gender?: "male" | "female" | "other";
   note?: string;
   username?: string;
   parentName?: string;
@@ -42,12 +42,12 @@ class UserRegistrationService {
   // Generate username from full name
   private async generateUsername(fullname: string): Promise<string> {
     // Remove special characters and convert to lowercase
-    const cleanName = (fullname || '')
+    const cleanName = (fullname || "")
       .toString()
       .trim()
       .toLowerCase()
-      .replace(/[^a-z0-9\s]/g, '')
-      .replace(/\s+/g, '');
+      .replace(/[^a-z0-9\s]/g, "")
+      .replace(/\s+/g, "");
 
     // Generate base username (no role prefix, just clean name)
     let username = cleanName;
@@ -64,23 +64,23 @@ class UserRegistrationService {
 
   // Generate email based on username and role
   private generateEmail(username: string, role: string): string {
-    let domain = 'teacher.skillup'; // default
+    let domain = "teacher.skillup"; // default
 
     switch (role) {
-      case 'student':
-        domain = 'student.skillup';
+      case "student":
+        domain = "student.skillup";
         break;
-      case 'teacher':
-        domain = 'teacher.skillup';
+      case "teacher":
+        domain = "teacher.skillup";
         break;
-      case 'staff':
-        domain = 'staff.skillup';
+      case "staff":
+        domain = "staff.skillup";
         break;
-      case 'admin':
-        domain = 'admin.skillup';
+      case "admin":
+        domain = "admin.skillup";
         break;
       default:
-        domain = 'teacher.skillup';
+        domain = "teacher.skillup";
     }
 
     return `${username}@${domain}`;
@@ -88,7 +88,7 @@ class UserRegistrationService {
 
   // Generate default password based on role
   private generatePassword(role: string): string {
-    return role === 'student' ? 'Skillup123' : 'Skillup@123';
+    return role === "student" ? "Skillup123" : "Skillup@123";
   }
 
   // Create user in Firebase Auth
@@ -97,8 +97,8 @@ class UserRegistrationService {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       return userCredential.user.uid;
     } catch (error: unknown) {
-      console.error('Firebase user creation error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      console.error("Firebase user creation error:", error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
       throw new Error(`Failed to create Firebase user: ${errorMessage}`);
     }
   }
@@ -109,13 +109,13 @@ class UserRegistrationService {
       const response = await fetch(
         `${normalizeUrl(API_BASE_URL)}/users/check-username/${encodeURIComponent(username)}`,
         {
-          credentials: 'include',
-        }
+          credentials: "include",
+        },
       );
       const data = await response.json();
       return data.exists || false;
     } catch (error) {
-      console.error('Check username exists error:', error);
+      console.error("Check username exists error:", error);
       return false;
     }
   }
@@ -124,7 +124,7 @@ class UserRegistrationService {
   private async getAuthToken(): Promise<string> {
     const user = auth.currentUser;
     if (!user) {
-      throw new Error('No authenticated user');
+      throw new Error("No authenticated user");
     }
     return await user.getIdToken();
   }
@@ -143,9 +143,9 @@ class UserRegistrationService {
       // Step 3: Create user in Firestore via API
       const token = await this.getAuthToken();
       const response = await fetch(`${normalizeUrl(API_BASE_URL)}/users`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
@@ -161,7 +161,7 @@ class UserRegistrationService {
           note: userData.note,
           parentName: userData.parentName,
           parentPhone: userData.parentPhone,
-          status: userData.status || 'active',
+          status: userData.status || "active",
         }),
       });
 
@@ -169,26 +169,26 @@ class UserRegistrationService {
       try {
         data = JSON.parse(await response.text());
       } catch (_parseError) {
-        throw new Error('Invalid response from backend');
+        throw new Error("Invalid response from backend");
       }
 
-      if (!data || typeof data !== 'object' || !('success' in data)) {
-        throw new Error('Invalid response from backend for user creation');
+      if (!data || typeof data !== "object" || !("success" in data)) {
+        throw new Error("Invalid response from backend for user creation");
       }
 
       const responseData = data as { success: boolean; message?: string; user?: Student };
 
       if (!responseData.success) {
-        throw new Error(responseData.message || 'Failed to create user in backend');
+        throw new Error(responseData.message || "Failed to create user in backend");
       }
 
       if (!responseData.user) {
-        throw new Error('Failed to create user in backend');
+        throw new Error("Failed to create user in backend");
       }
 
       return {
         success: true,
-        message: 'User registered successfully',
+        message: "User registered successfully",
         user: {
           id: responseData.user.id,
           name: responseData.user.name,
@@ -201,10 +201,10 @@ class UserRegistrationService {
         },
       };
     } catch (error: unknown) {
-      console.error('Registration error:', error);
+      console.error("Registration error:", error);
       return {
         success: false,
-        message: (error as Error).message || 'Failed to register user',
+        message: (error as Error).message || "Failed to register user",
       };
     }
   }
@@ -219,13 +219,13 @@ class UserRegistrationService {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       const data = await response.json();
       return data.exists || false;
     } catch (error) {
-      console.error('Check user exists error:', error);
+      console.error("Check user exists error:", error);
       return false;
     }
   }
@@ -240,13 +240,13 @@ class UserRegistrationService {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       const data = await response.json();
       return data.exists || false;
     } catch (error) {
-      console.error('Check email exists error:', error);
+      console.error("Check email exists error:", error);
       return false;
     }
   }
@@ -254,7 +254,7 @@ class UserRegistrationService {
   // Check if username or email exists
   async checkUsernameOrEmailExists(username: string, role: string): Promise<boolean> {
     // Generate email from username and role for checking
-    const email = username.includes('@') ? username : this.generateEmail(username, role);
+    const email = username.includes("@") ? username : this.generateEmail(username, role);
 
     // Check both username and email
     const [usernameExists, emailExists] = await Promise.all([
@@ -276,13 +276,13 @@ class UserRegistrationService {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch users');
+        throw new Error("Failed to fetch users");
       }
 
       const data = await response.json();
       return data.users || [];
     } catch (error) {
-      console.error('Get all users error:', error);
+      console.error("Get all users error:", error);
       return [];
     }
   }

@@ -1,20 +1,20 @@
-import { useEffect, useState } from 'react';
-import type { Assignment, Student, Submission } from './types';
-import { formatDateMMDDYYYY } from './utils/stringUtils';
+import { useEffect, useState } from "react";
+import type { Assignment, Student, Submission } from "./types";
+import { formatDateMMDDYYYY } from "./utils/stringUtils";
 
 const StudentScoresFeedbackPanel = ({ user }: { user: Student }) => {
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
-  const [typeFilter, setTypeFilter] = useState('');
-  const [search, setSearch] = useState('');
-  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
+  const [typeFilter, setTypeFilter] = useState("");
+  const [search, setSearch] = useState("");
+  const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       const [assignRes, subRes] = await Promise.all([
-        fetch('/api/assignments'),
-        fetch('/api/submissions'),
+        fetch("/api/assignments"),
+        fetch("/api/submissions"),
       ]);
       const assignData = await assignRes.json();
       setAssignments(assignData.assignments || []);
@@ -31,20 +31,20 @@ const StudentScoresFeedbackPanel = ({ user }: { user: Student }) => {
       const a = assignments.find((a) => a.id === sub.assignmentId);
       return {
         ...sub,
-        assignmentTitle: a?.title || '',
-        assignmentType: a?.skill || '',
-        date: a?.dueDate || '',
+        assignmentTitle: a?.title || "",
+        assignmentType: a?.skill || "",
+        date: a?.dueDate || "",
       };
     })
     .filter(
       (row) =>
         (!typeFilter || row.assignmentType === typeFilter) &&
-        (!search || row.assignmentTitle.toLowerCase().includes(search.toLowerCase()))
+        (!search || row.assignmentTitle.toLowerCase().includes(search.toLowerCase())),
     )
     .sort((a, b) =>
-      sortOrder === 'newest'
-        ? (b.date || '').localeCompare(a.date || '')
-        : (a.date || '').localeCompare(b.date || '')
+      sortOrder === "newest"
+        ? (b.date || "").localeCompare(a.date || "")
+        : (a.date || "").localeCompare(b.date || ""),
     );
 
   const uniqueTypes = Array.from(new Set(assignments.map((a) => a.skill)));
@@ -76,7 +76,7 @@ const StudentScoresFeedbackPanel = ({ user }: { user: Student }) => {
         <select
           className="p-2 border rounded"
           value={sortOrder}
-          onChange={(e) => setSortOrder(e.target.value as 'newest' | 'oldest')}
+          onChange={(e) => setSortOrder(e.target.value as "newest" | "oldest")}
         >
           <option value="newest">Newest to Oldest</option>
           <option value="oldest">Oldest to Newest</option>
@@ -105,9 +105,9 @@ const StudentScoresFeedbackPanel = ({ user }: { user: Student }) => {
               <tr key={row.id} className="hover:bg-slate-100 transition">
                 <td className="p-2 font-semibold">{row.assignmentTitle}</td>
                 <td className="p-2">{row.assignmentType}</td>
-                <td className="p-2">{typeof row.score === 'number' ? row.score : '-'}</td>
-                <td className="p-2">{row.feedback || '-'}</td>
-                <td className="p-2">{row.date ? formatDateMMDDYYYY(row.date) : '-'}</td>
+                <td className="p-2">{typeof row.score === "number" ? row.score : "-"}</td>
+                <td className="p-2">{row.feedback || "-"}</td>
+                <td className="p-2">{row.date ? formatDateMMDDYYYY(row.date) : "-"}</td>
               </tr>
             ))}
           </tbody>

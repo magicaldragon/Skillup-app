@@ -1,17 +1,19 @@
 #!/usr/bin/env node
-const fs = require('fs');
+const fs = require("node:fs");
 
-const [, , reportPath, thresholdStr = '20'] = process.argv;
+const [, , reportPath, thresholdStr = "20"] = process.argv;
 const threshold = Number.parseInt(thresholdStr, 10);
 
 if (!reportPath || Number.isNaN(threshold)) {
-  console.error('[BiomeThreshold] Usage: node scripts/biomeThreshold.cjs <report.json> <threshold>');
+  console.error(
+    "[BiomeThreshold] Usage: node scripts/biomeThreshold.cjs <report.json> <threshold>",
+  );
   process.exit(2);
 }
 
 let json;
 try {
-  json = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+  json = JSON.parse(fs.readFileSync(reportPath, "utf8"));
 } catch (e) {
   console.error(`[BiomeThreshold] Failed to read or parse report: ${reportPath}`);
   console.error(e);
@@ -26,9 +28,9 @@ function walk(node) {
     node.forEach(walk);
     return;
   }
-  if (node && typeof node === 'object') {
-    if (node.severity === 'error') errors += 1;
-    else if (node.severity === 'warning') warnings += 1;
+  if (node && typeof node === "object") {
+    if (node.severity === "error") errors += 1;
+    else if (node.severity === "warning") warnings += 1;
     Object.values(node).forEach(walk);
   }
 }
@@ -42,5 +44,5 @@ if (errors > threshold) {
   process.exit(1);
 }
 
-console.log('[BiomeThreshold] Passed: error count within threshold.');
+console.log("[BiomeThreshold] Passed: error count within threshold.");
 process.exit(0);

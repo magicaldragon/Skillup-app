@@ -1,12 +1,12 @@
 // LevelsPanel.tsx
 // Professional panel to show and manage levels (starters, movers, flyers, ket, pet, ielts, ...)
 // [NOTE] Created as part of 2024-05-XX dashboard refactor
-import React, { useState } from 'react';
-import { ICONS, LEVELS } from './constants';
-import type { Level, StudentClass } from './types';
+import React, { useState } from "react";
+import { ICONS, LEVELS } from "./constants";
+import type { Level, StudentClass } from "./types";
 
-import './LevelsPanel.css';
-import './ManagementTableStyles.css';
+import "./LevelsPanel.css";
+import "./ManagementTableStyles.css";
 
 const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
   const [levels, setLevels] = useState<Level[]>([]);
@@ -16,14 +16,14 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
   const [selectedLevel, setSelectedLevel] = useState<Level | null>(null);
   const [editingLevel, setEditingLevel] = useState<Level | null>(null);
   const [newLevel, setNewLevel] = useState({
-    name: '',
-    code: '',
-    description: '',
+    name: "",
+    code: "",
+    description: "",
   });
   const [editLevel, setEditLevel] = useState({
-    name: '',
-    code: '',
-    description: '',
+    name: "",
+    code: "",
+    description: "",
   });
 
   // Fetch levels from backend on mount
@@ -32,14 +32,14 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
     const fetchLevels = async () => {
       try {
         // Get token from localStorage
-        const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-        const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+        const token = localStorage.getItem("skillup_token") || localStorage.getItem("authToken");
+        const apiUrl = import.meta.env.VITE_API_BASE_URL || "/api";
 
         const res = await fetch(`${apiUrl}/levels`, {
-          credentials: 'include',
+          credentials: "include",
           headers: {
-            'Content-Type': 'application/json',
-            Authorization: token ? `Bearer ${token}` : '',
+            "Content-Type": "application/json",
+            Authorization: token ? `Bearer ${token}` : "",
           },
         });
         if (!res.ok) {
@@ -48,7 +48,7 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
         const data = await res.json();
         setLevels(data.levels || []);
       } catch (error) {
-        console.error('Error fetching levels:', error);
+        console.error("Error fetching levels:", error);
         setLevels([]);
       } finally {
         setLoading(false);
@@ -61,30 +61,30 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
   React.useEffect(() => {
     const fetchClasses = async () => {
       try {
-        console.log('Fetching classes for levels...');
+        console.log("Fetching classes for levels...");
         // Get token from localStorage
-        const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-        const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+        const token = localStorage.getItem("skillup_token") || localStorage.getItem("authToken");
+        const apiUrl = import.meta.env.VITE_API_BASE_URL || "/api";
 
         const res = await fetch(`${apiUrl}/classes`, {
-          credentials: 'include',
+          credentials: "include",
           headers: {
-            'Content-Type': 'application/json',
-            Authorization: token ? `Bearer ${token}` : '',
+            "Content-Type": "application/json",
+            Authorization: token ? `Bearer ${token}` : "",
           },
         });
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);
         }
         const data = await res.json();
-        console.log('Classes data received:', data.classes);
+        console.log("Classes data received:", data.classes);
 
         // Group classes by level
         const classesByLevelMap: { [level: string]: StudentClass[] } = {};
         (data.classes || []).forEach((cls: StudentClass) => {
           // Handle both populated levelId object and string levelId
           const levelId = cls.levelId
-            ? typeof cls.levelId === 'object'
+            ? typeof cls.levelId === "object"
               ? cls.levelId._id
               : cls.levelId
             : null;
@@ -100,10 +100,10 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
           }
         });
 
-        console.log('Classes grouped by level:', classesByLevelMap);
+        console.log("Classes grouped by level:", classesByLevelMap);
         setClassesByLevel(classesByLevelMap);
       } catch (error) {
-        console.error('Error fetching classes:', error);
+        console.error("Error fetching classes:", error);
         setClassesByLevel({});
       }
     };
@@ -115,14 +115,14 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
     try {
       setLoading(true);
       // Fetch levels first, then classes will be fetched automatically
-      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+      const token = localStorage.getItem("skillup_token") || localStorage.getItem("authToken");
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || "/api";
 
       const res = await fetch(`${apiUrl}/levels`, {
-        credentials: 'include',
+        credentials: "include",
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: token ? `Bearer ${token}` : '',
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
         },
       });
       if (!res.ok) {
@@ -133,7 +133,7 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
 
       // Classes will be fetched automatically due to the useEffect dependency
     } catch (error) {
-      console.error('Error refreshing data:', error);
+      console.error("Error refreshing data:", error);
     } finally {
       setLoading(false);
     }
@@ -141,29 +141,30 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
 
   // Add new level
   const handleAddLevel = async () => {
-    const name = (newLevel.name || '').toString().trim();
-    const code = (newLevel.code || '').toString().trim();
-    const description = (newLevel.description || '').toString().trim();
+    const name = (newLevel.name || "").toString().trim();
+    const code = (newLevel.code || "").toString().trim();
+    const description = (newLevel.description || "").toString().trim();
 
     if (!name || !code) {
-      alert('Level name and code are required');
+      alert("Level name and code are required");
       return;
     }
 
     if (
       levels.some(
         (l) =>
-          l.name.toUpperCase() === name.toUpperCase() || l.code.toUpperCase() === code.toUpperCase()
+          l.name.toUpperCase() === name.toUpperCase() ||
+          l.code.toUpperCase() === code.toUpperCase(),
       )
     ) {
-      alert('Level name or code already exists');
+      alert("Level name or code already exists");
       return;
     }
 
     setLoading(true);
     try {
-      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+      const token = localStorage.getItem("skillup_token") || localStorage.getItem("authToken");
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || "/api";
 
       const levelData = {
         name,
@@ -173,27 +174,27 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
         order: levels.length + 1, // Add order field
       };
 
-      console.log('Creating level with data:', levelData);
+      console.log("Creating level with data:", levelData);
 
       const res = await fetch(`${apiUrl}/levels`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: token ? `Bearer ${token}` : '',
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
         },
-        credentials: 'include',
+        credentials: "include",
         body: JSON.stringify(levelData),
       });
 
-      console.log('Level creation response status:', res.status);
+      console.log("Level creation response status:", res.status);
 
       if (!res.ok) {
-        const errorData = await res.json().catch(() => ({ message: 'Failed to create level' }));
+        const errorData = await res.json().catch(() => ({ message: "Failed to create level" }));
         throw new Error(errorData.message || `HTTP error! status: ${res.status}`);
       }
 
       const data = await res.json();
-      console.log('Level creation response:', data);
+      console.log("Level creation response:", data);
 
       if (data.success) {
         const newLevelData = {
@@ -202,19 +203,19 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
           id: data.level.id || data.level._id,
         };
         setLevels((prev) => [...prev, newLevelData]);
-        setNewLevel({ name: '', code: '', description: '' });
+        setNewLevel({ name: "", code: "", description: "" });
         setShowAddForm(false);
         onDataRefresh?.();
-        alert('Level created successfully!');
+        alert("Level created successfully!");
 
         // Dispatch event to notify other components
-        window.dispatchEvent(new CustomEvent('levelUpdated'));
+        window.dispatchEvent(new CustomEvent("levelUpdated"));
       } else {
-        alert(data.message || 'Failed to add level');
+        alert(data.message || "Failed to add level");
       }
     } catch (error) {
-      console.error('Error adding level:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error("Error adding level:", error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       alert(`Failed to add level: ${errorMessage}`);
     } finally {
       setLoading(false);
@@ -225,12 +226,12 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
   const handleUpdateLevel = async () => {
     if (!editingLevel) return;
 
-    const name = (editLevel.name || '').toString().trim();
-    const code = (editLevel.code || '').toString().trim();
-    const description = (editLevel.description || '').toString().trim();
+    const name = (editLevel.name || "").toString().trim();
+    const code = (editLevel.code || "").toString().trim();
+    const description = (editLevel.description || "").toString().trim();
 
     if (!name || !code) {
-      alert('Level name and code are required');
+      alert("Level name and code are required");
       return;
     }
 
@@ -240,17 +241,17 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
         (l) =>
           l._id !== editingLevel._id &&
           (l.name.toUpperCase() === name.toUpperCase() ||
-            l.code.toUpperCase() === code.toUpperCase())
+            l.code.toUpperCase() === code.toUpperCase()),
       )
     ) {
-      alert('Level name or code already exists');
+      alert("Level name or code already exists");
       return;
     }
 
     setLoading(true);
     try {
-      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+      const token = localStorage.getItem("skillup_token") || localStorage.getItem("authToken");
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || "/api";
 
       const updateData = {
         name,
@@ -259,26 +260,26 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
         isActive: true,
       };
 
-      console.log('Updating level with data:', updateData);
+      console.log("Updating level with data:", updateData);
 
       const res = await fetch(`${apiUrl}/levels/${editingLevel._id}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: token ? `Bearer ${token}` : '',
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
         },
         body: JSON.stringify(updateData),
       });
 
-      console.log('Level update response status:', res.status);
+      console.log("Level update response status:", res.status);
 
       if (!res.ok) {
-        const errorData = await res.json().catch(() => ({ message: 'Failed to update level' }));
+        const errorData = await res.json().catch(() => ({ message: "Failed to update level" }));
         throw new Error(errorData.message || `HTTP error! status: ${res.status}`);
       }
 
       const data = await res.json();
-      console.log('Level update response:', data);
+      console.log("Level update response:", data);
 
       if (data.success) {
         const updatedLevelData = {
@@ -289,18 +290,18 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
         };
         setLevels((prev) => prev.map((l) => (l._id === editingLevel._id ? updatedLevelData : l)));
         setEditingLevel(null);
-        setEditLevel({ name: '', code: '', description: '' });
+        setEditLevel({ name: "", code: "", description: "" });
         onDataRefresh?.();
-        alert('Level updated successfully!');
+        alert("Level updated successfully!");
 
         // Dispatch event to notify other components
-        window.dispatchEvent(new CustomEvent('levelUpdated'));
+        window.dispatchEvent(new CustomEvent("levelUpdated"));
       } else {
-        alert(data.message || 'Failed to update level');
+        alert(data.message || "Failed to update level");
       }
     } catch (error: unknown) {
-      console.error('Error updating level:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error("Error updating level:", error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       alert(`Failed to update level: ${errorMessage}`);
     } finally {
       setLoading(false);
@@ -309,25 +310,25 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
 
   // Delete level
   const handleDeleteLevel = async (levelId: string) => {
-    if (!confirm('Are you sure you want to delete this level? This action cannot be undone.')) {
+    if (!confirm("Are you sure you want to delete this level? This action cannot be undone.")) {
       return;
     }
 
     setLoading(true);
     try {
-      const token = localStorage.getItem('skillup_token') || localStorage.getItem('authToken');
-      const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+      const token = localStorage.getItem("skillup_token") || localStorage.getItem("authToken");
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || "/api";
 
       const res = await fetch(`${apiUrl}/levels/${levelId}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: token ? `Bearer ${token}` : '',
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
         },
       });
 
       if (!res.ok) {
-        const errorData = await res.json().catch(() => ({ message: 'Failed to delete level' }));
+        const errorData = await res.json().catch(() => ({ message: "Failed to delete level" }));
         throw new Error(errorData.message || `HTTP error! status: ${res.status}`);
       }
 
@@ -336,16 +337,16 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
         setLevels((prev) => prev.filter((l) => l._id !== levelId));
         setSelectedLevel(null);
         onDataRefresh?.();
-        alert('Level deleted successfully!');
+        alert("Level deleted successfully!");
 
         // Dispatch event to notify other components
-        window.dispatchEvent(new CustomEvent('levelUpdated'));
+        window.dispatchEvent(new CustomEvent("levelUpdated"));
       } else {
-        alert(data.message || 'Failed to delete level');
+        alert(data.message || "Failed to delete level");
       }
     } catch (error: unknown) {
-      console.error('Error deleting level:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error("Error deleting level:", error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       alert(`Failed to delete level: ${errorMessage}`);
     } finally {
       setLoading(false);
@@ -358,14 +359,14 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
     setEditLevel({
       name: level.name,
       code: level.code,
-      description: level.description || '',
+      description: level.description || "",
     });
   };
 
   // Cancel editing
   const handleCancelEdit = () => {
     setEditingLevel(null);
-    setEditLevel({ name: '', code: '', description: '' });
+    setEditLevel({ name: "", code: "", description: "" });
   };
 
   // Level color classes are no longer used with unified dashboard styling
@@ -394,25 +395,25 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
   // Handle ESC key press
   React.useEffect(() => {
     const handleEscKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
+      if (event.key === "Escape") {
         setSelectedLevel(null);
         setEditingLevel(null);
       }
     };
 
     if (selectedLevel || editingLevel) {
-      document.addEventListener('keydown', handleEscKey);
+      document.addEventListener("keydown", handleEscKey);
     }
 
     return () => {
-      document.removeEventListener('keydown', handleEscKey);
+      document.removeEventListener("keydown", handleEscKey);
     };
   }, [selectedLevel, editingLevel]);
 
   // Use backend levels if available, otherwise fall back to constants
   const displayLevels = (levels.length > 0 ? levels : LEVELS)
     .slice()
-    .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
+    .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
 
   if (loading) {
     return (
@@ -500,14 +501,14 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
               onClick={handleAddLevel}
               disabled={loading || !newLevel.name || !newLevel.code}
             >
-              {loading ? 'Adding...' : 'Add Level'}
+              {loading ? "Adding..." : "Add Level"}
             </button>
             <button
               type="button"
               className="levels-form-cancel-btn"
               onClick={() => {
                 setShowAddForm(false);
-                setNewLevel({ name: '', code: '', description: '' });
+                setNewLevel({ name: "", code: "", description: "" });
               }}
               disabled={loading}
             >
@@ -556,7 +557,7 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
               />
             </div>
           </div>
-          // LevelsPanel component (Edit Level form actions)
+          {/* LevelsPanel component (Edit Level form actions) */}
           <div className="levels-form-actions">
             <button
               type="button"
@@ -564,7 +565,7 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
               onClick={handleUpdateLevel}
               disabled={loading || !editLevel.name || !editLevel.code}
             >
-              {loading ? 'Updating...' : 'Update Level'}
+              {loading ? "Updating..." : "Update Level"}
             </button>
             <button
               type="button"
@@ -631,8 +632,8 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
                   <span className="level-expanded-class-count">
                     {classesByLevel[selectedLevel._id] &&
                     classesByLevel[selectedLevel._id].length > 0
-                      ? `${classesByLevel[selectedLevel._id].length} class${classesByLevel[selectedLevel._id].length !== 1 ? 'es' : ''}`
-                      : 'EMPTY'}
+                      ? `${classesByLevel[selectedLevel._id].length} class${classesByLevel[selectedLevel._id].length !== 1 ? "es" : ""}`
+                      : "EMPTY"}
                   </span>
                 </div>
               </div>
@@ -647,13 +648,13 @@ const LevelsPanel = ({ onDataRefresh }: { onDataRefresh?: () => void }) => {
               {classesByLevel[selectedLevel._id] && classesByLevel[selectedLevel._id].length > 0 ? (
                 <div className="level-expanded-classes-list">
                   {classesByLevel[selectedLevel._id].map((cls: StudentClass) => {
-                    const classCode = cls.classCode || cls.name || 'Unnamed Class';
+                    const classCode = cls.classCode || cls.name || "Unnamed Class";
                     const studentCount = cls.studentIds?.length || 0;
                     const levelName = cls.levelId
-                      ? typeof cls.levelId === 'object'
+                      ? typeof cls.levelId === "object"
                         ? cls.levelId.name
-                        : 'N/A'
-                      : 'N/A';
+                        : "N/A"
+                      : "N/A";
 
                     return (
                       <div key={cls._id || cls.id} className="level-expanded-class-item">

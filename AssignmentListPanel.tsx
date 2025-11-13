@@ -5,9 +5,9 @@
 // - onSelectAssignment: (assignment: Assignment) => void
 // - loading?: boolean
 // - error?: string | null
-import type React from 'react';
-import { useState } from 'react';
-import type { Assignment, StudentClass } from './types';
+import type React from "react";
+import { useState } from "react";
+import type { Assignment, StudentClass } from "./types";
 
 interface AssignmentListPanelProps {
   assignments: Assignment[];
@@ -24,9 +24,9 @@ const AssignmentListPanel: React.FC<AssignmentListPanelProps> = ({
   loading,
   error,
 }) => {
-  const [classFilter, setClassFilter] = useState('');
-  const [skillFilter, setSkillFilter] = useState('');
-  const [search, setSearch] = useState('');
+  const [classFilter, setClassFilter] = useState("");
+  const [skillFilter, setSkillFilter] = useState("");
+  const [search, setSearch] = useState("");
 
   if (loading) return <div className="p-8 text-center text-lg">Loading assignments...</div>;
   if (error) return <div className="p-8 text-center text-red-600 font-semibold">{error}</div>;
@@ -35,7 +35,7 @@ const AssignmentListPanel: React.FC<AssignmentListPanelProps> = ({
     (a) =>
       (!classFilter || a.classIds?.includes(classFilter)) &&
       (!skillFilter || a.skill === skillFilter) &&
-      (!search || a.title.toLowerCase().includes(search.toLowerCase()))
+      (!search || a.title.toLowerCase().includes(search.toLowerCase())),
   );
 
   return (
@@ -101,7 +101,7 @@ const AssignmentListPanel: React.FC<AssignmentListPanelProps> = ({
                 <td className="p-2">
                   {(a.classIds || [])
                     .map((cid) => classes.find((c) => c.id === cid)?.name)
-                    .join(', ')}
+                    .join(", ")}
                 </td>
                 <td className="p-2">
                   <button

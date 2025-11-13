@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Fast checks on changed files and unit tests
+npm run biome:changed || exit 1
+npm test || exit 1

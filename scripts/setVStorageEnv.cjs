@@ -1,17 +1,17 @@
 // setVStorageEnv.cjs - Set VStorage environment variables via Firebase CLI
-const { execSync } = require('node:child_process');
-const readline = require('node:readline');
+const { execSync } = require("node:child_process");
+const readline = require("node:readline");
 
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
 });
 
-console.log('🔐 Setting VStorage Environment Variables');
-console.log('=========================================\n');
+console.log("🔐 Setting VStorage Environment Variables");
+console.log("=========================================\n");
 
-console.log('📋 This script will help you set VStorage credentials in Firebase Functions');
-console.log('You will need your VStorage access key and secret key from Render.\n');
+console.log("📋 This script will help you set VStorage credentials in Firebase Functions");
+console.log("You will need your VStorage access key and secret key from Render.\n");
 
 function askQuestion(question) {
   return new Promise((resolve) => {
@@ -23,19 +23,19 @@ function askQuestion(question) {
 
 async function setVStorageEnvironment() {
   try {
-    console.log('🚀 Step 1: Setting VStorage credentials...\n');
+    console.log("🚀 Step 1: Setting VStorage credentials...\n");
 
     // Get credentials from user
-    const accessKey = await askQuestion('Enter your VStorage Access Key: ');
-    const secretKey = await askQuestion('Enter your VStorage Secret Key: ');
+    const accessKey = await askQuestion("Enter your VStorage Access Key: ");
+    const secretKey = await askQuestion("Enter your VStorage Secret Key: ");
 
     if (!accessKey || !secretKey) {
-      console.log('❌ Access key and secret key are required');
+      console.log("❌ Access key and secret key are required");
       rl.close();
       return;
     }
 
-    console.log('\n📦 Setting environment variables...');
+    console.log("\n📦 Setting environment variables...");
 
     // Set environment variables using Firebase CLI
     const commands = [
@@ -49,20 +49,20 @@ async function setVStorageEnvironment() {
     for (const command of commands) {
       console.log(`\n🚀 Running: ${command}`);
       try {
-        execSync(command, { stdio: 'inherit' });
-        console.log('✅ Success');
+        execSync(command, { stdio: "inherit" });
+        console.log("✅ Success");
       } catch (error) {
-        console.log('❌ Failed:', error.message);
+        console.log("❌ Failed:", error.message);
       }
     }
 
-    console.log('\n🎉 Environment variables set successfully!');
-    console.log('\n📋 Next steps:');
-    console.log('1. Deploy the updated functions: npm run firebase:deploy');
-    console.log('2. Test the configuration: npm run test:vstorage');
-    console.log('3. Run data migration: npm run migrate:firestore');
+    console.log("\n🎉 Environment variables set successfully!");
+    console.log("\n📋 Next steps:");
+    console.log("1. Deploy the updated functions: npm run firebase:deploy");
+    console.log("2. Test the configuration: npm run test:vstorage");
+    console.log("3. Run data migration: npm run migrate:firestore");
   } catch (error) {
-    console.log('❌ Error:', error.message);
+    console.log("❌ Error:", error.message);
   } finally {
     rl.close();
   }

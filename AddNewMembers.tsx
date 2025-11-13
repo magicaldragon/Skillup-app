@@ -1,38 +1,38 @@
 // AddNewMembers.tsx
 // Professional panel to add new members (students, teachers, staff, admins), with Firebase-only architecture
 // Enhanced with Vietnamese name handling and real-time username preview
-import type React from 'react';
-import { useCallback, useEffect, useState } from 'react';
-import { userRegistrationService } from './frontend/services/userRegistrationService';
-import type { Student } from './types';
-import { debounce, generateVietnameseUsername } from './utils/stringUtils';
+import type React from "react";
+import { useCallback, useEffect, useState } from "react";
+import { userRegistrationService } from "./frontend/services/userRegistrationService";
+import type { Student } from "./types";
+import { debounce, generateVietnameseUsername } from "./utils/stringUtils";
 
 // Extended interface for created user with generated password
 interface CreatedUser extends Student {
   generatedPassword?: string;
 }
-import './AddNewMembers.css';
+import "./AddNewMembers.css";
 
 const AddNewMembers = () => {
   const [form, setForm] = useState({
-    name: '',
-    email: '', // This is now separate from the generated Firebase email
-    role: 'student' as 'student' | 'teacher' | 'admin' | 'staff',
-    gender: 'male' as 'male' | 'female' | 'other',
-    englishName: '',
-    dob: '',
-    phone: '',
-    parentName: '',
-    parentPhone: '',
-    notes: '',
-    status: 'potential',
+    name: "",
+    email: "", // This is now separate from the generated Firebase email
+    role: "student" as "student" | "teacher" | "admin" | "staff",
+    gender: "male" as "male" | "female" | "other",
+    englishName: "",
+    dob: "",
+    phone: "",
+    parentName: "",
+    parentPhone: "",
+    notes: "",
+    status: "potential",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [, setCreatedUser] = useState<CreatedUser | null>(null);
-  const [previewUsername, setPreviewUsername] = useState<string>('');
-  const [previewEmail, setPreviewEmail] = useState<string>('');
+  const [previewUsername, setPreviewUsername] = useState<string>("");
+  const [previewEmail, setPreviewEmail] = useState<string>("");
 
   // Debounced username generation for performance
   const debouncedUsernameGeneration = useCallback(
@@ -43,11 +43,11 @@ const AddNewMembers = () => {
         setPreviewUsername(username);
         setPreviewEmail(email);
       } else {
-        setPreviewUsername('');
-        setPreviewEmail('');
+        setPreviewUsername("");
+        setPreviewEmail("");
       }
     }, 300),
-    []
+    [],
   );
 
   // Update preview when name or role changes
@@ -57,7 +57,7 @@ const AddNewMembers = () => {
 
   // Debug logging for form state changes
   useEffect(() => {
-    console.log('Form state updated:', {
+    console.log("Form state updated:", {
       name: form.name,
       role: form.role,
       status: form.status,
@@ -68,12 +68,12 @@ const AddNewMembers = () => {
 
   // Handle general form input changes
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
 
     // Apply phone number formatting
-    if (name === 'phone' || name === 'parentPhone') {
+    if (name === "phone" || name === "parentPhone") {
       const formattedValue = formatPhoneNumber(value);
       setForm((prev) => ({ ...prev, [name]: formattedValue }));
     } else {
@@ -96,22 +96,22 @@ const AddNewMembers = () => {
   // Real-time field validation
   const validateField = (name: string, value: string): string | null => {
     switch (name) {
-      case 'name':
-        if (!value.trim()) return 'Full name is required';
-        if (value.trim().length < 2) return 'Full name must be at least 2 characters';
+      case "name":
+        if (!value.trim()) return "Full name is required";
+        if (value.trim().length < 2) return "Full name must be at least 2 characters";
         return null;
-      case 'dob':
-        if (!value.trim()) return 'Date of birth is required';
+      case "dob":
+        if (!value.trim()) return "Date of birth is required";
         return null;
-      case 'email':
+      case "email":
         if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-          return 'Please enter a valid email address';
+          return "Please enter a valid email address";
         }
         return null;
-      case 'phone':
-      case 'parentPhone':
-        if (value && value.replace(/\D/g, '').length < 10) {
-          return 'Phone number must be at least 10 digits';
+      case "phone":
+      case "parentPhone":
+        if (value && value.replace(/\D/g, "").length < 10) {
+          return "Phone number must be at least 10 digits";
         }
         return null;
       default:
@@ -121,7 +121,7 @@ const AddNewMembers = () => {
 
   // Handle field blur for validation
   const handleBlur = (
-    e: React.FocusEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: React.FocusEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     const fieldError = validateField(name, value);
@@ -139,45 +139,45 @@ const AddNewMembers = () => {
 
   const handleReset = () => {
     setForm({
-      name: '',
-      email: '', // Reset to empty, don't auto-fill
-      role: 'student',
-      gender: 'male',
-      englishName: '',
-      dob: '',
-      phone: '',
-      parentName: '',
-      parentPhone: '',
-      notes: '',
-      status: 'potential',
+      name: "",
+      email: "", // Reset to empty, don't auto-fill
+      role: "student",
+      gender: "male",
+      englishName: "",
+      dob: "",
+      phone: "",
+      parentName: "",
+      parentPhone: "",
+      notes: "",
+      status: "potential",
     });
     setError(null);
     setCreatedUser(null);
-    setPreviewUsername('');
-    setPreviewEmail('');
+    setPreviewUsername("");
+    setPreviewEmail("");
   };
 
   const validateForm = (): string | null => {
     if (!form.name || !form.name.trim()) {
-      return 'Full name is required';
+      return "Full name is required";
     }
     if (form.name.trim().length < 2) {
-      return 'Full name must be at least 2 characters long';
+      return "Full name must be at least 2 characters long";
     }
     if (!form.dob || !form.dob.trim()) {
-      return 'Date of birth is required';
+      return "Date of birth is required";
     }
-    if (form.role === 'student' && !form.status) {
-      return 'Status is required for students';
+    if (form.role === "student" && !form.status) {
+      return "Status is required for students";
     }
-    if (form.role === 'student' && form.status === 'potential' && !form.parentName?.trim()) {
-      return 'Parent name is recommended for potential students';
+    if (form.role === "student" && form.status === "potential" && !form.parentName?.trim()) {
+      return "Parent name is recommended for potential students";
     }
-    if (form.phone && typeof form.phone === 'string' && (form.phone || '').trim().length < 10) {
-      return 'Phone number must be at least 10 digits';
+    if (form.phone && typeof form.phone === "string" && (form.phone || "").trim().length < 10) {
+      return "Phone number must be at least 10 digits";
     }
     if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-      return 'Please enter a valid email address';
+      return "Please enter a valid email address";
     }
     return null;
   };
@@ -198,9 +198,9 @@ const AddNewMembers = () => {
 
     try {
       // Set appropriate status based on role
-      const userStatus = form.role === 'student' ? form.status : 'active';
+      const userStatus = form.role === "student" ? form.status : "active";
 
-      console.log('Submitting registration with data:', {
+      console.log("Submitting registration with data:", {
         ...form,
         status: userStatus,
       });
@@ -210,10 +210,10 @@ const AddNewMembers = () => {
         status: userStatus,
       });
 
-      console.log('Registration result:', result);
+      console.log("Registration result:", result);
 
       // Ensure we have the user data
-      console.log('Checking result structure:', {
+      console.log("Checking result structure:", {
         hasResult: !!result,
         hasUser: !!result?.user,
         resultKeys: result ? Object.keys(result) : [],
@@ -221,21 +221,21 @@ const AddNewMembers = () => {
       });
 
       if (result?.user) {
-        console.log('Setting created user:', result.user);
+        console.log("Setting created user:", result.user);
         setCreatedUser(result.user);
         handleReset();
       } else {
-        throw new Error('Invalid response from server: missing user');
+        throw new Error("Invalid response from server: missing user");
       }
     } catch (err: unknown) {
-      console.error('Registration error:', err);
+      console.error("Registration error:", err);
       // Improved error handling for Firebase errors
-      const errorMessage = err instanceof Error ? err.message : 'Registration failed';
-      if (err && typeof err === 'object' && 'code' in err) {
-        if (err.code === 'auth/email-already-in-use') {
-          setError('This email is already registered in Firebase Authentication.');
-        } else if (err.code === 'auth/weak-password') {
-          setError('Password is too weak. Please use a stronger password.');
+      const errorMessage = err instanceof Error ? err.message : "Registration failed";
+      if (err && typeof err === "object" && "code" in err) {
+        if (err.code === "auth/email-already-in-use") {
+          setError("This email is already registered in Firebase Authentication.");
+        } else if (err.code === "auth/weak-password") {
+          setError("Password is too weak. Please use a stronger password.");
         } else {
           setError(errorMessage);
         }
@@ -271,7 +271,7 @@ const AddNewMembers = () => {
                   value={form.name}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  className={`form-input ${fieldErrors.name ? 'error' : ''}`}
+                  className={`form-input ${fieldErrors.name ? "error" : ""}`}
                   required
                   placeholder="Enter Vietnamese full name"
                 />
@@ -355,7 +355,7 @@ const AddNewMembers = () => {
                   value={form.dob}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  className={`form-input ${fieldErrors.dob ? 'error' : ''}`}
+                  className={`form-input ${fieldErrors.dob ? "error" : ""}`}
                   required
                 />
                 {fieldErrors.dob && <span className="field-error">{fieldErrors.dob}</span>}
@@ -392,7 +392,7 @@ const AddNewMembers = () => {
                   value={form.email}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  className={`form-input ${fieldErrors.email ? 'error' : ''}`}
+                  className={`form-input ${fieldErrors.email ? "error" : ""}`}
                   placeholder="Enter email address"
                 />
                 {fieldErrors.email && <span className="field-error">{fieldErrors.email}</span>}
@@ -411,7 +411,7 @@ const AddNewMembers = () => {
                   value={form.phone}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  className={`form-input ${fieldErrors.phone ? 'error' : ''}`}
+                  className={`form-input ${fieldErrors.phone ? "error" : ""}`}
                   placeholder="Enter phone number"
                 />
                 {fieldErrors.phone && <span className="field-error">{fieldErrors.phone}</span>}
@@ -470,7 +470,7 @@ const AddNewMembers = () => {
               {/* Action Buttons */}
               <div className="form-actions">
                 <button type="submit" className="register-btn" disabled={loading}>
-                  {loading ? 'REGISTERING...' : 'REGISTER'}
+                  {loading ? "REGISTERING..." : "REGISTER"}
                 </button>
                 <button
                   type="button"

@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useState } from 'react';
-import './ReportsPanel.css';
-import './ManagementTableStyles.css';
-import { formatDateMMDDYYYY } from './utils/stringUtils';
+import { useCallback, useEffect, useState } from "react";
+import "./ReportsPanel.css";
+import "./ManagementTableStyles.css";
+import { formatDateMMDDYYYY } from "./utils/stringUtils";
 
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
+  import.meta.env.VITE_API_BASE_URL || "https://us-central1-skillup-3beaf.cloudfunctions.net/api";
 
 interface StudentReport {
   _id: string;
@@ -21,7 +21,7 @@ interface StudentReport {
   levelName?: string;
   problems: string;
   solution?: string;
-  status: 'pending' | 'observing' | 'solved';
+  status: "pending" | "observing" | "solved";
   createdAt: string;
   updatedAt: string;
 }
@@ -30,9 +30,9 @@ const ReportsPanel = () => {
   const [reports, setReports] = useState<StudentReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'observing' | 'solved'>(
-    'all'
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "observing" | "solved">(
+    "all",
   );
   const [editingReportId, setEditingReportId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<StudentReport>>({});
@@ -41,9 +41,9 @@ const ReportsPanel = () => {
     setLoading(true);
     setError(null);
 
-    const token = localStorage.getItem('skillup_token');
+    const token = localStorage.getItem("skillup_token");
     if (!token) {
-      setError('No authentication token found');
+      setError("No authentication token found");
       setLoading(false);
       return;
     }
@@ -56,18 +56,18 @@ const ReportsPanel = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch reports');
+        throw new Error("Failed to fetch reports");
       }
 
       const data = await response.json();
       if (data.success) {
         setReports(data.reports || []);
       } else {
-        throw new Error(data.message || 'Failed to fetch reports');
+        throw new Error(data.message || "Failed to fetch reports");
       }
     } catch (error) {
-      console.error('Fetch reports error:', error);
-      setError('Failed to load reports. Please try again.');
+      console.error("Fetch reports error:", error);
+      setError("Failed to load reports. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -77,75 +77,75 @@ const ReportsPanel = () => {
     fetchReports();
   }, [fetchReports]);
 
-  const handleStatusChange = async (reportId: string, newStatus: 'observing' | 'solved') => {
-    const token = localStorage.getItem('skillup_token');
+  const handleStatusChange = async (reportId: string, newStatus: "observing" | "solved") => {
+    const token = localStorage.getItem("skillup_token");
     if (!token) {
-      alert('No authentication token found');
+      alert("No authentication token found");
       return;
     }
 
     try {
       const response = await fetch(`${API_BASE_URL}/student-reports/${reportId}/status`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ status: newStatus }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update report status');
+        throw new Error("Failed to update report status");
       }
 
       // Update local state
       setReports((prev) =>
-        prev.map((report) => (report._id === reportId ? { ...report, status: newStatus } : report))
+        prev.map((report) => (report._id === reportId ? { ...report, status: newStatus } : report)),
       );
 
       alert(`Report status updated to ${newStatus}`);
     } catch (error) {
-      console.error('Status update error:', error);
-      alert('Failed to update report status. Please try again.');
+      console.error("Status update error:", error);
+      alert("Failed to update report status. Please try again.");
     }
   };
 
   const handleEditSolution = async () => {
     if (!editingReportId || !editForm.solution?.trim()) return;
 
-    const token = localStorage.getItem('skillup_token');
+    const token = localStorage.getItem("skillup_token");
     if (!token) {
-      alert('No authentication token found');
+      alert("No authentication token found");
       return;
     }
 
     try {
       const response = await fetch(`${API_BASE_URL}/student-reports/${editingReportId}`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ solution: editForm.solution }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update report solution');
+        throw new Error("Failed to update report solution");
       }
 
       // Update local state
       setReports((prev) =>
         prev.map((report) =>
-          report._id === editingReportId ? { ...report, solution: editForm.solution } : report
-        )
+          report._id === editingReportId ? { ...report, solution: editForm.solution } : report,
+        ),
       );
 
       setEditingReportId(null);
       setEditForm({});
-      alert('Report solution updated successfully');
+      alert("Report solution updated successfully");
     } catch (error) {
-      console.error('Solution update error:', error);
-      alert('Failed to update report solution. Please try again.');
+      console.error("Solution update error:", error);
+      alert("Failed to update report solution. Please try again.");
     }
   };
 
@@ -159,34 +159,34 @@ const ReportsPanel = () => {
       report.problems.toLowerCase().includes(searchTerm.toLowerCase()) ||
       report.solution?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesStatus = statusFilter === 'all' || report.status === statusFilter;
+    const matchesStatus = statusFilter === "all" || report.status === statusFilter;
 
     return matchesSearch && matchesStatus;
   });
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending':
-        return 'status-pending';
-      case 'observing':
-        return 'status-observing';
-      case 'solved':
-        return 'status-solved';
+      case "pending":
+        return "status-pending";
+      case "observing":
+        return "status-observing";
+      case "solved":
+        return "status-solved";
       default:
-        return 'status-pending';
+        return "status-pending";
     }
   };
 
   const getStatusDisplayName = (status: string) => {
     switch (status) {
-      case 'pending':
-        return 'Pending';
-      case 'observing':
-        return 'Observing';
-      case 'solved':
-        return 'Solved';
+      case "pending":
+        return "Pending";
+      case "observing":
+        return "Observing";
+      case "solved":
+        return "Solved";
       default:
-        return 'Pending';
+        return "Pending";
     }
   };
 
@@ -251,7 +251,10 @@ const ReportsPanel = () => {
         <div className="filter-section">
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as any)}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+              const next = toStatusFilter(e.target.value);
+              if (next) setStatusFilter(next);
+            }}
             className="status-filter-select"
           >
             <option value="all">All Statuses</option>
@@ -305,9 +308,9 @@ const ReportsPanel = () => {
                   <td className="student-id-cell">
                     <strong>{report.studentId}</strong>
                   </td>
-                  <td className="english-name-cell">{report.studentEnglishName || 'N/A'}</td>
+                  <td className="english-name-cell">{report.studentEnglishName || "N/A"}</td>
                   <td className="class-cell">{report.className}</td>
-                  <td className="level-cell">{report.levelName || 'Unknown'}</td>
+                  <td className="level-cell">{report.levelName || "Unknown"}</td>
                   <td className="problems-cell">
                     <div className="problems-text">{report.problems}</div>
                   </td>
@@ -315,7 +318,7 @@ const ReportsPanel = () => {
                     {editingReportId === report._id ? (
                       <div className="edit-solution">
                         <textarea
-                          value={editForm.solution || ''}
+                          value={editForm.solution || ""}
                           onChange={(e) => setEditForm({ solution: e.target.value })}
                           className="solution-textarea"
                           placeholder="Enter solution..."
@@ -352,7 +355,7 @@ const ReportsPanel = () => {
                           type="button"
                           onClick={() => {
                             setEditingReportId(report._id);
-                            setEditForm({ solution: report.solution || '' });
+                            setEditForm({ solution: report.solution || "" });
                           }}
                           className="edit-solution-btn"
                         >
@@ -368,11 +371,11 @@ const ReportsPanel = () => {
                   </td>
                   <td className="actions-cell">
                     <div className="status-actions">
-                      {report.status === 'pending' && (
+                      {report.status === "pending" && (
                         <>
                           <button
                             type="button"
-                            onClick={() => handleStatusChange(report._id, 'observing')}
+                            onClick={() => handleStatusChange(report._id, "observing")}
                             className="status-btn observing-btn"
                             title="Mark as Observing"
                           >
@@ -380,7 +383,7 @@ const ReportsPanel = () => {
                           </button>
                           <button
                             type="button"
-                            onClick={() => handleStatusChange(report._id, 'solved')}
+                            onClick={() => handleStatusChange(report._id, "solved")}
                             className="status-btn solved-btn"
                             title="Mark as Solved"
                           >
@@ -388,10 +391,10 @@ const ReportsPanel = () => {
                           </button>
                         </>
                       )}
-                      {report.status === 'observing' && (
+                      {report.status === "observing" && (
                         <button
                           type="button"
-                          onClick={() => handleStatusChange(report._id, 'solved')}
+                          onClick={() => handleStatusChange(report._id, "solved")}
                           className="status-btn solved-btn"
                           title="Mark as Solved"
                         >
@@ -411,7 +414,7 @@ const ReportsPanel = () => {
         <div className="reports-summary">
           <p>
             Showing {filteredReports.length} of {reports.length} reports
-            {statusFilter !== 'all' && ` (${statusFilter} status)`}
+            {statusFilter !== "all" && ` (${statusFilter} status)`}
           </p>
         </div>
       )}
@@ -420,3 +423,13 @@ const ReportsPanel = () => {
 };
 
 export default ReportsPanel;
+
+type StatusFilter = "all" | "pending" | "observing" | "solved";
+
+const STATUS_FILTER_OPTIONS: StatusFilter[] = ["all", "pending", "observing", "solved"];
+
+function toStatusFilter(value: string): StatusFilter | null {
+  return (STATUS_FILTER_OPTIONS as readonly string[]).includes(value)
+    ? (value as StatusFilter)
+    : null;
+}

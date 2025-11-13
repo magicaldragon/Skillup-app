@@ -1,16 +1,16 @@
-import type React from 'react';
-import { useState } from 'react';
-import './LoginPanel.css';
-import { authService } from './frontend/services/authService';
-import type { UserProfile } from './types';
+import type React from "react";
+import { useState } from "react";
+import "./LoginPanel.css";
+import { authService } from "./frontend/services/authService";
+import type { UserProfile } from "./types";
 
 interface LoginProps {
   onLoginSuccess: (user: UserProfile) => void;
 }
 
 const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -22,20 +22,20 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
     try {
       // Validate input
       if (!email || !email.trim() || !password || !password.trim()) {
-        setError('Please enter both email and password.');
+        setError("Please enter both email and password.");
         setIsLoading(false);
         return;
       }
 
-      const response = await authService.login({ email: (email || '').trim(), password });
+      const response = await authService.login({ email: (email || "").trim(), password });
       if (response.success && response.user) {
-        localStorage.setItem('skillup_user', JSON.stringify(response.user));
+        localStorage.setItem("skillup_user", JSON.stringify(response.user));
         onLoginSuccess(response.user);
       } else {
-        setError(response.message || 'Login failed. Please try again.');
+        setError(response.message || "Login failed. Please try again.");
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Login failed');
+      setError(err instanceof Error ? err.message : "Login failed");
     } finally {
       setIsLoading(false);
     }
@@ -87,7 +87,7 @@ const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
             disabled={isLoading}
             aria-label="Sign in to SkillUp Center"
           >
-            {isLoading ? 'Processing...' : 'Sign In'}
+            {isLoading ? "Processing..." : "Sign In"}
           </button>
         </form>
         <div className="login-footer">SkillUp Center &copy; {new Date().getFullYear()}</div>

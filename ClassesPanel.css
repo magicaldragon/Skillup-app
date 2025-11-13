@@ -216,13 +216,14 @@
   max-width: 200px !important;
   vertical-align: middle !important;
   text-align: left !important;
-  vertical-align: middle !important;
+  /* removed duplicate vertical-align */
   padding: 8px !important;
   position: relative !important;
   overflow: visible !important;
   display: table-cell !important;
   visibility: visible !important;
   opacity: 1 !important;
+  /* ... existing code ... */
   z-index: 9999 !important;
 }
 

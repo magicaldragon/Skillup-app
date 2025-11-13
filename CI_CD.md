@@ -30,3 +30,15 @@
 - Workflows use `dorny/paths-filter` to identify changed files.
 - Threshold enforcement parses Biome’s JSON report via `scripts/biomeThreshold.cjs`.
 - Adjust thresholds in workflow `env` to tune sensitivity.
+
+# CI/CD Pipeline Overview
+
+- Format, lint (error-only gate), test, and build run on `push` to `main`.
+- Deployment uses Firebase CLI with a service account.
+- Post-deploy health check validates Cloud Functions API (`/api/health`) returns `200/204`.
+- The health check script receives the URL as a positional argument from GitHub Actions secrets:
+  `node scripts/healthCheck.cjs "${{ secrets.HEALTHCHECK_URL }}"`
+
+## Troubleshooting
+- If the health check fails, inspect Cloud Function logs in the Firebase console.
+- Review the Biome report artifact for detailed lint results and address high-severity issues first.

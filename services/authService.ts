@@ -1,13 +1,13 @@
 // Authentication service for Firebase Functions backend - Optimized for performance
 function resolveApiBase(): string {
   try {
-    if (typeof window !== 'undefined' && window.location.host.endsWith('.web.app')) {
-      return '/api';
+    if (typeof window !== "undefined" && window.location.host.endsWith(".web.app")) {
+      return "/api";
     }
   } catch {
     // ignore
   }
-  return (import.meta.env?.VITE_API_BASE_URL as string) || '/api';
+  return (import.meta.env?.VITE_API_BASE_URL as string) || "/api";
 }
 
 const API_BASE_URL = resolveApiBase();
@@ -24,7 +24,7 @@ export interface LoginResponse {
     id: string;
     name: string;
     email: string;
-    role: 'admin' | 'teacher' | 'staff' | 'student';
+    role: "admin" | "teacher" | "staff" | "student";
     avatarUrl?: string;
     status: string;
   };
@@ -34,7 +34,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'admin' | 'teacher' | 'staff' | 'student';
+  role: "admin" | "teacher" | "staff" | "student";
   avatarUrl?: string;
   status: string;
   phone?: string;
@@ -55,7 +55,7 @@ class AuthService {
 
   constructor() {
     // Load token from localStorage on initialization
-    this.token = localStorage.getItem('skillup_token');
+    this.token = localStorage.getItem("skillup_token");
     this.user = this.getUserFromStorage();
   }
 
@@ -67,9 +67,9 @@ class AuthService {
       const timeoutId = setTimeout(() => controller.abort(), 10000);
 
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
         signal: controller.signal,
@@ -83,8 +83,8 @@ class AuthService {
         this.user = data.user;
 
         // Store in localStorage
-        localStorage.setItem('skillup_token', data.token);
-        localStorage.setItem('skillup_user', JSON.stringify(data.user));
+        localStorage.setItem("skillup_token", data.token);
+        localStorage.setItem("skillup_user", JSON.stringify(data.user));
 
         // Cache the profile
         this.profileCache = {
@@ -97,18 +97,18 @@ class AuthService {
         return data;
       }
     } catch (error) {
-      console.error('Login error:', error);
+      console.error("Login error:", error);
 
-      if (error instanceof Error && error.name === 'AbortError') {
+      if (error instanceof Error && error.name === "AbortError") {
         return {
           success: false,
-          message: 'Login timeout. Please try again.',
+          message: "Login timeout. Please try again.",
         };
       }
 
       return {
         success: false,
-        message: 'Network error. Please check your connection.',
+        message: "Network error. Please check your connection.",
       };
     }
   }
@@ -118,14 +118,14 @@ class AuthService {
     try {
       if (this.token) {
         await fetch(`${API_BASE_URL}/auth/logout`, {
-          method: 'POST',
+          method: "POST",
           headers: {
             Authorization: `Bearer ${this.token}`,
           },
         });
       }
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
     } finally {
       this.clearAuth();
     }
@@ -137,7 +137,7 @@ class AuthService {
 
     // Check cache first
     if (this.profileCache && Date.now() - this.profileCache.timestamp < this.PROFILE_CACHE_TTL) {
-      console.log('Using cached profile');
+      console.log("Using cached profile");
       return this.profileCache.user;
     }
 
@@ -157,7 +157,7 @@ class AuthService {
 
       if (data.success) {
         this.user = data.user;
-        localStorage.setItem('skillup_user', JSON.stringify(data.user));
+        localStorage.setItem("skillup_user", JSON.stringify(data.user));
 
         // Update cache
         this.profileCache = {
@@ -172,11 +172,11 @@ class AuthService {
         return null;
       }
     } catch (error) {
-      console.error('Get profile error:', error);
+      console.error("Get profile error:", error);
 
       // If we have cached user data, return it as fallback
       if (this.user) {
-        console.log('Using fallback cached user due to network error');
+        console.log("Using fallback cached user due to network error");
         return this.user;
       }
 
@@ -206,7 +206,7 @@ class AuthService {
     if (backendConnectionCache) {
       const age = Date.now() - backendConnectionCache.timestamp;
       if (age < BACKEND_CONNECTION_CACHE_TTL) {
-        console.log('Using cached backend connection status:', backendConnectionCache.status);
+        console.log("Using cached backend connection status:", backendConnectionCache.status);
         return backendConnectionCache.status;
       }
     }
@@ -216,9 +216,9 @@ class AuthService {
       const timeoutId = setTimeout(() => controller.abort(), 5000); // Reduced timeout
 
       const response = await fetch(`${API_BASE_URL}/test`, {
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         signal: controller.signal,
       });
@@ -234,7 +234,7 @@ class AuthService {
 
       return isConnected;
     } catch (error) {
-      console.error('Backend connection test failed:', error);
+      console.error("Backend connection test failed:", error);
 
       // Cache negative result for shorter time
       backendConnectionCache = {
@@ -251,18 +251,18 @@ class AuthService {
     this.token = null;
     this.user = null;
     this.profileCache = null;
-    localStorage.removeItem('skillup_token');
-    localStorage.removeItem('skillup_user');
+    localStorage.removeItem("skillup_token");
+    localStorage.removeItem("skillup_user");
   }
 
   // Get user from localStorage
   private getUserFromStorage(): User | null {
-    const userStr = localStorage.getItem('skillup_user');
+    const userStr = localStorage.getItem("skillup_user");
     if (userStr) {
       try {
         return JSON.parse(userStr);
       } catch (error) {
-        console.error('Error parsing user from storage:', error);
+        console.error("Error parsing user from storage:", error);
         return null;
       }
     }
@@ -274,7 +274,7 @@ class AuthService {
     if (this.token && this.user) {
       // If we have cached profile and it's fresh, use it
       if (this.profileCache && Date.now() - this.profileCache.timestamp < this.PROFILE_CACHE_TTL) {
-        console.log('Using cached profile for initialization');
+        console.log("Using cached profile for initialization");
         return this.profileCache.user;
       }
 
@@ -294,7 +294,7 @@ class AuthService {
         await this.getProfile();
       }
     } catch (error) {
-      console.warn('Failed to preload critical data:', error);
+      console.warn("Failed to preload critical data:", error);
     }
   }
 }

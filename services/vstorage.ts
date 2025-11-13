@@ -7,37 +7,37 @@ import {
   ListObjectsV2Command,
   PutObjectCommand,
   S3Client,
-} from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+} from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 // --- VNG Cloud VStorage Configuration ---
 export const vstorageConfig = {
-  accessKeyId: import.meta.env.VITE_VSTORAGE_ACCESS_KEY || '',
-  secretAccessKey: import.meta.env.VITE_VSTORAGE_SECRET_KEY || '',
-  endpoint: import.meta.env.VITE_VSTORAGE_ENDPOINT || 'https://s3.vngcloud.vn',
-  region: import.meta.env.VITE_VSTORAGE_REGION || 'sgn',
-  bucket: import.meta.env.VITE_VSTORAGE_BUCKET || 'skillup',
+  accessKeyId: import.meta.env.VITE_VSTORAGE_ACCESS_KEY || "",
+  secretAccessKey: import.meta.env.VITE_VSTORAGE_SECRET_KEY || "",
+  endpoint: import.meta.env.VITE_VSTORAGE_ENDPOINT || "https://s3.vngcloud.vn",
+  region: import.meta.env.VITE_VSTORAGE_REGION || "sgn",
+  bucket: import.meta.env.VITE_VSTORAGE_BUCKET || "skillup",
   maxFileSize: 10 * 1024 * 1024, // 10MB max file size
   allowedTypes: [
-    'image/jpeg',
-    'image/png',
-    'image/gif',
-    'image/webp',
-    'application/pdf',
-    'text/plain',
-    'application/msword',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'application/vnd.ms-excel',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    'application/zip',
-    'application/x-zip-compressed',
+    "image/jpeg",
+    "image/png",
+    "image/gif",
+    "image/webp",
+    "application/pdf",
+    "text/plain",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/zip",
+    "application/x-zip-compressed",
   ],
 };
 
 // Validate configuration
 if (!vstorageConfig.accessKeyId || !vstorageConfig.secretAccessKey) {
   console.warn(
-    'VStorage credentials not configured. Please set VITE_VSTORAGE_ACCESS_KEY and VITE_VSTORAGE_SECRET_KEY environment variables.'
+    "VStorage credentials not configured. Please set VITE_VSTORAGE_ACCESS_KEY and VITE_VSTORAGE_SECRET_KEY environment variables.",
   );
 }
 
@@ -56,14 +56,14 @@ export const s3 = new S3Client({
 export async function uploadFile(
   key: string,
   file: File | Blob,
-  contentType = 'application/octet-stream',
-  metadata?: Record<string, string>
+  contentType = "application/octet-stream",
+  metadata?: Record<string, string>,
 ): Promise<{ url: string; key: string }> {
   try {
     // Validate file size
     if (file.size > vstorageConfig.maxFileSize) {
       throw new Error(
-        `File size exceeds maximum allowed size of ${vstorageConfig.maxFileSize / (1024 * 1024)}MB`
+        `File size exceeds maximum allowed size of ${vstorageConfig.maxFileSize / (1024 * 1024)}MB`,
       );
     }
 
@@ -95,7 +95,7 @@ export async function uploadFile(
       key,
     };
   } catch (error) {
-    console.error('Error uploading file:', error);
+    console.error("Error uploading file:", error);
     throw error;
   }
 }
@@ -110,7 +110,7 @@ export async function getFileURL(key: string, expiresIn = 3600): Promise<string>
 
     return await getSignedUrl(s3, command, { expiresIn });
   } catch (error) {
-    console.error('Error getting file URL:', error);
+    console.error("Error getting file URL:", error);
     throw error;
   }
 }
@@ -125,21 +125,21 @@ export async function deleteFile(key: string): Promise<void> {
 
     await s3.send(command);
   } catch (error) {
-    console.error('Error deleting file:', error);
+    console.error("Error deleting file:", error);
     throw error;
   }
 }
 
 // --- Helper: List Files ---
 export async function listFiles(
-  prefix: string = ''
+  prefix: string = "",
 ): Promise<{ key: string; url: string; size: number; lastModified: Date }[]> {
   try {
     const result = await s3.send(
       new ListObjectsV2Command({
         Bucket: vstorageConfig.bucket,
         Prefix: prefix,
-      })
+      }),
     );
 
     const contents = Array.isArray(result.Contents) ? result.Contents : [];
@@ -160,21 +160,21 @@ export async function listFiles(
           size: object.Size || 0,
           lastModified: object.LastModified || new Date(),
         };
-      })
+      }),
     );
 
     return files.filter(
       (
-        file: { key: string; url: string; size: number; lastModified: Date } | null
+        file: { key: string; url: string; size: number; lastModified: Date } | null,
       ): file is {
         key: string;
         url: string;
         size: number;
         lastModified: Date;
-      } => file !== null
+      } => file !== null,
     );
   } catch (error) {
-    console.error('Error listing files:', error);
+    console.error("Error listing files:", error);
     throw error;
   }
 }
@@ -184,7 +184,7 @@ export async function uploadUserAvatar(userId: string, file: File): Promise<stri
   const key = `avatars/${userId}/${Date.now()}_${file.name}`;
   const result = await uploadFile(key, file, file.type, {
     userId,
-    type: 'avatar',
+    type: "avatar",
     originalName: file.name,
   });
   return result.url;
@@ -194,13 +194,13 @@ export async function uploadUserAvatar(userId: string, file: File): Promise<stri
 export async function uploadAssignmentFile(
   assignmentId: string,
   studentId: string,
-  file: File
+  file: File,
 ): Promise<string> {
   const key = `assignments/${assignmentId}/${studentId}/${Date.now()}_${file.name}`;
   const result = await uploadFile(key, file, file.type, {
     assignmentId,
     studentId,
-    type: 'assignment',
+    type: "assignment",
     originalName: file.name,
   });
   return result.url;
@@ -210,12 +210,12 @@ export async function uploadAssignmentFile(
 export async function uploadClassMaterial(
   classId: string,
   file: File,
-  materialType: string = 'general'
+  materialType: string = "general",
 ): Promise<string> {
   const key = `classes/${classId}/materials/${materialType}/${Date.now()}_${file.name}`;
   const result = await uploadFile(key, file, file.type, {
     classId,
-    type: 'material',
+    type: "material",
     materialType,
     originalName: file.name,
   });
@@ -226,13 +226,13 @@ export async function uploadClassMaterial(
 export async function uploadFeedbackFile(
   submissionId: string,
   teacherId: string,
-  file: File
+  file: File,
 ): Promise<string> {
   const key = `feedback/${submissionId}/${teacherId}/${Date.now()}_${file.name}`;
   const result = await uploadFile(key, file, file.type, {
     submissionId,
     teacherId,
-    type: 'feedback',
+    type: "feedback",
     originalName: file.name,
   });
   return result.url;
@@ -251,17 +251,17 @@ export async function cleanupOldFiles(prefix: string, daysOld: number = 30): Pro
       }
     }
   } catch (error) {
-    console.error('Error cleaning up old files:', error);
+    console.error("Error cleaning up old files:", error);
     throw error;
   }
 }
 
 // --- Helper: Get file size in human readable format ---
 export function formatFileSize(bytes: number): string {
-  if (bytes === 0) return '0 Bytes';
+  if (bytes === 0) return "0 Bytes";
 
   const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const sizes = ["Bytes", "KB", "MB", "GB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
   return `${parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;

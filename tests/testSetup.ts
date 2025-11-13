@@ -1,7 +1,7 @@
-import { beforeAll, vi } from 'vitest';
+import { beforeAll, vi } from "vitest";
 
 beforeAll(() => {
-  vi.mock('../services/vstorage', () => ({
+  vi.mock("../services/vstorage", () => ({
     uploadFile: vi.fn(),
     getFileURL: vi.fn(),
     deleteFile: vi.fn(),
@@ -10,7 +10,7 @@ beforeAll(() => {
 });
 // Provide a minimal localStorage polyfill if not available (e.g., Node env)
 (function ensureLocalStorage() {
-  if (typeof globalThis.localStorage === 'undefined') {
+  if (typeof globalThis.localStorage === "undefined") {
     const store = new Map<string, string>();
 
     const localStoragePolyfill: Storage = {
@@ -36,15 +36,15 @@ beforeAll(() => {
     } as unknown as Storage;
 
     // Assign polyfill to global without using 'any'
-    Object.defineProperty(globalThis, 'localStorage', {
+    Object.defineProperty(globalThis, "localStorage", {
       value: localStoragePolyfill,
       writable: true,
       configurable: true,
       enumerable: true,
     });
 
-    console.info('[testSetup] localStorage polyfilled (Node environment detected)');
+    console.info("[testSetup] localStorage polyfilled (Node environment detected)");
   } else {
-    console.info('[testSetup] jsdom environment detected; localStorage is available');
+    console.info("[testSetup] jsdom environment detected; localStorage is available");
   }
 })();

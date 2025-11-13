@@ -1,5 +1,5 @@
-import type React from 'react';
-import { useCallback, useEffect, useState } from 'react';
+import type React from "react";
+import { useCallback, useEffect, useState } from "react";
 
 interface ChangeLog {
   _id: string;
@@ -15,17 +15,17 @@ interface ChangeLog {
 }
 
 const ACTION_LABELS: Record<string, string> = {
-  add: 'Added',
-  edit: 'Edited',
-  delete: 'Deleted',
-  assign: 'Assigned',
+  add: "Added",
+  edit: "Edited",
+  delete: "Deleted",
+  assign: "Assigned",
 };
 
 const ChangeLogPanel: React.FC = () => {
   const [logs, setLogs] = useState<ChangeLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState({ entityType: '', userId: '', action: '' });
+  const [filter, setFilter] = useState({ entityType: "", userId: "", action: "" });
   const [selectedLog, setSelectedLog] = useState<ChangeLog | null>(null);
 
   const fetchLogs = useCallback(async () => {
@@ -33,15 +33,15 @@ const ChangeLogPanel: React.FC = () => {
     setError(null);
     try {
       const params = new URLSearchParams();
-      if (filter.entityType) params.append('entityType', filter.entityType);
-      if (filter.userId) params.append('userId', filter.userId);
-      if (filter.action) params.append('action', filter.action);
-      const res = await fetch(`/api/change-logs?${params.toString()}`, { credentials: 'include' });
+      if (filter.entityType) params.append("entityType", filter.entityType);
+      if (filter.userId) params.append("userId", filter.userId);
+      if (filter.action) params.append("action", filter.action);
+      const res = await fetch(`/api/change-logs?${params.toString()}`, { credentials: "include" });
       const data = await res.json();
       if (data.success) setLogs(data.logs);
-      else setError(data.message || 'Failed to fetch logs');
+      else setError(data.message || "Failed to fetch logs");
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch logs';
+      const errorMessage = err instanceof Error ? err.message : "Failed to fetch logs";
       setError(errorMessage);
     } finally {
       setLoading(false);

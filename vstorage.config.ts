@@ -4,34 +4,34 @@
 
 export const vstorageConfig = {
   // Firebase Storage bucket name (from your Firebase project)
-  bucket: 'skillup-3beaf.appspot.com',
+  bucket: "skillup-3beaf.appspot.com",
 
   // File upload limits
   maxFileSize: 10 * 1024 * 1024, // 10MB
 
   // Allowed file types for upload
   allowedTypes: [
-    'image/jpeg',
-    'image/png',
-    'image/gif',
-    'image/webp',
-    'application/pdf',
-    'text/plain',
-    'application/msword',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'application/vnd.ms-excel',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    'application/zip',
-    'application/x-zip-compressed',
+    "image/jpeg",
+    "image/png",
+    "image/gif",
+    "image/webp",
+    "application/pdf",
+    "text/plain",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/zip",
+    "application/x-zip-compressed",
   ],
 
   // Storage paths for different file types
   paths: {
-    avatars: 'avatars',
-    assignments: 'assignments',
-    classMaterials: 'classes',
-    submissions: 'submissions',
-    temp: 'temp',
+    avatars: "avatars",
+    assignments: "assignments",
+    classMaterials: "classes",
+    submissions: "submissions",
+    temp: "temp",
   },
 
   // Cleanup settings

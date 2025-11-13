@@ -1,17 +1,17 @@
 // functions/src/routes/notifications.ts - Notifications API Routes
-import { type Response, Router } from 'express';
-import * as admin from 'firebase-admin';
-import { type AuthenticatedRequest, verifyToken } from '../middleware/auth';
+import { type Response, Router } from "express";
+import * as admin from "firebase-admin";
+import { type AuthenticatedRequest, verifyToken } from "../middleware/auth";
 
 const router = Router();
 
 // Get all notifications for the current user
-router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) => {
+router.get("/", verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.user) {
       return res.status(401).json({
         success: false,
-        message: 'User not authenticated',
+        message: "User not authenticated",
       });
     }
 
@@ -19,9 +19,9 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
     try {
       const snapshot = await admin
         .firestore()
-        .collection('notifications')
-        .where('userId', '==', req.user.userId)
-        .orderBy('createdAt', 'desc')
+        .collection("notifications")
+        .where("userId", "==", req.user.userId)
+        .orderBy("createdAt", "desc")
         .limit(50)
         .get();
 
@@ -35,13 +35,13 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
         notifications,
       });
     } catch (indexError) {
-      console.warn('Composite index not available, falling back to simple query:', indexError);
+      console.warn("Composite index not available, falling back to simple query:", indexError);
 
       // Fallback: Get notifications without ordering (requires less complex index)
       const snapshot = await admin
         .firestore()
-        .collection('notifications')
-        .where('userId', '==', req.user.userId)
+        .collection("notifications")
+        .where("userId", "==", req.user.userId)
         .limit(50)
         .get();
 
@@ -63,30 +63,30 @@ router.get('/', verifyToken, async (req: AuthenticatedRequest, res: Response) =>
       });
     }
   } catch (error) {
-    console.error('Error fetching notifications:', error);
+    console.error("Error fetching notifications:", error);
     return res.status(500).json({
       success: false,
-      message: 'Failed to fetch notifications',
-      error: error instanceof Error ? error.message : 'Unknown error',
+      message: "Failed to fetch notifications",
+      error: error instanceof Error ? error.message : "Unknown error",
     });
   }
 });
 
 // Mark notification as read
-router.patch('/:id/read', verifyToken, async (req: AuthenticatedRequest, res: Response) => {
+router.patch("/:id/read", verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.user) {
-      return res.status(401).json({ message: 'User not authenticated' });
+      return res.status(401).json({ message: "User not authenticated" });
     }
 
     const { id } = req.params;
-    const notificationRef = admin.firestore().collection('notifications').doc(id);
+    const notificationRef = admin.firestore().collection("notifications").doc(id);
     const notificationDoc = await notificationRef.get();
 
     if (!notificationDoc.exists) {
       return res.status(404).json({
         success: false,
-        message: 'Notification not found',
+        message: "Notification not found",
       });
     }
 
@@ -95,7 +95,7 @@ router.patch('/:id/read', verifyToken, async (req: AuthenticatedRequest, res: Re
     if (notificationData?.userId !== req.user.userId) {
       return res.status(403).json({
         success: false,
-        message: 'Access denied',
+        message: "Access denied",
       });
     }
 
@@ -106,30 +106,30 @@ router.patch('/:id/read', verifyToken, async (req: AuthenticatedRequest, res: Re
 
     return res.json({
       success: true,
-      message: 'Notification marked as read',
+      message: "Notification marked as read",
     });
   } catch (error) {
-    console.error('Error marking notification as read:', error);
+    console.error("Error marking notification as read:", error);
     return res.status(500).json({
       success: false,
-      message: 'Failed to mark notification as read',
+      message: "Failed to mark notification as read",
     });
   }
 });
 
 // Mark all notifications as read for the current user
-router.patch('/mark-all-read', verifyToken, async (req: AuthenticatedRequest, res: Response) => {
+router.patch("/mark-all-read", verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.user) {
-      return res.status(401).json({ message: 'User not authenticated' });
+      return res.status(401).json({ message: "User not authenticated" });
     }
 
     const batch = admin.firestore().batch();
     const notificationsSnapshot = await admin
       .firestore()
-      .collection('notifications')
-      .where('userId', '==', req.user.userId)
-      .where('isRead', '==', false)
+      .collection("notifications")
+      .where("userId", "==", req.user.userId)
+      .where("isRead", "==", false)
       .get();
 
     notificationsSnapshot.docs.forEach((doc) => {
@@ -143,13 +143,13 @@ router.patch('/mark-all-read', verifyToken, async (req: AuthenticatedRequest, re
 
     return res.json({
       success: true,
-      message: 'All notifications marked as read',
+      message: "All notifications marked as read",
     });
   } catch (error) {
-    console.error('Error marking all notifications as read:', error);
+    console.error("Error marking all notifications as read:", error);
     return res.status(500).json({
       success: false,
-      message: 'Failed to mark all notifications as read',
+      message: "Failed to mark all notifications as read",
     });
   }
 });
@@ -157,10 +157,10 @@ router.patch('/mark-all-read', verifyToken, async (req: AuthenticatedRequest, re
 // Create notification (internal use - called by other services)
 export const createNotification = async (
   userId: string,
-  type: 'student_report' | 'class_assignment' | 'system_alert',
+  type: "student_report" | "class_assignment" | "system_alert",
   title: string,
   message: string,
-  relatedId?: string
+  relatedId?: string,
 ) => {
   try {
     const notificationData = {
@@ -174,10 +174,10 @@ export const createNotification = async (
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     };
 
-    await admin.firestore().collection('notifications').add(notificationData);
+    await admin.firestore().collection("notifications").add(notificationData);
     console.log(`Notification created for user ${userId}: ${title}`);
   } catch (error) {
-    console.error('Error creating notification:', error);
+    console.error("Error creating notification:", error);
   }
 };
 

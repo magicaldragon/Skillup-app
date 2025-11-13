@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useState } from 'react';
-import './RecordsPanel.css';
-import './ManagementTableStyles.css';
-import { formatDateMMDDYYYY, formatDateTimeDDMMYYYY } from './utils/stringUtils';
+import { useCallback, useEffect, useMemo, useState } from "react";
+import "./RecordsPanel.css";
+import "./ManagementTableStyles.css";
+import { formatDateMMDDYYYY, formatDateTimeDDMMYYYY } from "./utils/stringUtils";
 
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || 'https://us-central1-skillup-3beaf.cloudfunctions.net/api';
+  import.meta.env.VITE_API_BASE_URL || "https://us-central1-skillup-3beaf.cloudfunctions.net/api";
 
 interface StudentRecord {
   _id: string;
@@ -52,16 +52,16 @@ interface Student {
   updatedAt: string;
 }
 
-const RecordsPanel = () => {
+function RecordsPanel() {
   const [records, setRecords] = useState<StudentRecord[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<
-    'all' | 'academic' | 'administrative' | 'financial' | 'attendance' | 'assessment' | 'students'
-  >('all');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'off' | 'alumni'>('all');
-  const [searchTerm, setSearchTerm] = useState('');
+    "all" | "academic" | "administrative" | "financial" | "attendance" | "assessment" | "students"
+  >("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | "off" | "alumni">("all");
+  const [searchTerm, setSearchTerm] = useState("");
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 20,
@@ -73,9 +73,9 @@ const RecordsPanel = () => {
     setLoading(true);
     setError(null);
 
-    const token = localStorage.getItem('skillup_token');
+    const token = localStorage.getItem("skillup_token");
     if (!token) {
-      setError('No authentication token found');
+      setError("No authentication token found");
       setLoading(false);
       return;
     }
@@ -86,8 +86,9 @@ const RecordsPanel = () => {
         limit: pagination.limit.toString(),
       });
 
-      if (filter !== 'all') {
-        params.append('category', filter);
+      // Only append category for real record categories
+      if (filter !== "all" && filter !== "students") {
+        params.append("category", filter);
       }
 
       const response = await fetch(`${API_BASE_URL}/student-records?${params}`, {
@@ -97,7 +98,7 @@ const RecordsPanel = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch records');
+        throw new Error("Failed to fetch records");
       }
 
       const data = await response.json();
@@ -109,18 +110,18 @@ const RecordsPanel = () => {
           pages: data.pagination.pages,
         }));
       } else {
-        throw new Error(data.message || 'Failed to fetch records');
+        throw new Error(data.message || "Failed to fetch records");
       }
     } catch (error) {
-      console.error('Fetch records error:', error);
-      setError('Failed to load records. Please try again.');
+      console.error("Fetch records error:", error);
+      setError("Failed to load records. Please try again.");
     } finally {
       setLoading(false);
     }
   }, [pagination.page, pagination.limit, filter]);
 
   const fetchStudents = useCallback(async () => {
-    const token = localStorage.getItem('skillup_token');
+    const token = localStorage.getItem("skillup_token");
     if (!token) return;
 
     try {
@@ -136,48 +137,48 @@ const RecordsPanel = () => {
         setStudents(data || []);
       }
     } catch (error) {
-      console.error('Fetch students error:', error);
+      console.error("Fetch students error:", error);
     }
   }, []);
 
   // Helper functions for records display
   const getActionColor = (action: string): string => {
     const actionColors: { [key: string]: string } = {
-      user_created: 'success',
-      user_updated: 'info',
-      user_deleted: 'danger',
-      role_changed: 'warning',
-      status_changed: 'warning',
-      class_assigned: 'success',
-      class_removed: 'danger',
-      assignment_submitted: 'info',
-      assignment_graded: 'success',
+      user_created: "success",
+      user_updated: "info",
+      user_deleted: "danger",
+      role_changed: "warning",
+      status_changed: "warning",
+      class_assigned: "success",
+      class_removed: "danger",
+      assignment_submitted: "info",
+      assignment_graded: "success",
     };
-    return actionColors[action] || 'default';
+    return actionColors[action] || "default";
   };
 
   const getActionDisplayName = (action: string): string => {
     const actionNames: { [key: string]: string } = {
-      user_created: 'User Created',
-      user_updated: 'User Updated',
-      user_deleted: 'User Deleted',
-      role_changed: 'Role Changed',
-      status_changed: 'Status Changed',
-      class_assigned: 'Class Assigned',
-      class_removed: 'Class Removed',
-      assignment_submitted: 'Assignment Submitted',
-      assignment_graded: 'Assignment Graded',
+      user_created: "User Created",
+      user_updated: "User Updated",
+      user_deleted: "User Deleted",
+      role_changed: "Role Changed",
+      status_changed: "Status Changed",
+      class_assigned: "Class Assigned",
+      class_removed: "Class Removed",
+      assignment_submitted: "Assignment Submitted",
+      assignment_graded: "Assignment Graded",
     };
     return actionNames[action] || action;
   };
 
   const getCategoryDisplayName = (category: string): string => {
     const categoryNames: { [key: string]: string } = {
-      academic: 'Academic',
-      administrative: 'Administrative',
-      financial: 'Financial',
-      attendance: 'Attendance',
-      assessment: 'Assessment',
+      academic: "Academic",
+      administrative: "Administrative",
+      financial: "Financial",
+      attendance: "Attendance",
+      assessment: "Assessment",
     };
     return categoryNames[category] || category;
   };
@@ -187,34 +188,45 @@ const RecordsPanel = () => {
     fetchStudents();
   }, [fetchRecords, fetchStudents]);
 
-  const filteredRecords = records.filter((record) => {
-    if (searchTerm) {
+  // Reset invalid status filter when category is not "students"
+  useEffect(() => {
+    if (filter !== "students" && statusFilter !== "all") {
+      setStatusFilter("all");
+    }
+  }, [filter, statusFilter]);
+
+  const filteredRecords = useMemo(() => {
+    return records.filter((record) => {
       const searchLower = searchTerm.toLowerCase();
-      return (
+      const matchesSearch =
+        !searchTerm ||
         record.studentName.toLowerCase().includes(searchLower) ||
         record.action.toLowerCase().includes(searchLower) ||
         record.category.toLowerCase().includes(searchLower) ||
-        record.details.toString().toLowerCase().includes(searchLower)
-      );
-    }
-    return true;
-  });
+        record.details.toString().toLowerCase().includes(searchLower);
 
-  const filteredStudents = students.filter((student) => {
-    if (searchTerm) {
+      const matchesCategory =
+        filter === "all" || filter === "students" || record.category === filter;
+
+      return matchesSearch && matchesCategory;
+    });
+  }, [records, searchTerm, filter]);
+
+  const filteredStudents = useMemo(() => {
+    return students.filter((student) => {
       const searchLower = searchTerm.toLowerCase();
-      return (
+      const matchesSearch =
+        !searchTerm ||
         student.name.toLowerCase().includes(searchLower) ||
         student.englishName?.toLowerCase().includes(searchLower) ||
         student.email.toLowerCase().includes(searchLower) ||
-        student.studentCode?.toLowerCase().includes(searchLower)
-      );
-    }
-    if (statusFilter !== 'all') {
-      return student.status === statusFilter;
-    }
-    return true;
-  });
+        student.studentCode?.toLowerCase().includes(searchLower);
+
+      const matchesStatus = statusFilter === "all" || student.status === statusFilter;
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [students, searchTerm, statusFilter]);
 
   const handlePageChange = (newPage: number) => {
     setPagination((prev) => ({ ...prev, page: newPage }));
@@ -262,7 +274,7 @@ const RecordsPanel = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyPress={(e) => {
-                if (e.key === 'Enter') {
+                if (e.key === "Enter") {
                   e.preventDefault();
                   // Search is already live, just focus the input
                   (e.target as HTMLInputElement).focus();
@@ -286,9 +298,13 @@ const RecordsPanel = () => {
         </div>
 
         <div className="filter-controls">
+          {/* Filter category */}
           <select
             value={filter}
-            onChange={(e) => setFilter(e.target.value as any)}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+              const next = toRecordsFilter(e.target.value);
+              if (next) setFilter(next);
+            }}
             className="filter-select"
           >
             <option value="all">All Categories</option>
@@ -301,10 +317,10 @@ const RecordsPanel = () => {
           </select>
 
           {/* Show status filter only when students category is selected */}
-          {filter === 'students' && (
+          {filter === "students" && (
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value as 'all' | 'off' | 'alumni')}
+              onChange={(e) => setStatusFilter(e.target.value as "all" | "off" | "alumni")}
               className="filter-select"
             >
               <option value="all">All Statuses</option>
@@ -332,7 +348,7 @@ const RecordsPanel = () => {
         </div>
       </div>
 
-      {filter === 'students' ? (
+      {filter === "students" ? (
         // Students Table
         <div className="table-wrapper">
           <table className="management-table">
@@ -362,16 +378,16 @@ const RecordsPanel = () => {
                 filteredStudents.map((student) => (
                   <tr key={student._id}>
                     <td>{student.name}</td>
-                    <td>{student.englishName || '—'}</td>
+                    <td>{student.englishName || "—"}</td>
                     <td>{student.email}</td>
                     <td>
                       <span className={`status-badge status-${student.status}`}>
                         {student.status}
                       </span>
                     </td>
-                    <td>{student.studentCode || '—'}</td>
-                    <td>{student.phone || '—'}</td>
-                    <td>{student.parentName || '—'}</td>
+                    <td>{student.studentCode || "—"}</td>
+                    <td>{student.phone || "—"}</td>
+                    <td>{student.parentName || "—"}</td>
                     <td>{formatDateMMDDYYYY(student.createdAt)}</td>
                   </tr>
                 ))
@@ -417,11 +433,11 @@ const RecordsPanel = () => {
                     <td>{formatDateTimeDDMMYYYY(record.timestamp)}</td>
                     <td>{record.studentName}</td>
                     <td>
-                      {record.details ? JSON.stringify(record.details) : 'No details available'}
+                      {record.details ? JSON.stringify(record.details) : "No details available"}
                     </td>
                     <td>{record.performedByName}</td>
-                    <td>{record.relatedClass?.name || '—'}</td>
-                    <td>{record.relatedAssignment?.title || '—'}</td>
+                    <td>{record.relatedClass?.name || "—"}</td>
+                    <td>{record.relatedAssignment?.title || "—"}</td>
                   </tr>
                 ))
               )}
@@ -461,6 +477,29 @@ const RecordsPanel = () => {
       </div>
     </div>
   );
-};
+}
 
 export default RecordsPanel;
+
+type RecordsFilter =
+  | "students"
+  | "all"
+  | "attendance"
+  | "academic"
+  | "administrative"
+  | "financial"
+  | "assessment";
+
+const RECORDS_FILTER_OPTIONS: readonly RecordsFilter[] = [
+  "all",
+  "academic",
+  "administrative",
+  "financial",
+  "attendance",
+  "assessment",
+  "students",
+] as const;
+
+function toRecordsFilter(value: string): RecordsFilter | null {
+  return RECORDS_FILTER_OPTIONS.includes(value as RecordsFilter) ? (value as RecordsFilter) : null;
+}

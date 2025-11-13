@@ -1,22 +1,22 @@
 // functions/src/routes/auth.ts - Authentication API Routes
-import { type Response, Router } from 'express';
-import * as admin from 'firebase-admin';
-import { type AuthenticatedRequest, verifyToken } from '../middleware/auth';
+import { type Response, Router } from "express";
+import * as admin from "firebase-admin";
+import { type AuthenticatedRequest, verifyToken } from "../middleware/auth";
 
 const router = Router();
 
 // Get current user profile
-router.get('/profile', verifyToken, async (req: AuthenticatedRequest, res: Response) => {
+router.get("/profile", verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { userId } = req.user!;
 
-    const userDoc = await admin.firestore().collection('users').doc(userId).get();
+    const userDoc = await admin.firestore().collection("users").doc(userId).get();
 
     if (!userDoc.exists) {
-      console.error('User profile not found for userId:', userId);
+      console.error("User profile not found for userId:", userId);
       return res.status(404).json({
         success: false,
-        message: 'User profile not found. Please contact administrator.',
+        message: "User profile not found. Please contact administrator.",
       });
     }
 
@@ -33,16 +33,16 @@ router.get('/profile', verifyToken, async (req: AuthenticatedRequest, res: Respo
       },
     });
   } catch (error) {
-    console.error('Error fetching user profile:', error);
+    console.error("Error fetching user profile:", error);
     return res.status(500).json({
       success: false,
-      message: 'Failed to fetch user profile',
+      message: "Failed to fetch user profile",
     });
   }
 });
 
 // Update user profile
-router.put('/profile', verifyToken, async (req: AuthenticatedRequest, res: Response) => {
+router.put("/profile", verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { userId } = req.user!;
     const updateData = req.body;
@@ -53,24 +53,24 @@ router.put('/profile', verifyToken, async (req: AuthenticatedRequest, res: Respo
     delete updateData.createdAt;
     updateData.updatedAt = admin.firestore.FieldValue.serverTimestamp();
 
-    await admin.firestore().collection('users').doc(userId).update(updateData);
+    await admin.firestore().collection("users").doc(userId).update(updateData);
 
-    return res.json({ success: true, message: 'Profile updated successfully' });
+    return res.json({ success: true, message: "Profile updated successfully" });
   } catch (error) {
-    console.error('Error updating user profile:', error);
-    return res.status(500).json({ message: 'Failed to update user profile' });
+    console.error("Error updating user profile:", error);
+    return res.status(500).json({ message: "Failed to update user profile" });
   }
 });
 
 // Verify Firebase token
-router.post('/verify', async (req: AuthenticatedRequest, res: Response) => {
+router.post("/verify", async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { token } = req.body;
 
     if (!token) {
       return res.status(400).json({
         success: false,
-        message: 'Token is required',
+        message: "Token is required",
       });
     }
 
@@ -80,15 +80,15 @@ router.post('/verify', async (req: AuthenticatedRequest, res: Response) => {
     // Get user from Firestore
     const userQuery = await admin
       .firestore()
-      .collection('users')
-      .where('firebaseUid', '==', decodedToken.uid)
+      .collection("users")
+      .where("firebaseUid", "==", decodedToken.uid)
       .limit(1)
       .get();
 
     if (userQuery.empty) {
       return res.status(404).json({
         success: false,
-        message: 'User not found in database',
+        message: "User not found in database",
       });
     }
 
@@ -104,7 +104,7 @@ router.post('/verify', async (req: AuthenticatedRequest, res: Response) => {
 
     return res.json({
       success: true,
-      message: 'Token verified successfully',
+      message: "Token verified successfully",
       user: {
         id: userDoc.id,
         ...userData,
@@ -112,18 +112,18 @@ router.post('/verify', async (req: AuthenticatedRequest, res: Response) => {
       token: customToken,
     });
   } catch (error) {
-    console.error('Error verifying token:', error);
+    console.error("Error verifying token:", error);
     return res.status(500).json({
       success: false,
-      message: 'Failed to verify token',
+      message: "Failed to verify token",
     });
   }
 });
 
 // Firebase login route - exchange Firebase token for JWT
-router.post('/firebase-login', async (req: AuthenticatedRequest, res: Response) => {
+router.post("/firebase-login", async (req: AuthenticatedRequest, res: Response) => {
   try {
-    console.log('Firebase login request received:', {
+    console.log("Firebase login request received:", {
       hasToken: !!req.body.firebaseToken,
       hasEmail: !!req.body.email,
       email: req.body.email,
@@ -132,42 +132,42 @@ router.post('/firebase-login', async (req: AuthenticatedRequest, res: Response) 
     const { firebaseToken, email } = req.body;
 
     if (!firebaseToken || !email) {
-      console.error('Missing required fields:', { hasToken: !!firebaseToken, hasEmail: !!email });
+      console.error("Missing required fields:", { hasToken: !!firebaseToken, hasEmail: !!email });
       return res.status(400).json({
         success: false,
-        message: 'Firebase token and email are required',
+        message: "Firebase token and email are required",
       });
     }
 
     // Validate email format - must include @role.skillup
     const emailRegex = /^[^\s@]+@(admin|teacher|student|staff)\.skillup$/;
     if (!emailRegex.test(email)) {
-      console.error('Invalid email format - must be username@role.skillup:', email);
+      console.error("Invalid email format - must be username@role.skillup:", email);
       return res.status(400).json({
         success: false,
-        message: 'Email must be in format: username@role.skillup (e.g., admin@admin.skillup)',
+        message: "Email must be in format: username@role.skillup (e.g., admin@admin.skillup)",
       });
     }
 
     // Verify the Firebase token
     let decodedToken;
     try {
-      console.log('Verifying Firebase token...');
+      console.log("Verifying Firebase token...");
       decodedToken = await admin.auth().verifyIdToken(firebaseToken);
-      console.log('Firebase token verified successfully, UID:', decodedToken.uid);
+      console.log("Firebase token verified successfully, UID:", decodedToken.uid);
     } catch (tokenError) {
-      console.error('Firebase token verification failed:', tokenError);
+      console.error("Firebase token verification failed:", tokenError);
       return res.status(401).json({
         success: false,
-        message: 'Invalid Firebase token',
+        message: "Invalid Firebase token",
       });
     }
 
     // First try to find user by firebaseUid
     let userQuery = await admin
       .firestore()
-      .collection('users')
-      .where('firebaseUid', '==', decodedToken.uid)
+      .collection("users")
+      .where("firebaseUid", "==", decodedToken.uid)
       .limit(1)
       .get();
 
@@ -175,8 +175,8 @@ router.post('/firebase-login', async (req: AuthenticatedRequest, res: Response) 
     if (userQuery.empty) {
       userQuery = await admin
         .firestore()
-        .collection('users')
-        .where('email', '==', email)
+        .collection("users")
+        .where("email", "==", email)
         .limit(1)
         .get();
     }
@@ -194,42 +194,42 @@ router.post('/firebase-login', async (req: AuthenticatedRequest, res: Response) 
 
         // Extract role from email domain (username@role.skillup)
         const roleMatch = email.match(/@(admin|teacher|student|staff)\.skillup$/);
-        const role = roleMatch ? roleMatch[1] : 'student';
+        const role = roleMatch ? roleMatch[1] : "student";
 
         console.log(`Role determined from email: ${role} (from ${email})`);
 
         const newUserData = {
           email: firebaseUser.email || email,
           firebaseUid: decodedToken.uid,
-          name: firebaseUser.displayName || email.split('@')[0],
+          name: firebaseUser.displayName || email.split("@")[0],
           role: role,
-          status: 'active',
+          status: "active",
           createdAt: admin.firestore.FieldValue.serverTimestamp(),
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         };
 
         // Create user document in Firestore
-        userDoc = await admin.firestore().collection('users').add(newUserData);
+        userDoc = await admin.firestore().collection("users").add(newUserData);
         userData = newUserData;
 
         console.log(`Synced user from Firebase Auth with ID: ${userDoc.id}, role: ${role}`);
       } catch (syncError) {
-        console.error('Error syncing user from Firebase Auth:', syncError);
+        console.error("Error syncing user from Firebase Auth:", syncError);
         // Fallback to basic user creation with proper role extraction
         const roleMatch = email.match(/@(admin|teacher|student|staff)\.skillup$/);
-        const role = roleMatch ? roleMatch[1] : 'student';
+        const role = roleMatch ? roleMatch[1] : "student";
 
         const fallbackUserData = {
           email: email,
           firebaseUid: decodedToken.uid,
-          name: email.split('@')[0],
+          name: email.split("@")[0],
           role: role,
-          status: 'active',
+          status: "active",
           createdAt: admin.firestore.FieldValue.serverTimestamp(),
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         };
 
-        userDoc = await admin.firestore().collection('users').add(fallbackUserData);
+        userDoc = await admin.firestore().collection("users").add(fallbackUserData);
         userData = fallbackUserData;
         console.log(`Created fallback user with ID: ${userDoc.id}`);
       }
@@ -250,7 +250,7 @@ router.post('/firebase-login', async (req: AuthenticatedRequest, res: Response) 
 
     // Validate user data before creating token
     if (!userData || !userData.role || !userData.email) {
-      console.error('Invalid user data after creation/retrieval:', {
+      console.error("Invalid user data after creation/retrieval:", {
         hasUserData: !!userData,
         hasRole: !!userData?.role,
         hasEmail: !!userData?.email,
@@ -258,7 +258,7 @@ router.post('/firebase-login', async (req: AuthenticatedRequest, res: Response) 
       });
       return res.status(500).json({
         success: false,
-        message: 'User account setup incomplete. Please contact administrator.',
+        message: "User account setup incomplete. Please contact administrator.",
       });
     }
 
@@ -270,10 +270,10 @@ router.post('/firebase-login', async (req: AuthenticatedRequest, res: Response) 
         role: userData.role,
         email: userData.email,
         exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60, // 24 hours
-      })
-    ).toString('base64');
+      }),
+    ).toString("base64");
 
-    console.log('Login successful for user:', {
+    console.log("Login successful for user:", {
       uid: decodedToken.uid,
       userId: userDoc.id,
       role: userData.role,
@@ -282,7 +282,7 @@ router.post('/firebase-login', async (req: AuthenticatedRequest, res: Response) 
 
     return res.json({
       success: true,
-      message: 'Login successful',
+      message: "Login successful",
       user: {
         id: userDoc.id,
         ...userData,
@@ -291,29 +291,29 @@ router.post('/firebase-login', async (req: AuthenticatedRequest, res: Response) 
       token: sessionToken,
     });
   } catch (error) {
-    console.error('Error in firebase-login:', error);
-    console.error('Error details:', {
-      name: error instanceof Error ? error.name : 'Unknown',
-      message: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : 'No stack trace',
+    console.error("Error in firebase-login:", error);
+    console.error("Error details:", {
+      name: error instanceof Error ? error.name : "Unknown",
+      message: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : "No stack trace",
     });
     return res.status(500).json({
       success: false,
-      message: `Login failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      message: `Login failed: ${error instanceof Error ? error.message : "Unknown error"}`,
     });
   }
 });
 
 // Refresh user session
-router.post('/refresh', verifyToken, async (req: AuthenticatedRequest, res: Response) => {
+router.post("/refresh", verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { userId } = req.user!;
 
     // Get updated user data
-    const userDoc = await admin.firestore().collection('users').doc(userId).get();
+    const userDoc = await admin.firestore().collection("users").doc(userId).get();
 
     if (!userDoc.exists) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
     const userData = userDoc.data()!;
@@ -327,7 +327,7 @@ router.post('/refresh', verifyToken, async (req: AuthenticatedRequest, res: Resp
 
     return res.json({
       success: true,
-      message: 'Session refreshed successfully',
+      message: "Session refreshed successfully",
       user: {
         id: userDoc.id,
         ...userData,
@@ -335,31 +335,31 @@ router.post('/refresh', verifyToken, async (req: AuthenticatedRequest, res: Resp
       customToken,
     });
   } catch (error) {
-    console.error('Error refreshing session:', error);
-    return res.status(500).json({ message: 'Failed to refresh session' });
+    console.error("Error refreshing session:", error);
+    return res.status(500).json({ message: "Failed to refresh session" });
   }
 });
 
 // Logout (client-side token invalidation)
-router.post('/logout', verifyToken, async (_req: AuthenticatedRequest, res: Response) => {
+router.post("/logout", verifyToken, async (_req: AuthenticatedRequest, res: Response) => {
   try {
     // Client-side logout - just return success
     // The actual token invalidation should be handled client-side
     res.json({
       success: true,
-      message: 'Logout successful. Please clear your local storage.',
+      message: "Logout successful. Please clear your local storage.",
     });
   } catch (error) {
-    console.error('Logout error:', error);
+    console.error("Logout error:", error);
     res.status(500).json({
       success: false,
-      message: 'Logout failed',
+      message: "Logout failed",
     });
   }
 });
 
 // Get user permissions
-router.get('/permissions', verifyToken, async (req: AuthenticatedRequest, res: Response) => {
+router.get("/permissions", verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { role } = req.user!;
 
@@ -414,34 +414,34 @@ router.get('/permissions', verifyToken, async (req: AuthenticatedRequest, res: R
       permissions: permissions[role as keyof typeof permissions] || {},
     });
   } catch (error) {
-    console.error('Error fetching permissions:', error);
-    return res.status(500).json({ message: 'Failed to fetch permissions' });
+    console.error("Error fetching permissions:", error);
+    return res.status(500).json({ message: "Failed to fetch permissions" });
   }
 });
 
 // Change password (requires Firebase Auth)
-router.post('/change-password', verifyToken, async (_req: AuthenticatedRequest, res: Response) => {
+router.post("/change-password", verifyToken, async (_req: AuthenticatedRequest, res: Response) => {
   try {
     // Password change should be handled client-side via Firebase Auth
     // This endpoint is a placeholder for future server-side password validation
     res.json({
       success: true,
-      message: 'Password change should be handled via Firebase Auth client SDK',
+      message: "Password change should be handled via Firebase Auth client SDK",
     });
   } catch (error) {
-    console.error('Password change error:', error);
+    console.error("Password change error:", error);
     res.status(500).json({
       success: false,
-      message: 'Password change failed',
+      message: "Password change failed",
     });
   }
 });
 
 // Admin route to sync all Firebase Auth users to Firestore
-router.post('/sync-users', async (_req: AuthenticatedRequest, res: Response) => {
+router.post("/sync-users", async (_req: AuthenticatedRequest, res: Response) => {
   try {
     // This should be protected by admin role, but for now allowing it
-    console.log('Starting Firebase Auth to Firestore user sync...');
+    console.log("Starting Firebase Auth to Firestore user sync...");
 
     // Get all users from Firebase Auth
     const listUsersResult = await admin.auth().listUsers();
@@ -456,33 +456,33 @@ router.post('/sync-users', async (_req: AuthenticatedRequest, res: Response) => 
         // Check if user already exists in Firestore
         const existingUserQuery = await admin
           .firestore()
-          .collection('users')
-          .where('firebaseUid', '==', firebaseUser.uid)
+          .collection("users")
+          .where("firebaseUid", "==", firebaseUser.uid)
           .limit(1)
           .get();
 
         if (existingUserQuery.empty) {
           // User doesn't exist in Firestore, create them
           const roleMatch = firebaseUser.email?.match(/@(admin|teacher|student|staff)\.skillup$/);
-          const role = roleMatch ? roleMatch[1] : 'student';
+          const role = roleMatch ? roleMatch[1] : "student";
 
           console.log(`Creating user with role: ${role} (from ${firebaseUser.email})`);
 
           const newUserData = {
-            email: firebaseUser.email || '',
+            email: firebaseUser.email || "",
             firebaseUid: firebaseUser.uid,
-            name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'Unknown',
+            name: firebaseUser.displayName || firebaseUser.email?.split("@")[0] || "Unknown",
             role: role,
-            status: 'active',
+            status: "active",
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
           };
 
-          const userDoc = await admin.firestore().collection('users').add(newUserData);
+          const userDoc = await admin.firestore().collection("users").add(newUserData);
 
           syncResults.push({
             email: firebaseUser.email,
-            action: 'created',
+            action: "created",
             userId: userDoc.id,
             role: role,
           });
@@ -501,7 +501,7 @@ router.post('/sync-users', async (_req: AuthenticatedRequest, res: Response) => 
 
             syncResults.push({
               email: firebaseUser.email,
-              action: 'updated',
+              action: "updated",
               userId: existingUser.id,
             });
 
@@ -509,7 +509,7 @@ router.post('/sync-users', async (_req: AuthenticatedRequest, res: Response) => 
           } else {
             syncResults.push({
               email: firebaseUser.email,
-              action: 'already_synced',
+              action: "already_synced",
               userId: existingUser.id,
             });
           }
@@ -518,13 +518,13 @@ router.post('/sync-users', async (_req: AuthenticatedRequest, res: Response) => 
         console.error(`Error syncing user ${firebaseUser.email}:`, userError);
         syncResults.push({
           email: firebaseUser.email,
-          action: 'error',
-          error: userError instanceof Error ? userError.message : 'Unknown error',
+          action: "error",
+          error: userError instanceof Error ? userError.message : "Unknown error",
         });
       }
     }
 
-    console.log('User sync completed');
+    console.log("User sync completed");
 
     return res.json({
       success: true,
@@ -532,10 +532,10 @@ router.post('/sync-users', async (_req: AuthenticatedRequest, res: Response) => 
       results: syncResults,
     });
   } catch (error) {
-    console.error('Error in user sync:', error);
+    console.error("Error in user sync:", error);
     return res.status(500).json({
       success: false,
-      message: `User sync failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      message: `User sync failed: ${error instanceof Error ? error.message : "Unknown error"}`,
     });
   }
 });

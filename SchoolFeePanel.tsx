@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
-import { levelsAPI } from './services/apiService';
-import { authService } from './services/authService';
-import type { Level, Student, StudentClass } from './types';
-import './ManagementTableStyles.css';
+import { useEffect, useMemo, useState } from "react";
+import { levelsAPI } from "./services/apiService";
+import { authService } from "./services/authService";
+import type { Level, Student, StudentClass } from "./types";
+import "./ManagementTableStyles.css";
 
 type FeeRow = {
   studentId: string;
@@ -26,27 +26,27 @@ export default function SchoolFeePanel({
   classes: StudentClass[];
   onDataRefresh?: () => void;
 }) {
-  const [selectedClassId, setSelectedClassId] = useState<string>('');
-  const [selectedMonth, setSelectedMonth] = useState<string>(''); // YYYY-MM
+  const [selectedClassId, setSelectedClassId] = useState<string>("");
+  const [selectedMonth, setSelectedMonth] = useState<string>(""); // YYYY-MM
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [statusMessage, setStatusMessage] = useState<string>('');
-  const [statusType, setStatusType] = useState<'success' | 'error' | ''>('');
+  const [statusMessage, setStatusMessage] = useState<string>("");
+  const [statusType, setStatusType] = useState<"success" | "error" | "">("");
   const [levelMonthly, setLevelMonthly] = useState<Record<string, number>>({});
 
   // Initialize defaults and persist
   useEffect(() => {
-    const lastClass = localStorage.getItem('fees:lastClassId');
-    const lastMonth = localStorage.getItem('fees:lastMonth');
-    setSelectedClassId(lastClass || '');
+    const lastClass = localStorage.getItem("fees:lastClassId");
+    const lastMonth = localStorage.getItem("fees:lastMonth");
+    setSelectedClassId(lastClass || "");
     // default to current month
     const currentMonth = new Date().toISOString().slice(0, 7);
     setSelectedMonth(lastMonth || currentMonth);
   }, []);
   useEffect(() => {
-    if (selectedClassId) localStorage.setItem('fees:lastClassId', selectedClassId);
+    if (selectedClassId) localStorage.setItem("fees:lastClassId", selectedClassId);
   }, [selectedClassId]);
   useEffect(() => {
-    if (selectedMonth) localStorage.setItem('fees:lastMonth', selectedMonth);
+    if (selectedMonth) localStorage.setItem("fees:lastMonth", selectedMonth);
   }, [selectedMonth]);
 
   // Fetch levels (for monthlyFee)
@@ -55,14 +55,14 @@ export default function SchoolFeePanel({
     (async () => {
       try {
         const res = await levelsAPI.getLevels();
-        const data: any = res as any;
-        const levelList: Level[] = (data?.levels ?? []) as Level[];
+        // Narrow unknown result to expected shape instead of using 'any'
+        const levelList: Level[] = (res as { levels?: Level[] })?.levels ?? [];
         const map: Record<string, number> = {};
         levelList.forEach((lvl) => {
-          if (lvl._id) map[lvl._id] = typeof lvl.monthlyFee === 'number' ? lvl.monthlyFee : 0;
+          if (lvl?._id) map[lvl._id] = lvl.monthlyFee ?? 0;
         });
         if (alive) setLevelMonthly(map);
-      } catch (e) {
+      } catch (_e) {
         setLevelMonthly({});
       }
     })();
@@ -73,14 +73,14 @@ export default function SchoolFeePanel({
 
   const selectedClass = useMemo(
     () => classes.find((c) => (c._id || c.id) === selectedClassId),
-    [classes, selectedClassId]
+    [classes, selectedClassId],
   );
 
   const baseFromLevel = useMemo(() => {
     const levelId =
-      typeof selectedClass?.levelId === 'string'
-        ? selectedClass?.levelId
-        : (selectedClass?.levelId as any)?._id;
+      typeof selectedClass?.levelId === "string"
+        ? selectedClass.levelId
+        : (selectedClass?.levelId as { _id?: string } | undefined)?._id;
     return levelId ? (levelMonthly[levelId] ?? 0) : 0;
   }, [selectedClass, levelMonthly]);
 
@@ -91,8 +91,9 @@ export default function SchoolFeePanel({
   }, [students, selectedClass]);
 
   const profile = authService.getCurrentUser();
-  const staffId = profile?.id || '';
-  const staffName = (profile as any)?.name || (profile as any)?.email || 'Unknown';
+  const staffId = profile?.id || "";
+  // Prefer optional chaining over 'as any'
+  const staffName = profile?.name || profile?.email || "Unknown";
 
   // FeeMap state and update with override hint + validation
   const [feeMap, setFeeMap] = useState<Record<string, FeeRow>>({});
@@ -105,24 +106,23 @@ export default function SchoolFeePanel({
       filteredStudents.forEach((s) => {
         const current = next[s.id];
         const base = baseFromLevel;
+        const extras = current?.extras ?? 0;
         next[s.id] = {
           studentId: s.id,
-          baseAmount: typeof current?.baseAmount === 'number' ? current.baseAmount : base,
-          extras: current?.extras || 0,
-          total:
-            Number(typeof current?.baseAmount === 'number' ? current.baseAmount : base) +
-            Number(current?.extras || 0),
+          baseAmount: base,
+          extras,
+          total: base + extras,
           paid: current?.paid || false,
           paidDate: current?.paidDate,
           staffId: current?.staffId || staffId,
           changedBy: current?.changedBy || staffName,
           updatedAt: current?.updatedAt || new Date().toISOString(),
-          overridden: typeof current?.baseAmount === 'number' && current?.baseAmount !== base,
+          overridden: typeof current?.baseAmount === "number" && current?.baseAmount !== base,
         };
       });
       return next;
     });
-  }, [selectedClassId, baseFromLevel]);
+  }, [selectedClass, filteredStudents, baseFromLevel, staffId, staffName]);
 
   const updateFee = (id: string, patch: Partial<FeeRow>) => {
     setFeeMap((prev) => {
@@ -139,8 +139,8 @@ export default function SchoolFeePanel({
       const extras = Number(next.extras);
       if (Number.isNaN(base) || Number.isNaN(extras) || base < 0 || extras < 0) {
         // reject invalid and show message
-        setStatusMessage('Invalid pricing: amounts must be non-negative numbers.');
-        setStatusType('error');
+        setStatusMessage("Invalid pricing: amounts must be non-negative numbers.");
+        setStatusType("error");
         return prev;
       }
       next.total = base + extras;
@@ -168,12 +168,12 @@ export default function SchoolFeePanel({
   const markSelectedPaid = () => {
     const ids = Array.from(selectedIds);
     if (ids.length === 0) {
-      setStatusMessage('No students selected.');
-      setStatusType('error');
+      setStatusMessage("No students selected.");
+      setStatusType("error");
       return;
     }
-    const date = prompt('Enter paid date (YYYY-MM-DD). Leave blank for today:', '');
-    const paidDate = (date && date.trim()) || new Date().toISOString().slice(0, 10);
+    const date = prompt("Enter paid date (YYYY-MM-DD). Leave blank for today:", "");
+    const paidDate = date?.trim() || new Date().toISOString().slice(0, 10);
     const ok = window.confirm(`Mark ${ids.length} selected as Paid on ${paidDate}?`);
     if (!ok) return;
 
@@ -200,27 +200,27 @@ export default function SchoolFeePanel({
         return next;
       });
       setStatusMessage(`Marked ${ids.length} students Paid.`);
-      setStatusType('success');
+      setStatusType("success");
       onDataRefresh?.();
-    } catch (e) {
-      setStatusMessage('Failed to mark selected students Paid.');
-      setStatusType('error');
+    } catch (_e) {
+      setStatusMessage("Failed to mark selected students Paid.");
+      setStatusType("error");
     }
   };
 
   // Export CSV (Phase 1)
   const exportCSV = () => {
     const hdr = [
-      'Student',
-      'Base',
-      'Extras',
-      'Total',
-      'Paid',
-      'PaidDate',
-      'StaffId',
-      'ChangedBy',
-      'UpdatedAt',
-      'Overridden',
+      "Student",
+      "Base",
+      "Extras",
+      "Total",
+      "Paid",
+      "PaidDate",
+      "StaffId",
+      "ChangedBy",
+      "UpdatedAt",
+      "Overridden",
     ];
     const rows = filteredStudents.map((s) => {
       const row = feeMap[s.id] || {
@@ -235,26 +235,27 @@ export default function SchoolFeePanel({
         row.baseAmount,
         row.extras,
         row.total,
-        row.paid ? 'Yes' : 'No',
-        row.paidDate || '',
-        row.staffId || '',
-        row.changedBy || '',
-        row.updatedAt || '',
-        row.overridden ? 'Yes' : 'No',
-      ].join(',');
+        row.paid ? "Yes" : "No",
+        row.paidDate || "",
+        row.staffId || "",
+        row.changedBy || "",
+        row.updatedAt || "",
+        row.overridden ? "Yes" : "No",
+      ].join(",");
     });
-    const blob = new Blob([hdr.join(',') + '\n' + rows.join('\n')], {
-      type: 'text/csv;charset=utf-8;',
+    // CSV export: prefer template literals
+    const blob = new Blob([`${hdr.join(",")}\n${rows.join("\n")}`], {
+      type: "text/csv;charset=utf-8;",
     });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
-    const className = selectedClass?.name || 'class';
+    const className = selectedClass?.name || "class";
     link.download = `school_fee_${className}_${selectedMonth}.csv`;
     link.click();
     URL.revokeObjectURL(url);
-    setStatusMessage('CSV exported successfully.');
-    setStatusType('success');
+    setStatusMessage("CSV exported successfully.");
+    setStatusType("success");
   };
 
   // NOTE: XLSX export removed due to security advisory (GHSA-4r6h-8v6p-xvw6, GHSA-5pgg-2g8v-p4x9)
@@ -262,9 +263,9 @@ export default function SchoolFeePanel({
   // Printable A4 bills (two per page)
   const printBills = () => {
     try {
-      const win = window.open('', '_blank', 'noopener,noreferrer');
+      const win = window.open("", "_blank", "noopener,noreferrer");
       if (!win) return;
-      const className = selectedClass?.name || 'Class';
+      const className = selectedClass?.name || "Class";
       const monthLabel = selectedMonth;
       const itemsHtml = filteredStudents
         .map((s) => {
@@ -282,14 +283,14 @@ export default function SchoolFeePanel({
               <div><strong>Base:</strong> ${row.baseAmount.toFixed(2)}</div>
               <div><strong>Extras:</strong> ${row.extras.toFixed(2)}</div>
               <div><strong>Total:</strong> ${row.total.toFixed(2)}</div>
-              <div><strong>Paid:</strong> ${row.paid ? 'Yes' : 'No'}</div>
-              <div><strong>Paid Date:</strong> ${row.paidDate || ''}</div>
+              <div><strong>Paid:</strong> ${row.paid ? "Yes" : "No"}</div>
+              <div><strong>Paid Date:</strong> ${row.paidDate || ""}</div>
               <div><strong>Staff:</strong> ${row.changedBy || staffName} (${row.staffId || staffId})</div>
-              <div><small>UpdatedAt: ${row.updatedAt || ''}</small></div>
+              <div><small>UpdatedAt: ${row.updatedAt || ""}</small></div>
             </div>
           `;
         })
-        .join('');
+        .join("");
       win.document.write(`
         <html>
           <head>
@@ -311,11 +312,11 @@ export default function SchoolFeePanel({
         </html>
       `);
       win.document.close();
-      setStatusMessage('Opened print preview for bills.');
-      setStatusType('success');
-    } catch (e) {
-      setStatusMessage('Failed to open print preview.');
-      setStatusType('error');
+      setStatusMessage("Opened print preview for bills.");
+      setStatusType("success");
+    } catch (_e) {
+      setStatusMessage("Failed to open print preview.");
+      setStatusType("error");
     }
   };
 
@@ -330,11 +331,11 @@ export default function SchoolFeePanel({
           value={selectedMonth}
           onChange={(e) => setSelectedMonth(e.target.value)}
         />
-        <button className="btn-export" onClick={exportCSV}>
+        <button type="button" className="btn-export" onClick={exportCSV}>
           Export CSV
         </button>
         {/* XLSX export button removed */}
-        <button className="btn-edit" onClick={printBills}>
+        <button type="button" className="btn-edit" onClick={printBills}>
           Print Bills
         </button>
       </div>
@@ -343,10 +344,10 @@ export default function SchoolFeePanel({
         <div
           style={{
             marginTop: 8,
-            padding: '8px 12px',
+            padding: "8px 12px",
             borderRadius: 6,
-            background: statusType === 'success' ? '#e7f7e7' : '#fdeaea',
-            color: statusType === 'success' ? '#095f09' : '#7a0b0b',
+            background: statusType === "success" ? "#e7f7e7" : "#fdeaea",
+            color: statusType === "success" ? "#095f09" : "#7a0b0b",
           }}
         >
           {statusMessage}
@@ -354,13 +355,17 @@ export default function SchoolFeePanel({
       )}
 
       <div className="action-buttons" style={{ marginTop: 8 }}>
-        <button className="btn-edit" onClick={() => selectAll(filteredStudents.map((s) => s.id))}>
+        <button
+          type="button"
+          className="btn-edit"
+          onClick={() => selectAll(filteredStudents.map((s) => s.id))}
+        >
           Select All
         </button>
-        <button className="btn-edit" onClick={clearAll}>
+        <button type="button" className="btn-edit" onClick={clearAll}>
           Clear All
         </button>
-        <button className="btn-save" onClick={markSelectedPaid}>
+        <button type="button" className="btn-save" onClick={markSelectedPaid}>
           Mark all paid
         </button>
       </div>
@@ -401,13 +406,13 @@ export default function SchoolFeePanel({
                     value={row.baseAmount}
                     onChange={(e) => updateFee(s.id, { baseAmount: Number(e.target.value) })}
                     style={{
-                      borderColor: row.overridden ? '#FF8C00' : '#ccc',
+                      borderColor: row.overridden ? "#FF8C00" : "#ccc",
                       borderWidth: row.overridden ? 2 : 1,
                     }}
                     aria-label="Base amount"
                   />
                   {row.overridden && (
-                    <div style={{ fontSize: 12, color: '#FF8C00' }}>Overridden</div>
+                    <div style={{ fontSize: 12, color: "#FF8C00" }}>Overridden</div>
                   )}
                 </td>
                 <td>
@@ -438,7 +443,7 @@ export default function SchoolFeePanel({
                     Paid
                   </label>
                 </td>
-                <td>{row.paidDate || ''}</td>
+                <td>{row.paidDate || ""}</td>
                 <td>
                   {/* Audit */}
                   <div style={{ fontSize: 12 }}>
@@ -446,7 +451,7 @@ export default function SchoolFeePanel({
                     <br />
                     ChangedBy: {row.changedBy || staffName}
                     <br />
-                    UpdatedAt: {row.updatedAt || ''}
+                    UpdatedAt: {row.updatedAt || ""}
                   </div>
                 </td>
               </tr>

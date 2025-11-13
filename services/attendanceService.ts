@@ -1,11 +1,11 @@
-import { GetObjectCommand, PutObjectCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
-import { s3, vstorageConfig } from './vstorage';
+import { GetObjectCommand, ListObjectsV2Command, PutObjectCommand } from "@aws-sdk/client-s3";
 import type {
   AttendanceDay,
   AttendanceMonthSnapshot,
   AttendanceStatus,
   AttendanceStudentMonthFile,
-} from '../types';
+} from "../types";
+import { s3, vstorageConfig } from "./vstorage";
 
 /**
  * Build S3 key for a student's month file
@@ -29,11 +29,11 @@ export function normalizeMonth(monthLike: string): string {
  * Get month days for printing/report rows
  */
 export function getDaysOfMonth(month: string): string[] {
-  const [yStr, mStr] = month.split('-');
+  const [yStr, mStr] = month.split("-");
   const y = Number(yStr);
   const m = Number(mStr);
   const daysInMonth = new Date(y, m, 0).getDate();
-  const pad = (n: number) => String(n).padStart(2, '0');
+  const pad = (n: number) => String(n).padStart(2, "0");
   const prefix = `${yStr}-${mStr}-`;
   return Array.from({ length: daysInMonth }, (_, i) => `${prefix}${pad(i + 1)}`);
 }
@@ -50,9 +50,9 @@ export function computeSummary(file: AttendanceStudentMonthFile): {
   let absent = 0;
   let late = 0;
   for (const d of Object.values(file.days)) {
-    if (d.status === 'present') present++;
-    else if (d.status === 'absent') absent++;
-    else if (d.status === 'late') late++;
+    if (d.status === "present") present++;
+    else if (d.status === "absent") absent++;
+    else if (d.status === "late") late++;
   }
   return { present, absent, late };
 }
@@ -67,7 +67,7 @@ const MONTH_CACHE_TTL_MS = 60_000;
  */
 export async function loadClassMonth(
   classId: string,
-  monthLike: string
+  monthLike: string,
 ): Promise<AttendanceMonthSnapshot> {
   const month = normalizeMonth(monthLike);
   const cacheKey = `${classId}|${month}`;
@@ -81,11 +81,11 @@ export async function loadClassMonth(
     new ListObjectsV2Command({
       Bucket: vstorageConfig.bucket,
       Prefix: prefix,
-    })
+    }),
   );
 
   const contents = list.Contents || [];
-  const students: AttendanceMonthSnapshot['students'] = {};
+  const students: AttendanceMonthSnapshot["students"] = {};
 
   for (const obj of contents) {
     if (!obj.Key) continue;
@@ -94,18 +94,19 @@ export async function loadClassMonth(
         new GetObjectCommand({
           Bucket: vstorageConfig.bucket,
           Key: obj.Key,
-        })
+        }),
       );
       const body = res.Body as unknown;
       let jsonText: string | null = null;
 
       // Node runtime supports transformToString
-      const hasTransform = !!(body as { transformToString?: () => Promise<string> }).transformToString;
+      const hasTransform = !!(body as { transformToString?: () => Promise<string> })
+        .transformToString;
       if (hasTransform) {
         jsonText = await (body as { transformToString: () => Promise<string> }).transformToString();
       } else {
         // Browser-like fallback (ReadableStream to text) – guarded
-        throw new Error('Unsupported stream type from VStorage response');
+        throw new Error("Unsupported stream type from VStorage response");
       }
 
       if (jsonText) {
@@ -115,7 +116,7 @@ export async function loadClassMonth(
         }
       }
     } catch (err) {
-      console.error('attendanceService.loadClassMonth: failed to read', obj.Key, err);
+      console.error("attendanceService.loadClassMonth: failed to read", obj.Key, err);
       // continue reading other files
     }
   }
@@ -136,7 +137,7 @@ export async function setDayStatus(
     dateISO: string; // YYYY-MM-DD
     status: AttendanceStatus;
   },
-  editorUserId: string
+  editorUserId: string,
 ): Promise<AttendanceStudentMonthFile> {
   const month = normalizeMonth(args.dateISO.slice(0, 7));
   const key = buildAttendanceKey(args.classId, month, args.studentId);
@@ -153,10 +154,11 @@ export async function setDayStatus(
       new GetObjectCommand({
         Bucket: vstorageConfig.bucket,
         Key: key,
-      })
+      }),
     );
     const body = res.Body as unknown;
-    const hasTransform = !!(body as { transformToString?: () => Promise<string> }).transformToString;
+    const hasTransform = !!(body as { transformToString?: () => Promise<string> })
+      .transformToString;
     if (hasTransform) {
       const text = await (body as { transformToString: () => Promise<string> }).transformToString();
       existing = JSON.parse(text) as AttendanceStudentMonthFile;
@@ -179,20 +181,20 @@ export async function setDayStatus(
     },
   };
 
-  const putBody = new Blob([JSON.stringify(next)], { type: 'application/json' });
+  const putBody = new Blob([JSON.stringify(next)], { type: "application/json" });
   await s3.send(
     new PutObjectCommand({
       Bucket: vstorageConfig.bucket,
       Key: key,
       Body: putBody,
-      ContentType: 'application/json',
+      ContentType: "application/json",
       Metadata: {
         classId: args.classId,
         studentId: args.studentId,
         month,
-        type: 'attendance',
+        type: "attendance",
       },
-    })
+    }),
   );
 
   // Invalidate cache for this month/class
@@ -205,7 +207,7 @@ export async function setDayStatus(
  */
 export function buildDayStatusMap(
   snapshot: AttendanceMonthSnapshot,
-  dateISO: string
+  dateISO: string,
 ): Record<string, AttendanceStatus | undefined> {
   const map: Record<string, AttendanceStatus | undefined> = {};
   for (const [studentId, file] of Object.entries(snapshot.students)) {
