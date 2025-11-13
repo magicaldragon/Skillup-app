@@ -26,6 +26,7 @@ export default function SchoolFeePanel({
   classes: StudentClass[];
   onDataRefresh?: () => void;
 }) {
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedClassId, setSelectedClassId] = useState<string>("");
   const [selectedMonth, setSelectedMonth] = useState<string>(""); // YYYY-MM
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -87,13 +88,24 @@ export default function SchoolFeePanel({
   const filteredStudents = useMemo(() => {
     if (!selectedClass) return [];
     const ids = new Set(selectedClass.studentIds || []);
-    return students.filter((s) => ids.has(s.id));
-  }, [students, selectedClass]);
+    const term = searchTerm.trim().toLowerCase();
+    return students
+      .filter((s) => ids.has(s.id))
+      .filter((s) => {
+        if (!term) return true;
+        const full = (s.name || "").toLowerCase();
+        const eng = (s.englishName || "").toLowerCase();
+        const code = (s.studentCode || "").toLowerCase();
+        return full.includes(term) || eng.includes(term) || code.includes(term);
+      });
+  }, [students, selectedClass, searchTerm]);
 
   const profile = authService.getCurrentUser();
   const staffId = profile?.id || "";
-  // Prefer optional chaining over 'as any'
   const staffName = profile?.name || profile?.email || "Unknown";
+  const userRole = (profile as unknown as { role?: string })?.role || "";
+  const canEditAmounts = userRole === "admin";
+  const canMarkPaid = ["admin", "teacher", "staff"].includes(userRole);
 
   // FeeMap state and update with override hint + validation
   const [feeMap, setFeeMap] = useState<Record<string, FeeRow>>({});
@@ -166,6 +178,11 @@ export default function SchoolFeePanel({
 
   // Batch: Mark all paid (with date prompt)
   const markSelectedPaid = () => {
+    if (!canMarkPaid) {
+      setStatusMessage("Access denied: only teacher/admin can mark payments.");
+      setStatusType("error");
+      return;
+    }
     const ids = Array.from(selectedIds);
     if (ids.length === 0) {
       setStatusMessage("No students selected.");
@@ -324,8 +341,22 @@ export default function SchoolFeePanel({
     <div className="school-fee-panel">
       <div className="filters">
         <select value={selectedClassId} onChange={(e) => setSelectedClassId(e.target.value)}>
-          {/* ... existing code ... */}
+          <option value="">Select Class</option>
+          {classes.map((c) => {
+            const id = c._id || c.id;
+            return id ? (
+              <option key={id} value={id}>
+                {c.classCode || c.name}
+              </option>
+            ) : null;
+          })}
         </select>
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search by name/code"
+        />
         <input
           type="month"
           value={selectedMonth}
@@ -374,7 +405,15 @@ export default function SchoolFeePanel({
         <thead>
           <tr>
             <th>#</th>
-            {/* ... existing code ... */}
+            <th>Student</th>
+            <th>English Name</th>
+            <th>Age</th>
+            <th>Base</th>
+            <th>Extras</th>
+            <th>Total</th>
+            <th>Paid</th>
+            <th>Paid Date</th>
+            <th>Audit</th>
           </tr>
         </thead>
         <tbody>
@@ -386,6 +425,12 @@ export default function SchoolFeePanel({
               total: baseFromLevel,
               paid: false,
             };
+            const age = (() => {
+              const d = s.dob ? new Date(s.dob) : null;
+              if (!d || Number.isNaN(d.getTime())) return "";
+              const diff = Date.now() - d.getTime();
+              return Math.floor(diff / (365.25 * 24 * 3600 * 1000));
+            })();
             return (
               <tr key={s.id}>
                 <td>
@@ -396,8 +441,9 @@ export default function SchoolFeePanel({
                     aria-label={`select ${s.name}`}
                   />
                 </td>
-                {/* Student name, etc. */}
                 <td>{s.name}</td>
+                <td>{s.englishName || ""}</td>
+                <td>{age}</td>
                 <td>
                   <input
                     type="number"
@@ -410,6 +456,7 @@ export default function SchoolFeePanel({
                       borderWidth: row.overridden ? 2 : 1,
                     }}
                     aria-label="Base amount"
+                    disabled={!canEditAmounts}
                   />
                   {row.overridden && (
                     <div style={{ fontSize: 12, color: "#FF8C00" }}>Overridden</div>
@@ -423,6 +470,7 @@ export default function SchoolFeePanel({
                     value={row.extras}
                     onChange={(e) => updateFee(s.id, { extras: Number(e.target.value) })}
                     aria-label="Extras"
+                    disabled={!canEditAmounts}
                   />
                 </td>
                 <td>{row.total.toFixed(2)}</td>
@@ -439,13 +487,13 @@ export default function SchoolFeePanel({
                             : undefined,
                         })
                       }
+                      disabled={!canMarkPaid}
                     />
                     Paid
                   </label>
                 </td>
                 <td>{row.paidDate || ""}</td>
                 <td>
-                  {/* Audit */}
                   <div style={{ fontSize: 12 }}>
                     StaffId: {row.staffId || staffId}
                     <br />

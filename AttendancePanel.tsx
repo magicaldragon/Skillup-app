@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import type { AttendanceStatus, Student, StudentClass } from "./types";
+import type { AttendanceStatus, Student, StudentClass, AttendanceMonthSnapshot } from "./types";
 import "./ManagementTableStyles.css";
 import {
   buildDayStatusMap,
@@ -24,6 +24,7 @@ export default function AttendancePanel({
   const [statusMessage, setStatusMessage] = useState<string>("");
   const [statusType, setStatusType] = useState<"success" | "error" | "">("");
   const [dayMap, setDayMap] = useState<Record<string, AttendanceStatus | undefined>>({});
+  const [snapshot, setSnapshot] = useState<AttendanceMonthSnapshot | null>(null);
 
   // Resolve selected class for exports
   const selectedClass = useMemo(
@@ -58,9 +59,12 @@ export default function AttendancePanel({
     async function load() {
       if (!selectedClassId || !selectedMonth) return;
       try {
-        const snapshot = await loadClassMonth(selectedClassId, selectedMonth);
-        const map = buildDayStatusMap(snapshot, selectedDate);
-        if (!cancelled) setDayMap(map);
+        const snap = await loadClassMonth(selectedClassId, selectedMonth);
+        const map = buildDayStatusMap(snap, selectedDate);
+        if (!cancelled) {
+          setSnapshot(snap);
+          setDayMap(map);
+        }
       } catch (err) {
         console.error("AttendancePanel: failed to load month", err);
       }
@@ -99,13 +103,45 @@ export default function AttendancePanel({
           ),
         ),
       );
-      const snapshot = await loadClassMonth(selectedClassId, selectedMonth);
-      setDayMap(buildDayStatusMap(snapshot, selectedDate));
+      const snap = await loadClassMonth(selectedClassId, selectedMonth);
+      setSnapshot(snap);
+      setDayMap(buildDayStatusMap(snap, selectedDate));
       setStatusMessage(`Updated ${ids.length} students to "${status}" on ${selectedDate}.`);
       setStatusType("success");
       onDataRefresh?.();
     } catch (err) {
       console.error("AttendancePanel: applyStatusFor error", err);
+      setStatusMessage("Failed to update attendance. Please try again.");
+      setStatusType("error");
+    }
+  } 
+
+  async function applyStatusForDate(studentId: string, dateISO: string, status: AttendanceStatus) {
+    const userStr = localStorage.getItem("skillup_user");
+    const editorId = userStr ? JSON.parse(userStr).id || JSON.parse(userStr)._id || "" : "";
+    const userRole = userStr ? JSON.parse(userStr).role || "" : "";
+    if (!["admin", "teacher"].includes(userRole)) {
+      setStatusMessage("Access denied: only teacher/admin can edit attendance.");
+      setStatusType("error");
+      return;
+    }
+    try {
+      await setDayStatus(
+        {
+          classId: selectedClassId,
+          studentId,
+          dateISO,
+          status,
+        },
+        editorId,
+      );
+      const snap = await loadClassMonth(selectedClassId, selectedMonth);
+      setSnapshot(snap);
+      setStatusMessage(`Updated ${studentId} on ${dateISO}.`);
+      setStatusType("success");
+      onDataRefresh?.();
+    } catch (err) {
+      console.error("AttendancePanel: applyStatusForDate error", err);
       setStatusMessage("Failed to update attendance. Please try again.");
       setStatusType("error");
     }
@@ -315,6 +351,46 @@ export default function AttendancePanel({
           ))}
         </tbody>
       </table>
+
+      {snapshot && (
+        <div style={{ overflowX: "auto", marginTop: 16 }}>
+          <table className="attendance-table">
+            <thead>
+              <tr>
+                <th>Student</th>
+                {getDaysOfMonth(selectedMonth).map((d: string) => (
+                  <th key={`head-${d}`}>{d.slice(-2)}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {classStudents.map((s: Student) => (
+                <tr key={`grid-${s.id}`}>
+                  <td>{s.name}</td>
+                  {getDaysOfMonth(selectedMonth).map((d: string) => {
+                    const file = snapshot.students[s.id];
+                    const current = file?.days?.[d]?.status as AttendanceStatus | undefined;
+                    return (
+                      <td key={`cell-${s.id}-${d}`}>
+                        <select
+                          value={current || "present"}
+                          onChange={(e) =>
+                            applyStatusForDate(s.id, d, e.target.value as AttendanceStatus)
+                          }
+                        >
+                          <option value="present">P</option>
+                          <option value="absent">A</option>
+                          <option value="late">L</option>
+                        </select>
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* Printable monthly grid with summary */}
       <div className="print-only a4-landscape">
