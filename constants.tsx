@@ -187,7 +187,10 @@ export const ICONS = {
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
+      role="img"
+      aria-label="Status"
     >
+      <title>Status</title>
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -202,7 +205,10 @@ export const ICONS = {
       className="h-5 w-5"
       fill="currentColor"
       viewBox="0 0 512 512"
+      role="img"
+      aria-label="Scores"
     >
+      <title>Scores</title>
       <path d="M4.1 38.2C1.4 34.2 0 29.4 0 24.6C0 11 11 0 24.6 0L133.9 0c11.2 0 21.7 5.9 27.4 15.5l68.5 114.1c-48.2 6.1-91.3 28.6-123.4 61.9L4.1 38.2zM503.7 0L405.6 191.5c-32.1-33.3-75.2-55.8-123.4-61.9L350.7 15.5C356.5 5.9 366.9 0 378.1 0L487.4 0C501 0 512 11 512 24.6c0 4.8-1.4 9.6-4.1 13.6zM80 336a176 176 0 1 1 352 0A176 176 0 1 1 80 336zm184.4-94.9c-3.4-7-13.3-7-16.8 0l-22.4 45.4c-1.4 2.8-4 4.7-7 5.1L168 298.9c-7.7 1.1-10.7 10.5-5.2 16l36.3 35.4c2.2 2.2 3.2 5.2 2.7 8.3l-8.6 49.9c-1.3 7.6 6.7 13.5 13.6 9.9l44.8-23.6c2.7-1.4 6-1.4 8.7 0l44.8 23.6c6.9 3.6 14.9-2.2 13.6-9.9l-8.6-49.9c-.5-3 .5-6.1 2.7-8.3l36.3-35.4c5.6-5.4 2.5-14.8-5.2-16l-50.1-7.3c-3-.4-5.7-2.4-7-5.1l-22.4-45.4z" />
     </svg>
   ),
@@ -213,7 +219,10 @@ export const ICONS = {
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
+      role="img"
+      aria-label="Create"
     >
+      <title>Create</title>
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -223,7 +232,14 @@ export const ICONS = {
     </svg>
   ),
   edit: (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 fill-current" viewBox="0 0 20 20">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-5 w-5 fill-current"
+      viewBox="0 0 20 20"
+      role="img"
+      aria-label="Edit"
+    >
+      <title>Edit</title>
       <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
       <path
         fillRule="evenodd"
@@ -233,7 +249,14 @@ export const ICONS = {
     </svg>
   ),
   delete: (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 fill-current" viewBox="0 0 20 20">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-5 w-5 fill-current"
+      viewBox="0 0 20 20"
+      role="img"
+      aria-label="Delete"
+    >
+      <title>Delete</title>
       <path
         fillRule="evenodd"
         d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
@@ -248,7 +271,10 @@ export const ICONS = {
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
+      role="img"
+      aria-label="Assign"
     >
+      <title>Assign</title>
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -266,7 +292,10 @@ export const ICONS = {
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
+      role="img"
+      aria-label="Full Practice Test"
     >
+      <title>Full Practice Test</title>
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -282,7 +311,10 @@ export const ICONS = {
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
+      role="img"
+      aria-label="Mini Tests"
     >
+      <title>Mini Tests</title>
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -298,7 +330,10 @@ export const ICONS = {
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
+      role="img"
+      aria-label="Reading"
     >
+      <title>Reading</title>
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -314,7 +349,10 @@ export const ICONS = {
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
+      role="img"
+      aria-label="Listening"
     >
+      <title>Listening</title>
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -330,7 +368,10 @@ export const ICONS = {
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
+      role="img"
+      aria-label="Writing"
     >
+      <title>Writing</title>
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -347,7 +388,10 @@ export const ICONS = {
       viewBox="0 0 24 24"
       stroke="currentColor"
       strokeWidth={2}
+      role="img"
+      aria-label="Speaking"
     >
+      <title>Speaking</title>
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -364,7 +408,10 @@ export const ICONS = {
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
+      role="img"
+      aria-label="Chevron Down"
     >
+      <title>Chevron Down</title>
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
     </svg>
   ),
@@ -375,7 +422,10 @@ export const ICONS = {
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
+      role="img"
+      aria-label="Close"
     >
+      <title>Close</title>
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
     </svg>
   ),
@@ -386,7 +436,10 @@ export const ICONS = {
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
+      role="img"
+      aria-label="Search"
     >
+      <title>Search</title>
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -402,7 +455,10 @@ export const ICONS = {
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
+      role="img"
+      aria-label="Add"
     >
+      <title>Add</title>
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -418,7 +474,10 @@ export const ICONS = {
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
+      role="img"
+      aria-label="Link"
     >
+      <title>Link</title>
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -434,7 +493,10 @@ export const ICONS = {
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
+      role="img"
+      aria-label="Document"
     >
+      <title>Document</title>
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -451,7 +513,10 @@ export const ICONS = {
       viewBox="0 0 24 24"
       stroke="currentColor"
       strokeWidth="2"
+      role="img"
+      aria-label="Sign Out"
     >
+      <title>Sign Out</title>
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -460,12 +525,14 @@ export const ICONS = {
     </svg>
   ),
   play: (
-    <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+    <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20" role="img" aria-label="Play">
+      <title>Play</title>
       <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
     </svg>
   ),
   pause: (
-    <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+    <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20" role="img" aria-label="Pause">
+      <title>Pause</title>
       <path d="M5.75 3a.75.75 0 00-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 00.75-.75V3.75A.75.75 0 007.25 3h-1.5zM12.75 3a.75.75 0 00-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 00.75-.75V3.75a.75.75 0 00-.75-.75h-1.5z" />
     </svg>
   ),

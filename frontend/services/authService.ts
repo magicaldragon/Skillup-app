@@ -184,22 +184,22 @@ class AuthService {
         recordFailedAttempt();
         return { success: false, message: errorMessage };
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Login error details:", {
-        name: error?.name,
-        message: error?.message,
-        code: error?.code,
+        name: error instanceof Error ? error.name : undefined,
+        message: error instanceof Error ? error.message : undefined,
+        code: (error as { code?: string })?.code,
       });
       localStorage.removeItem("skillup_token");
       localStorage.removeItem("skillup_user");
 
-      if (error?.code === "auth/user-not-found") {
+      if ((error as { code?: string })?.code === "auth/user-not-found") {
         recordFailedAttempt();
         return { success: false, message: "User not found. Please check your email address." };
-      } else if (error?.code === "auth/wrong-password") {
+      } else if ((error as { code?: string })?.code === "auth/wrong-password") {
         recordFailedAttempt();
         return { success: false, message: "Incorrect password. Please try again." };
-      } else if (error?.code === "auth/too-many-requests") {
+      } else if ((error as { code?: string })?.code === "auth/too-many-requests") {
         return { success: false, message: "Too many failed attempts. Please try again later." };
       }
 
@@ -225,7 +225,7 @@ class AuthService {
         success: true,
         message: "Logged out successfully",
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Logout error:", error);
 
       // Even if Firebase logout fails, clear local data
@@ -293,7 +293,7 @@ class AuthService {
     }
   }
 
-  async validateAuthState(): Promise<{ isValid: boolean; user?: any; error?: string }> {
+  async validateAuthState(): Promise<{ isValid: boolean; user?: UserProfile; error?: string }> {
     try {
       if (!this.isAuthenticated()) {
         return { isValid: false, error: "Not authenticated" };
@@ -325,7 +325,7 @@ class AuthService {
     return !!(token && user);
   }
 
-  async getCurrentUser(): Promise<any> {
+  async getCurrentUser(): Promise<UserProfile | null> {
     try {
       const token = localStorage.getItem("skillup_token");
       if (!token) {
@@ -340,8 +340,8 @@ class AuthService {
       });
 
       if (response.ok) {
-        const userData = await response.json();
-        return userData.user || userData;
+        const userData: { user?: UserProfile } = await response.json();
+        return userData.user || null;
       } else if (response.status === 401) {
         localStorage.removeItem("skillup_token");
         localStorage.removeItem("skillup_user");

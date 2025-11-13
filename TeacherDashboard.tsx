@@ -9,6 +9,7 @@ import AttendancePanel from "./AttendancePanel";
 import ChangeLogPanel from "./ChangeLogPanel";
 import ClassesPanel from "./ClassesPanel";
 import LevelsPanel from "./LevelsPanel";
+import type { Student, StudentClass } from "./types";
 import PotentialStudentsPanel from "./PotentialStudentsPanel";
 import RecordsPanel from "./RecordsPanel";
 import SchoolFeePanel from "./SchoolFeePanel";
@@ -41,6 +42,59 @@ function TeacherDashboard({
   const totalClasses = classes.length;
   // userRole variable removed as it's not used
 
+  const studentsForPanels: Student[] = students
+    .filter((s) => s.role === "student")
+    .map((s) => ({
+      id: s.id || s.firebaseUid || s.username,
+      _id: s.id,
+      name: s.name,
+      englishName: s.englishName,
+      email: s.email,
+      role: s.role,
+      gender: s.gender,
+      dob: s.dob,
+      phone: s.phone,
+      parentName: s.parentName,
+      parentPhone: s.parentPhone,
+      notes: s.notes,
+      status: s.status,
+      studentCode: s.studentCode,
+      avatarUrl: s.avatarUrl,
+      diceBearStyle: s.diceBearStyle,
+      diceBearSeed: s.diceBearSeed,
+      classIds: s.classIds || [],
+      createdAt: s.createdAt ? String(s.createdAt) : undefined,
+      updatedAt: s.updatedAt ? String(s.updatedAt) : undefined,
+    }));
+
+  const classesForPanels: StudentClass[] = classes.map((c) => ({
+    _id: c.id,
+    id: c.id,
+    name: c.name,
+    classCode: c.classCode,
+    levelId: c.levelId ?? null,
+    studentIds: c.studentIds || [],
+    teacherId: c.teacherId,
+    description: c.description,
+    isActive: c.isActive,
+    createdAt: c.createdAt ? String(c.createdAt) : undefined,
+    updatedAt: c.updatedAt ? String(c.updatedAt) : undefined,
+  }));
+
+  const currentStudent: Student = {
+    id: user.id || user._id,
+    _id: user._id,
+    name: user.name || user.fullname,
+    englishName: user.englishName,
+    email: user.email,
+    role: user.role,
+    username: user.username,
+    avatarUrl: user.avatarUrl,
+    status: user.status,
+    phone: user.phone,
+    classIds: user.classIds || [],
+  };
+
   return (
     <div className="teacher-dashboard">
       {/* Show avatar at the top of the dashboard */}
@@ -60,35 +114,25 @@ function TeacherDashboard({
       {activeKey === "add-student" ? (
         <AddNewMembers />
       ) : activeKey === "potential-students" ? (
-        <>
-          {/* TODO: Fix type compatibility between FirestoreUser/FirestoreClass and Student/StudentClass */}
-          {/* biome-ignore lint/suspicious/noExplicitAny: Temporary cast until types are unified across panels */}
-          <PotentialStudentsPanel classes={classes as any} currentUser={user as any} />
-        </>
+        <PotentialStudentsPanel classes={classesForPanels} currentUser={currentStudent} />
       ) : activeKey === "waiting-list" ? (
-        <WaitingListPanel classes={classes as any} onDataRefresh={onDataRefresh} />
+        <WaitingListPanel classes={classesForPanels} onDataRefresh={onDataRefresh} />
       ) : activeKey === "classes" ? (
         <ClassesPanel
-          /* biome-ignore lint/suspicious/noExplicitAny: Temporary cast until types are unified across panels */
-          students={students as any}
-          /* biome-ignore lint/suspicious/noExplicitAny: Temporary cast until types are unified across panels */
-          classes={classes as any}
+          students={studentsForPanels}
+          classes={classesForPanels}
           onDataRefresh={onDataRefresh}
         />
       ) : activeKey === "attendance" ? (
         <AttendancePanel
-          /* biome-ignore lint/suspicious/noExplicitAny: Temporary cast until types are unified across panels */
-          students={students as any}
-          /* biome-ignore lint/suspicious/noExplicitAny: Temporary cast until types are unified across panels */
-          classes={classes as any}
+          students={studentsForPanels}
+          classes={classesForPanels}
           onDataRefresh={onDataRefresh}
         />
       ) : activeKey === "school-fee" ? (
         <SchoolFeePanel
-          /* biome-ignore lint/suspicious/noExplicitAny: Temporary cast until types are unified across panels */
-          students={students as any}
-          /* biome-ignore lint/suspicious/noExplicitAny: Temporary cast until types are unified across panels */
-          classes={classes as any}
+          students={studentsForPanels}
+          classes={classesForPanels}
           onDataRefresh={onDataRefresh}
         />
       ) : activeKey === "levels" ? (
@@ -127,8 +171,8 @@ function TeacherDashboard({
         </div>
       ) : activeKey === "settings" ? (
         <SettingsPanel
-          currentUser={user as any}
-          classes={classes as any}
+          currentUser={currentStudent}
+          classes={classesForPanels}
           onDataRefresh={onDataRefresh}
         />
       ) : activeKey === "admin-debug" ? (
