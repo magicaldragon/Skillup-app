@@ -114,7 +114,7 @@ export default function AttendancePanel({
       setStatusMessage("Failed to update attendance. Please try again.");
       setStatusType("error");
     }
-  } 
+  }
 
   async function applyStatusForDate(studentId: string, dateISO: string, status: AttendanceStatus) {
     const userStr = localStorage.getItem("skillup_user");
