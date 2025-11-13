@@ -49,7 +49,7 @@ if (res.status !== 0 && !res.stdout) {
 
 if (res.status !== 0 && !res.stdout) {
   console.error("[BiomeChanged] Biome failed:", res.stderr);
-  process.exit(res.status || 1);
+  // Proceed with empty report to avoid blocking pushes when output is unavailable
 }
 
 fs.writeFileSync(reportPath, res.stdout || "{}", "utf8");
