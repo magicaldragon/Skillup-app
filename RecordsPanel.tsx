@@ -86,7 +86,7 @@ function RecordsPanel() {
         limit: pagination.limit.toString(),
       });
 
-      // Only append category for real record categories
+      // Only append category for real record categories (not "all" or "students")
       if (filter !== "all" && filter !== "students") {
         params.append("category", filter);
       }
@@ -188,7 +188,7 @@ function RecordsPanel() {
     fetchStudents();
   }, [fetchRecords, fetchStudents]);
 
-  // Reset invalid status filter when category is not "students"
+  // Reset invalid student status filter when not in "students" category
   useEffect(() => {
     if (filter !== "students" && statusFilter !== "all") {
       setStatusFilter("all");
