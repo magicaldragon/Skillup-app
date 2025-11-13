@@ -43,4 +43,3 @@ describe("Sidebar menuConfig visibility for Attendance and School Fee", () => {
     expect(findChild(menu, "school-fee")?.visible).toBe(false);
   });
 });
-
