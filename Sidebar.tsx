@@ -30,7 +30,7 @@ import {
 } from "react-icons/fa";
 import DiceBearAvatar from "./DiceBearAvatar";
 
-const menuConfig = (role: string) => [
+export const menuConfig = (role: string) => [
   {
     label: "Dashboard",
     icon: <FaHome />,
