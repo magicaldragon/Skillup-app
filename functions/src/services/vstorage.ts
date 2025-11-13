@@ -12,14 +12,8 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 // VStorage Configuration for Firebase Functions
 export const vstorageConfig = {
-  accessKeyId:
-    process.env.VSTORAGE_ACCESS_KEY ||
-    process.env.VITE_VSTORAGE_ACCESS_KEY ||
-    "",
-  secretAccessKey:
-    process.env.VSTORAGE_SECRET_KEY ||
-    process.env.VITE_VSTORAGE_SECRET_KEY ||
-    "",
+  accessKeyId: process.env.VSTORAGE_ACCESS_KEY || process.env.VITE_VSTORAGE_ACCESS_KEY || "",
+  secretAccessKey: process.env.VSTORAGE_SECRET_KEY || process.env.VITE_VSTORAGE_SECRET_KEY || "",
   endpoint:
     process.env.VSTORAGE_ENDPOINT || process.env.VITE_VSTORAGE_ENDPOINT || "https://s3.vngcloud.vn",
   region: process.env.VSTORAGE_REGION || process.env.VITE_VSTORAGE_REGION || "sgn",

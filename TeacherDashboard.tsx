@@ -63,10 +63,7 @@ function TeacherDashboard({
         <>
           {/* TODO: Fix type compatibility between FirestoreUser/FirestoreClass and Student/StudentClass */}
           {/* biome-ignore lint/suspicious/noExplicitAny: Temporary cast until types are unified across panels */}
-          <PotentialStudentsPanel
-            classes={classes as any}
-            currentUser={user as any}
-          />
+          <PotentialStudentsPanel classes={classes as any} currentUser={user as any} />
         </>
       ) : activeKey === "waiting-list" ? (
         <WaitingListPanel classes={classes as any} onDataRefresh={onDataRefresh} />

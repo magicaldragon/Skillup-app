@@ -143,9 +143,7 @@ function RecordsPanel() {
     return records.filter((record) => {
       const searchLower = searchTerm.toLowerCase();
       const detailsText =
-        typeof record.details === "string"
-          ? record.details
-          : JSON.stringify(record.details || "");
+        typeof record.details === "string" ? record.details : JSON.stringify(record.details || "");
       const matchesSearch =
         !searchTerm ||
         record.studentName.toLowerCase().includes(searchLower) ||
@@ -216,8 +214,6 @@ function RecordsPanel() {
     };
     return categoryNames[category] || category;
   };
-
-  
 
   const handlePageChange = (newPage: number) => {
     setPagination((prev) => ({ ...prev, page: newPage }));

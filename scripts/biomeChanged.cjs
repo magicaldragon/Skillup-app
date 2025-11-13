@@ -29,16 +29,10 @@ console.log("[BiomeChanged] Checking files:", files.join(", "));
 
 const reportPath = path.resolve("biome-changed.json");
 const isWin = process.platform === "win32";
-const biomeBin = path.resolve(
-  "node_modules",
-  ".bin",
-  isWin ? "biome.cmd" : "biome",
-);
-let res = spawnSync(
-  biomeBin,
-  ["check", "--max-diagnostics=200", "--reporter=json", ...files],
-  { encoding: "utf8" },
-);
+const biomeBin = path.resolve("node_modules", ".bin", isWin ? "biome.cmd" : "biome");
+let res = spawnSync(biomeBin, ["check", "--max-diagnostics=200", "--reporter=json", ...files], {
+  encoding: "utf8",
+});
 
 if (res.status !== 0 && !res.stdout) {
   // Fallback: run full repo check to generate JSON output
