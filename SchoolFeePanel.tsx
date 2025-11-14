@@ -432,6 +432,24 @@ export default function SchoolFeePanel({
         <button type="button" className="btn-edit" onClick={printBills}>
           Print Bills
         </button>
+        <button
+          type="button"
+          className="btn-save"
+          onClick={async () => {
+            try {
+              setStatusMessage("Refreshing school fee data...");
+              setStatusType("");
+              await onDataRefresh?.();
+              setStatusMessage("Refreshed latest data");
+              setStatusType("success");
+            } catch (_e) {
+              setStatusMessage("Failed to refresh. Please try again.");
+              setStatusType("error");
+            }
+          }}
+        >
+          Refresh
+        </button>
       </div>
 
       {statusMessage && (

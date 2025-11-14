@@ -253,6 +253,27 @@ export default function AttendancePanel({
           >
             Print Monthly Report
           </button>
+          <button
+            className="btn-save"
+            type="button"
+            onClick={async () => {
+              if (!selectedClassId || !selectedMonth) return;
+              try {
+                setStatusMessage("Refreshing attendance...");
+                setStatusType("");
+                const snap = await loadClassMonth(selectedClassId, selectedMonth);
+                setSnapshot(snap);
+                setDayMap(buildDayStatusMap(snap, selectedDate));
+                setStatusMessage("Attendance refreshed");
+                setStatusType("success");
+              } catch (_e) {
+                setStatusMessage("Failed to refresh attendance");
+                setStatusType("error");
+              }
+            }}
+          >
+            Refresh
+          </button>
         </div>
 
         {/* Removed duplicate action-buttons here to keep single source */}
