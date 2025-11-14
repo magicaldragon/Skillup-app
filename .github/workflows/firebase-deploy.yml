@@ -17,6 +17,11 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Node and NPM Versions
+        run: |
+          node -v
+          npm -v
+
       - name: Install
         run: npm ci
 
@@ -24,18 +29,18 @@ jobs:
         run: npx biome format .
 
       - name: Lint (errors only)
-        run: npx biome check --reporter=github .
+        run: npx biome check --reporter=github --max-diagnostics=500 .
         continue-on-error: true
 
       - name: Build
         run: npm run build
 
       - name: Test (Vitest)
-        run: npm run test
+        run: npm run test -- --reporter=verbose | tee vitest.log
 
       - name: Deploy (Firebase)
         run: |
-          npm run firebase:deploy | tee deploy.log
+          DEBUG=1 npm run firebase:deploy | tee deploy.log
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
 
@@ -57,3 +62,9 @@ jobs:
         with:
           name: firebase-deploy-logs
           path: deploy.log
+
+      - name: Upload Test Logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: vitest-logs
+          path: vitest.log
