@@ -49,3 +49,43 @@ describe("Sidebar menuConfig visibility for Attendance and School Fee", () => {
     expect(findChild(menu, "school-fee")?.visible).toBe(true);
   });
 });
+
+describe("Sidebar Management submenu ordering and presence", () => {
+  const getVisibleChildren = (menu: Array<any>, parentKey: string) => {
+    const parent = findChild(menu, parentKey);
+    const children = parent?.children?.filter((c: any) => c.visible) ?? [];
+    return children;
+  };
+
+  it("renders Attendance and School Fee under Management for admin", () => {
+    const menu = menuConfig("admin");
+    const children = getVisibleChildren(menu, "management");
+    const keys = children.map((c: any) => c.key);
+    expect(keys).toContain("attendance");
+    expect(keys).toContain("school-fee");
+  });
+
+  it("orders items between Classes and Levels: classes < attendance < school-fee < levels", () => {
+    const menu = menuConfig("admin");
+    const children = getVisibleChildren(menu, "management");
+    const indexOf = (key: string) => children.findIndex((c: any) => c.key === key);
+    const iClasses = indexOf("classes");
+    const iAttendance = indexOf("attendance");
+    const iFee = indexOf("school-fee");
+    const iLevels = indexOf("levels");
+    expect(iClasses).toBeGreaterThanOrEqual(0);
+    expect(iAttendance).toBeGreaterThan(iClasses);
+    expect(iFee).toBeGreaterThan(iAttendance);
+    expect(iLevels).toBeGreaterThan(iFee);
+  });
+
+  it("provides icons and labels for Attendance and School Fee", () => {
+    const menu = menuConfig("admin");
+    const attendance = findChild(menu, "attendance");
+    const fee = findChild(menu, "school-fee");
+    expect(!!attendance?.icon).toBe(true);
+    expect(!!fee?.icon).toBe(true);
+    expect(String(attendance?.label)).toMatch(/attendance/i);
+    expect(String(fee?.label)).toMatch(/school\s*fee/i);
+  });
+});
