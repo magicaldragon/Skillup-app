@@ -226,7 +226,8 @@ function Sidebar({
   const menu = menuConfig(normalizedRole);
   const managementItem = menu.find((i) => i.key === "management");
   if (managementItem && Array.isArray(managementItem.children)) {
-    const allowed = normalizedRole === "admin" || normalizedRole === "teacher" || normalizedRole === "staff";
+    const allowed =
+      normalizedRole === "admin" || normalizedRole === "teacher" || normalizedRole === "staff";
     if (allowed) {
       const childKeys = managementItem.children.map((c) => c.key);
       const idxLevels = managementItem.children.findIndex((c) => c.key === "levels");
@@ -238,7 +239,12 @@ function Sidebar({
           key: "attendance",
           visible: true,
         };
-        const insertIndex = idxLevels >= 0 ? Math.max(0, idxLevels) : (idxClasses >= 0 ? idxClasses + 1 : managementItem.children.length);
+        const insertIndex =
+          idxLevels >= 0
+            ? Math.max(0, idxLevels)
+            : idxClasses >= 0
+              ? idxClasses + 1
+              : managementItem.children.length;
         managementItem.children.splice(insertIndex, 0, attendanceItem);
       }
       const childKeys2 = managementItem.children.map((c) => c.key);
@@ -250,7 +256,8 @@ function Sidebar({
           visible: true,
         };
         const idxLevels2 = managementItem.children.findIndex((c) => c.key === "levels");
-        const insertIndex2 = idxLevels2 >= 0 ? Math.max(0, idxLevels2) : managementItem.children.length;
+        const insertIndex2 =
+          idxLevels2 >= 0 ? Math.max(0, idxLevels2) : managementItem.children.length;
         managementItem.children.splice(insertIndex2, 0, feeItem);
       }
     }
