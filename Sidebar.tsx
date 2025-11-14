@@ -34,161 +34,166 @@ export const menuConfig = (role: string) => {
   const r = (role || "").trim().toLowerCase();
   const normalized = r === "administrator" ? "admin" : r;
   return [
-  {
-    label: "Dashboard",
-    icon: <FaHome />,
-    key: "dashboard",
-    visible: true,
-  },
-  {
-    label: "Management",
-    icon: <FaFolderOpen />,
-    key: "management",
-    visible: true,
-    children: [
-      {
-        label: "Add New Members",
-        icon: <FaUserPlus />,
-        key: "add-student",
-        visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
-      },
-      {
-        label: "Potential Students",
-        icon: <FaGem />,
-        key: "potential-students",
-        visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
-      },
-      {
-        label: "Waiting List",
-        icon: <FaHourglassHalf />,
-        key: "waiting-list",
-        visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
-      },
-      {
-        label: "Classes",
-        icon: <FaUsers />,
-        key: "classes",
-        visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
-      },
-      {
-        label: "Attendance",
-        icon: <FaClipboardCheck />,
-        key: "attendance",
-        visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
-      },
-      {
-        label: "School Fee",
-        icon: <FaListAlt />,
-        key: "school-fee",
-        visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
-      },
-      {
-        label: "Levels",
-        icon: <FaListAlt />,
-        key: "levels",
-        visible: role === "staff" || role === "teacher" || role === "admin",
-      },
-      // Add Accounts submenu for admin, staff, and teachers
-      {
-        label: "Accounts",
-        icon: <FaUserCog />,
-        key: "accounts",
-        visible: normalized === "admin" || normalized === "staff" || normalized === "teacher",
-        children: [
-          {
-            label: "User Management",
-            icon: <FaUsers />,
-            key: "accounts",
-            visible: normalized === "admin" || normalized === "staff" || normalized === "teacher",
-          },
-          {
-            label: "Change Logs",
-            icon: <FaClipboardList />,
-            key: "changelog",
-            visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
-          },
-        ],
-      },
-      {
-        label: "Records",
-        icon: <FaArchive />,
-        key: "records",
-        visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
-      },
-      // Student-specific management submenu
-      { label: "My Classes", icon: <FaUsers />, key: "my-classes", visible: normalized === "student" },
-      {
-        label: "My Progress",
-        icon: <FaChartBar />,
-        key: "my-progress",
-        visible: normalized === "student",
-      },
-      {
-        label: "Scores And Feedback",
-        icon: <FaClipboardList />,
-        key: "my-scores",
-        visible: normalized === "student",
-      },
-    ],
-  },
-  {
-    label: "Assignments",
-    icon: <FaClipboardList />,
-    key: "assignments",
-    visible: true,
-    children: [
-      {
-        label: "Full Practice Tests",
-        icon: <FaClipboardCheck />,
-        key: "full-practice",
-        visible: true,
-      },
-      { label: "Mini Tests", icon: <FaClipboard />, key: "mini-tests", visible: true },
-      { label: "Reading", icon: <FaBookOpen />, key: "reading", visible: true },
-      { label: "Listening", icon: <FaMicrophone />, key: "listening", visible: true },
-      { label: "Writing", icon: <FaPen />, key: "writing", visible: true },
-      { label: "Speaking", icon: <FaUser />, key: "speaking", visible: true },
-    ],
-  },
-  {
-    label: "Teachers",
-    icon: <FaChalkboardTeacher />,
-    key: "teachers",
-    visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
-    children: [
-      {
-        label: "Create",
-        icon: <FaUserTie />,
-        key: "teacher-create",
-        visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
-      },
-      {
-        label: "Edit",
-        icon: <FaUserShield />,
-        key: "teacher-edit",
-        visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
-      },
-      {
-        label: "Assign",
-        icon: <FaUserFriends />,
-        key: "teacher-assign",
-        visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
-  },
-    ],
-  },
+    {
+      label: "Dashboard",
+      icon: <FaHome />,
+      key: "dashboard",
+      visible: true,
+    },
+    {
+      label: "Management",
+      icon: <FaFolderOpen />,
+      key: "management",
+      visible: true,
+      children: [
+        {
+          label: "Add New Members",
+          icon: <FaUserPlus />,
+          key: "add-student",
+          visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
+        },
+        {
+          label: "Potential Students",
+          icon: <FaGem />,
+          key: "potential-students",
+          visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
+        },
+        {
+          label: "Waiting List",
+          icon: <FaHourglassHalf />,
+          key: "waiting-list",
+          visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
+        },
+        {
+          label: "Classes",
+          icon: <FaUsers />,
+          key: "classes",
+          visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
+        },
+        {
+          label: "Attendance",
+          icon: <FaClipboardCheck />,
+          key: "attendance",
+          visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
+        },
+        {
+          label: "School Fee",
+          icon: <FaListAlt />,
+          key: "school-fee",
+          visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
+        },
+        {
+          label: "Levels",
+          icon: <FaListAlt />,
+          key: "levels",
+          visible: role === "staff" || role === "teacher" || role === "admin",
+        },
+        // Add Accounts submenu for admin, staff, and teachers
+        {
+          label: "Accounts",
+          icon: <FaUserCog />,
+          key: "accounts",
+          visible: normalized === "admin" || normalized === "staff" || normalized === "teacher",
+          children: [
+            {
+              label: "User Management",
+              icon: <FaUsers />,
+              key: "accounts",
+              visible: normalized === "admin" || normalized === "staff" || normalized === "teacher",
+            },
+            {
+              label: "Change Logs",
+              icon: <FaClipboardList />,
+              key: "changelog",
+              visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
+            },
+          ],
+        },
+        {
+          label: "Records",
+          icon: <FaArchive />,
+          key: "records",
+          visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
+        },
+        // Student-specific management submenu
+        {
+          label: "My Classes",
+          icon: <FaUsers />,
+          key: "my-classes",
+          visible: normalized === "student",
+        },
+        {
+          label: "My Progress",
+          icon: <FaChartBar />,
+          key: "my-progress",
+          visible: normalized === "student",
+        },
+        {
+          label: "Scores And Feedback",
+          icon: <FaClipboardList />,
+          key: "my-scores",
+          visible: normalized === "student",
+        },
+      ],
+    },
+    {
+      label: "Assignments",
+      icon: <FaClipboardList />,
+      key: "assignments",
+      visible: true,
+      children: [
+        {
+          label: "Full Practice Tests",
+          icon: <FaClipboardCheck />,
+          key: "full-practice",
+          visible: true,
+        },
+        { label: "Mini Tests", icon: <FaClipboard />, key: "mini-tests", visible: true },
+        { label: "Reading", icon: <FaBookOpen />, key: "reading", visible: true },
+        { label: "Listening", icon: <FaMicrophone />, key: "listening", visible: true },
+        { label: "Writing", icon: <FaPen />, key: "writing", visible: true },
+        { label: "Speaking", icon: <FaUser />, key: "speaking", visible: true },
+      ],
+    },
+    {
+      label: "Teachers",
+      icon: <FaChalkboardTeacher />,
+      key: "teachers",
+      visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
+      children: [
+        {
+          label: "Create",
+          icon: <FaUserTie />,
+          key: "teacher-create",
+          visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
+        },
+        {
+          label: "Edit",
+          icon: <FaUserShield />,
+          key: "teacher-edit",
+          visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
+        },
+        {
+          label: "Assign",
+          icon: <FaUserFriends />,
+          key: "teacher-assign",
+          visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
+        },
+      ],
+    },
 
-  {
-    label: "Settings",
-    icon: <FaUserCog />,
-    key: "settings",
-    visible: true,
-  },
-  {
-    label: "Logout",
-    icon: <FaSignOutAlt />,
-    key: "logout",
-    visible: true,
-  },
+    {
+      label: "Settings",
+      icon: <FaUserCog />,
+      key: "settings",
+      visible: true,
+    },
+    {
+      label: "Logout",
+      icon: <FaSignOutAlt />,
+      key: "logout",
+      visible: true,
+    },
   ];
 };
 
