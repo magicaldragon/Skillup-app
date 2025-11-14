@@ -86,7 +86,7 @@ export const menuConfig = (role: string) => {
           label: "Levels",
           icon: <FaListAlt />,
           key: "levels",
-          visible: role === "staff" || role === "teacher" || role === "admin",
+          visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
         },
         // Add Accounts submenu for admin, staff, and teachers
         {
