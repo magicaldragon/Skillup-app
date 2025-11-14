@@ -130,9 +130,16 @@ async function handleApiRequest(request) {
     clearTimeout(timeoutId);
 
     if (request.method === 'GET' && response.ok && response.status < 300) {
-      const responseClone = response.clone();
-      responseClone.headers.set('sw-cache-date', new Date().toISOString());
-      await cache.put(request, responseClone);
+      const cloneForBody = response.clone();
+      const body = await cloneForBody.arrayBuffer();
+      const headers = new Headers(response.headers);
+      headers.set('sw-cache-date', new Date().toISOString());
+      const cached = new Response(body, {
+        status: response.status,
+        statusText: response.statusText,
+        headers,
+      });
+      await cache.put(request, cached);
     }
 
     return response;
