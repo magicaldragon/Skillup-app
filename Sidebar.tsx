@@ -33,7 +33,11 @@ import DiceBearAvatar from "./DiceBearAvatar";
 export const menuConfig = (role: string) => {
   const r = (role || "").trim().toLowerCase();
   const normalized = r === "administrator" ? "admin" : r;
-  console.log("[Sidebar] role=", role, "normalized=", normalized);
+  const permRelax =
+    typeof globalThis !== "undefined" &&
+    !!globalThis.localStorage &&
+    globalThis.localStorage.getItem("skillup_perm_relax") === "1";
+  console.log("[Sidebar] role=", role, "normalized=", normalized, "permRelax=", permRelax);
   return [
     {
       label: "Dashboard",
@@ -75,13 +79,15 @@ export const menuConfig = (role: string) => {
           label: "Attendance",
           icon: <FaClipboardCheck />,
           key: "attendance",
-          visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
+          visible:
+            permRelax || normalized === "staff" || normalized === "teacher" || normalized === "admin",
         },
         {
           label: "School Fee",
           icon: <FaListAlt />,
           key: "school-fee",
-          visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
+          visible:
+            permRelax || normalized === "staff" || normalized === "teacher" || normalized === "admin",
         },
         {
           label: "Levels",
@@ -227,7 +233,12 @@ function Sidebar({
   const menu = menuConfig(normalizedRole);
   const managementItem = menu.find((i) => i.key === "management");
   if (managementItem && Array.isArray(managementItem.children)) {
+    const permRelax =
+      typeof globalThis !== "undefined" &&
+      !!globalThis.localStorage &&
+      globalThis.localStorage.getItem("skillup_perm_relax") === "1";
     const allowed =
+      permRelax ||
       normalizedRole === "admin" || normalizedRole === "teacher" || normalizedRole === "staff";
     console.log(
       "[Sidebar] management before:",
