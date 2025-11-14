@@ -33,6 +33,7 @@ import DiceBearAvatar from "./DiceBearAvatar";
 export const menuConfig = (role: string) => {
   const r = (role || "").trim().toLowerCase();
   const normalized = r === "administrator" ? "admin" : r;
+  console.log("[Sidebar] role=", role, "normalized=", normalized);
   return [
     {
       label: "Dashboard",
@@ -228,6 +229,12 @@ function Sidebar({
   if (managementItem && Array.isArray(managementItem.children)) {
     const allowed =
       normalizedRole === "admin" || normalizedRole === "teacher" || normalizedRole === "staff";
+    console.log(
+      "[Sidebar] management before:",
+      managementItem.children.map((c) => c.key),
+      "allowed=",
+      allowed,
+    );
     if (allowed) {
       const childKeys = managementItem.children.map((c) => c.key);
       const idxLevels = managementItem.children.findIndex((c) => c.key === "levels");
@@ -260,6 +267,10 @@ function Sidebar({
           idxLevels2 >= 0 ? Math.max(0, idxLevels2) : managementItem.children.length;
         managementItem.children.splice(insertIndex2, 0, feeItem);
       }
+      console.log(
+        "[Sidebar] management after:",
+        managementItem.children.map((c) => c.key),
+      );
     }
   }
   // By default, open the section containing the activeKey

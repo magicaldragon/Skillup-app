@@ -268,11 +268,13 @@ class AuthService {
         console.log("Profile response data:", data);
         if (data.success && data.user && typeof data.user === "object") {
           // Ensure all required fields exist with safe defaults
+          const rawRole = (data.user.role || "student").toString().trim().toLowerCase();
+          const normalizedRole = rawRole === "administrator" ? "admin" : rawRole;
           const safeUser = {
             _id: data.user._id || data.user.id || "",
             fullname: data.user.name || data.user.fullname || "",
             email: data.user.email || "",
-            role: data.user.role || "student",
+            role: normalizedRole,
             username: data.user.username || data.user.email || "",
             ...data.user, // Include any additional fields
           };
