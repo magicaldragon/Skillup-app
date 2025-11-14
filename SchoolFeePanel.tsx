@@ -100,7 +100,12 @@ export default function SchoolFeePanel({
       });
   }, [students, selectedClass, searchTerm]);
 
-  const [currentUser, setCurrentUser] = useState<{ id: string; name: string; email: string; role: string } | null>(null);
+  const [currentUser, setCurrentUser] = useState<{
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+  } | null>(null);
   const staffId = currentUser?.id || "";
   const staffName = currentUser?.name || currentUser?.email || "Unknown";
   const userRole = currentUser?.role || "";
@@ -114,10 +119,21 @@ export default function SchoolFeePanel({
         const u = await authService.getCurrentUser();
         if (alive && u) {
           const obj = u as unknown as Record<string, unknown>;
-          const idVal = typeof obj["_id"] === "string" ? (obj["_id"] as string) : typeof obj["id"] === "string" ? (obj["id"] as string) : "";
-          const nameVal = typeof obj["fullname"] === "string" ? (obj["fullname"] as string) : typeof obj["name"] === "string" ? (obj["name"] as string) : "";
+          const idVal =
+            typeof obj["_id"] === "string"
+              ? (obj["_id"] as string)
+              : typeof obj["id"] === "string"
+                ? (obj["id"] as string)
+                : "";
+          const nameVal =
+            typeof obj["fullname"] === "string"
+              ? (obj["fullname"] as string)
+              : typeof obj["name"] === "string"
+                ? (obj["name"] as string)
+                : "";
           const emailVal = typeof obj["email"] === "string" ? (obj["email"] as string) : "";
-          const roleVal = typeof obj["role"] === "string" ? ((obj["role"] as string).toLowerCase()) : "";
+          const roleVal =
+            typeof obj["role"] === "string" ? (obj["role"] as string).toLowerCase() : "";
           setCurrentUser({ id: idVal, name: nameVal, email: emailVal, role: roleVal });
           return;
         }
@@ -128,10 +144,21 @@ export default function SchoolFeePanel({
         const raw = localStorage.getItem("skillup_user");
         if (alive && raw) {
           const obj = JSON.parse(raw) as Record<string, unknown>;
-          const idVal = typeof obj["_id"] === "string" ? (obj["_id"] as string) : typeof obj["id"] === "string" ? (obj["id"] as string) : "";
-          const nameVal = typeof obj["fullname"] === "string" ? (obj["fullname"] as string) : typeof obj["name"] === "string" ? (obj["name"] as string) : "";
+          const idVal =
+            typeof obj["_id"] === "string"
+              ? (obj["_id"] as string)
+              : typeof obj["id"] === "string"
+                ? (obj["id"] as string)
+                : "";
+          const nameVal =
+            typeof obj["fullname"] === "string"
+              ? (obj["fullname"] as string)
+              : typeof obj["name"] === "string"
+                ? (obj["name"] as string)
+                : "";
           const emailVal = typeof obj["email"] === "string" ? (obj["email"] as string) : "";
-          const roleVal = typeof obj["role"] === "string" ? ((obj["role"] as string).toLowerCase()) : "";
+          const roleVal =
+            typeof obj["role"] === "string" ? (obj["role"] as string).toLowerCase() : "";
           setCurrentUser({ id: idVal, name: nameVal, email: emailVal, role: roleVal });
         }
       } catch (e) {
