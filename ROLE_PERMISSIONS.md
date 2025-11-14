@@ -1,5 +1,10 @@
 # Role Permissions in SKILLUP
 
+## Canonical Role Naming
+- Canonical identifiers used by logic and security rules: `admin`, `teacher`, `staff`, `student` (lowercase)
+- UI display label may show “Administrator” when the canonical role is `admin`
+- Any stored role value of `administrator` should be normalized to `admin`
+
 ## Admin
 - Log in
 - View all users (students, teachers, admins)
@@ -35,3 +40,13 @@
 - View grades and feedback
 - View and edit profile
 - Sign out 
+
+## Role Naming Standardization and Migration Notes
+- Rationale: historical UI used “Administrator” as a display label and some records persisted this label into the `role` field, while back-end and rules require lowercase `admin`
+- Resolution: normalize inputs and persisted records to canonical lowercase values
+- Migration: update any `users` documents with `role === "administrator"` to `role = "admin"`
+- Script: run in Functions package directory
+  - Dry run: `npm run migrate:roles:dry`
+  - Execute with backup: `npm run migrate:roles`
+- Backup: script writes JSON backups and migration logs under `backups/`
+- Impact: aligns Firestore rules and visibility checks; UI continues to show “Administrator” label for `admin`

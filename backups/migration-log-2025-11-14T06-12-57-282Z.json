@@ -1,0 +1,6 @@
+{
+  "dryRun": true,
+  "changesCount": 0,
+  "changes": [],
+  "note": "No project id; skipped Firestore queries"
+}
