@@ -64,9 +64,15 @@ export default function AttendancePanel({
         if (!cancelled) {
           setSnapshot(snap);
           setDayMap(map);
+          setStatusMessage("");
+          setStatusType("");
         }
       } catch (err) {
         console.error("AttendancePanel: failed to load month", err);
+        if (!cancelled) {
+          setStatusMessage("Failed to load attendance data for the selected class and month.");
+          setStatusType("error");
+        }
       }
     }
     load();
