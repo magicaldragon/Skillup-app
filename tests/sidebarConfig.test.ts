@@ -1,7 +1,15 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { menuConfig } from "../Sidebar";
 
-const findChild = (items: Array<any>, key: string) => {
+type MenuItem = {
+  key: string;
+  label?: string;
+  visible?: boolean;
+  icon?: unknown;
+  children?: MenuItem[];
+};
+
+const findChild = (items: MenuItem[], key: string): MenuItem | null => {
   for (const item of items) {
     if (item.key === key) return item;
     if (item.children) {
@@ -51,16 +59,16 @@ describe("Sidebar menuConfig visibility for Attendance and School Fee", () => {
 });
 
 describe("Sidebar Management submenu ordering and presence", () => {
-  const getVisibleChildren = (menu: Array<any>, parentKey: string) => {
+  const getVisibleChildren = (menu: MenuItem[], parentKey: string): MenuItem[] => {
     const parent = findChild(menu, parentKey);
-    const children = parent?.children?.filter((c: any) => c.visible) ?? [];
+    const children = parent?.children?.filter((c) => c.visible) ?? [];
     return children;
   };
 
   it("renders Attendance and School Fee under Management for admin", () => {
     const menu = menuConfig("admin");
     const children = getVisibleChildren(menu, "management");
-    const keys = children.map((c: any) => c.key);
+    const keys = children.map((c) => c.key);
     expect(keys).toContain("attendance");
     expect(keys).toContain("school-fee");
   });
@@ -68,7 +76,7 @@ describe("Sidebar Management submenu ordering and presence", () => {
   it("orders items between Classes and Levels: classes < attendance < school-fee < levels", () => {
     const menu = menuConfig("admin");
     const children = getVisibleChildren(menu, "management");
-    const indexOf = (key: string) => children.findIndex((c: any) => c.key === key);
+    const indexOf = (key: string) => children.findIndex((c) => c.key === key);
     const iClasses = indexOf("classes");
     const iAttendance = indexOf("attendance");
     const iFee = indexOf("school-fee");

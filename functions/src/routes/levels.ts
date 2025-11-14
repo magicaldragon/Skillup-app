@@ -10,7 +10,9 @@ router.get("/", verifyToken, async (req: AuthenticatedRequest, res: Response) =>
   try {
     const { isActive } = req.query;
 
-    let query: any = admin.firestore().collection("levels");
+    let query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> = admin
+      .firestore()
+      .collection("levels");
 
     // Add filter if provided
     if (isActive !== undefined) {
@@ -18,7 +20,7 @@ router.get("/", verifyToken, async (req: AuthenticatedRequest, res: Response) =>
     }
 
     const snapshot = await query.orderBy("order", "asc").get();
-    const levels = snapshot.docs.map((doc: any) => ({
+    const levels = snapshot.docs.map((doc) => ({
       _id: doc.id, // Add _id for frontend compatibility
       id: doc.id,
       ...doc.data(),

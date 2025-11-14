@@ -8,10 +8,12 @@ const router = Router();
 // Get all student records (with role-based filtering)
 router.get("/", verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { role } = req.user!;
+    const role = String(req.user?.role || "");
     const { studentId, classId, levelId } = req.query;
 
-    let query: any = admin.firestore().collection("studentRecords");
+    let query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> = admin
+      .firestore()
+      .collection("studentRecords");
 
     // Role-based filtering
     if (role === "student") {
@@ -49,10 +51,7 @@ router.get("/", verifyToken, async (req: AuthenticatedRequest, res: Response) =>
     }
 
     const snapshot = await query.orderBy("createdAt", "desc").get();
-    const studentRecords = snapshot.docs.map((doc: any) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    const studentRecords = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
     console.log(`Fetched ${studentRecords.length} student records for role: ${role}`);
     return res.json(studentRecords);
@@ -151,7 +150,7 @@ router.post("/", verifyToken, requireAdmin, async (req: AuthenticatedRequest, re
 router.get("/:id", verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const { role } = req.user!;
+    const role = String(req.user?.role || "");
 
     const doc = await admin.firestore().collection("studentRecords").doc(id).get();
 
@@ -159,7 +158,7 @@ router.get("/:id", verifyToken, async (req: AuthenticatedRequest, res: Response)
       return res.status(404).json({ message: "Student record not found" });
     }
 
-    const studentRecordData = doc.data()!;
+    const studentRecordData = (doc.data() || {}) as { studentId?: string; classId?: string };
 
     // Check if user has access to this student record
     if (role === "student" && studentRecordData.studentId !== req.user?.userId) {
@@ -186,7 +185,7 @@ router.get("/:id", verifyToken, async (req: AuthenticatedRequest, res: Response)
 router.put("/:id", verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const { role } = req.user!;
+    const role = String(req.user?.role || "");
     const updateData = req.body;
 
     const doc = await admin.firestore().collection("studentRecords").doc(id).get();
@@ -194,7 +193,7 @@ router.put("/:id", verifyToken, async (req: AuthenticatedRequest, res: Response)
       return res.status(404).json({ message: "Student record not found" });
     }
 
-    const studentRecordData = doc.data()!;
+    const studentRecordData = (doc.data() || {}) as { studentId?: string; classId?: string };
 
     // Check if user has access to update this student record
     if (role === "student" && studentRecordData.studentId !== req.user?.userId) {
@@ -260,7 +259,7 @@ router.delete(
 router.get("/student/:studentId", verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { studentId } = req.params;
-    const { role } = req.user!;
+    const role = String(req.user?.role || "");
 
     // Check if user has access to this student's records
     if (role === "student" && studentId !== req.user?.userId) {
@@ -272,7 +271,7 @@ router.get("/student/:studentId", verifyToken, async (req: AuthenticatedRequest,
         return res.status(404).json({ message: "Student not found" });
       }
 
-      const studentData = studentDoc.data()!;
+      const studentData = studentDoc.data() || {};
       const classIds = studentData?.classIds || [];
 
       if (classIds.length === 0) {
@@ -298,10 +297,7 @@ router.get("/student/:studentId", verifyToken, async (req: AuthenticatedRequest,
       .orderBy("createdAt", "desc")
       .get();
 
-    const studentRecords = snapshot.docs.map((doc: any) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    const studentRecords = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
     return res.json(studentRecords);
   } catch (error) {
@@ -314,7 +310,7 @@ router.get("/student/:studentId", verifyToken, async (req: AuthenticatedRequest,
 router.get("/class/:classId", verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { classId } = req.params;
-    const { role } = req.user!;
+    const role = String(req.user?.role || "");
 
     // Check if user has access to this class
     if (role === "student") {
@@ -342,10 +338,7 @@ router.get("/class/:classId", verifyToken, async (req: AuthenticatedRequest, res
       .orderBy("createdAt", "desc")
       .get();
 
-    const studentRecords = snapshot.docs.map((doc: any) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    const studentRecords = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
     return res.json(studentRecords);
   } catch (error) {

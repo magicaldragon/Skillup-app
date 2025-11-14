@@ -80,14 +80,20 @@ export const menuConfig = (role: string) => {
           icon: <FaClipboardCheck />,
           key: "attendance",
           visible:
-            permRelax || normalized === "staff" || normalized === "teacher" || normalized === "admin",
+            permRelax ||
+            normalized === "staff" ||
+            normalized === "teacher" ||
+            normalized === "admin",
         },
         {
           label: "School Fee",
           icon: <FaListAlt />,
           key: "school-fee",
           visible:
-            permRelax || normalized === "staff" || normalized === "teacher" || normalized === "admin",
+            permRelax ||
+            normalized === "staff" ||
+            normalized === "teacher" ||
+            normalized === "admin",
         },
         {
           label: "Levels",
@@ -239,7 +245,9 @@ function Sidebar({
       globalThis.localStorage.getItem("skillup_perm_relax") === "1";
     const allowed =
       permRelax ||
-      normalizedRole === "admin" || normalizedRole === "teacher" || normalizedRole === "staff";
+      normalizedRole === "admin" ||
+      normalizedRole === "teacher" ||
+      normalizedRole === "staff";
     console.log(
       "[Sidebar] management before:",
       managementItem.children.map((c) => c.key),

@@ -112,28 +112,37 @@ export default function SchoolFeePanel({
   const canEditAmounts = userRole === "admin";
   const canMarkPaid = ["admin", "teacher", "staff"].includes(userRole);
 
+  type RawUser = {
+    _id?: string;
+    id?: string;
+    fullname?: string;
+    name?: string;
+    email?: string;
+    role?: string;
+  };
+
   useEffect(() => {
     let alive = true;
     (async () => {
       try {
         const u = await authService.getCurrentUser();
         if (alive && u) {
-          const obj = u as unknown as Record<string, unknown>;
+          const obj = u as unknown as RawUser;
           const idVal =
-            typeof obj["_id"] === "string"
-              ? (obj["_id"] as string)
-              : typeof obj["id"] === "string"
-                ? (obj["id"] as string)
+            typeof obj._id === "string"
+              ? obj._id
+              : typeof obj.id === "string"
+                ? obj.id
                 : "";
           const nameVal =
-            typeof obj["fullname"] === "string"
-              ? (obj["fullname"] as string)
-              : typeof obj["name"] === "string"
-                ? (obj["name"] as string)
+            typeof obj.fullname === "string"
+              ? obj.fullname
+              : typeof obj.name === "string"
+                ? obj.name
                 : "";
-          const emailVal = typeof obj["email"] === "string" ? (obj["email"] as string) : "";
+          const emailVal = typeof obj.email === "string" ? obj.email : "";
           const roleVal =
-            typeof obj["role"] === "string" ? (obj["role"] as string).toLowerCase() : "";
+            typeof obj.role === "string" ? obj.role.toLowerCase() : "";
           setCurrentUser({ id: idVal, name: nameVal, email: emailVal, role: roleVal });
           return;
         }
@@ -143,22 +152,22 @@ export default function SchoolFeePanel({
       try {
         const raw = localStorage.getItem("skillup_user");
         if (alive && raw) {
-          const obj = JSON.parse(raw) as Record<string, unknown>;
+          const obj = JSON.parse(raw) as RawUser;
           const idVal =
-            typeof obj["_id"] === "string"
-              ? (obj["_id"] as string)
-              : typeof obj["id"] === "string"
-                ? (obj["id"] as string)
+            typeof obj._id === "string"
+              ? obj._id
+              : typeof obj.id === "string"
+                ? obj.id
                 : "";
           const nameVal =
-            typeof obj["fullname"] === "string"
-              ? (obj["fullname"] as string)
-              : typeof obj["name"] === "string"
-                ? (obj["name"] as string)
+            typeof obj.fullname === "string"
+              ? obj.fullname
+              : typeof obj.name === "string"
+                ? obj.name
                 : "";
-          const emailVal = typeof obj["email"] === "string" ? (obj["email"] as string) : "";
+          const emailVal = typeof obj.email === "string" ? obj.email : "";
           const roleVal =
-            typeof obj["role"] === "string" ? (obj["role"] as string).toLowerCase() : "";
+            typeof obj.role === "string" ? obj.role.toLowerCase() : "";
           setCurrentUser({ id: idVal, name: nameVal, email: emailVal, role: roleVal });
         }
       } catch (e) {

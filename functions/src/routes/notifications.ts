@@ -46,14 +46,18 @@ router.get("/", verifyToken, async (req: AuthenticatedRequest, res: Response) =>
         .get();
 
       const notifications = snapshot.docs
-        .map((doc) => ({
-          _id: doc.id,
-          ...doc.data(),
-        }))
-        .sort((a: any, b: any) => {
-          // Manual sorting by createdAt if available
-          const aTime = a.createdAt?.toDate?.() || new Date(a.createdAt || 0);
-          const bTime = b.createdAt?.toDate?.() || new Date(b.createdAt || 0);
+        .map((doc) => ({ _id: doc.id, ...doc.data() }))
+        .sort((a, b) => {
+          const aObj = a as Record<string, unknown>;
+          const bObj = b as Record<string, unknown>;
+          const aCreated = aObj.createdAt as Date | { toDate?: () => Date } | number | undefined;
+          const bCreated = bObj.createdAt as Date | { toDate?: () => Date } | number | undefined;
+          const aTime = typeof aCreated === "object" && aCreated && "toDate" in aCreated
+            ? (aCreated as { toDate: () => Date }).toDate()
+            : new Date((aCreated as number) || 0);
+          const bTime = typeof bCreated === "object" && bCreated && "toDate" in bCreated
+            ? (bCreated as { toDate: () => Date }).toDate()
+            : new Date((bCreated as number) || 0);
           return bTime.getTime() - aTime.getTime();
         });
 

@@ -8,10 +8,11 @@ const router = Router();
 // Get all change logs (with role-based filtering)
 router.get("/", verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { role } = req.user!;
+    const role = String(req.user?.role || "");
     const { entityType, entityId, action, userId, startDate, endDate } = req.query;
 
-    let query: any = admin.firestore().collection("changeLogs");
+    const baseRef = admin.firestore().collection("changeLogs");
+    let query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> = baseRef;
 
     // Role-based filtering
     if (role === "student") {
@@ -81,10 +82,7 @@ router.get("/", verifyToken, async (req: AuthenticatedRequest, res: Response) =>
     }
 
     const snapshot = await query.orderBy("timestamp", "desc").get();
-    const changeLogs = snapshot.docs.map((doc: any) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    const changeLogs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
     console.log(`Fetched ${changeLogs.length} change logs for role: ${role}`);
     return res.json(changeLogs);
@@ -135,7 +133,7 @@ router.post("/", verifyToken, async (req: AuthenticatedRequest, res: Response) =
 router.get("/:id", verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const { role } = req.user!;
+    const role = String(req.user?.role || "");
 
     const doc = await admin.firestore().collection("changeLogs").doc(id).get();
 
@@ -143,7 +141,7 @@ router.get("/:id", verifyToken, async (req: AuthenticatedRequest, res: Response)
       return res.status(404).json({ message: "Change log not found" });
     }
 
-    const changeLogData = doc.data()!;
+    const changeLogData = (doc.data() || {}) as { entityId?: string; entityType?: string };
 
     // Check if user has access to this change log
     if (role === "student" && changeLogData.entityId !== req.user?.userId) {
@@ -172,7 +170,7 @@ router.get("/:id", verifyToken, async (req: AuthenticatedRequest, res: Response)
           return res.status(404).json({ message: "User not found" });
         }
 
-        const userData = userDoc.data()!;
+        const userData = userDoc.data() || {};
         const userClassIds = userData?.classIds || [];
         const hasAccess = classIds.some((classId) => userClassIds.includes(classId));
 
@@ -196,7 +194,7 @@ router.get(
   async (req: AuthenticatedRequest, res: Response) => {
     try {
       const { entityType, entityId } = req.params;
-      const { role } = req.user!;
+      const role = String(req.user?.role || "");
 
       // Check if user has access to this entity
       if (role === "student" && entityType === "user" && entityId !== req.user?.userId) {
@@ -213,7 +211,7 @@ router.get(
             return res.status(404).json({ message: "User not found" });
           }
 
-          const userData = userDoc.data()!;
+          const userData = userDoc.data() || {};
           const userClassIds = userData?.classIds || [];
 
           const teacherClasses = await admin
@@ -239,10 +237,7 @@ router.get(
         .orderBy("timestamp", "desc")
         .get();
 
-      const changeLogs = snapshot.docs.map((doc: any) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      const changeLogs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
       return res.json(changeLogs);
     } catch (error) {
@@ -274,13 +269,13 @@ router.delete(
 // Get change logs summary (for dashboard)
 router.get("/summary/dashboard", verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { role } = req.user!;
+    const role = String(req.user?.role || "");
     const { days = 30 } = req.query;
 
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - parseInt(days as string));
 
-    let query: any = admin
+    let query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> = admin
       .firestore()
       .collection("changeLogs")
       .where("timestamp", ">=", admin.firestore.Timestamp.fromDate(startDate));
@@ -319,18 +314,17 @@ router.get("/summary/dashboard", verifyToken, async (req: AuthenticatedRequest, 
     }
 
     const snapshot = await query.orderBy("timestamp", "desc").get();
-    const changeLogs = snapshot.docs.map((doc: any) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    const changeLogs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
     // Calculate summary
     const changesByAction: { [key: string]: number } = {};
     const changesByEntityType: { [key: string]: number } = {};
 
-    changeLogs.forEach((log: any) => {
-      changesByAction[log.action] = (changesByAction[log.action] || 0) + 1;
-      changesByEntityType[log.entityType] = (changesByEntityType[log.entityType] || 0) + 1;
+    changeLogs.forEach((log) => {
+      const action = String((log as Record<string, unknown>).action || "");
+      const entityType = String((log as Record<string, unknown>).entityType || "");
+      changesByAction[action] = (changesByAction[action] || 0) + 1;
+      changesByEntityType[entityType] = (changesByEntityType[entityType] || 0) + 1;
     });
 
     const recentChanges = changeLogs.slice(0, 10); // Last 10 changes

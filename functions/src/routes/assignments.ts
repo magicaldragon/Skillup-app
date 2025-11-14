@@ -8,10 +8,11 @@ const router = Router();
 // Get all assignments (with role-based filtering)
 router.get("/", verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { role } = req.user!;
+    const role = String(req.user?.role || "");
     const { classId, isActive } = req.query;
 
-    let query: any = admin.firestore().collection("assignments");
+    const baseRef = admin.firestore().collection("assignments");
+    let query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> = baseRef;
 
     // Role-based filtering
     if (role === "student") {
@@ -56,10 +57,7 @@ router.get("/", verifyToken, async (req: AuthenticatedRequest, res: Response) =>
     }
 
     const snapshot = await query.orderBy("createdAt", "desc").get();
-    const assignments = snapshot.docs.map((doc: any) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    const assignments = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
     console.log(`Fetched ${assignments.length} assignments for role: ${role}`);
     return res.json(assignments);
@@ -125,7 +123,7 @@ router.post("/", verifyToken, requireAdmin, async (req: AuthenticatedRequest, re
 router.get("/:id", verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const { role } = req.user!;
+    const role = String(req.user?.role || "");
 
     const doc = await admin.firestore().collection("assignments").doc(id).get();
 
@@ -133,7 +131,7 @@ router.get("/:id", verifyToken, async (req: AuthenticatedRequest, res: Response)
       return res.status(404).json({ message: "Assignment not found" });
     }
 
-    const assignmentData = doc.data()!;
+    const assignmentData = (doc.data() || {}) as { classId?: string };
 
     // Check if user has access to this assignment
     if (role === "student") {
@@ -227,7 +225,7 @@ router.delete(
 router.get("/class/:classId", verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { classId } = req.params;
-    const { role } = req.user!;
+    const role = String(req.user?.role || "");
     const { isActive } = req.query;
 
     // Check if user has access to this class
@@ -249,17 +247,15 @@ router.get("/class/:classId", verifyToken, async (req: AuthenticatedRequest, res
       }
     }
 
-    let query: any = admin.firestore().collection("assignments").where("classId", "==", classId);
+    const baseRef = admin.firestore().collection("assignments").where("classId", "==", classId);
+    let query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> = baseRef;
 
     if (isActive !== undefined) {
       query = query.where("isActive", "==", isActive === "true");
     }
 
     const snapshot = await query.orderBy("createdAt", "desc").get();
-    const assignments = snapshot.docs.map((doc: any) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    const assignments = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
     return res.json(assignments);
   } catch (error) {

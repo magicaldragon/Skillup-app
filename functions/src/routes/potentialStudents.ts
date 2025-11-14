@@ -8,10 +8,12 @@ const router = Router();
 // Get all potential students
 router.get("/", verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { role } = req.user!;
+    const role = String(req.user?.role || "");
     const { status, assignedTo } = req.query;
 
-    let query: any = admin.firestore().collection("potentialStudents");
+    let query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> = admin
+      .firestore()
+      .collection("potentialStudents");
 
     // Role-based filtering
     if (role === "teacher") {
@@ -31,10 +33,7 @@ router.get("/", verifyToken, async (req: AuthenticatedRequest, res: Response) =>
     }
 
     const snapshot = await query.orderBy("createdAt", "desc").get();
-    const potentialStudents = snapshot.docs.map((doc: any) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    const potentialStudents = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
     console.log(`Fetched ${potentialStudents.length} potential students for role: ${role}`);
     return res.json(potentialStudents);
@@ -121,7 +120,7 @@ router.post("/", verifyToken, requireAdmin, async (req: AuthenticatedRequest, re
 router.get("/:id", verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const { role } = req.user!;
+    const role = String(req.user?.role || "");
 
     const doc = await admin.firestore().collection("potentialStudents").doc(id).get();
 
@@ -129,7 +128,7 @@ router.get("/:id", verifyToken, async (req: AuthenticatedRequest, res: Response)
       return res.status(404).json({ message: "Potential student not found" });
     }
 
-    const potentialStudentData = doc.data()!;
+    const potentialStudentData = (doc.data() || {}) as { assignedTo?: string };
 
     // Check if user has access to this potential student
     if (role === "teacher" && potentialStudentData.assignedTo !== req.user?.userId) {
@@ -147,7 +146,7 @@ router.get("/:id", verifyToken, async (req: AuthenticatedRequest, res: Response)
 router.put("/:id", verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const { role } = req.user!;
+    const role = String(req.user?.role || "");
     const updateData = req.body;
 
     const doc = await admin.firestore().collection("potentialStudents").doc(id).get();
@@ -155,7 +154,7 @@ router.put("/:id", verifyToken, async (req: AuthenticatedRequest, res: Response)
       return res.status(404).json({ message: "Potential student not found" });
     }
 
-    const potentialStudentData = doc.data()!;
+    const potentialStudentData = (doc.data() || {}) as { assignedTo?: string };
 
     // Check if user has access to update this potential student
     if (role === "teacher" && potentialStudentData.assignedTo !== req.user?.userId) {
@@ -241,7 +240,7 @@ router.post(
         return res.status(404).json({ message: "Potential student not found" });
       }
 
-      const potentialStudentData = doc.data()!;
+      const potentialStudentData = doc.data() || {};
 
       // Check if username already exists
       if (username) {

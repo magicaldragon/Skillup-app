@@ -13,10 +13,12 @@ const router = Router();
 // Get all classes (with role-based filtering)
 router.get("/", verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { role } = req.user!;
+    const role = String(req.user?.role || "");
     const { isActive, teacherId } = req.query;
 
-    let query: any = admin.firestore().collection("classes");
+    let query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> = admin
+      .firestore()
+      .collection("classes");
 
     // Role-based filtering
     if (role === "student") {
@@ -49,10 +51,7 @@ router.get("/", verifyToken, async (req: AuthenticatedRequest, res: Response) =>
     }
 
     const snapshot = await query.orderBy("createdAt", "desc").get();
-    const classes = snapshot.docs.map((doc: any) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    const classes = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
     console.log(`Fetched ${classes.length} classes for role: ${role}`);
     return res.json(classes);
@@ -219,7 +218,7 @@ router.post("/", verifyToken, requireTeacher, async (req: AuthenticatedRequest, 
 router.get("/:id", verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const { role } = req.user!;
+    const role = String(req.user?.role || "");
 
     // Check if user has access to this class
     if (role === "student") {

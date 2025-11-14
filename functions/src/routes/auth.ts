@@ -8,7 +8,7 @@ const router = Router();
 // Get current user profile
 router.get("/profile", verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { userId } = req.user!;
+    const userId = String(req.user?.userId || "");
 
     const userDoc = await admin.firestore().collection("users").doc(userId).get();
 
@@ -20,7 +20,7 @@ router.get("/profile", verifyToken, async (req: AuthenticatedRequest, res: Respo
       });
     }
 
-    const userData = userDoc.data()!;
+    const userData = userDoc.data() || {};
 
     // Remove sensitive information
     const { firebaseUid, ...safeUserData } = userData;
@@ -44,7 +44,7 @@ router.get("/profile", verifyToken, async (req: AuthenticatedRequest, res: Respo
 // Update user profile
 router.put("/profile", verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { userId } = req.user!;
+    const userId = String(req.user?.userId || "");
     const updateData = req.body;
 
     // Remove fields that shouldn't be updated
@@ -150,7 +150,7 @@ router.post("/firebase-login", async (req: AuthenticatedRequest, res: Response) 
     }
 
     // Verify the Firebase token
-    let decodedToken;
+    let decodedToken: admin.auth.DecodedIdToken;
     try {
       console.log("Verifying Firebase token...");
       decodedToken = await admin.auth().verifyIdToken(firebaseToken);
@@ -181,8 +181,8 @@ router.post("/firebase-login", async (req: AuthenticatedRequest, res: Response) 
         .get();
     }
 
-    let userDoc;
-    let userData;
+    let userDocRef: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>;
+    let userData: FirebaseFirestore.DocumentData;
 
     if (userQuery.empty) {
       // User doesn't exist in Firestore, sync from Firebase Auth
@@ -209,10 +209,10 @@ router.post("/firebase-login", async (req: AuthenticatedRequest, res: Response) 
         };
 
         // Create user document in Firestore
-        userDoc = await admin.firestore().collection("users").add(newUserData);
-        userData = newUserData;
+        userDocRef = await admin.firestore().collection("users").add(newUserData);
+        userData = newUserData as FirebaseFirestore.DocumentData;
 
-        console.log(`Synced user from Firebase Auth with ID: ${userDoc.id}, role: ${role}`);
+        console.log(`Synced user from Firebase Auth with ID: ${userDocRef.id}, role: ${role}`);
       } catch (syncError) {
         console.error("Error syncing user from Firebase Auth:", syncError);
         // Fallback to basic user creation with proper role extraction
@@ -229,18 +229,19 @@ router.post("/firebase-login", async (req: AuthenticatedRequest, res: Response) 
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         };
 
-        userDoc = await admin.firestore().collection("users").add(fallbackUserData);
-        userData = fallbackUserData;
-        console.log(`Created fallback user with ID: ${userDoc.id}`);
+        userDocRef = await admin.firestore().collection("users").add(fallbackUserData);
+        userData = fallbackUserData as FirebaseFirestore.DocumentData;
+        console.log(`Created fallback user with ID: ${userDocRef.id}`);
       }
     } else {
       // User exists, update firebaseUid if needed
-      userDoc = userQuery.docs[0];
-      userData = userDoc.data();
+      const existingDoc = userQuery.docs[0];
+      userDocRef = existingDoc.ref;
+      userData = existingDoc.data();
 
       // If user doesn't have firebaseUid, update it
       if (!userData.firebaseUid) {
-        await userDoc.ref.update({
+        await userDocRef.update({
           firebaseUid: decodedToken.uid,
           updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
@@ -266,7 +267,7 @@ router.post("/firebase-login", async (req: AuthenticatedRequest, res: Response) 
     const sessionToken = Buffer.from(
       JSON.stringify({
         uid: decodedToken.uid,
-        userId: userDoc.id,
+        userId: userDocRef.id,
         role: userData.role,
         email: userData.email,
         exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60, // 24 hours
@@ -275,7 +276,7 @@ router.post("/firebase-login", async (req: AuthenticatedRequest, res: Response) 
 
     console.log("Login successful for user:", {
       uid: decodedToken.uid,
-      userId: userDoc.id,
+      userId: userDocRef.id,
       role: userData.role,
       email: userData.email,
     });
@@ -307,7 +308,7 @@ router.post("/firebase-login", async (req: AuthenticatedRequest, res: Response) 
 // Refresh user session
 router.post("/refresh", verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { userId } = req.user!;
+    const userId = String(req.user?.userId || "");
 
     // Get updated user data
     const userDoc = await admin.firestore().collection("users").doc(userId).get();
@@ -316,11 +317,11 @@ router.post("/refresh", verifyToken, async (req: AuthenticatedRequest, res: Resp
       return res.status(404).json({ message: "User not found" });
     }
 
-    const userData = userDoc.data()!;
+    const userData = userDoc.data() || {};
 
     // Create a new custom token
     const customToken = await admin.auth().createCustomToken(userData.firebaseUid, {
-      userId: userDoc.id,
+      userId: userDocRef.id,
       role: userData.role,
       email: userData.email,
     });
@@ -328,10 +329,7 @@ router.post("/refresh", verifyToken, async (req: AuthenticatedRequest, res: Resp
     return res.json({
       success: true,
       message: "Session refreshed successfully",
-      user: {
-        id: userDoc.id,
-        ...userData,
-      },
+      user: { id: userDocRef.id, ...userData },
       customToken,
     });
   } catch (error) {
@@ -361,7 +359,7 @@ router.post("/logout", verifyToken, async (_req: AuthenticatedRequest, res: Resp
 // Get user permissions
 router.get("/permissions", verifyToken, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const { role } = req.user!;
+    const role = String(req.user?.role || "");
 
     // Define permissions based on role
     const permissions = {
