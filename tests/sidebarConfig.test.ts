@@ -42,4 +42,10 @@ describe("Sidebar menuConfig visibility for Attendance and School Fee", () => {
     expect(findChild(menu, "attendance")?.visible).toBe(false);
     expect(findChild(menu, "school-fee")?.visible).toBe(false);
   });
+
+  it("shows tabs when role is 'Administrator' (normalized to admin)", () => {
+    const menu = menuConfig("administrator");
+    expect(findChild(menu, "attendance")?.visible).toBe(true);
+    expect(findChild(menu, "school-fee")?.visible).toBe(true);
+  });
 });

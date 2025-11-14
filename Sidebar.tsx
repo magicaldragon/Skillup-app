@@ -30,7 +30,10 @@ import {
 } from "react-icons/fa";
 import DiceBearAvatar from "./DiceBearAvatar";
 
-export const menuConfig = (role: string) => [
+export const menuConfig = (role: string) => {
+  const r = (role || "").trim().toLowerCase();
+  const normalized = r === "administrator" ? "admin" : r;
+  return [
   {
     label: "Dashboard",
     icon: <FaHome />,
@@ -47,37 +50,37 @@ export const menuConfig = (role: string) => [
         label: "Add New Members",
         icon: <FaUserPlus />,
         key: "add-student",
-        visible: role === "staff" || role === "teacher" || role === "admin",
+        visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
       },
       {
         label: "Potential Students",
         icon: <FaGem />,
         key: "potential-students",
-        visible: role === "staff" || role === "teacher" || role === "admin",
+        visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
       },
       {
         label: "Waiting List",
         icon: <FaHourglassHalf />,
         key: "waiting-list",
-        visible: role === "staff" || role === "teacher" || role === "admin",
+        visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
       },
       {
         label: "Classes",
         icon: <FaUsers />,
         key: "classes",
-        visible: role === "staff" || role === "teacher" || role === "admin",
+        visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
       },
       {
         label: "Attendance",
         icon: <FaClipboardCheck />,
         key: "attendance",
-        visible: role === "staff" || role === "teacher" || role === "admin",
+        visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
       },
       {
         label: "School Fee",
         icon: <FaListAlt />,
         key: "school-fee",
-        visible: role === "staff" || role === "teacher" || role === "admin",
+        visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
       },
       {
         label: "Levels",
@@ -90,19 +93,19 @@ export const menuConfig = (role: string) => [
         label: "Accounts",
         icon: <FaUserCog />,
         key: "accounts",
-        visible: role === "admin" || role === "staff" || role === "teacher",
+        visible: normalized === "admin" || normalized === "staff" || normalized === "teacher",
         children: [
           {
             label: "User Management",
             icon: <FaUsers />,
             key: "accounts",
-            visible: role === "admin" || role === "staff" || role === "teacher",
+            visible: normalized === "admin" || normalized === "staff" || normalized === "teacher",
           },
           {
             label: "Change Logs",
             icon: <FaClipboardList />,
             key: "changelog",
-            visible: role === "staff" || role === "teacher" || role === "admin",
+            visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
           },
         ],
       },
@@ -110,21 +113,21 @@ export const menuConfig = (role: string) => [
         label: "Records",
         icon: <FaArchive />,
         key: "records",
-        visible: role === "staff" || role === "teacher" || role === "admin",
+        visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
       },
       // Student-specific management submenu
-      { label: "My Classes", icon: <FaUsers />, key: "my-classes", visible: role === "student" },
+      { label: "My Classes", icon: <FaUsers />, key: "my-classes", visible: normalized === "student" },
       {
         label: "My Progress",
         icon: <FaChartBar />,
         key: "my-progress",
-        visible: role === "student",
+        visible: normalized === "student",
       },
       {
         label: "Scores And Feedback",
         icon: <FaClipboardList />,
         key: "my-scores",
-        visible: role === "student",
+        visible: normalized === "student",
       },
     ],
   },
@@ -151,26 +154,26 @@ export const menuConfig = (role: string) => [
     label: "Teachers",
     icon: <FaChalkboardTeacher />,
     key: "teachers",
-    visible: role === "staff" || role === "teacher" || role === "admin",
+    visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
     children: [
       {
         label: "Create",
         icon: <FaUserTie />,
         key: "teacher-create",
-        visible: role === "staff" || role === "teacher" || role === "admin",
+        visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
       },
       {
         label: "Edit",
         icon: <FaUserShield />,
         key: "teacher-edit",
-        visible: role === "staff" || role === "teacher" || role === "admin",
+        visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
       },
       {
         label: "Assign",
         icon: <FaUserFriends />,
         key: "teacher-assign",
-        visible: role === "staff" || role === "teacher" || role === "admin",
-      },
+        visible: normalized === "staff" || normalized === "teacher" || normalized === "admin",
+  },
     ],
   },
 
@@ -186,7 +189,8 @@ export const menuConfig = (role: string) => [
     key: "logout",
     visible: true,
   },
-];
+  ];
+};
 
 function Sidebar({
   role,
@@ -209,7 +213,12 @@ function Sidebar({
   };
   className?: string;
 }) {
-  const menu = menuConfig(role);
+  const normalizedRole = (() => {
+    const r = (role || "").trim().toLowerCase();
+    if (r === "administrator") return "admin";
+    return r;
+  })();
+  const menu = menuConfig(normalizedRole);
   // By default, open the section containing the activeKey
   const getDefaultOpen = () => {
     for (const item of menu) {
@@ -258,13 +267,13 @@ function Sidebar({
         </div>
         <div className="sidebar-profile-name">{user?.name || "User"}</div>
         <div className="sidebar-profile-role">
-          {role === "admin"
+          {normalizedRole === "admin"
             ? "Administrator"
-            : role === "teacher"
+            : normalizedRole === "teacher"
               ? "Teacher"
-              : role === "staff"
+              : normalizedRole === "staff"
                 ? "Staff"
-                : role === "student"
+                : normalizedRole === "student"
                   ? "Student"
                   : role}
         </div>
