@@ -1,7 +1,7 @@
 // Service Worker for SkillUp Center - Optimized for instant loading
 // Implements aggressive caching strategy for maximum performance
 
-const CACHE_VERSION = 'v2.0.1';
+const CACHE_VERSION = 'v2.0.2';
 const STATIC_CACHE = `skillup-static-${CACHE_VERSION}`;
 const API_CACHE = `skillup-api-${CACHE_VERSION}`;
 const RUNTIME_CACHE = `skillup-runtime-${CACHE_VERSION}`;
