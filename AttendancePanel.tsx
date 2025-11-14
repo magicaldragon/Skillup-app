@@ -59,6 +59,8 @@ export default function AttendancePanel({
     async function load() {
       if (!selectedClassId || !selectedMonth) return;
       try {
+        setStatusMessage("Refreshing attendance...");
+        setStatusType("");
         const snap = await loadClassMonth(selectedClassId, selectedMonth);
         const map = buildDayStatusMap(snap, selectedDate);
         if (!cancelled) {

@@ -110,16 +110,37 @@ async function handleApiRequest(request) {
     }
   }
 
-  // For GET requests, try cache first for faster response
+  // If explicit cache-busting is requested, bypass cache entirely
+  const bust = url.searchParams.has('ts') || url.searchParams.has('nocache');
+
+  // Network-first for API to ensure freshness; update cache on success
   if (request.method === 'GET' && CACHE_PATTERNS.api.test(url.pathname)) {
-    const cachedResponse = await cache.match(request);
-    if (cachedResponse) {
-      const cacheDate = new Date(cachedResponse.headers.get('sw-cache-date') || 0);
-      const isExpired = Date.now() - cacheDate.getTime() > CACHE_DURATION.api;
-      if (!isExpired) {
-        console.log('Serving from API cache:', url.pathname);
-        return cachedResponse;
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+      const response = await fetch(request, { signal: controller.signal });
+      clearTimeout(timeoutId);
+      if (!bust && response.ok && response.status < 300) {
+        const cloneForBody = response.clone();
+        const body = await cloneForBody.arrayBuffer();
+        const headers = new Headers(response.headers);
+        headers.set('sw-cache-date', new Date().toISOString());
+        const cached = new Response(body, {
+          status: response.status,
+          statusText: response.statusText,
+          headers,
+        });
+        await cache.put(request, cached);
       }
+      return response;
+    } catch (error) {
+      console.log('API request failed, checking cache:', error);
+      const cachedResponse = await cache.match(request);
+      if (cachedResponse) return cachedResponse;
+      return new Response(
+        JSON.stringify({ success: false, message: 'Network error', offline: true }),
+        { status: 503, headers: { 'Content-Type': 'application/json' } }
+      );
     }
   }
 

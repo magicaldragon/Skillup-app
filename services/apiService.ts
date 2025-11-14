@@ -42,14 +42,17 @@ async function getAuthToken(): Promise<string> {
 // Simple API call function
 async function apiCall<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = await getAuthToken();
-
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  const hasQuery = endpoint.includes("?");
+  const tsParam = hasQuery ? `&ts=${Date.now()}` : `?ts=${Date.now()}`;
+  const url = `${API_BASE_URL}${endpoint}${tsParam}`;
+  const response = await fetch(url, {
     ...options,
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
       ...options.headers,
     },
+    cache: "no-store",
   });
 
   if (!response.ok) {

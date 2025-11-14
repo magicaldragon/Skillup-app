@@ -9,7 +9,8 @@ describe("healthAPI.checkHealth", () => {
     localStorage.setItem("skillup_token", "TEST_TOKEN");
     global.fetch = vi.fn(async (input: RequestInfo | URL) => {
       const url = typeof input === "string" ? input : (input as Request).url;
-      if (String(url).endsWith("/api/health") || String(url).endsWith("/health")) {
+      const u = String(url);
+      if (u.includes("/api/health") || u.endsWith("/health")) {
         return {
           ok: true,
           status: 200,
