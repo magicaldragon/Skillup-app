@@ -1,4 +1,10 @@
-import { getApps, getApp, initializeApp, type FirebaseApp, type FirebaseOptions } from "firebase/app";
+import {
+  type FirebaseApp,
+  type FirebaseOptions,
+  getApp,
+  getApps,
+  initializeApp,
+} from "firebase/app";
 import { getAuth } from "firebase/auth";
 
 // Version timestamp for cache busting

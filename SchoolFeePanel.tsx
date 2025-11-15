@@ -129,11 +129,7 @@ export default function SchoolFeePanel({
         if (alive && u) {
           const obj = u as unknown as RawUser;
           const idVal =
-            typeof obj._id === "string"
-              ? obj._id
-              : typeof obj.id === "string"
-                ? obj.id
-                : "";
+            typeof obj._id === "string" ? obj._id : typeof obj.id === "string" ? obj.id : "";
           const nameVal =
             typeof obj.fullname === "string"
               ? obj.fullname
@@ -141,8 +137,7 @@ export default function SchoolFeePanel({
                 ? obj.name
                 : "";
           const emailVal = typeof obj.email === "string" ? obj.email : "";
-          const roleVal =
-            typeof obj.role === "string" ? obj.role.toLowerCase() : "";
+          const roleVal = typeof obj.role === "string" ? obj.role.toLowerCase() : "";
           setCurrentUser({ id: idVal, name: nameVal, email: emailVal, role: roleVal });
           return;
         }
@@ -154,11 +149,7 @@ export default function SchoolFeePanel({
         if (alive && raw) {
           const obj = JSON.parse(raw) as RawUser;
           const idVal =
-            typeof obj._id === "string"
-              ? obj._id
-              : typeof obj.id === "string"
-                ? obj.id
-                : "";
+            typeof obj._id === "string" ? obj._id : typeof obj.id === "string" ? obj.id : "";
           const nameVal =
             typeof obj.fullname === "string"
               ? obj.fullname
@@ -166,8 +157,7 @@ export default function SchoolFeePanel({
                 ? obj.name
                 : "";
           const emailVal = typeof obj.email === "string" ? obj.email : "";
-          const roleVal =
-            typeof obj.role === "string" ? obj.role.toLowerCase() : "";
+          const roleVal = typeof obj.role === "string" ? obj.role.toLowerCase() : "";
           setCurrentUser({ id: idVal, name: nameVal, email: emailVal, role: roleVal });
         }
       } catch (e) {

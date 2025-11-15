@@ -96,7 +96,7 @@ router.get("/", verifyToken, async (req: AuthenticatedRequest, res: Response) =>
     }
 
     // Execute query - avoid orderBy with status filtering until composite index is created
-    let snapshot;
+    let snapshot: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>;
     try {
       if (status && statusArray && statusArray.length > 0) {
         // When filtering by status, don't use orderBy to avoid composite index requirement
@@ -121,11 +121,18 @@ router.get("/", verifyToken, async (req: AuthenticatedRequest, res: Response) =>
 
     // Sort users by createdAt in memory if we couldn't use orderBy
     if (status && statusArray && statusArray.length > 0) {
+      const normalizeCreatedAt = (v: unknown): Date => {
+        if (typeof v === "object" && v && "toDate" in (v as Record<string, unknown>)) {
+          const d = v as { toDate: () => Date };
+          return d.toDate();
+        }
+        return new Date(typeof v === "number" ? (v as number) : 0);
+      };
       users.sort((a, b) => {
-        const aData = a as any;
-        const bData = b as any;
-        const aTime = aData.createdAt?.toDate?.() || new Date(0);
-        const bTime = bData.createdAt?.toDate?.() || new Date(0);
+        const aCreated = (a as Record<string, unknown>).createdAt;
+        const bCreated = (b as Record<string, unknown>).createdAt;
+        const aTime = normalizeCreatedAt(aCreated);
+        const bTime = normalizeCreatedAt(bCreated);
         return bTime.getTime() - aTime.getTime(); // Descending order
       });
     }

@@ -9,7 +9,6 @@ import AttendancePanel from "./AttendancePanel";
 import ChangeLogPanel from "./ChangeLogPanel";
 import ClassesPanel from "./ClassesPanel";
 import LevelsPanel from "./LevelsPanel";
-import type { Student, StudentClass } from "./types";
 import PotentialStudentsPanel from "./PotentialStudentsPanel";
 import RecordsPanel from "./RecordsPanel";
 import SchoolFeePanel from "./SchoolFeePanel";
@@ -19,7 +18,7 @@ import type {
   FirestoreClass,
   FirestoreUser,
 } from "./services/firestoreService";
-import type { UserProfile } from "./types";
+import type { Student, StudentClass, UserProfile } from "./types";
 import WaitingListPanel from "./WaitingListPanel";
 
 function TeacherDashboard({

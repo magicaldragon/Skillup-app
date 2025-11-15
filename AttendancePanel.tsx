@@ -1,10 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import type {
-  AttendanceMonthSnapshot,
-  AttendanceStatus,
-  Student,
-  StudentClass,
-} from "./types";
+import type { AttendanceMonthSnapshot, AttendanceStatus, Student, StudentClass } from "./types";
 import "./ManagementTableStyles.css";
 import {
   buildDayStatusMap,

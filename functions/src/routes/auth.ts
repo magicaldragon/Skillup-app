@@ -23,7 +23,7 @@ router.get("/profile", verifyToken, async (req: AuthenticatedRequest, res: Respo
     const userData = userDoc.data() || {};
 
     // Remove sensitive information
-    const { firebaseUid, ...safeUserData } = userData;
+    const { firebaseUid: _firebaseUid, ...safeUserData } = userData as Record<string, unknown>;
 
     return res.json({
       success: true,

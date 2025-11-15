@@ -1,5 +1,5 @@
 // ... existing code ...
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const modulePath = "./notifyOnFailure.js";
 
@@ -38,9 +38,12 @@ describe("notifyOnFailure script", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
     const [url, options] = fetchMock.mock.calls[0];
     expect(url).toBe("https://example.com/webhook");
-    const headers = (options as any).headers;
-    expect(headers["Content-Type"]).toBe("application/json");
-    expect(headers["X-Signature"]).toMatch(/^sha256=/);
+    const init = options as RequestInit;
+    const headersObj = init.headers as Record<string, string> | Headers;
+    const getHeader = (name: string) =>
+      headersObj instanceof Headers ? headersObj.get(name) : headersObj?.[name];
+    expect(getHeader("Content-Type")).toBe("application/json");
+    expect(String(getHeader("X-Signature"))).toMatch(/^sha256=/);
   });
 });
 // ... existing code ...

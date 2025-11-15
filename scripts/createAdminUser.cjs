@@ -1,5 +1,4 @@
 // createAdminUser.cjs - Create admin user in Firebase Auth
-const { execSync } = require("node:child_process");
 
 console.log("👤 Creating Admin User in Firebase Auth...");
 console.log("📋 Project: skillup-3beaf");

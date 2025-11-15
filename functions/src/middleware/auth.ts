@@ -37,8 +37,14 @@ export const verifyToken = async (
       return;
     }
 
-    let decodedToken;
-    let userData;
+    let decodedToken: { uid: string; email?: string; userId?: string };
+    let userData: {
+      email?: string;
+      role?: string;
+      _id?: string;
+      id?: string;
+      firebaseUid?: string;
+    };
 
     try {
       // First try to decode as session token
