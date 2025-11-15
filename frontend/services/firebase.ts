@@ -1,4 +1,4 @@
-import { getApps, initializeApp, type FirebaseApp, type FirebaseOptions } from "firebase/app";
+import { getApps, getApp, initializeApp, type FirebaseApp, type FirebaseOptions } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
 // Version timestamp for cache busting
@@ -29,7 +29,11 @@ console.log(`Firebase configuration loaded (v${VERSION}):`, {
 // Initialize Firebase with error handling
 let app: FirebaseApp;
 try {
-  app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]!;
+  if (getApps().length === 0) {
+    app = initializeApp(firebaseConfig);
+  } else {
+    app = getApp();
+  }
   console.log("Firebase initialized successfully");
 } catch (error) {
   console.error("Firebase initialization failed:", error);
